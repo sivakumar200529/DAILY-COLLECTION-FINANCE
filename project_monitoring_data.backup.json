@@ -1,0 +1,1621 @@
+{
+  "version": "3.0-HA-TN",
+  "last_checkpoint": "2026-09-01T14:42:14.326Z",
+  "users": [
+    {
+      "id": "usr-1",
+      "name": "Sivakumar Ramanathan",
+      "email": "sivakumar.r@nexora.tn.gov.in",
+      "password": "admin123",
+      "role": "ADMIN",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&fit=crop&q=80",
+      "department": "Infrastructure & Transit Commission",
+      "district": "Chennai",
+      "phone": "+91 94440 12345",
+      "is_active": true,
+      "working_state": "AVAILABLE",
+      "status_message": "Reviewing GoA4 Driverless CBTC Signalling for Chennai Metro Phase II",
+      "capacity_hours": 40,
+      "allocated_hours": 38,
+      "bookmarks": [
+        "proj-1",
+        "proj-2",
+        "proj-9"
+      ],
+      "created_at": "2025-01-01T00:00:00Z"
+    },
+    {
+      "id": "usr-2",
+      "name": "Priyadharshini Krishnan",
+      "email": "priyadharshini.k@nexora.tn.gov.in",
+      "password": "worker123",
+      "role": "WORKER",
+      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&fit=crop&q=80",
+      "department": "Digital Governance & Cloud Platforms",
+      "district": "Chennai",
+      "phone": "+91 94440 23456",
+      "is_active": true,
+      "working_state": "DEEP_WORK",
+      "status_message": "Deploying DigiLocker API microservices on State Data Center",
+      "capacity_hours": 40,
+      "allocated_hours": 36,
+      "bookmarks": [
+        "proj-2"
+      ],
+      "created_at": "2025-01-05T00:00:00Z"
+    },
+    {
+      "id": "usr-3",
+      "name": "Karthikeyan Murugan",
+      "email": "karthikeyan.m@nexora.tn.gov.in",
+      "password": "worker123",
+      "role": "WORKER",
+      "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&fit=crop&q=80",
+      "department": "Smart City & Telemetry Grid",
+      "district": "Madurai",
+      "phone": "+91 94440 34567",
+      "is_active": true,
+      "working_state": "AVAILABLE",
+      "status_message": "Calibrating ultrasonic flow sensors on Vaigai Feeder line",
+      "capacity_hours": 40,
+      "allocated_hours": 42,
+      "bookmarks": [
+        "proj-3"
+      ],
+      "created_at": "2025-01-10T00:00:00Z"
+    },
+    {
+      "id": "usr-4",
+      "name": "Dr. Ilangovan Shanmugam",
+      "email": "ilangovan.s@nexora.tn.gov.in",
+      "password": "worker123",
+      "role": "WORKER",
+      "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&fit=crop&q=80",
+      "department": "Defense Aerospace Corridor",
+      "district": "Coimbatore",
+      "phone": "+91 94440 45678",
+      "is_active": true,
+      "working_state": "IN_MEETING",
+      "status_message": "Autonomous drone flight path review with DRDO delegates",
+      "capacity_hours": 40,
+      "allocated_hours": 32,
+      "bookmarks": [
+        "proj-4"
+      ],
+      "created_at": "2025-01-15T00:00:00Z"
+    },
+    {
+      "id": "usr-5",
+      "name": "Kavitha Natarajan",
+      "email": "kavitha.n@nexora.tn.gov.in",
+      "password": "worker123",
+      "role": "WORKER",
+      "avatar": "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=200&fit=crop&q=80",
+      "department": "Green Energy & Coastal Wind",
+      "district": "Thoothukudi",
+      "phone": "+91 94440 56789",
+      "is_active": true,
+      "working_state": "AVAILABLE",
+      "status_message": "Simulating 500MW PEM hydrogen electrolyzer output",
+      "capacity_hours": 40,
+      "allocated_hours": 35,
+      "bookmarks": [
+        "proj-5"
+      ],
+      "created_at": "2025-02-01T00:00:00Z"
+    },
+    {
+      "id": "usr-6",
+      "name": "Senthil Kumar Thangavel",
+      "email": "senthil.k@nexora.tn.gov.in",
+      "password": "admin123",
+      "role": "ADMIN",
+      "avatar": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&fit=crop&q=80",
+      "department": "State Cybersecurity & Data Defense",
+      "district": "Chennai",
+      "phone": "+91 94440 67890",
+      "is_active": true,
+      "working_state": "DEEP_WORK",
+      "status_message": "Zero-Trust Cloud SOC2 Audit verification across data centers",
+      "capacity_hours": 40,
+      "allocated_hours": 28,
+      "bookmarks": [
+        "proj-6"
+      ],
+      "created_at": "2025-02-05T00:00:00Z"
+    },
+    {
+      "id": "usr-7",
+      "name": "Ananya Venkatesh",
+      "email": "ananya.v@nexora.tn.gov.in",
+      "password": "worker123",
+      "role": "WORKER",
+      "avatar": "https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?w=200&fit=crop&q=80",
+      "department": "Aviation & Cold Chain Systems",
+      "district": "Tiruchirappalli",
+      "phone": "+91 94440 78901",
+      "is_active": true,
+      "working_state": "AVAILABLE",
+      "status_message": "Validating temperature zone automated logging at Trichy Air Cargo terminal",
+      "capacity_hours": 40,
+      "allocated_hours": 30,
+      "bookmarks": [
+        "proj-7"
+      ],
+      "created_at": "2025-02-10T00:00:00Z"
+    },
+    {
+      "id": "usr-8",
+      "name": "Muthuvel Rajan",
+      "email": "muthuvel.r@nexora.tn.gov.in",
+      "password": "worker123",
+      "role": "WORKER",
+      "avatar": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=200&fit=crop&q=80",
+      "department": "Industrial Power & Civil Engineering",
+      "district": "Salem",
+      "phone": "+91 94440 89012",
+      "is_active": true,
+      "working_state": "AVAILABLE",
+      "status_message": "Commissioning 150MW Salem bifacial solar grid sync",
+      "capacity_hours": 40,
+      "allocated_hours": 34,
+      "bookmarks": [
+        "proj-8"
+      ],
+      "created_at": "2025-02-15T00:00:00Z"
+    },
+    {
+      "id": "usr-9",
+      "name": "Thirunavukkarasu Pandian",
+      "email": "thiru.p@nexora.tn.gov.in",
+      "password": "worker123",
+      "role": "WORKER",
+      "avatar": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&fit=crop&q=80",
+      "department": "EV Propulsion & Battery Innovation",
+      "district": "Hosur",
+      "phone": "+91 94440 90123",
+      "is_active": true,
+      "working_state": "DEEP_WORK",
+      "status_message": "Calibrating prismatic LFP battery cell automated tester at Hosur Tech Park",
+      "capacity_hours": 40,
+      "allocated_hours": 38,
+      "bookmarks": [
+        "proj-9"
+      ],
+      "created_at": "2025-02-18T00:00:00Z"
+    },
+    {
+      "id": "usr-10",
+      "name": "Meenakshi Sundaresan",
+      "email": "meenakshi.s@nexora.tn.gov.in",
+      "password": "worker123",
+      "role": "WORKER",
+      "avatar": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&fit=crop&q=80",
+      "department": "Hybrid Hydro-Solar Grid Operations",
+      "district": "Tirunelveli",
+      "phone": "+91 94440 01234",
+      "is_active": true,
+      "working_state": "AVAILABLE",
+      "status_message": "Real-time frequency balancing on Muppandal-Agasthiyar 400kV line",
+      "capacity_hours": 40,
+      "allocated_hours": 33,
+      "bookmarks": [
+        "proj-10"
+      ],
+      "created_at": "2025-02-20T00:00:00Z"
+    },
+    {
+      "id": "usr-11",
+      "name": "Gunasekaran Palanisamy",
+      "email": "gunasekaran.p@nexora.tn.gov.in",
+      "password": "worker123",
+      "role": "WORKER",
+      "avatar": "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=200&fit=crop&q=80",
+      "department": "Smart Industrial Automation & Water Recycling",
+      "district": "Erode",
+      "phone": "+91 94440 11223",
+      "is_active": true,
+      "working_state": "AVAILABLE",
+      "status_message": "Zero-liquid discharge SCADA telemetry operational across 64 processing units",
+      "capacity_hours": 40,
+      "allocated_hours": 31,
+      "bookmarks": [
+        "proj-11"
+      ],
+      "created_at": "2025-02-22T00:00:00Z"
+    },
+    {
+      "id": "usr-12",
+      "name": "Dr. Saravanan Balasubramanian",
+      "email": "saravanan.b@nexora.tn.gov.in",
+      "password": "worker123",
+      "role": "WORKER",
+      "avatar": "https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=200&fit=crop&q=80",
+      "department": "Bio-Pharmaceutical R&D & Cold Logistics",
+      "district": "Vellore",
+      "phone": "+91 94440 22334",
+      "is_active": true,
+      "working_state": "IN_MEETING",
+      "status_message": "WHO-GMP Cleanroom validation audit signoff for Ranipet Biopolis",
+      "capacity_hours": 40,
+      "allocated_hours": 30,
+      "bookmarks": [
+        "proj-12"
+      ],
+      "created_at": "2025-02-25T00:00:00Z"
+    },
+    {
+      "id": "usr-public-1",
+      "name": "Dr. Aravind Swaminathan",
+      "email": "citizen.user@gmail.com",
+      "password": "public123",
+      "role": "PUBLIC",
+      "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&fit=crop&q=80",
+      "district": "Coimbatore",
+      "phone": "+91 98840 99887",
+      "is_active": true,
+      "bookmarks": [
+        "proj-1",
+        "proj-3",
+        "proj-9"
+      ],
+      "created_at": "2025-03-01T00:00:00Z"
+    }
+  ],
+  "projects": [
+    {
+      "id": "proj-1",
+      "name": "Chennai Metro Phase II - Driverless CBTC Signaling & 118.9 km Network",
+      "code": "NX-CMRL-01",
+      "description": "118.9 km rapid transit network across Corridor 3 (Madhavaram to SIPCOT), Corridor 4 (Lighthouse to Poonamallee), and Corridor 5 with driverless GoA4 CBTC train automation and 128 multi-level stations.",
+      "objectives": [
+        "Connect Madhavaram to SIPCOT IT Corridor across 45.8 km underground & elevated lines",
+        "Deploy Unattended Train Operation (UTO) GoA4 driverless signaling",
+        "Reduce peak hour Chennai arterial road congestion by 42%"
+      ],
+      "category": "Transit & Transportation",
+      "district": "Chennai",
+      "location": "Madhavaram, Poonamallee & Sholinganallur, Chennai",
+      "status": "ON_TRACK",
+      "health_score": 92,
+      "priority": "CRITICAL",
+      "start_date": "2025-06-01",
+      "target_date": "2027-12-31",
+      "budget_allocated": 63240000000,
+      "budget_revised": 63240000000,
+      "budget_spent": 38400000000,
+      "budget_committed": 49500000000,
+      "progress_percent": 68,
+      "lead_id": "usr-1",
+      "main_image": "https://images.unsplash.com/photo-1563245372-f21724e3856d?w=1200&fit=crop&q=80",
+      "gallery_images": [
+        {
+          "id": "img-1-1",
+          "url": "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=800&fit=crop&q=80",
+          "caption": "GoA4 Driverless Rolling Stock Staging at Poonamallee Depot",
+          "uploaded_at": "2026-08-01T10:00:00Z",
+          "is_cover": true
+        },
+        {
+          "id": "img-1-2",
+          "url": "https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?w=800&fit=crop&q=80",
+          "caption": "Underground Tunnel Boring Breakthrough at Sterling Road Station",
+          "uploaded_at": "2026-08-15T12:30:00Z"
+        },
+        {
+          "id": "img-1-3",
+          "url": "https://images.unsplash.com/photo-1508873696983-2df5293cb32f?w=800&fit=crop&q=80",
+          "caption": "25kV Overhead Electrification Rigging on Corridor 4 Elevated Viaduct",
+          "uploaded_at": "2026-08-25T16:00:00Z"
+        }
+      ],
+      "before_image": "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=800&fit=crop&q=80",
+      "after_image": "https://images.unsplash.com/photo-1563245372-f21724e3856d?w=800&fit=crop&q=80",
+      "before_after_caption": "Underground Tunnelling Before vs Modern Automated Platform Screen Door Installation",
+      "tags": [
+        "CMRL",
+        "Driverless Metro",
+        "CBTC",
+        "Transit",
+        "Chennai"
+      ],
+      "is_published": true,
+      "created_at": "2025-05-15T09:00:00Z",
+      "updated_at": "2026-08-30T14:30:00Z"
+    },
+    {
+      "id": "proj-2",
+      "name": "Tamil Nadu State Digital Citizen Vault & e-Governance 3.0 Platform",
+      "code": "NX-TNEGOV-02",
+      "description": "Unified high-availability state portal delivering 450+ citizen services, DigiLocker verified digital certificates, Aadhaar e-Sign, and automated social welfare fund disbursals for 75 million citizens.",
+      "objectives": [
+        "Deliver 100% paperless certificate issuance across 38 district collectorates",
+        "Sub-second Direct Benefit Transfer (DBT) disbursal to 12 million beneficiaries",
+        "Makkal Sevai unified mobile app with biometric offline authentication"
+      ],
+      "category": "Digital Governance",
+      "district": "Chennai",
+      "location": "Statewide Data Grid, Chennai & Coimbatore",
+      "status": "AT_RISK",
+      "health_score": 68,
+      "priority": "HIGH",
+      "start_date": "2025-10-01",
+      "target_date": "2026-11-30",
+      "budget_allocated": 1250000000,
+      "budget_revised": 1350000000,
+      "budget_spent": 980000000,
+      "budget_committed": 1100000000,
+      "progress_percent": 58,
+      "lead_id": "usr-2",
+      "main_image": "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=1200&fit=crop&q=80",
+      "gallery_images": [
+        {
+          "id": "img-2-1",
+          "url": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&fit=crop&q=80",
+          "caption": "Citizen Portal Real-time Telemetry Dashboard",
+          "uploaded_at": "2026-08-10T11:00:00Z",
+          "is_cover": true
+        },
+        {
+          "id": "img-2-2",
+          "url": "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&fit=crop&q=80",
+          "caption": "State Data Center High-Density Server Racks",
+          "uploaded_at": "2026-08-20T14:15:00Z"
+        }
+      ],
+      "before_image": "https://images.unsplash.com/photo-1450133064473-71024230f91b?w=800&fit=crop&q=80",
+      "after_image": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&fit=crop&q=80",
+      "before_after_caption": "Legacy Manual Paper Archive vs Next-Gen Automated Digital Citizen Vault",
+      "tags": [
+        "e-Governance",
+        "TNeGA",
+        "DigiLocker",
+        "MakkalSevai",
+        "TamilNadu"
+      ],
+      "is_published": true,
+      "created_at": "2025-09-20T10:00:00Z",
+      "updated_at": "2026-08-31T11:20:00Z"
+    },
+    {
+      "id": "proj-3",
+      "name": "Madurai Smart City IoT Water Distribution & Vaigai Grid Automation",
+      "code": "NX-MADURAI-03",
+      "description": "24/7 pressurized drinking water pipeline network with 14,000 smart ultrasonic flow meters, automated SCADA leak detection, and Vaigai River reservoir telemetry.",
+      "objectives": [
+        "Guarantee 135 LPCD potable water to 1.8 million Madurai city residents",
+        "Cut non-revenue water (NRW) loss from 34% to under 12% with acoustic IoT sensors",
+        "Automated SCADA control across 32 overhead balancing reservoirs"
+      ],
+      "category": "Smart Urban Infrastructure",
+      "district": "Madurai",
+      "location": "Vaigai Basin & Madurai Municipal Corporation",
+      "status": "ON_TRACK",
+      "health_score": 86,
+      "priority": "HIGH",
+      "start_date": "2025-08-15",
+      "target_date": "2026-10-15",
+      "budget_allocated": 890000000,
+      "budget_spent": 560000000,
+      "progress_percent": 64,
+      "lead_id": "usr-3",
+      "main_image": "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=1200&fit=crop&q=80",
+      "gallery_images": [
+        {
+          "id": "img-3-1",
+          "url": "https://images.unsplash.com/photo-1581092335397-9583fe92d232?w=800&fit=crop&q=80",
+          "caption": "LoRaWAN Ultrasonic Smart Meter Deployment in Madurai North",
+          "uploaded_at": "2026-08-12T09:00:00Z",
+          "is_cover": true
+        },
+        {
+          "id": "img-3-2",
+          "url": "https://images.unsplash.com/photo-1574482620811-1aa16ffe3c82?w=800&fit=crop&q=80",
+          "caption": "Vaigai Reservoir SCADA Hydraulic Pumping Station",
+          "uploaded_at": "2026-08-22T15:40:00Z"
+        }
+      ],
+      "before_image": "https://images.unsplash.com/photo-1541888946425-d0fbb186156a?w=800&fit=crop&q=80",
+      "after_image": "https://images.unsplash.com/photo-1581092335397-9583fe92d232?w=800&fit=crop&q=80",
+      "before_after_caption": "Unmetered Pipeline Leaks vs Real-time SCADA Monitored Clean Water Grid",
+      "tags": [
+        "SmartCity",
+        "IoT",
+        "SCADA",
+        "WaterGrid",
+        "Madurai"
+      ],
+      "is_published": true,
+      "created_at": "2025-08-01T08:00:00Z",
+      "updated_at": "2026-08-29T16:45:00Z"
+    },
+    {
+      "id": "proj-4",
+      "name": "Coimbatore Defense Industrial Corridor & Autonomous Drone Testing Hub",
+      "code": "NX-CBE-04",
+      "description": "Aerospace manufacturing hub with high-altitude drone wind tunnel testing, composite materials lab, and radar telemetry calibration range for defense manufacturing units.",
+      "objectives": [
+        "Establish DRDO-certified wind tunnel testing facility up to Mach 0.6",
+        "Accelerate defense indigenization for 120 Tamil Nadu precision engineering MSMEs",
+        "Construct 2.4 km dedicated BVLOS UAV flight testing corridor"
+      ],
+      "category": "Defense & Aerospace",
+      "district": "Coimbatore",
+      "location": "Sulur & CODISSIA Defense Park, Coimbatore",
+      "status": "DELAYED",
+      "health_score": 48,
+      "priority": "CRITICAL",
+      "start_date": "2025-04-10",
+      "target_date": "2026-09-30",
+      "budget_allocated": 2400000000,
+      "budget_spent": 2350000000,
+      "progress_percent": 72,
+      "lead_id": "usr-4",
+      "main_image": "https://images.unsplash.com/photo-1508614589041-895b88991e3e?w=1200&fit=crop&q=80",
+      "gallery_images": [
+        {
+          "id": "img-4-1",
+          "url": "https://images.unsplash.com/photo-1527977966376-1c8408f9f108?w=800&fit=crop&q=80",
+          "caption": "Autonomous UAV Aerodynamic Telemetry Test Bed",
+          "uploaded_at": "2026-08-05T13:00:00Z",
+          "is_cover": true
+        },
+        {
+          "id": "img-4-2",
+          "url": "https://images.unsplash.com/photo-1517976487541-d8564f89fb3f?w=800&fit=crop&q=80",
+          "caption": "Carbon Fiber Composite Autoclave Thermal Curing Vessel",
+          "uploaded_at": "2026-08-26T17:30:00Z"
+        }
+      ],
+      "before_image": "https://images.unsplash.com/photo-1581092334651-ddf26d9a09d0?w=800&fit=crop&q=80",
+      "after_image": "https://images.unsplash.com/photo-1527977966376-1c8408f9f108?w=800&fit=crop&q=80",
+      "before_after_caption": "Raw Land Plot vs State-of-the-Art Autonomous Aerospace Avionics Facility",
+      "tags": [
+        "DefenseCorridor",
+        "Aerospace",
+        "UAV",
+        "DRDO",
+        "Coimbatore"
+      ],
+      "is_published": true,
+      "created_at": "2025-04-01T11:00:00Z",
+      "updated_at": "2026-08-31T09:15:00Z"
+    },
+    {
+      "id": "proj-5",
+      "name": "Tuticorin 500MW Green Hydrogen & Offshore Wind Energy Park",
+      "code": "NX-TUTI-05",
+      "description": "Maritime offshore wind turbine array combined with seawater desalination and polymer electrolyte membrane (PEM) electrolyzers to produce 150 metric tons/day of green ammonia for export.",
+      "objectives": [
+        "Install 50 offshore wind jacket foundation turbines along Gulf of Mannar",
+        "Produce 150 metric tons/day of zero-emission green ammonia for VO Chidambaranar Port exports",
+        "Abate 850,000 metric tons of CO2 emissions annually"
+      ],
+      "category": "Renewable Clean Energy",
+      "district": "Thoothukudi",
+      "location": "VO Chidambaranar Port & Gulf of Mannar, Thoothukudi",
+      "status": "ON_TRACK",
+      "health_score": 94,
+      "priority": "HIGH",
+      "start_date": "2025-11-01",
+      "target_date": "2027-06-30",
+      "budget_allocated": 4500000000,
+      "budget_spent": 1950000000,
+      "progress_percent": 45,
+      "lead_id": "usr-5",
+      "main_image": "https://images.unsplash.com/photo-1466611653911-95081537e5b7?w=1200&fit=crop&q=80",
+      "gallery_images": [
+        {
+          "id": "img-5-1",
+          "url": "https://images.unsplash.com/photo-1532601224476-15c79f2f7a51?w=800&fit=crop&q=80",
+          "caption": "Offshore Wind Jacket Foundations in Coastal Thoothukudi",
+          "uploaded_at": "2026-08-18T10:20:00Z",
+          "is_cover": true
+        },
+        {
+          "id": "img-5-2",
+          "url": "https://images.unsplash.com/photo-1509391365360-2e959784a276?w=800&fit=crop&q=80",
+          "caption": "High-Purity Seawater Reverse Osmosis Desalination Unit",
+          "uploaded_at": "2026-08-27T11:45:00Z"
+        }
+      ],
+      "tags": [
+        "GreenHydrogen",
+        "OffshoreWind",
+        "CleanEnergy",
+        "Thoothukudi"
+      ],
+      "is_published": true,
+      "created_at": "2025-10-15T14:00:00Z",
+      "updated_at": "2026-08-28T10:00:00Z"
+    },
+    {
+      "id": "proj-6",
+      "name": "TIDEL Park Cyber Defense Center & State Cloud Resiliency Grid",
+      "code": "NX-TIDEL-06",
+      "description": "Tier-IV multi-tenant state data center with zero-trust architecture, automated threat hunting SOC, and ISO 27001 disaster recovery mirroring between Chennai and Coimbatore.",
+      "objectives": [
+        "Defend 180 state government digital portals against advanced persistent threats (APT)",
+        "Maintain 99.999% SLA uptime with synchronous active-active data mirroring",
+        "Achieve SOC2 Type II and ISO 27001 security compliance"
+      ],
+      "category": "Cybersecurity & Cloud",
+      "district": "Chennai",
+      "location": "TIDEL Park, Taramani, Chennai",
+      "status": "COMPLETED",
+      "health_score": 99,
+      "priority": "MEDIUM",
+      "start_date": "2025-02-01",
+      "target_date": "2026-06-30",
+      "budget_allocated": 780000000,
+      "budget_spent": 740000000,
+      "progress_percent": 100,
+      "lead_id": "usr-6",
+      "main_image": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1200&fit=crop&q=80",
+      "gallery_images": [
+        {
+          "id": "img-6-1",
+          "url": "https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800&fit=crop&q=80",
+          "caption": "24/7 Cybersecurity Operations Center (SOC) Video Wall",
+          "uploaded_at": "2026-07-01T12:00:00Z",
+          "is_cover": true
+        }
+      ],
+      "tags": [
+        "CyberDefense",
+        "CloudResiliency",
+        "ZeroTrust",
+        "TIDELPark"
+      ],
+      "is_published": true,
+      "created_at": "2025-01-20T09:00:00Z",
+      "updated_at": "2026-07-05T12:00:00Z"
+    },
+    {
+      "id": "proj-7",
+      "name": "Tiruchirappalli International Airport Integrated Cargo & Cold-Chain Hub",
+      "code": "NX-TRZ-07",
+      "description": "Ultra-modern 50,000 MT capacity temperature-controlled perishables terminal with automated x-ray screening and direct highway freight connectivity.",
+      "objectives": [
+        "Boost agricultural export capabilities for Central Tamil Nadu farmers by 300%",
+        "Dedicated pharmaceutical cold-chain corridor with -20°C to +8°C climate zones",
+        "Direct customs green-channel EDI clearances within 45 minutes"
+      ],
+      "category": "Aviation & Logistics",
+      "district": "Tiruchirappalli",
+      "location": "Trichy International Airport Cargo Complex",
+      "status": "ON_TRACK",
+      "health_score": 89,
+      "priority": "HIGH",
+      "start_date": "2025-07-01",
+      "target_date": "2026-12-15",
+      "budget_allocated": 1800000000,
+      "budget_spent": 1120000000,
+      "progress_percent": 62,
+      "lead_id": "usr-7",
+      "main_image": "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=1200&fit=crop&q=80",
+      "gallery_images": [
+        {
+          "id": "img-7-1",
+          "url": "https://images.unsplash.com/photo-1578575437130-527eed3abbec?w=800&fit=crop&q=80",
+          "caption": "Automated Cold-Chain Pallet Handling System",
+          "uploaded_at": "2026-08-10T14:00:00Z",
+          "is_cover": true
+        }
+      ],
+      "tags": [
+        "Logistics",
+        "Aviation",
+        "ColdChain",
+        "Trichy"
+      ],
+      "is_published": true,
+      "created_at": "2025-06-15T09:00:00Z",
+      "updated_at": "2026-08-25T11:00:00Z"
+    },
+    {
+      "id": "proj-8",
+      "name": "Salem Steel Plant Solar Green Power & Industrial Microgrid",
+      "code": "NX-SALEM-08",
+      "description": "150 MW captive ground-mounted solar photovoltaic generation plant with 40 MWh lithium iron phosphate (LFP) battery energy storage system (BESS).",
+      "objectives": [
+        "Transition 60% of steel alloy melt shop electrical load to green solar energy",
+        "Cut industrial peak-tariff expenditures by ₹42 Crores per annum",
+        "Deliver continuous frequency regulation during grid surges"
+      ],
+      "category": "Industrial Clean Energy",
+      "district": "Salem",
+      "location": "Salem Steel Plant Township, Salem",
+      "status": "ON_TRACK",
+      "health_score": 91,
+      "priority": "MEDIUM",
+      "start_date": "2025-09-01",
+      "target_date": "2026-11-15",
+      "budget_allocated": 1450000000,
+      "budget_spent": 890000000,
+      "progress_percent": 65,
+      "lead_id": "usr-8",
+      "main_image": "https://images.unsplash.com/photo-1509391365360-2e959784a276?w=1200&fit=crop&q=80",
+      "gallery_images": [
+        {
+          "id": "img-8-1",
+          "url": "https://images.unsplash.com/photo-1545208942-e1c9c916524b?w=800&fit=crop&q=80",
+          "caption": "150 MW High-Efficiency Bifacial Solar Array in Salem",
+          "uploaded_at": "2026-08-14T15:30:00Z",
+          "is_cover": true
+        }
+      ],
+      "tags": [
+        "SolarPower",
+        "SteelIndustry",
+        "Microgrid",
+        "Salem"
+      ],
+      "is_published": true,
+      "created_at": "2025-08-20T10:00:00Z",
+      "updated_at": "2026-08-28T16:00:00Z"
+    },
+    {
+      "id": "proj-9",
+      "name": "Hosur Electric Vehicle (EV) Mega Cluster & Battery Innovation Tech Park",
+      "code": "NX-HOSUR-09",
+      "description": "500-acre advanced e-mobility manufacturing park equipped with battery pack thermal simulation chambers, high-power DC fast charging test grids, and autonomous robot assembly bays.",
+      "objectives": [
+        "Enable annual production capacity of 1.5 million electric two-wheelers and buses",
+        "Establish automated prismatic battery cell testing and recycling laboratory",
+        "Attract ₹12,000 Crores of private EV automotive manufacturing investment to Krishnagiri district"
+      ],
+      "category": "Automotive & Advanced EV",
+      "district": "Hosur",
+      "location": "SIPCOT Industrial Park Phase IV, Hosur, Krishnagiri",
+      "status": "ON_TRACK",
+      "health_score": 95,
+      "priority": "CRITICAL",
+      "start_date": "2025-05-01",
+      "target_date": "2027-03-31",
+      "budget_allocated": 3200000000,
+      "budget_spent": 1840000000,
+      "progress_percent": 58,
+      "lead_id": "usr-9",
+      "main_image": "https://images.unsplash.com/photo-1558441719-8b83533860bb?w=1200&fit=crop&q=80",
+      "gallery_images": [
+        {
+          "id": "img-9-1",
+          "url": "https://images.unsplash.com/photo-1563986768494-4dee2763ff3f?w=800&fit=crop&q=80",
+          "caption": "Automated EV Battery Pack Robotics Staging in Hosur",
+          "uploaded_at": "2026-08-20T12:00:00Z",
+          "is_cover": true
+        },
+        {
+          "id": "img-9-2",
+          "url": "https://images.unsplash.com/photo-1508974239320-0a029497e820?w=800&fit=crop&q=80",
+          "caption": "High-Power DC 350kW Fast Charging Telemetry Test Bed",
+          "uploaded_at": "2026-08-26T14:30:00Z"
+        }
+      ],
+      "before_image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&fit=crop&q=80",
+      "after_image": "https://images.unsplash.com/photo-1558441719-8b83533860bb?w=1200&fit=crop&q=80",
+      "before_after_caption": "SIPCOT Barren Land vs Next-Gen Robotic EV Manufacturing Gigafactory",
+      "tags": [
+        "EVCluster",
+        "BatteryTech",
+        "Automotive",
+        "Hosur",
+        "Krishnagiri"
+      ],
+      "is_published": true,
+      "created_at": "2025-04-20T08:00:00Z",
+      "updated_at": "2026-08-30T16:00:00Z"
+    },
+    {
+      "id": "proj-10",
+      "name": "Tirunelveli High-Capacity Wind-Solar Hybrid Grid & Agasthiyar Storage",
+      "code": "NX-TNV-10",
+      "description": "800 MW renewable wind-solar hybrid telemetry generation corridor in Muppandal Pass paired with 100 MW pumped hydroelectric storage reservoir at Agasthiyar Hills.",
+      "objectives": [
+        "Harness perennial high-velocity wind currents of Muppandal with 98.5% turbine availability",
+        "Stabilize southern regional power grid via sub-second pumped storage hydro switching",
+        "Export 2,400 GWh of green clean power annually into Tamil Nadu state grid"
+      ],
+      "category": "Renewable Clean Energy",
+      "district": "Tirunelveli",
+      "location": "Muppandal Pass & Agasthiyar Hydro Basin, Tirunelveli",
+      "status": "ON_TRACK",
+      "health_score": 93,
+      "priority": "HIGH",
+      "start_date": "2025-08-01",
+      "target_date": "2027-01-31",
+      "budget_allocated": 2800000000,
+      "budget_spent": 1420000000,
+      "progress_percent": 52,
+      "lead_id": "usr-10",
+      "main_image": "https://images.unsplash.com/photo-1532601224476-15c79f2f7a51?w=1200&fit=crop&q=80",
+      "gallery_images": [
+        {
+          "id": "img-10-1",
+          "url": "https://images.unsplash.com/photo-1466611653911-95081537e5b7?w=800&fit=crop&q=80",
+          "caption": "High-Velocity 4.2MW Wind Turbines at Muppandal Wind Corridor",
+          "uploaded_at": "2026-08-16T11:00:00Z",
+          "is_cover": true
+        }
+      ],
+      "tags": [
+        "WindEnergy",
+        "HydroStorage",
+        "CleanGrid",
+        "Tirunelveli"
+      ],
+      "is_published": true,
+      "created_at": "2025-07-15T09:00:00Z",
+      "updated_at": "2026-08-28T14:00:00Z"
+    },
+    {
+      "id": "proj-11",
+      "name": "Erode Smart Textile Automation Corridor & Bhavani Zero-Discharge Grid",
+      "code": "NX-ERD-11",
+      "description": "Smart modern textile processing cluster connecting 64 automated dye and garment units with centralized IoT zero-liquid discharge (ZLD) effluent treatment and salt recovery.",
+      "objectives": [
+        "Guarantee 100% recycling of industrial process water into Bhavani River basin",
+        "Automate quality grading with AI computer vision yarn inspection scanners",
+        "Increase sustainable textile export certifications to European Union by 40%"
+      ],
+      "category": "Smart Industrial Automation",
+      "district": "Erode",
+      "location": "SIPCOT Perundurai & Bhavani River Corridor, Erode",
+      "status": "ON_TRACK",
+      "health_score": 88,
+      "priority": "MEDIUM",
+      "start_date": "2025-06-15",
+      "target_date": "2026-12-31",
+      "budget_allocated": 960000000,
+      "budget_spent": 610000000,
+      "progress_percent": 63,
+      "lead_id": "usr-11",
+      "main_image": "https://images.unsplash.com/photo-1581092335397-9583fe92d232?w=1200&fit=crop&q=80",
+      "gallery_images": [
+        {
+          "id": "img-11-1",
+          "url": "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800&fit=crop&q=80",
+          "caption": "SCADA Telemetry for Centralized Effluent Nano-Filtration",
+          "uploaded_at": "2026-08-19T13:00:00Z",
+          "is_cover": true
+        }
+      ],
+      "tags": [
+        "TextileCluster",
+        "WaterRecycling",
+        "ZeroDischarge",
+        "Erode"
+      ],
+      "is_published": true,
+      "created_at": "2025-06-01T10:00:00Z",
+      "updated_at": "2026-08-29T11:00:00Z"
+    },
+    {
+      "id": "proj-12",
+      "name": "Vellore Bio-Pharmaceutical R&D & High-Speed Highway Transit Corridor",
+      "code": "NX-VEL-12",
+      "description": "WHO-GMP certified biotechnology research park with sterile vial lyophilization plant, cold-chain temperature monitoring, and direct access to Chennai-Bengaluru Expressway.",
+      "objectives": [
+        "Establish biosafety level-3 (BSL-3) research facility for clinical vaccine trials",
+        "Create temperature-controlled cold corridor along Chennai-Bengaluru Expressway",
+        "Accelerate life sciences patent commercialization for Tamil Nadu universities"
+      ],
+      "category": "Biotechnology & Healthcare",
+      "district": "Vellore",
+      "location": "Ranipet Bio-Tech Park & Katpadi Expressway Corridor, Vellore",
+      "status": "ON_TRACK",
+      "health_score": 90,
+      "priority": "HIGH",
+      "start_date": "2025-07-20",
+      "target_date": "2027-02-28",
+      "budget_allocated": 1650000000,
+      "budget_spent": 920000000,
+      "progress_percent": 55,
+      "lead_id": "usr-12",
+      "main_image": "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?w=1200&fit=crop&q=80",
+      "gallery_images": [
+        {
+          "id": "img-12-1",
+          "url": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&fit=crop&q=80",
+          "caption": "Cleanroom Lyophilization Automated Sterile Filling Line",
+          "uploaded_at": "2026-08-21T15:00:00Z",
+          "is_cover": true
+        }
+      ],
+      "tags": [
+        "Biotech",
+        "PharmaR&D",
+        "ColdChain",
+        "Vellore"
+      ],
+      "is_published": true,
+      "created_at": "2025-07-05T08:30:00Z",
+      "updated_at": "2026-08-30T10:30:00Z"
+    }
+  ],
+  "milestones": [
+    {
+      "id": "ms-101",
+      "project_id": "proj-1",
+      "title": "Corridor 4 TBM Tunnelling from Lighthouse to Kodambakkam",
+      "description": "Dual tunnel boring machine breakthrough across 8.4 km subsea alluvial soil",
+      "due_date": "2026-04-30",
+      "status": "COMPLETED",
+      "completion_percent": 100,
+      "is_critical": 1,
+      "deliverables": "TBM Ring Build Log & Geotechnical Signoff"
+    },
+    {
+      "id": "ms-102",
+      "project_id": "proj-1",
+      "title": "GoA4 Driverless CBTC Signaling & Train Track Integration",
+      "description": "Communications-based train control trackside beacons and automatic train supervision",
+      "due_date": "2026-09-30",
+      "status": "IN_PROGRESS",
+      "completion_percent": 75,
+      "is_critical": 1,
+      "deliverables": "Signaling Safety Case & RDSO Audit"
+    },
+    {
+      "id": "ms-103",
+      "project_id": "proj-1",
+      "title": "Poonamallee Depot Automated Stabling & Maintenance Shed",
+      "description": "Complete 24-rake stabling yard, automatic train wash plant, and test track",
+      "due_date": "2026-12-15",
+      "status": "IN_PROGRESS",
+      "completion_percent": 50,
+      "is_critical": 1,
+      "deliverables": "Depot Commissioning Certificate"
+    },
+    {
+      "id": "ms-104",
+      "project_id": "proj-1",
+      "title": "Corridor 3 Underground Madhavaram to Sterling Road Cutover",
+      "description": "Overhead 25kV AC traction electrification and live rolling stock trial runs",
+      "due_date": "2027-06-30",
+      "status": "PENDING",
+      "completion_percent": 0,
+      "is_critical": 0,
+      "deliverables": "CMRS Inspection Clearance"
+    },
+    {
+      "id": "ms-201",
+      "project_id": "proj-2",
+      "title": "Aadhaar e-Sign & DigiLocker Vault Gateway Integration",
+      "description": "Instant verification for 50 state government departments with zero physical paper submission",
+      "due_date": "2026-03-31",
+      "status": "COMPLETED",
+      "completion_percent": 100,
+      "is_critical": 1,
+      "deliverables": "API Security Audit & Penetration Test Report"
+    },
+    {
+      "id": "ms-202",
+      "project_id": "proj-2",
+      "title": "Automated Direct Benefit Transfer (DBT) Payment Switch",
+      "description": "NPCI Aadhaar Payment Bridge System (APBS) routing with sub-second status webhooks",
+      "due_date": "2026-07-31",
+      "status": "COMPLETED",
+      "completion_percent": 100,
+      "is_critical": 1,
+      "deliverables": "Load Test Signoff (15,000 TPS sustained)"
+    },
+    {
+      "id": "ms-203",
+      "project_id": "proj-2",
+      "title": "Makkal Sevai Mobile App Release (iOS & Android)",
+      "description": "Biometric passkey authentication, offline grievance filing, and Tamil/English UI",
+      "due_date": "2026-08-30",
+      "status": "MISSED",
+      "completion_percent": 55,
+      "is_critical": 1,
+      "deliverables": "App Store review pass & Staging verification"
+    },
+    {
+      "id": "ms-301",
+      "project_id": "proj-3",
+      "title": "14,000 Ultrasonic Smart Water Meters AMR/AMI Deployment",
+      "description": "LoRaWAN cellular gateway telemetry for household and commercial supply valves",
+      "due_date": "2026-05-15",
+      "status": "COMPLETED",
+      "completion_percent": 100,
+      "is_critical": 1,
+      "deliverables": "Telemetry Gateway Dashboard"
+    },
+    {
+      "id": "ms-302",
+      "project_id": "proj-3",
+      "title": "Vaigai Reservoir SCADA Pipeline Automation",
+      "description": "Automated hydraulic pressure regulating stations and acoustic leak detection",
+      "due_date": "2026-09-15",
+      "status": "IN_PROGRESS",
+      "completion_percent": 80,
+      "is_critical": 1,
+      "deliverables": "SCADA Central Control Room Handover"
+    },
+    {
+      "id": "ms-401",
+      "project_id": "proj-4",
+      "title": "High-Altitude Wind Tunnel & Acoustic Chamber Validation",
+      "description": "Subsonic aerodynamic testing facility for UAV airframes up to Mach 0.6",
+      "due_date": "2026-05-30",
+      "status": "COMPLETED",
+      "completion_percent": 100,
+      "is_critical": 1,
+      "deliverables": "Calibration Standard Certification"
+    },
+    {
+      "id": "ms-402",
+      "project_id": "proj-4",
+      "title": "Autonomous Drone Flight Testing Corridor Clearance",
+      "description": "Restricted airspace frequency allocation and beyond-visual-line-of-sight (BVLOS) radar",
+      "due_date": "2026-08-15",
+      "status": "MISSED",
+      "completion_percent": 40,
+      "is_critical": 1,
+      "deliverables": "DGCA / MoD Flight Corridor Clearance"
+    },
+    {
+      "id": "ms-901",
+      "project_id": "proj-9",
+      "title": "High-Power 350kW DC EV Fast Charger Grid Commissioning",
+      "description": "Dual CCS2 and GB/T high-speed charging grid sync with Krishnagiri 110kV substation",
+      "due_date": "2026-08-15",
+      "status": "COMPLETED",
+      "completion_percent": 100,
+      "is_critical": 1,
+      "deliverables": "TANGEDCO Grid Interconnection Signoff"
+    },
+    {
+      "id": "ms-902",
+      "project_id": "proj-9",
+      "title": "Prismatic LFP Battery Pack Automated Robotic Assembly",
+      "description": "Robotic cell laser welding and active liquid cooling thermal jacket integration",
+      "due_date": "2026-11-30",
+      "status": "IN_PROGRESS",
+      "completion_percent": 70,
+      "is_critical": 1,
+      "deliverables": "Automated Line FAT & Safety Certificate"
+    },
+    {
+      "id": "ms-1001",
+      "project_id": "proj-10",
+      "title": "Muppandal 400kV High-Capacity Evacuation Substation",
+      "description": "Gas-insulated switchgear (GIS) substation for 800MW hybrid wind-solar evacuation",
+      "due_date": "2026-06-30",
+      "status": "COMPLETED",
+      "completion_percent": 100,
+      "is_critical": 1,
+      "deliverables": "TANTRANSCO Commissioning Protocol"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "tsk-101",
+      "project_id": "proj-1",
+      "title": "Finalize CBTC Signaling Interface with Alstom Rolling Stock",
+      "description": "Validate automatic train protection (ATP) and train operation (ATO) packet sync",
+      "status": "IN_PROGRESS",
+      "priority": "CRITICAL",
+      "assignee_id": "usr-1",
+      "start_date": "2026-08-01",
+      "due_date": "2026-09-15",
+      "estimated_hours": 45,
+      "logged_hours": 32,
+      "phase": "Signaling",
+      "tags": [
+        "CBTC",
+        "Signaling",
+        "Alstom"
+      ],
+      "dependencies": [],
+      "order_index": 1
+    },
+    {
+      "id": "tsk-102",
+      "project_id": "proj-1",
+      "title": "Inspect TBM-03 Cutterhead Wear at Sterling Road Underground Station",
+      "description": "Replace 24 tungsten-carbide disc cutters and verify hydraulic shield sealing pressure",
+      "status": "DONE",
+      "priority": "HIGH",
+      "assignee_id": "usr-8",
+      "start_date": "2026-08-10",
+      "due_date": "2026-08-25",
+      "estimated_hours": 36,
+      "logged_hours": 34,
+      "phase": "Civil Underground",
+      "tags": [
+        "TBM",
+        "Tunnel",
+        "Civil"
+      ],
+      "dependencies": [],
+      "order_index": 2
+    },
+    {
+      "id": "tsk-103",
+      "project_id": "proj-1",
+      "title": "Install Third Rail 750V DC Power Distribution at Corridor 4",
+      "description": "Composite third rail mounting and stray current monitoring insulation tests",
+      "status": "IN_REVIEW",
+      "priority": "HIGH",
+      "assignee_id": "usr-8",
+      "start_date": "2026-08-20",
+      "due_date": "2026-09-10",
+      "estimated_hours": 30,
+      "logged_hours": 26,
+      "phase": "Electrification",
+      "tags": [
+        "Power",
+        "ThirdRail"
+      ],
+      "dependencies": [
+        "tsk-102"
+      ],
+      "order_index": 3
+    },
+    {
+      "id": "tsk-104",
+      "project_id": "proj-1",
+      "title": "Setup Central Operation Control Centre (OCC) Backup at Koyambedu",
+      "description": "Deploy redundant SCADA display walls and disaster recovery fiber ring lines",
+      "status": "BACKLOG",
+      "priority": "MEDIUM",
+      "assignee_id": "usr-1",
+      "start_date": "2026-09-12",
+      "due_date": "2026-09-28",
+      "estimated_hours": 28,
+      "logged_hours": 0,
+      "phase": "Operations",
+      "tags": [
+        "SCADA",
+        "OCC"
+      ],
+      "dependencies": [],
+      "order_index": 4
+    },
+    {
+      "id": "tsk-201",
+      "project_id": "proj-2",
+      "title": "Resolve Aadhaar e-KYC Timeout Spike under Peak Morning Load",
+      "description": "Implement circuit breaker pattern and Redis cache on UIDAI token exchange gateway",
+      "status": "BLOCKED",
+      "priority": "CRITICAL",
+      "assignee_id": "usr-2",
+      "start_date": "2026-08-18",
+      "due_date": "2026-08-29",
+      "estimated_hours": 24,
+      "logged_hours": 32,
+      "phase": "API Optimization",
+      "tags": [
+        "UIDAI",
+        "Redis",
+        "Blocker"
+      ],
+      "dependencies": [],
+      "order_index": 1
+    },
+    {
+      "id": "tsk-202",
+      "project_id": "proj-2",
+      "title": "Complete Automated Load Testing for 10M Simultaneous Citizen Sessions",
+      "description": "Simulate high-volume certificate generation requests across 38 district nodes",
+      "status": "IN_PROGRESS",
+      "priority": "HIGH",
+      "assignee_id": "usr-2",
+      "start_date": "2026-08-22",
+      "due_date": "2026-09-08",
+      "estimated_hours": 35,
+      "logged_hours": 22,
+      "phase": "Performance QA",
+      "tags": [
+        "LoadTesting",
+        "K6"
+      ],
+      "dependencies": [],
+      "order_index": 2
+    },
+    {
+      "id": "tsk-301",
+      "project_id": "proj-3",
+      "title": "Configure LoRaWAN Cellular Gateway Mesh across Madurai North",
+      "description": "Deploy 45 base station receivers for 868MHz ultrasonic flow meter telemetry",
+      "status": "DONE",
+      "priority": "HIGH",
+      "assignee_id": "usr-3",
+      "start_date": "2026-08-01",
+      "due_date": "2026-08-20",
+      "estimated_hours": 40,
+      "logged_hours": 38,
+      "phase": "IoT Mesh",
+      "tags": [
+        "LoRaWAN",
+        "Sensors"
+      ],
+      "dependencies": [],
+      "order_index": 1
+    },
+    {
+      "id": "tsk-302",
+      "project_id": "proj-3",
+      "title": "Calibrate Acoustic Leak Detection Algorithms on Vaigai Feeder Line",
+      "description": "Train neural noise classifier to pinpoint underground pipeline ruptures within 2 meters",
+      "status": "IN_PROGRESS",
+      "priority": "MEDIUM",
+      "assignee_id": "usr-3",
+      "start_date": "2026-08-25",
+      "due_date": "2026-09-12",
+      "estimated_hours": 32,
+      "logged_hours": 18,
+      "phase": "SCADA AI",
+      "tags": [
+        "Acoustics",
+        "AI"
+      ],
+      "dependencies": [
+        "tsk-301"
+      ],
+      "order_index": 2
+    },
+    {
+      "id": "tsk-401",
+      "project_id": "proj-4",
+      "title": "Obtain Ministry of Defense Airspace Radar Frequency Signoff",
+      "description": "Submit electromagnetic interference compliance report for Sulur UAV testing zone",
+      "status": "BLOCKED",
+      "priority": "CRITICAL",
+      "assignee_id": "usr-4",
+      "start_date": "2026-08-05",
+      "due_date": "2026-08-20",
+      "estimated_hours": 30,
+      "logged_hours": 35,
+      "phase": "Regulatory",
+      "tags": [
+        "Defense",
+        "Overdue",
+        "Radar"
+      ],
+      "dependencies": [],
+      "order_index": 1
+    },
+    {
+      "id": "tsk-901",
+      "project_id": "proj-9",
+      "title": "Calibrate Robotic Laser Weld Seam Inspection on Battery Packs",
+      "description": "Achieve sub-millimeter weld precision on 100kWh commercial bus battery modules",
+      "status": "IN_PROGRESS",
+      "priority": "HIGH",
+      "assignee_id": "usr-9",
+      "start_date": "2026-08-15",
+      "due_date": "2026-09-20",
+      "estimated_hours": 38,
+      "logged_hours": 24,
+      "phase": "Automation",
+      "tags": [
+        "EV",
+        "Robotics",
+        "Hosur"
+      ],
+      "dependencies": [],
+      "order_index": 1
+    },
+    {
+      "id": "tsk-1001",
+      "project_id": "proj-10",
+      "title": "Configure 400kV Muppandal Hybrid SCADA Frequency Dampener",
+      "description": "Program automated governor controls for wind gust compensation in Agasthiyar basin",
+      "status": "IN_PROGRESS",
+      "priority": "MEDIUM",
+      "assignee_id": "usr-10",
+      "start_date": "2026-08-18",
+      "due_date": "2026-09-16",
+      "estimated_hours": 32,
+      "logged_hours": 19,
+      "phase": "Grid Telemetry",
+      "tags": [
+        "Wind",
+        "Grid",
+        "Tirunelveli"
+      ],
+      "dependencies": [],
+      "order_index": 1
+    }
+  ],
+  "risks": [
+    {
+      "id": "rsk-1",
+      "project_id": "proj-1",
+      "title": "Subsea groundwater seepage near Adyar River underground tunnel section",
+      "category": "Geotechnical",
+      "probability": 3,
+      "impact": 5,
+      "risk_score": 15,
+      "status": "MONITORING",
+      "mitigation_plan": "Continuous cementitious grouting and real-time hydrostatic piezometer monitoring.",
+      "owner_id": "usr-8"
+    },
+    {
+      "id": "rsk-2",
+      "project_id": "proj-1",
+      "title": "Rolling stock delivery delay from Sri City manufacturing plant",
+      "category": "Supply Chain",
+      "probability": 3,
+      "impact": 4,
+      "risk_score": 12,
+      "status": "MITIGATED",
+      "mitigation_plan": "Parallel factory acceptance testing and prioritized trailer corridor permits.",
+      "owner_id": "usr-1"
+    },
+    {
+      "id": "rsk-3",
+      "project_id": "proj-2",
+      "title": "Third-party UIDAI / Aadhaar authentication gateway latency surges",
+      "category": "Technical",
+      "probability": 5,
+      "impact": 5,
+      "risk_score": 25,
+      "status": "IDENTIFIED",
+      "mitigation_plan": "Implement dedicated leased fiber line to UIDAI Data Center and local cryptographic token caching.",
+      "owner_id": "usr-2"
+    },
+    {
+      "id": "rsk-4",
+      "project_id": "proj-4",
+      "title": "MoD defense clearance delay impacting autonomous UAV flight tests",
+      "category": "Regulatory",
+      "probability": 5,
+      "impact": 5,
+      "risk_score": 25,
+      "status": "IDENTIFIED",
+      "mitigation_plan": "Escalate to Tamil Nadu Defense Industrial Corridor Steering Committee for expedited approval.",
+      "owner_id": "usr-4"
+    },
+    {
+      "id": "rsk-5",
+      "project_id": "proj-5",
+      "title": "Monsoon sea state turbulence delaying offshore wind jacket foundation anchoring",
+      "category": "Weather / Maritime",
+      "probability": 4,
+      "impact": 4,
+      "risk_score": 16,
+      "status": "MONITORING",
+      "mitigation_plan": "Deploy dynamic positioning jack-up vessels with wave forecast telemetry.",
+      "owner_id": "usr-5"
+    },
+    {
+      "id": "rsk-9",
+      "project_id": "proj-9",
+      "title": "Specialized lithium cell import transit delays through Chennai Port",
+      "category": "Supply Chain",
+      "probability": 3,
+      "impact": 4,
+      "risk_score": 12,
+      "status": "MONITORING",
+      "mitigation_plan": "Maintain 45-day strategic inventory buffer at Hosur Logistics Terminal.",
+      "owner_id": "usr-9"
+    }
+  ],
+  "kpis": [
+    {
+      "id": "kpi-1",
+      "project_id": "proj-1",
+      "name": "TBM Tunnelling Speed",
+      "category": "Velocity",
+      "target_value": 18,
+      "current_value": 21.5,
+      "unit": "m/day",
+      "status": "EXCELLENT",
+      "trend": "UP",
+      "history": [
+        14,
+        16,
+        17.5,
+        19,
+        21.5
+      ]
+    },
+    {
+      "id": "kpi-2",
+      "project_id": "proj-1",
+      "name": "Signaling Safety Integrity Level (SIL)",
+      "category": "Quality",
+      "target_value": 4,
+      "current_value": 4,
+      "unit": "SIL",
+      "status": "EXCELLENT",
+      "trend": "STABLE",
+      "history": [
+        4,
+        4,
+        4,
+        4,
+        4
+      ]
+    },
+    {
+      "id": "kpi-3",
+      "project_id": "proj-1",
+      "name": "Budget Burn Ratio",
+      "category": "Budget",
+      "target_value": 65,
+      "current_value": 60.7,
+      "unit": "%",
+      "status": "GOOD",
+      "trend": "STABLE",
+      "history": [
+        25,
+        38,
+        48,
+        55,
+        60.7
+      ]
+    },
+    {
+      "id": "kpi-4",
+      "project_id": "proj-2",
+      "name": "Citizen Transaction Uptime SLA",
+      "category": "Schedule",
+      "target_value": 99.95,
+      "current_value": 99.88,
+      "unit": "%",
+      "status": "WARNING",
+      "trend": "DOWN",
+      "history": [
+        99.98,
+        99.95,
+        99.92,
+        99.9,
+        99.88
+      ]
+    },
+    {
+      "id": "kpi-5",
+      "project_id": "proj-2",
+      "name": "Sub-Second Certificate Issuance Rate",
+      "category": "Velocity",
+      "target_value": 95,
+      "current_value": 84.5,
+      "unit": "%",
+      "status": "WARNING",
+      "trend": "DOWN",
+      "history": [
+        96,
+        92,
+        89,
+        86,
+        84.5
+      ]
+    },
+    {
+      "id": "kpi-6",
+      "project_id": "proj-3",
+      "name": "Non-Revenue Water Loss Reduction",
+      "category": "Quality",
+      "target_value": 12,
+      "current_value": 14.8,
+      "unit": "%",
+      "status": "GOOD",
+      "trend": "DOWN",
+      "history": [
+        28,
+        22,
+        19,
+        16,
+        14.8
+      ]
+    },
+    {
+      "id": "kpi-7",
+      "project_id": "proj-5",
+      "name": "Electrolyzer Energy Conversion Efficiency",
+      "category": "Quality",
+      "target_value": 78,
+      "current_value": 82.4,
+      "unit": "%",
+      "status": "EXCELLENT",
+      "trend": "UP",
+      "history": [
+        74,
+        76,
+        79,
+        81,
+        82.4
+      ]
+    },
+    {
+      "id": "kpi-9",
+      "project_id": "proj-9",
+      "name": "EV Battery Pack Thermal Uniformity",
+      "category": "Quality",
+      "target_value": 98,
+      "current_value": 99.2,
+      "unit": "%",
+      "status": "EXCELLENT",
+      "trend": "UP",
+      "history": [
+        94,
+        96,
+        97.5,
+        98.8,
+        99.2
+      ]
+    }
+  ],
+  "audit_logs": [
+    {
+      "id": "aud-1",
+      "action": "Approved Milestone",
+      "actor_name": "Sivakumar Ramanathan",
+      "actor_role": "ADMIN",
+      "project_code": "NX-CMRL-01",
+      "target_entity": "Milestone #ms-101",
+      "details": "Phase II Corridor 4 TBM Breakthrough at Kodambakkam officially signed off.",
+      "timestamp": "2026-08-30T10:15:00Z"
+    },
+    {
+      "id": "aud-2",
+      "action": "Uploaded Project Gallery Image",
+      "actor_name": "Sivakumar Ramanathan",
+      "actor_role": "ADMIN",
+      "project_code": "NX-CMRL-01",
+      "target_entity": "Image Gallery",
+      "details": "Added 3 high-res construction photos of Poonamallee Depot and 25kV traction rigging.",
+      "timestamp": "2026-08-29T16:00:00Z"
+    },
+    {
+      "id": "aud-3",
+      "action": "Flagged Critical Blocker",
+      "actor_name": "Priyadharshini Krishnan",
+      "actor_role": "WORKER",
+      "project_code": "NX-TNEGOV-02",
+      "target_entity": "Task #tsk-201",
+      "details": "UIDAI e-KYC response timeout rate surged to 8.5%; flagged as critical blocker.",
+      "previous_value": "IN_PROGRESS",
+      "new_value": "BLOCKED",
+      "timestamp": "2026-08-31T11:45:00Z"
+    },
+    {
+      "id": "aud-4",
+      "action": "Logged Daily Work Update",
+      "actor_name": "Karthikeyan Murugan",
+      "actor_role": "WORKER",
+      "project_code": "NX-MADURAI-03",
+      "target_entity": "Task #tsk-301",
+      "details": "Calibrated 45 LoRaWAN gateways in Madurai North; logged 6 engineering hours.",
+      "timestamp": "2026-08-31T15:30:00Z"
+    },
+    {
+      "id": "aud-5",
+      "action": "EV Fast Charger Grid Synchronized",
+      "actor_name": "Thirunavukkarasu Pandian",
+      "actor_role": "WORKER",
+      "project_code": "NX-HOSUR-09",
+      "target_entity": "Milestone #ms-901",
+      "details": "350kW DC fast charging grid synchronized with TANGEDCO 110kV line at Hosur Tech Park.",
+      "timestamp": "2026-08-31T16:40:00Z"
+    }
+  ],
+  "alerts": [
+    {
+      "id": "alt-1",
+      "project_id": "proj-2",
+      "type": "BLOCKER",
+      "severity": "CRITICAL",
+      "message": "Citizen Portal: UIDAI e-KYC authentication timeout rate exceeded 8.5% threshold.",
+      "is_read": 0,
+      "created_at": "2026-08-31T08:30:00Z"
+    },
+    {
+      "id": "alt-2",
+      "project_id": "proj-4",
+      "type": "DEADLINE",
+      "severity": "CRITICAL",
+      "message": "Coimbatore Defense Corridor: Autonomous flight corridor clearance is 16 days overdue.",
+      "is_read": 0,
+      "created_at": "2026-08-30T09:00:00Z"
+    },
+    {
+      "id": "alt-3",
+      "project_id": "proj-9",
+      "type": "INFO",
+      "severity": "INFO",
+      "message": "Hosur EV Tech Park: 350kW DC test grid commissioned ahead of target schedule.",
+      "is_read": 0,
+      "created_at": "2026-08-31T10:00:00Z"
+    },
+    {
+      "id": "alt-4",
+      "project_id": "proj-1",
+      "type": "INFO",
+      "severity": "INFO",
+      "message": "Chennai Metro: CBTC driverless trial run achieved 100% telemetry sync.",
+      "is_read": 1,
+      "created_at": "2026-08-28T11:00:00Z"
+    }
+  ],
+  "work_logs": [
+    {
+      "id": "wl-1",
+      "user_id": "usr-1",
+      "user_name": "Sivakumar Ramanathan",
+      "task_id": "tsk-101",
+      "project_id": "proj-1",
+      "project_code": "NX-CMRL-01",
+      "hours_spent": 4,
+      "notes": "Reviewed Alstom CBTC signaling packet logs and verified automatic speed regulation.",
+      "timestamp": "2026-08-31T16:00:00Z"
+    },
+    {
+      "id": "wl-2",
+      "user_id": "usr-3",
+      "user_name": "Karthikeyan Murugan",
+      "task_id": "tsk-301",
+      "project_id": "proj-3",
+      "project_code": "NX-MADURAI-03",
+      "hours_spent": 6,
+      "notes": "Calibrated LoRaWAN receiver gateways across 12 wards in Madurai North.",
+      "timestamp": "2026-08-31T15:30:00Z"
+    },
+    {
+      "id": "wl-3",
+      "user_id": "usr-9",
+      "user_name": "Thirunavukkarasu Pandian",
+      "task_id": "tsk-901",
+      "project_id": "proj-9",
+      "project_code": "NX-HOSUR-09",
+      "hours_spent": 7,
+      "notes": "Configured automated laser weld inspection sensor profiles on 100kWh battery modules.",
+      "timestamp": "2026-08-31T17:00:00Z"
+    },
+    {
+      "id": "wl-4",
+      "user_id": "usr-8",
+      "user_name": "Muthuvel Rajan",
+      "task_id": "tsk-102",
+      "project_id": "proj-1",
+      "project_code": "NX-CMRL-01",
+      "hours_spent": 7,
+      "notes": "Completed underground cutterhead inspection at Sterling Road station shaft.",
+      "timestamp": "2026-08-30T17:00:00Z"
+    }
+  ],
+  "citizen_reports": [
+    {
+      "id": "rep-1",
+      "project_id": "proj-1",
+      "project_code": "NX-CMRL-01",
+      "project_name": "Chennai Metro Phase II",
+      "citizen_name": "V. Sundaram",
+      "citizen_email": "sundaram.v@gmail.com",
+      "category": "SUGGESTION",
+      "message": "Please ensure adequate multi-level bike parking facilities at the upcoming Kodambakkam junction station.",
+      "status": "REVIEWED",
+      "created_at": "2026-08-28T14:20:00Z"
+    },
+    {
+      "id": "rep-2",
+      "project_id": "proj-3",
+      "project_code": "NX-MADURAI-03",
+      "project_name": "Madurai Smart City IoT Water",
+      "citizen_name": "Meenakshi Sundaram",
+      "citizen_email": "meenakshi.s@gmail.com",
+      "category": "FEEDBACK",
+      "message": "Water pressure in Ward 14 has improved significantly over the past two weeks. Excellent work!",
+      "status": "RESOLVED",
+      "created_at": "2026-08-29T10:15:00Z"
+    },
+    {
+      "id": "rep-3",
+      "project_id": "proj-9",
+      "project_code": "NX-HOSUR-09",
+      "project_name": "Hosur EV Mega Cluster",
+      "citizen_name": "Dr. Aravind Swaminathan",
+      "citizen_email": "citizen.user@gmail.com",
+      "category": "APPRECIATION",
+      "message": "The high-speed EV charging test track in Hosur will create immense skilled jobs for Western Tamil Nadu youth.",
+      "status": "REVIEWED",
+      "created_at": "2026-08-31T11:00:00Z"
+    }
+  ]
+}
