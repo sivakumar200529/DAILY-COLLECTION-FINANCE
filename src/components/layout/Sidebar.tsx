@@ -14,7 +14,6 @@ import {
   Settings, 
   LogOut, 
   FileSpreadsheet, 
-  Layers,
   Sparkles,
   ChevronLeft,
   ChevronRight,
@@ -63,8 +62,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'areas', label: t('areas', 'Areas'), icon: MapPin },
     { id: 'monthly-report', label: t('monthlyReport', 'Monthly Excel Register'), icon: FileSpreadsheet, highlight: true },
     { id: 'reports', label: t('reports', 'Reports'), icon: FileText },
-    { id: 'documents', label: t('documents', 'Documents'), icon: FileCheck },
-    { id: 'plans', label: t('plans', 'Collection Plans'), icon: Layers },
     { id: 'notifications', label: t('notifications', 'Notifications'), icon: Bell },
     { id: 'settings', label: t('settings', 'Settings'), icon: Settings },
   ];
