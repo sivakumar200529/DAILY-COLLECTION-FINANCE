@@ -92,7 +92,20 @@ export const api = {
     return handleResponse(res);
   },
 
-  async createCustomer(data: { personal: Partial<CustomerPersonalDetails>; address?: Partial<CustomerAddress>; business?: Partial<BusinessDetails> }): Promise<CustomerPersonalDetails> {
+  async createCustomer(data: {
+    personal: Partial<CustomerPersonalDetails>;
+    address?: Partial<CustomerAddress>;
+    business?: Partial<BusinessDetails>;
+    loan?: {
+      requested_amount: number;
+      margin_percentage?: number;
+      collection_days?: number;
+      daily_collection?: number;
+      start_date?: string;
+      assigned_collector_id?: string;
+      collection_area?: string;
+    };
+  }): Promise<CustomerPersonalDetails & { activeAccount?: CollectionAccount }> {
     const res = await fetch(`${API_BASE}/customers`, {
       method: 'POST',
       headers: getAuthHeader(),

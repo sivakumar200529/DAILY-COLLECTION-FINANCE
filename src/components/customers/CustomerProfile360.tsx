@@ -27,7 +27,10 @@ import {
   AlertTriangle,
   MessageSquare,
   Calendar,
-  Layers
+  Layers,
+  Plus,
+  X,
+  CheckCircle2
 } from 'lucide-react';
 
 interface CustomerProfile360Props {
@@ -64,6 +67,56 @@ export const CustomerProfile360: React.FC<CustomerProfile360Props> = ({
   const [shopMargin, setShopMargin] = useState<number>(12);
   const [savingMargin, setSavingMargin] = useState<boolean>(false);
   const [marginSavedMsg, setMarginSavedMsg] = useState<string | null>(null);
+
+  // Quick Issue Loan Modal State
+  const [showDisburseModal, setShowDisburseModal] = useState<boolean>(false);
+  const [disburseAmount, setDisburseAmount] = useState<number>(10000);
+  const [disburseMargin, setDisburseMargin] = useState<number>(12);
+  const [disburseDays, setDisburseDays] = useState<number>(100);
+  const [disburseDaily, setDisburseDaily] = useState<number>(100);
+  const [disburseIsDailyAuto, setDisburseIsDailyAuto] = useState<boolean>(true);
+  const [disburseStartDate, setDisburseStartDate] = useState<string>(new Date().toISOString().slice(0, 10));
+  const [disburseSubmitting, setDisburseSubmitting] = useState<boolean>(false);
+  const [disburseError, setDisburseError] = useState<string | null>(null);
+
+  const handleConfirmDisburse = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (disburseAmount <= 0) {
+      setDisburseError('Requested loan amount must be greater than ₹0.');
+      return;
+    }
+    setDisburseSubmitting(true);
+    setDisburseError(null);
+    try {
+      const mAmount = Math.round(disburseAmount * (disburseMargin / 100));
+      const dAmount = Math.max(0, disburseAmount - mAmount);
+      const [y, m, d] = disburseStartDate.split('-').map(Number);
+      const date = new Date(Date.UTC(y, m - 1, d));
+      date.setUTCDate(date.getUTCDate() + (disburseDays - 1));
+      const endDate = `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}-${String(date.getUTCDate()).padStart(2, '0')}`;
+
+      await api.createCollectionAccount({
+        customer_id: customerId,
+        requested_amount: disburseAmount,
+        margin_percentage: disburseMargin,
+        margin_amount: mAmount,
+        disbursed_amount: dAmount,
+        daily_collection: disburseDaily,
+        collection_days: disburseDays,
+        start_date: disburseStartDate,
+        expected_end_date: endDate,
+        assigned_collector_id: profile?.activeAccount?.assigned_collector_id || 'COL101',
+        collection_area: profile?.business?.shop_area || profile?.address?.area || 'Bazaar Main Road',
+      });
+
+      setShowDisburseModal(false);
+      await loadProfile();
+    } catch (err: any) {
+      setDisburseError(err.message || 'Failed to issue loan account.');
+    } finally {
+      setDisburseSubmitting(false);
+    }
+  };
 
   const loadProfile = async () => {
     setLoading(true);
@@ -440,8 +493,31 @@ export const CustomerProfile360: React.FC<CustomerProfile360Props> = ({
               </div>
             </div>
           ) : (
-            <div className="p-6 glass-card rounded-2xl text-center text-slate-400 text-xs">
-              {t('No active collection account for this customer.', 'No active collection account for this customer.')}
+            <div className="p-6 glass-card rounded-2xl text-center space-y-3 border border-gold-500/30 bg-gradient-to-b from-navy-900 to-navy-950">
+              <div className="w-12 h-12 rounded-full bg-gold-500/10 border border-gold-500/30 flex items-center justify-center mx-auto text-gold-400">
+                <Wallet className="w-6 h-6" />
+              </div>
+              <div>
+                <h4 className="text-white font-bold text-sm">{t('noActiveAccountTitle', 'No Active Collection Account')}</h4>
+                <p className="text-slate-400 text-xs mt-1 max-w-md mx-auto">
+                  {t('noActiveAccountDesc', 'This customer currently has no running daily collection plan. Issue a new doorstep collection loan to start daily tracking.')}
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setDisburseAmount(10000);
+                  setDisburseMargin(profile?.business?.default_margin_percentage ?? 12);
+                  setDisburseDays(100);
+                  setDisburseDaily(100);
+                  setDisburseIsDailyAuto(true);
+                  setDisburseStartDate(new Date().toISOString().slice(0, 10));
+                  setShowDisburseModal(true);
+                }}
+                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-gold-500 to-amber-600 hover:from-gold-400 hover:to-amber-500 text-navy-950 font-bold shadow-lg shadow-gold-500/20 inline-flex items-center gap-1.5 text-xs transition-all cursor-pointer"
+              >
+                <Plus className="w-4 h-4" />
+                <span>{t('disburseNewCollectionAccount', 'Disburse New Collection Account')}</span>
+              </button>
             </div>
           )}
 
@@ -1192,6 +1268,194 @@ export const CustomerProfile360: React.FC<CustomerProfile360Props> = ({
           receipt={selectedReceipt}
           onClose={() => setSelectedReceipt(null)}
         />
+      )}
+
+      {/* QUICK ISSUE LOAN MODAL */}
+      {showDisburseModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/85 backdrop-blur-md">
+          <div className="glass-card rounded-2xl border border-gold-500/50 p-6 max-w-lg w-full bg-navy-900 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
+              <div className="flex items-center gap-2">
+                <Wallet className="w-5 h-5 text-gold-400" />
+                <div>
+                  <h3 className="text-base font-bold text-white">{t('issueNewLoan', 'Issue New Loan Account')}</h3>
+                  <p className="text-[11px] text-slate-400">{profile?.personal?.full_name} ({customerId}) &bull; {profile?.business?.shop_name || 'Retail Shop'}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowDisburseModal(false)}
+                className="p-1 rounded-lg text-slate-400 hover:text-white"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {disburseError && (
+              <div className="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-xs text-rose-300 flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 text-rose-400 flex-shrink-0" />
+                <span>{disburseError}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleConfirmDisburse} className="space-y-3.5 text-xs">
+              {/* Requested Amount */}
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <label className="text-slate-300 font-semibold">{t('requestedAmount (₹)', 'Requested Amount (₹)')} *</label>
+                  <span className="text-[10px] text-slate-400 font-mono">100% Repaid by Customer</span>
+                </div>
+                <input
+                  type="number"
+                  min={500}
+                  step={500}
+                  value={disburseAmount}
+                  onChange={e => {
+                    const amt = Math.max(0, Number(e.target.value));
+                    setDisburseAmount(amt);
+                    if (disburseIsDailyAuto) setDisburseDaily(Math.round(amt / (disburseDays || 1)));
+                  }}
+                  className="w-full px-3 py-2 bg-navy-950 border border-slate-700 rounded-xl text-white font-mono font-bold text-sm focus:border-gold-500"
+                />
+                <div className="flex flex-wrap gap-1 mt-1.5">
+                  {[10000, 15000, 20000, 25000, 50000, 100000].map(amt => (
+                    <button
+                      key={amt}
+                      type="button"
+                      onClick={() => {
+                        setDisburseAmount(amt);
+                        if (disburseIsDailyAuto) setDisburseDaily(Math.round(amt / (disburseDays || 1)));
+                      }}
+                      className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold ${
+                        disburseAmount === amt ? 'bg-gold-500 text-navy-950' : 'bg-navy-950 border border-slate-700 text-slate-300'
+                      }`}
+                    >
+                      ₹{amt.toLocaleString('en-IN')}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Margin Rate */}
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <label className="text-slate-300 font-semibold">{t('financeMarginRate (%)', 'Finance Margin (%)')}</label>
+                  <span className="text-[10px] text-gold-400 font-mono">− ₹{Math.round(disburseAmount * (disburseMargin / 100)).toLocaleString('en-IN')}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    min={0}
+                    max={50}
+                    step={0.5}
+                    value={disburseMargin}
+                    onChange={e => setDisburseMargin(Math.max(0, Number(e.target.value)))}
+                    className="w-full px-3 py-2 bg-navy-950 border border-slate-700 rounded-xl text-gold-300 font-mono font-bold focus:border-gold-500"
+                  />
+                  <div className="flex gap-1">
+                    {[10, 12, 15, 18, 20].map(m => (
+                      <button
+                        key={m}
+                        type="button"
+                        onClick={() => setDisburseMargin(m)}
+                        className={`px-2 py-1.5 rounded text-[10px] font-mono font-bold ${
+                          disburseMargin === m ? 'bg-amber-500 text-navy-950' : 'bg-navy-950 border border-slate-700 text-slate-300'
+                        }`}
+                      >
+                        {m}%
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Days & Daily */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">{t('collectionPeriod', 'Period (Days)')}</label>
+                  <select
+                    value={disburseDays}
+                    onChange={e => {
+                      const d = Number(e.target.value);
+                      setDisburseDays(d);
+                      if (disburseIsDailyAuto) setDisburseDaily(Math.round(disburseAmount / (d || 1)));
+                    }}
+                    className="w-full px-3 py-2 bg-navy-950 border border-slate-700 rounded-xl text-white font-mono focus:border-gold-500"
+                  >
+                    <option value={30}>30 Days</option>
+                    <option value={50}>50 Days</option>
+                    <option value={60}>60 Days</option>
+                    <option value={90}>90 Days</option>
+                    <option value={100}>100 Days</option>
+                    <option value={120}>120 Days</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">{t('dailyCollection (₹)', 'Daily Due (₹/day)')}</label>
+                  <input
+                    type="number"
+                    min={1}
+                    value={disburseDaily}
+                    onChange={e => {
+                      setDisburseDaily(Number(e.target.value));
+                      setDisburseIsDailyAuto(false);
+                    }}
+                    className="w-full px-3 py-2 bg-navy-950 border border-slate-700 rounded-xl text-white font-mono font-bold focus:border-gold-500"
+                  />
+                </div>
+              </div>
+
+              {/* Start Date */}
+              <div>
+                <label className="block text-slate-300 font-semibold mb-1">{t('startDate', 'Start Date')}</label>
+                <input
+                  type="date"
+                  value={disburseStartDate}
+                  onChange={e => setDisburseStartDate(e.target.value)}
+                  className="w-full px-3 py-2 bg-navy-950 border border-slate-700 rounded-xl text-white font-mono focus:border-gold-500"
+                />
+              </div>
+
+              {/* Calculation Summary Box */}
+              <div className="p-3 rounded-xl bg-navy-950 border border-gold-500/30 font-mono space-y-1.5 text-xs">
+                <div className="flex justify-between text-slate-400">
+                  <span>Requested Amount:</span>
+                  <strong className="text-white">{formatCurrency(disburseAmount)}</strong>
+                </div>
+                <div className="flex justify-between text-gold-400">
+                  <span>Margin ({disburseMargin}%):</span>
+                  <strong>− {formatCurrency(Math.round(disburseAmount * (disburseMargin / 100)))}</strong>
+                </div>
+                <div className="pt-1 border-t border-slate-800 flex justify-between text-gold-300 font-bold bg-gold-500/10 p-1.5 rounded">
+                  <span>Disbursed Handed to Customer:</span>
+                  <span className="text-sm">{formatCurrency(Math.max(0, disburseAmount - Math.round(disburseAmount * (disburseMargin / 100))))}</span>
+                </div>
+                <div className="flex justify-between text-purple-300 pt-0.5">
+                  <span>Total Repayment Goal:</span>
+                  <strong>{formatCurrency(disburseAmount)}</strong>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="pt-3 border-t border-slate-800 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowDisburseModal(false)}
+                  className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-medium text-xs"
+                >
+                  {t('cancel', 'Cancel')}
+                </button>
+                <button
+                  type="submit"
+                  disabled={disburseSubmitting}
+                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-gold-500 to-amber-600 hover:from-gold-400 hover:to-amber-500 text-navy-950 font-black text-xs shadow-md shadow-gold-500/20 flex items-center gap-1.5"
+                >
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>{disburseSubmitting ? t('disbursing...', 'Disbursing...') : t('disburseAccountAndStartSchedule', 'DISBURSE ACCOUNT & START SCHEDULE')}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   );

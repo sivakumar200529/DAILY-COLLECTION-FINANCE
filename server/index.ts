@@ -384,7 +384,7 @@ app.get('/api/customers', (req: Request, res: Response) => {
 
 app.post('/api/customers', (req: Request, res: Response) => {
   const db = repository.getDb();
-  const { personal, address, business } = req.body;
+  const { personal, address, business, loan } = req.body;
 
   if (!personal || !personal.full_name || !personal.mobile_number) {
     return res.status(400).json({ error: 'Customer full name and mobile number are required.' });
@@ -435,8 +435,9 @@ app.post('/api/customers', (req: Request, res: Response) => {
     db.customer_addresses.push(newAddress);
   }
 
+  let newBiz: BusinessDetails | null = null;
   if (business) {
-    const newBiz: BusinessDetails = {
+    newBiz = {
       id: `SHP-${customerId}`,
       customer_id: customerId,
       shop_name: business.shop_name || `${personal.full_name}'s Business`,
@@ -454,6 +455,7 @@ app.post('/api/customers', (req: Request, res: Response) => {
       approx_monthly_income: Number(business.approx_monthly_income) || 50000,
       approx_daily_sales: Number(business.approx_daily_sales) || 10000,
       business_status: 'ACTIVE',
+      default_margin_percentage: business.default_margin_percentage !== undefined ? Number(business.default_margin_percentage) : (loan?.margin_percentage ? Number(loan.margin_percentage) : 12),
       shop_photo: business.shop_photo || 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=500',
     };
     db.business_details.push(newBiz);
@@ -474,11 +476,118 @@ app.post('/api/customers', (req: Request, res: Response) => {
   };
   db.users.push(custUser);
 
+  // If initial loan details are provided, automatically disburse collection account
+  let newAccount: CollectionAccount | null = null;
+  if (loan && Number(loan.requested_amount) > 0) {
+    const reqAmount = Number(loan.requested_amount);
+    const marginPct = loan.margin_percentage !== undefined ? Number(loan.margin_percentage) : (newBiz?.default_margin_percentage ?? 12);
+    const marginAmount = safeRound(reqAmount * (marginPct / 100), 2);
+    const disbursedAmount = safeRound(reqAmount - marginAmount, 2);
+    const totalRepayment = reqAmount;
+    const colDays = Number(loan.collection_days) || 100;
+    const dailyDue = loan.daily_collection !== undefined ? Number(loan.daily_collection) : safeRound(totalRepayment / colDays, 2);
+    const startDateStr = loan.start_date || new Date().toISOString().slice(0, 10);
+    const expectedEndDateStr = calculateEndDateUtc(startDateStr, colDays);
+    const collector = db.collectors.find(c => c.id === loan.assigned_collector_id) || db.collectors[0] || { id: 'COL101', name: 'Field Collector' };
+
+    const maxAccNum = db.collection_accounts.reduce((max, a) => {
+      const match = a.id.match(/\d+$/);
+      const n = match ? parseInt(match[0], 10) : 0;
+      return n > max ? n : max;
+    }, 0);
+    const accId = `ACC-2026-${String(maxAccNum + 1).padStart(3, '0')}`;
+    const planName = `${colDays}-Day Doorstep Plan (₹${reqAmount.toLocaleString('en-IN')})`;
+
+    newAccount = {
+      id: accId,
+      customer_id: customerId,
+      customer_name: newCustomer.full_name,
+      shop_name: newBiz?.shop_name || `${newCustomer.full_name}'s Store`,
+      plan_id: `CUSTOM_${colDays}D_${reqAmount}`,
+      plan_name: planName,
+      requested_amount: reqAmount,
+      margin_percentage: marginPct,
+      margin_amount: marginAmount,
+      disbursed_amount: disbursedAmount,
+      daily_collection: dailyDue,
+      collection_days: colDays,
+      total_repayment: totalRepayment,
+      finance_margin: marginAmount,
+      start_date: startDateStr,
+      expected_end_date: expectedEndDateStr,
+      amount_collected: 0,
+      remaining_amount: totalRepayment,
+      completed_days: 0,
+      remaining_days: colDays,
+      collection_percentage: 0,
+      assigned_collector_id: collector.id,
+      assigned_collector_name: collector.name,
+      collection_area: newBiz?.shop_area || address?.area || 'Bazaar Main Road',
+      status: 'ACTIVE',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    db.collection_accounts.push(newAccount);
+
+    // Generate daily schedule
+    const [sY, sM, sD] = startDateStr.split('-').map(Number);
+    const curDate = new Date(Date.UTC(sY, sM - 1, sD));
+
+    for (let dayNum = 1; dayNum <= colDays; dayNum++) {
+      const yStr = curDate.getUTCFullYear();
+      const mStr = String(curDate.getUTCMonth() + 1).padStart(2, '0');
+      const dStr = String(curDate.getUTCDate()).padStart(2, '0');
+      const dateStr = `${yStr}-${mStr}-${dStr}`;
+
+      const scheduledRecord: DailyCollectionRecord = {
+        id: `DC-${dateStr}-${accId}`,
+        collection_account_id: accId,
+        customer_id: customerId,
+        customer_name: newCustomer.full_name,
+        shop_name: newAccount.shop_name || 'Retail Business',
+        mobile_number: newCustomer.mobile_number,
+        collection_day_number: dayNum,
+        calendar_date: dateStr,
+        date: dateStr,
+        daily_due: dailyDue,
+        due_amount: dailyDue,
+        paid_amount: 0,
+        pending_amount: dailyDue,
+        advance_amount: 0,
+        status: 'PENDING',
+        collector_id: collector.id,
+        collector_name: collector.name,
+        collection_area: newAccount.collection_area,
+        remarks: 'Scheduled collection day',
+        balance_remaining: totalRepayment,
+      };
+
+      const existingIdx = db.daily_collections.findIndex(d => d.id === scheduledRecord.id);
+      if (existingIdx >= 0) {
+        db.daily_collections[existingIdx] = scheduledRecord;
+      } else {
+        db.daily_collections.push(scheduledRecord);
+      }
+
+      curDate.setUTCDate(curDate.getUTCDate() + 1);
+    }
+
+    logAudit('admin', 'ADMIN', 'DISBURSE_COLLECTION_ACCOUNT', accId, 'collection_accounts', null, newAccount);
+    createNotification(
+      'ADMIN',
+      'New Collection Account Disbursed',
+      `Account ${accId} disbursed to ${newCustomer.full_name}: ₹${disbursedAmount} disbursed for ₹${reqAmount} requested at ${marginPct}% margin.`,
+      'ACCOUNT',
+      customerId
+    );
+  }
+
   logAudit('admin', 'ADMIN', 'CREATE_CUSTOMER', customerId, 'customers', null, newCustomer);
   createNotification('ADMIN', 'New Customer Added', `Customer ${newCustomer.full_name} (${customerId}) registered successfully.`, 'SYSTEM', customerId);
 
   repository.save();
-  res.status(201).json(newCustomer);
+  res.status(201).json({ ...newCustomer, activeAccount: newAccount });
 });
 
 app.put('/api/customers/:id', (req: Request, res: Response) => {
@@ -759,7 +868,7 @@ app.post('/api/collection-accounts', (req: Request, res: Response) => {
   const customer = db.customers.find(c => c.id === customer_id);
   const biz = db.business_details.find(b => b.customer_id === customer_id);
   const plan = db.collection_plans.find(p => p.id === plan_id);
-  const collector = db.collectors.find(c => c.id === assigned_collector_id) || db.collectors[0];
+  const collector = db.collectors.find(c => c.id === assigned_collector_id) || db.collectors[0] || { id: 'COL101', name: 'Field Collector' };
 
   if (!customer) {
     return res.status(400).json({ error: 'Valid customer is required' });
@@ -778,7 +887,12 @@ app.post('/api/collection-accounts', (req: Request, res: Response) => {
   const startDateStr = start_date || new Date().toISOString().slice(0, 10);
   const expectedEndDateStr = calculateEndDateUtc(startDateStr, colDays);
 
-  const accId = `ACC-2026-${String(db.collection_accounts.length + 1).padStart(3, '0')}`;
+  const maxAccNum = db.collection_accounts.reduce((max, a) => {
+    const match = a.id.match(/\d+$/);
+    const n = match ? parseInt(match[0], 10) : 0;
+    return n > max ? n : max;
+  }, 0);
+  const accId = `ACC-2026-${String(maxAccNum + 1).padStart(3, '0')}`;
   const planName = plan ? plan.plan_name : `${colDays}-Day Doorstep Plan (₹${reqAmount.toLocaleString('en-IN')})`;
 
   const newAccount: CollectionAccount = {
