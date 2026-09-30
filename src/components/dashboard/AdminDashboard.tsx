@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { DashboardStats, DashboardCharts } from '../../types';
+import { DashboardStats } from '../../types';
 import { api } from '../../services/api';
-import { formatCurrency, formatPercent } from '../../utils/formatters';
+import { formatCurrency } from '../../utils/formatters';
 import { useLanguage } from '../../context/LanguageContext';
 import { 
   Users, 
@@ -12,52 +12,27 @@ import {
   TrendingUp, 
   ShieldCheck, 
   DollarSign, 
-  ArrowUpRight, 
-  ArrowRight,
-  PlusCircle,
-  FileSpreadsheet,
-  CheckCircle2,
-  RefreshCw
+  CheckCircle2, 
+  RefreshCw 
 } from 'lucide-react';
-import { 
-  ResponsiveContainer, 
-  AreaChart, 
-  Area, 
-  BarChart, 
-  Bar, 
-  PieChart, 
-  Pie, 
-  Cell, 
-  XAxis, 
-  YAxis, 
-  Tooltip, 
-  CartesianGrid, 
-  Legend 
-} from 'recharts';
 
 interface AdminDashboardProps {
   onNavigate: (view: string) => void;
-  onOpenQuickCollect: () => void;
+  onOpenQuickCollect?: () => void;
 }
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   onNavigate,
-  onOpenQuickCollect,
 }) => {
   const { t } = useLanguage();
   const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [charts, setCharts] = useState<DashboardCharts | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
   const loadData = async () => {
     try {
-      const [s, c] = await Promise.all([
-        api.getDashboardStats(),
-        api.getDashboardCharts(),
-      ]);
+      const s = await api.getDashboardStats();
       setStats(s);
-      setCharts(c);
     } catch (err) {
       console.error('Failed to load dashboard data:', err);
     } finally {
@@ -88,7 +63,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     <div className="space-y-6 pb-12 font-sans">
       {/* Top Banner: Daily Collection Management Hub */}
       <div className="relative overflow-hidden rounded-2xl p-5 md:p-6 bg-gradient-to-r from-navy-900 via-navy-850 to-navy-900 border border-gold-500/30 shadow-2xl">
-        <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+        <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="px-2.5 py-0.5 rounded-full bg-gold-500/20 border border-gold-500/40 text-[10px] font-bold text-gold-300 uppercase tracking-widest">
@@ -103,38 +78,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               {t('appTagline', 'Disbursing micro-growth capital to local shop owners with daily doorstep repayments, digital receipts, and real-time ledger accounting.')}
             </p>
           </div>
-        </div>
-
-        {/* Quick Action Ribbon */}
-        <div className="mt-5 pt-4 border-t border-slate-800 flex flex-wrap items-center justify-between gap-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              onClick={onOpenQuickCollect}
-              className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-gold-500 to-amber-600 hover:from-gold-400 hover:to-amber-500 text-navy-950 font-bold text-xs shadow-md shadow-gold-500/20 flex items-center gap-1.5 transition-all"
-            >
-              <PlusCircle className="w-4 h-4" />
-              {t('collectPayment', 'Collect Payment')}
-            </button>
-            <button
-              onClick={() => onNavigate('daily-collections')}
-              className="px-3.5 py-1.5 rounded-xl bg-navy-950 border border-slate-700 hover:border-gold-500/40 text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition-all"
-            >
-              <CalendarCheck className="w-4 h-4 text-gold-400" />
-              {t('dailyRegister', 'Daily Collection Register')}
-            </button>
-            <button
-              onClick={() => onNavigate('monthly-report')}
-              className="px-3.5 py-1.5 rounded-xl bg-navy-950 border border-slate-700 hover:border-gold-500/40 text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition-all"
-            >
-              <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
-              {t('monthlyMatrix', 'Monthly Excel Matrix')}
-            </button>
-          </div>
 
           <button
             onClick={handleRefresh}
             disabled={refreshing}
-            className="p-1.5 rounded-xl bg-navy-950 border border-slate-800 text-slate-400 hover:text-white transition-all text-xs flex items-center gap-1.5"
+            className="p-2 px-3 rounded-xl bg-navy-950/80 border border-slate-700 hover:border-gold-500/50 text-slate-300 hover:text-white transition-all text-xs flex items-center gap-1.5 shadow-sm cursor-pointer self-start sm:self-auto"
             title={t('Refresh Dashboard', 'Refresh Dashboard')}
           >
             <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin text-gold-400' : ''}`} />
@@ -295,164 +243,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           <div className="flex justify-between text-[11px] font-semibold">
             <span className="text-slate-400">{t('collected', 'Collected')}: {formatCurrency(stats?.todayCollected)}</span>
             <span className="text-gold-400">{stats?.todayCollectionRate}%</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Recharts Visualizations Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Chart 1: Daily Collection Trend (Expected vs Collected) */}
-        <div className="lg:col-span-2 glass-card p-5 rounded-2xl">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-gold-400" />
-                {t('dailyCollectionPerformanceTrend', 'Daily Collection Performance Trend')}
-              </h3>
-              <p className="text-xs text-slate-400">{t('expectedVsActualDoorstep', 'Expected vs Actual Doorstep Collections (Past 14 Days)')}</p>
-            </div>
-            <span className="text-xs text-slate-400 font-mono">{t('dailyInInr', 'Daily in INR (₹)')}</span>
-          </div>
-
-          <div className="h-64 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={charts?.dailyTrend || []}>
-                <defs>
-                  <linearGradient id="colorCollected" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.4}/>
-                    <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
-                  </linearGradient>
-                  <linearGradient id="colorExpected" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#f59e0b" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                <XAxis dataKey="date" stroke="#64748b" fontSize={11} />
-                <YAxis stroke="#64748b" fontSize={11} tickFormatter={(val) => `₹${val}`} />
-                <Tooltip
-                  contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '12px', fontSize: '12px' }}
-                  formatter={(value: any) => [`₹${value}`, '']}
-                />
-                <Legend />
-                <Area type="monotone" dataKey="expected" name={t('expectedDue', 'Expected Due')} stroke="#f59e0b" fillOpacity={1} fill="url(#colorExpected)" />
-                <Area type="monotone" dataKey="collected" name={t('actuallyCollected', 'Actually Collected')} stroke="#10b981" strokeWidth={2} fillOpacity={1} fill="url(#colorCollected)" />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* Chart 2: Payment Status Distribution Donut */}
-        <div className="glass-card p-5 rounded-2xl flex flex-col justify-between">
-          <div>
-            <h3 className="text-sm font-bold text-white flex items-center gap-2 mb-1">
-              <ShieldCheck className="w-4 h-4 text-gold-400" />
-              {t('todaysPaymentStatus', "Today's Payment Status")}
-            </h3>
-            <p className="text-xs text-slate-400 mb-4">{t('paymentStatusBreakdownDesc', 'Paid, Partial, Pending & Overdue Accounts')}</p>
-          </div>
-
-          <div className="h-52 w-full flex items-center justify-center">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={charts?.paymentStatusDistribution || []}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={50}
-                  outerRadius={75}
-                  paddingAngle={4}
-                  dataKey="value"
-                >
-                  {(charts?.paymentStatusDistribution || []).map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '12px', fontSize: '12px' }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-slate-800">
-            {(charts?.paymentStatusDistribution || []).map((s) => (
-              <div key={s.name} className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: s.color }} />
-                <span className="text-slate-300 text-[11px] truncate">{t(s.name, s.name)}: <strong className="text-white">{s.value}</strong></span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Row 2: Monthly Performance & Finance Summary */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Chart 3: Monthly Collection Performance */}
-        <div className="glass-card p-5 rounded-2xl">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                <CalendarCheck className="w-4 h-4 text-emerald-400" />
-                {t('monthlyCollectionProgress', 'Monthly Collection Progress')}
-              </h3>
-              <p className="text-xs text-slate-400">{t('monthlyCollectedVsTarget', 'Monthly Collected vs Target')}</p>
-            </div>
-            <button
-              onClick={() => onNavigate('monthly-report')}
-              className="text-xs text-gold-400 hover:text-gold-300 font-semibold flex items-center gap-1"
-            >
-              {t('excelMatrix', 'Excel Matrix')} <ArrowRight className="w-3.5 h-3.5" />
-            </button>
-          </div>
-
-          <div className="h-60 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={charts?.monthlyTrend || []}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                <XAxis dataKey="month" stroke="#64748b" fontSize={11} />
-                <YAxis stroke="#64748b" fontSize={11} tickFormatter={(val) => `₹${val / 1000}k`} />
-                <Tooltip
-                  contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '12px', fontSize: '12px' }}
-                  formatter={(val: any) => [`₹${val.toLocaleString('en-IN')}`, '']}
-                />
-                <Legend />
-                <Bar dataKey="collected" name={t('collected', 'Collected') + ' (₹)'} fill="#10b981" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="disbursed" name={t('disbursed', 'Disbursed') + ' (₹)'} fill="#3b82f6" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* Chart 4: Finance Summary Comparison */}
-        <div className="glass-card p-5 rounded-2xl">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                <DollarSign className="w-4 h-4 text-gold-400" />
-                {t('portfolioFinanceSummary', 'Portfolio Finance Summary')}
-              </h3>
-              <p className="text-xs text-slate-400">{t('portfolioFinanceSummaryDesc', 'Total Disbursed vs Repayment vs Margin vs Outstanding')}</p>
-            </div>
-          </div>
-
-          <div className="h-60 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart layout="vertical" data={charts?.financeSummary || []}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                <XAxis type="number" stroke="#64748b" fontSize={11} tickFormatter={(val) => `₹${val / 1000}k`} />
-                <YAxis type="category" dataKey="name" stroke="#cbd5e1" fontSize={11} width={85} />
-                <Tooltip
-                  contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '12px', fontSize: '12px' }}
-                  formatter={(val: any) => [`₹${val.toLocaleString('en-IN')}`, 'Amount']}
-                />
-                <Bar dataKey="amount" radius={[0, 6, 6, 0]}>
-                  {(charts?.financeSummary || []).map((entry, index) => (
-                    <Cell key={`bar-${index}`} fill={entry.fill} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
           </div>
         </div>
       </div>
