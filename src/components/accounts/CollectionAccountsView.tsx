@@ -3,6 +3,7 @@ import { CollectionAccount, CustomerPersonalDetails, CollectionPlan, Collector, 
 import { api } from '../../services/api';
 import { formatCurrency, formatDate, getStatusBadgeClass } from '../../utils/formatters';
 import { exportTableToExcel } from '../../utils/excelExport';
+import { calculateEndDate, calculateMonthlyBreakdown, MonthlyBreakdown } from '../../utils/calendarSchedule';
 import { useLanguage } from '../../context/LanguageContext';
 import { 
   Wallet, 
@@ -21,7 +22,15 @@ import {
   Edit3,
   Trash2,
   Save,
-  Check
+  Check,
+  Calendar,
+  ChevronRight,
+  ChevronLeft,
+  ShieldCheck,
+  ArrowRight,
+  Sparkles,
+  Layers,
+  Sliders
 } from 'lucide-react';
 
 interface CollectionAccountsViewProps {
@@ -35,7 +44,7 @@ export const CollectionAccountsView: React.FC<CollectionAccountsViewProps> = ({
 }) => {
   const { t } = useLanguage();
   const [accounts, setAccounts] = useState<CollectionAccount[]>([]);
-  const [customers, setCustomers] = useState<CustomerPersonalDetails[]>([]);
+  const [customers, setCustomers] = useState<any[]>([]);
   const [plans, setPlans] = useState<CollectionPlan[]>([]);
   const [collectors, setCollectors] = useState<Collector[]>([]);
   const [areas, setAreas] = useState<Area[]>([]);
@@ -43,12 +52,20 @@ export const CollectionAccountsView: React.FC<CollectionAccountsViewProps> = ({
   const [search, setSearch] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
 
-  // Disburse Modal State
+  // 4-Step Disburse Wizard State (Section 20 & 21)
   const [showDisburseModal, setShowDisburseModal] = useState<boolean>(false);
+  const [wizardStep, setWizardStep] = useState<1 | 2 | 3 | 4>(1);
   const [selectedCustomerId, setSelectedCustomerId] = useState<string>('');
-  const [selectedPlanId, setSelectedPlanId] = useState<string>('');
-  const [selectedCollectorId, setSelectedCollectorId] = useState<string>('');
+  const [requestedAmount, setRequestedAmount] = useState<number>(10000);
+  const [marginPercentage, setMarginPercentage] = useState<number>(12);
+  const [collectionDays, setCollectionDays] = useState<number>(100);
+  const [isCustomDays, setIsCustomDays] = useState<boolean>(false);
+  const [customDaysValue, setCustomDaysValue] = useState<number>(100);
+  const [dailyCollection, setDailyCollection] = useState<number>(100);
+  const [isDailyAuto, setIsDailyAuto] = useState<boolean>(true);
   const [startDate, setStartDate] = useState<string>(new Date().toISOString().slice(0, 10));
+  const [selectedCollectorId, setSelectedCollectorId] = useState<string>('');
+  const [selectedArea, setSelectedArea] = useState<string>('Bazaar Main Road');
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -74,9 +91,9 @@ export const CollectionAccountsView: React.FC<CollectionAccountsViewProps> = ({
       setCollectors(cols);
       setAreas(ars);
 
-      if (custs.length > 0) setSelectedCustomerId(custs[0].id);
-      if (pls.length > 0) setSelectedPlanId(pls[0].id);
-      if (cols.length > 0) setSelectedCollectorId(cols[0].id);
+      if (custs.length > 0 && !selectedCustomerId) setSelectedCustomerId(custs[0].id);
+      if (cols.length > 0 && !selectedCollectorId) setSelectedCollectorId(cols[0].id);
+      if (ars.length > 0 && !selectedArea) setSelectedArea(ars[0].area_name);
     } catch (err) {
       console.error('Failed to load accounts:', err);
     } finally {
@@ -88,20 +105,93 @@ export const CollectionAccountsView: React.FC<CollectionAccountsViewProps> = ({
     loadData();
   }, []);
 
+  const selectedCustomerObj = customers.find(c => c.id === selectedCustomerId);
+  const shopDetails = selectedCustomerObj?.business;
+
+  // Section 3: Auto-suggest shop's default finance margin % when customer is selected
+  useEffect(() => {
+    if (selectedCustomerObj?.business) {
+      const defaultMargin = selectedCustomerObj.business.default_margin_percentage;
+      if (defaultMargin !== undefined && defaultMargin !== null) {
+        setMarginPercentage(Number(defaultMargin));
+      }
+      if (selectedCustomerObj.business.shop_area) {
+        setSelectedArea(selectedCustomerObj.business.shop_area);
+      }
+    }
+  }, [selectedCustomerId]);
+
+  // Section 5: Finance calculations
+  const effectiveDays = isCustomDays ? Number(customDaysValue) || 1 : Number(collectionDays) || 1;
+  const marginAmount = Math.round(requestedAmount * (marginPercentage / 100));
+  const disbursedAmount = Math.max(0, requestedAmount - marginAmount);
+  const totalRepayment = requestedAmount; // Customer repays the original requested amount
+
+  // Auto calculate daily collection
+  useEffect(() => {
+    if (isDailyAuto && effectiveDays > 0) {
+      setDailyCollection(Math.round(totalRepayment / effectiveDays));
+    }
+  }, [totalRepayment, effectiveDays, isDailyAuto]);
+
+  // Section 8, 9, 12, 13: Exact calendar end date and monthly carryover breakdown
+  const calculatedEndDate = calculateEndDate(startDate, effectiveDays);
+  const monthlyBreakdown: MonthlyBreakdown[] = calculateMonthlyBreakdown(startDate, effectiveDays, dailyCollection);
+  const scheduledTotal = dailyCollection * effectiveDays;
+  const repaymentDifference = scheduledTotal - totalRepayment;
+
   const handleDisburse = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    setSubmitting(true);
 
+    // Section 21: Validation
+    if (!selectedCustomerId) {
+      setError(t('selectCustomerValidation', 'Please select a customer.'));
+      return;
+    }
+    if (requestedAmount <= 0) {
+      setError(t('reqAmountPositive', 'Requested amount must be greater than ₹0.'));
+      return;
+    }
+    if (marginPercentage < 0) {
+      setError(t('marginNonNegative', 'Margin % must be 0 or greater.'));
+      return;
+    }
+    if (disbursedAmount < 0) {
+      setError(t('disbursedNonNegative', 'Disbursed amount cannot be negative.'));
+      return;
+    }
+    if (effectiveDays <= 0) {
+      setError(t('periodPositive', 'Collection period must be at least 1 day.'));
+      return;
+    }
+    if (dailyCollection <= 0) {
+      setError(t('dailyPositive', 'Daily collection amount must be greater than ₹0.'));
+      return;
+    }
+    if (!startDate) {
+      setError(t('validStartDateReq', 'Valid start date is required.'));
+      return;
+    }
+
+    setSubmitting(true);
     try {
       await api.createCollectionAccount({
         customer_id: selectedCustomerId,
-        plan_id: selectedPlanId,
-        assigned_collector_id: selectedCollectorId,
+        requested_amount: requestedAmount,
+        margin_percentage: marginPercentage,
+        margin_amount: marginAmount,
+        disbursed_amount: disbursedAmount,
+        daily_collection: dailyCollection,
+        collection_days: effectiveDays,
         start_date: startDate,
+        expected_end_date: calculatedEndDate,
+        assigned_collector_id: selectedCollectorId || (collectors[0]?.id ?? 'COL101'),
+        collection_area: selectedArea || 'Bazaar Main Road',
       });
 
       setShowDisburseModal(false);
+      setWizardStep(1);
       await loadData();
     } catch (err: any) {
       setError(err.message || 'Failed to disburse collection account');
@@ -219,8 +309,6 @@ export const CollectionAccountsView: React.FC<CollectionAccountsViewProps> = ({
       (a.shop_name && a.shop_name.toLowerCase().includes(q))
     );
   }
-
-  const selectedPlanObj = plans.find(p => p.id === selectedPlanId);
 
   return (
     <div className="space-y-6 pb-12 font-sans">
@@ -430,100 +518,539 @@ export const CollectionAccountsView: React.FC<CollectionAccountsViewProps> = ({
         </div>
       </div>
 
-      {/* DISBURSE NEW LOAN MODAL */}
+      {/* 4-STEP DISBURSE NEW COLLECTION ACCOUNT WIZARD (Section 20 & 21) */}
       {showDisburseModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/85 backdrop-blur-md">
-          <div className="glass-card rounded-2xl border border-gold-500/40 p-6 max-w-lg w-full bg-navy-900 shadow-2xl">
-            <div className="flex justify-between items-center mb-4 pb-2 border-b border-slate-800">
-              <h3 className="text-base font-bold text-white">{t('disburseNewCollectionAccount', 'Disburse New Collection Account')}</h3>
-              <button onClick={() => setShowDisburseModal(false)} className="text-slate-400 hover:text-white"><X className="w-4 h-4" /></button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-navy-950/85 backdrop-blur-md">
+          <div className="glass-card rounded-2xl border border-gold-500/50 p-5 sm:p-6 max-w-2xl w-full bg-navy-900 shadow-2xl max-h-[92vh] overflow-y-auto">
+            {/* Header with Step Tracker */}
+            <div className="flex justify-between items-center pb-3 border-b border-slate-800">
+              <div>
+                <span className="text-[10px] font-bold text-gold-400 uppercase tracking-widest block">
+                  {t('loanDisbursementEngine', 'Doorstep Loan Disbursement Engine')} &bull; Step {wizardStep} of 4
+                </span>
+                <h3 className="text-base sm:text-lg font-black text-white">
+                  {wizardStep === 1 && t('step1CustomerShop', 'Step 1 — Customer & Shop Selection')}
+                  {wizardStep === 2 && t('step2FinanceMargin', 'Step 2 — Requested Amount & Shop Margin')}
+                  {wizardStep === 3 && t('step3PeriodSchedule', 'Step 3 — Collection Period & Calendar Schedule')}
+                  {wizardStep === 4 && t('step4ReviewConfirm', 'Step 4 — Review & Create Collection Account')}
+                </h3>
+              </div>
+              <button 
+                onClick={() => { setShowDisburseModal(false); setWizardStep(1); }} 
+                className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Stepper Progress Bar */}
+            <div className="grid grid-cols-4 gap-2 pt-3 pb-4">
+              {[
+                { step: 1, label: t('customer', 'Customer') },
+                { step: 2, label: t('finance', 'Finance') },
+                { step: 3, label: t('schedule', 'Schedule') },
+                { step: 4, label: t('review', 'Review') },
+              ].map(s => (
+                <div key={s.step} className="space-y-1">
+                  <div className={`h-1.5 rounded-full transition-all ${
+                    wizardStep >= s.step ? 'bg-gradient-to-r from-gold-500 to-amber-500' : 'bg-slate-800'
+                  }`} />
+                  <span className={`text-[10px] font-bold block truncate ${
+                    wizardStep === s.step ? 'text-gold-300' : (wizardStep > s.step ? 'text-slate-300' : 'text-slate-500')
+                  }`}>
+                    {s.step}. {s.label}
+                  </span>
+                </div>
+              ))}
             </div>
 
             {error && (
               <div className="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-xs text-rose-300 flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 text-rose-400" />
+                <AlertCircle className="w-4 h-4 text-rose-400 flex-shrink-0" />
                 <span>{error}</span>
               </div>
             )}
 
-            <form onSubmit={handleDisburse} className="space-y-3.5 text-xs">
-              <div>
-                <label className="block text-slate-300 font-semibold mb-1">{t('selectCustomer', 'Select Customer')}</label>
-                <select
-                  value={selectedCustomerId}
-                  onChange={e => setSelectedCustomerId(e.target.value)}
-                  className="w-full px-3 py-2 bg-navy-950 border border-slate-700 rounded-xl text-white"
-                >
-                  {customers.map(c => (
-                    <option key={c.id} value={c.id}>{c.full_name} ({c.id})</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-slate-300 font-semibold mb-1">{t('selectCollectionPlan', 'Select Collection Plan')}</label>
-                <select
-                  value={selectedPlanId}
-                  onChange={e => setSelectedPlanId(e.target.value)}
-                  className="w-full px-3 py-2 bg-navy-950 border border-slate-700 rounded-xl text-white"
-                >
-                  {plans.map(p => (
-                    <option key={p.id} value={p.id}>{p.plan_name}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Dynamic Model Calculation Box */}
-              {selectedPlanObj && (
-                <div className="p-3 rounded-xl bg-navy-950 border border-gold-500/30 space-y-1.5 font-mono text-xs">
-                  <div className="flex justify-between"><span className="text-slate-400">{t('requested', 'Requested')}:</span> <strong className="text-white">{formatCurrency(selectedPlanObj.requested_amount)}</strong></div>
-                  <div className="flex justify-between"><span className="text-gold-400 font-bold">{t('disbursed (given to cust)', 'Disbursed (Given to Cust)')}:</span> <strong className="text-gold-300">{formatCurrency(selectedPlanObj.disbursed_amount)}</strong></div>
-                  <div className="flex justify-between"><span className="text-slate-400">{t('dailyDoorstepDue', 'Daily Doorstep Due')}:</span> <span>{formatCurrency(selectedPlanObj.daily_collection)} / {t('day', 'day')}</span></div>
-                  <div className="flex justify-between"><span className="text-slate-400">{t('duration', 'Duration')}:</span> <span>{selectedPlanObj.collection_days} {t('days', 'Days')}</span></div>
-                  <div className="flex justify-between pt-1 border-t border-slate-800"><span className="text-purple-300 font-bold">{t('totalRepayment', 'Total Repayment')}:</span> <strong className="text-purple-300">{formatCurrency(selectedPlanObj.total_repayment)}</strong></div>
-                  <div className="flex justify-between"><span className="text-emerald-400 font-bold">{t('financeMargin', 'Finance Margin')}:</span> <strong className="text-emerald-400">{formatCurrency(selectedPlanObj.finance_margin)}</strong></div>
-                </div>
-              )}
-
-              <div className="grid grid-cols-2 gap-3">
+            {/* STEP 1: CUSTOMER & SHOP */}
+            {wizardStep === 1 && (
+              <div className="space-y-4 text-xs">
                 <div>
-                  <label className="block text-slate-300 font-semibold mb-1">{t('assignedCollector', 'Assigned Collector')}</label>
+                  <label className="block text-slate-300 font-bold mb-1.5">{t('selectCustomer', 'Select Customer')}</label>
                   <select
-                    value={selectedCollectorId}
-                    onChange={e => setSelectedCollectorId(e.target.value)}
-                    className="w-full px-3 py-2 bg-navy-950 border border-slate-700 rounded-xl text-white"
+                    value={selectedCustomerId}
+                    onChange={e => setSelectedCustomerId(e.target.value)}
+                    className="w-full px-3.5 py-2.5 bg-navy-950 border border-slate-700 rounded-xl text-white font-medium focus:border-gold-500 focus:outline-none text-xs"
                   >
-                    {collectors.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                    {customers.map(c => (
+                      <option key={c.id} value={c.id}>
+                        {c.full_name} ({c.id}) &bull; {c.business?.shop_name || 'Retail Shop'}
+                      </option>
+                    ))}
                   </select>
                 </div>
-                <div>
-                  <label className="block text-slate-300 font-semibold mb-1">{t('startDate', 'Start Date')}</label>
-                  <input
-                    type="date"
-                    value={startDate}
-                    onChange={e => setStartDate(e.target.value)}
-                    className="w-full px-3 py-2 bg-navy-950 border border-slate-700 rounded-xl text-white font-mono"
-                  />
+
+                {selectedCustomerObj && (
+                  <div className="p-4 rounded-xl bg-navy-950/80 border border-slate-800 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="text-sm font-bold text-white">{selectedCustomerObj.full_name}</h4>
+                        <p className="text-[11px] text-slate-400 font-mono">ID: {selectedCustomerObj.id} &bull; 📞 {selectedCustomerObj.mobile_number}</p>
+                      </div>
+                      <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                        {t('activeCustomer', 'Active Customer')}
+                      </span>
+                    </div>
+
+                    <div className="pt-2 border-t border-slate-800 grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+                      <div>
+                        <span className="text-slate-400 block">{t('shopBusiness', 'Shop / Commercial Business')}:</span>
+                        <strong className="text-slate-200">{shopDetails?.shop_name || 'N/A'}</strong>
+                        <span className="text-slate-400 block text-[10px]">{shopDetails?.business_type || 'Retail Trade'}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-400 block">{t('shopAreaAddress', 'Beat / Area Address')}:</span>
+                        <span className="text-slate-300">{shopDetails?.shop_address || 'Salem'}</span>
+                        <span className="text-slate-400 block text-[10px]">{shopDetails?.shop_area || selectedArea}</span>
+                      </div>
+                    </div>
+
+                    {/* Section 3: Shop Default Margin Badge */}
+                    <div className="p-2.5 rounded-lg bg-gold-500/10 border border-gold-500/30 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="w-4 h-4 text-gold-400" />
+                        <div>
+                          <span className="text-[11px] font-bold text-gold-300 block">{t('shopDefaultMarginRate', 'Shop Default Finance Margin %')}</span>
+                          <span className="text-[10px] text-slate-400">{t('differentShopsDifferentRates', 'Different shops have customized margin rates. Automatically suggested in Step 2.')}</span>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-base font-black font-mono text-gold-400">
+                          {shopDetails?.default_margin_percentage ?? 12}%
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <div className="pt-3 border-t border-slate-800 flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowDisburseModal(false)}
+                    className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-semibold"
+                  >
+                    {t('cancel', 'Cancel')}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setWizardStep(2)}
+                    className="px-5 py-2 rounded-xl bg-gradient-to-r from-gold-500 to-amber-600 hover:from-gold-400 hover:to-amber-500 text-navy-950 font-bold shadow-md shadow-gold-500/20 flex items-center gap-1.5"
+                  >
+                    <span>{t('nextFinanceDetails', 'Next: Finance Details')}</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
                 </div>
               </div>
+            )}
 
-              <div className="pt-2 flex gap-2">
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-gold-500 to-amber-600 hover:from-gold-400 hover:to-amber-500 text-navy-950 font-bold shadow-md shadow-gold-500/20"
-                >
-                  {submitting ? t('disbursing...', 'Disbursing...') : t('confirmLoanAndDisburse', 'Confirm Loan & Disburse')}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowDisburseModal(false)}
-                  className="py-2.5 px-4 rounded-xl bg-slate-800 text-slate-300"
-                >
-                  {t('cancel', 'Cancel')}
-                </button>
+            {/* STEP 2: FINANCE & MARGIN */}
+            {wizardStep === 2 && (
+              <div className="space-y-4 text-xs">
+                <div>
+                  <div className="flex justify-between items-center mb-1">
+                    <label className="text-slate-300 font-bold">{t('requestedAmount (₹)', 'Requested Amount (₹)')}</label>
+                    <span className="text-[10px] text-slate-400 font-mono">{t('originalCustomerRequest', 'Full Amount To Be Repaid')}</span>
+                  </div>
+                  <input
+                    type="number"
+                    value={requestedAmount}
+                    onChange={e => setRequestedAmount(Math.max(0, Number(e.target.value)))}
+                    className="w-full px-3.5 py-2.5 bg-navy-950 border border-slate-700 rounded-xl text-white font-mono text-sm font-bold focus:border-gold-500 focus:outline-none"
+                    placeholder="e.g. 10000"
+                    min={100}
+                    step={100}
+                    required
+                  />
+
+                  {/* Quick Preset Buttons */}
+                  <div className="flex flex-wrap gap-1.5 mt-2">
+                    {[10000, 15000, 20000, 25000, 50000, 100000].map(amt => (
+                      <button
+                        key={amt}
+                        type="button"
+                        onClick={() => setRequestedAmount(amt)}
+                        className={`px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold transition-all ${
+                          requestedAmount === amt
+                            ? 'bg-gold-500 text-navy-950'
+                            : 'bg-navy-950 border border-slate-700 text-slate-300 hover:text-white'
+                        }`}
+                      >
+                        ₹{amt.toLocaleString('en-IN')}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Section 2 & 3: Shop Specific Margin % */}
+                <div>
+                  <div className="flex justify-between items-center mb-1">
+                    <label className="text-slate-300 font-bold">{t('applicableMarginRate (%)', 'Applicable Finance Margin (%)')}</label>
+                    <span className="text-[10px] text-gold-400 font-semibold">
+                      {t('shopSuggested', 'Shop Profile Suggested')}: {shopDetails?.default_margin_percentage ?? 12}%
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="number"
+                      value={marginPercentage}
+                      onChange={e => setMarginPercentage(Math.max(0, Number(e.target.value)))}
+                      className="w-full px-3.5 py-2.5 bg-navy-950 border border-slate-700 rounded-xl text-gold-300 font-mono text-sm font-bold focus:border-gold-500 focus:outline-none"
+                      placeholder="e.g. 12"
+                      min={0}
+                      max={50}
+                      step={0.5}
+                      required
+                    />
+                    <div className="flex gap-1">
+                      {[10, 12, 15, 18, 20].map(m => (
+                        <button
+                          key={m}
+                          type="button"
+                          onClick={() => setMarginPercentage(m)}
+                          className={`px-2 py-2 rounded-lg text-[10px] font-mono font-bold ${
+                            marginPercentage === m
+                              ? 'bg-amber-500 text-navy-950'
+                              : 'bg-navy-950 border border-slate-700 text-slate-300'
+                          }`}
+                        >
+                          {m}%
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <p className="text-[10px] text-slate-400 mt-1">
+                    {t('marginExplained', 'Margin is deducted upfront before disbursement. Customer repays original requested amount.')}
+                  </p>
+                </div>
+
+                {/* Section 1 & 5: Live Mathematical Calculation Box */}
+                <div className="p-4 rounded-xl bg-navy-950 border border-gold-500/30 space-y-2.5 font-mono text-xs">
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400">{t('requestedAmount', 'Requested Amount')}:</span>
+                    <strong className="text-white text-sm">{formatCurrency(requestedAmount)}</strong>
+                  </div>
+                  <div className="flex justify-between items-center text-gold-400">
+                    <span>{t('marginDeduction', 'Finance Margin')} ({marginPercentage}%):</span>
+                    <strong className="text-sm">− {formatCurrency(marginAmount)}</strong>
+                  </div>
+                  <div className="pt-2 border-t border-slate-800 flex justify-between items-center bg-gold-500/10 p-2 rounded-lg">
+                    <div>
+                      <span className="text-gold-300 font-bold block">{t('disbursedAmount', 'Disbursed Principal')}</span>
+                      <span className="text-[10px] text-slate-400 font-sans">{t('givenUpfrontToCustomer', '(Handed directly to customer)')}</span>
+                    </div>
+                    <strong className="text-gold-300 text-base">{formatCurrency(disbursedAmount)}</strong>
+                  </div>
+                  <div className="flex justify-between items-center text-purple-300 pt-1">
+                    <div>
+                      <span className="font-bold block">{t('totalRepaymentGoal', 'Total Repayment Goal')}</span>
+                      <span className="text-[10px] text-slate-400 font-sans">{t('repaidViaDailyCollections', '(Repaid via doorstep daily collections)')}</span>
+                    </div>
+                    <strong className="text-purple-300 text-base">{formatCurrency(totalRepayment)}</strong>
+                  </div>
+                </div>
+
+                <div className="pt-3 border-t border-slate-800 flex justify-between gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setWizardStep(1)}
+                    className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-semibold flex items-center gap-1"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                    <span>{t('back', 'Back')}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setWizardStep(3)}
+                    className="px-5 py-2 rounded-xl bg-gradient-to-r from-gold-500 to-amber-600 hover:from-gold-400 hover:to-amber-500 text-navy-950 font-bold shadow-md shadow-gold-500/20 flex items-center gap-1.5"
+                  >
+                    <span>{t('nextSchedule', 'Next: Collection Schedule')}</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
-            </form>
+            )}
+
+            {/* STEP 3: COLLECTION PERIOD & CALENDAR SCHEDULING */}
+            {wizardStep === 3 && (
+              <div className="space-y-4 text-xs">
+                {/* Section 6: Collection Period */}
+                <div>
+                  <label className="block text-slate-300 font-bold mb-1.5">{t('collectionPeriodDuration', 'Collection Period (Duration)')}</label>
+                  <div className="grid grid-cols-4 sm:grid-cols-7 gap-1.5">
+                    {[30, 50, 60, 90, 100, 120].map(days => (
+                      <button
+                        key={days}
+                        type="button"
+                        onClick={() => { setCollectionDays(days); setIsCustomDays(false); }}
+                        className={`py-2 px-1 rounded-xl text-[11px] font-bold font-mono transition-all text-center ${
+                          !isCustomDays && collectionDays === days
+                            ? 'bg-gold-500 text-navy-950 shadow-md shadow-gold-500/20'
+                            : 'bg-navy-950 border border-slate-700 text-slate-300 hover:text-white'
+                        }`}
+                      >
+                        {days} {t('d', 'Days')}
+                      </button>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => setIsCustomDays(true)}
+                      className={`py-2 px-1 rounded-xl text-[11px] font-bold transition-all text-center ${
+                        isCustomDays
+                          ? 'bg-gold-500 text-navy-950 shadow-md shadow-gold-500/20'
+                          : 'bg-navy-950 border border-slate-700 text-slate-300 hover:text-white'
+                      }`}
+                    >
+                      {t('custom', 'Custom')}
+                    </button>
+                  </div>
+
+                  {isCustomDays && (
+                    <div className="mt-2 flex items-center gap-2">
+                      <span className="text-[11px] text-slate-400">{t('enterCustomDays', 'Enter Custom Days')}:</span>
+                      <input
+                        type="number"
+                        value={customDaysValue}
+                        onChange={e => setCustomDaysValue(Math.max(1, Number(e.target.value)))}
+                        className="w-24 px-3 py-1.5 bg-navy-950 border border-gold-500 rounded-lg text-white font-mono text-xs font-bold"
+                        min={1}
+                        max={365}
+                      />
+                    </div>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {/* Daily Collection Amount */}
+                  <div>
+                    <div className="flex justify-between items-center mb-1">
+                      <label className="text-slate-300 font-bold">{t('dailyDoorstepDue', 'Daily Doorstep Due')}</label>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsDailyAuto(true);
+                          setDailyCollection(Math.round(totalRepayment / effectiveDays));
+                        }}
+                        className="text-[10px] text-gold-400 underline font-semibold"
+                      >
+                        {t('autoCalculate', 'Auto-Calculate')}
+                      </button>
+                    </div>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        value={dailyCollection}
+                        onChange={e => {
+                          setIsDailyAuto(false);
+                          setDailyCollection(Math.max(1, Number(e.target.value)));
+                        }}
+                        className="w-full px-3.5 py-2.5 bg-navy-950 border border-slate-700 rounded-xl text-white font-mono text-sm font-bold focus:border-gold-500 focus:outline-none"
+                        min={1}
+                      />
+                      <span className="absolute right-3 top-3 text-[10px] text-slate-400 font-mono">₹ / {t('day', 'day')}</span>
+                    </div>
+                    {repaymentDifference !== 0 && (
+                      <span className="text-[10px] text-amber-400 block mt-0.5">
+                        {repaymentDifference > 0 ? `+₹${repaymentDifference} higher than loan goal` : `−₹${Math.abs(repaymentDifference)} lower than loan goal`}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Section 7: Start Date */}
+                  <div>
+                    <label className="block text-slate-300 font-bold mb-1">{t('collectionStartDate', 'Collection Start Date')}</label>
+                    <input
+                      type="date"
+                      value={startDate}
+                      onChange={e => setStartDate(e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-navy-950 border border-slate-700 rounded-xl text-white font-mono text-xs focus:border-gold-500 focus:outline-none"
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* Section 8 & 9 & 12: Continuous Calendar End Date & Month-to-Month Carryover */}
+                <div className="p-3.5 rounded-xl bg-navy-950 border border-slate-800 space-y-2.5">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                    <div>
+                      <span className="text-[10px] uppercase font-bold text-gold-400 block tracking-wider">
+                        {t('calculatedCalendarSchedule', 'Continuous Calendar Schedule (Crossing Months)')}
+                      </span>
+                      <span className="text-[11px] text-slate-300 font-mono">
+                        {startDate} → <strong className="text-emerald-400">{calculatedEndDate}</strong> ({effectiveDays} {t('days', 'Days')})
+                      </span>
+                    </div>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-slate-800 text-slate-300">
+                      Day 1 to Day {effectiveDays}
+                    </span>
+                  </div>
+
+                  {/* Section 13: Month-by-Month Carryover Grid */}
+                  <div className="space-y-1 pt-1 border-t border-slate-850">
+                    <span className="text-[10px] text-slate-400 font-semibold block">{t('monthlyCarryoverExpectedTotals', 'Monthly Carryover & Expected Totals')}:</span>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 font-mono text-[10px]">
+                      {monthlyBreakdown.map(m => (
+                        <div key={m.monthKey} className="p-2 rounded-lg bg-navy-900 border border-slate-800">
+                          <strong className="text-slate-200 block font-sans text-[11px] truncate">{m.monthName}</strong>
+                          <span className="text-slate-400 block text-[9px]">Days {m.startDayNumber}–{m.endDayNumber} ({m.daysCount}d)</span>
+                          <span className="text-emerald-400 font-bold block">{formatCurrency(m.expectedAmount)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Collector & Area */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-slate-300 font-semibold mb-1">{t('assignedCollector', 'Assigned Field Collector')}</label>
+                    <select
+                      value={selectedCollectorId}
+                      onChange={e => setSelectedCollectorId(e.target.value)}
+                      className="w-full px-3 py-2 bg-navy-950 border border-slate-700 rounded-xl text-white text-xs"
+                    >
+                      {collectors.map(c => <option key={c.id} value={c.id}>{c.name} ({c.id})</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-slate-300 font-semibold mb-1">{t('collectionArea', 'Collection Beat / Area')}</label>
+                    <select
+                      value={selectedArea}
+                      onChange={e => setSelectedArea(e.target.value)}
+                      className="w-full px-3 py-2 bg-navy-950 border border-slate-700 rounded-xl text-white text-xs"
+                    >
+                      {areas.map(a => <option key={a.id} value={a.area_name}>{a.area_name}</option>)}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="pt-3 border-t border-slate-800 flex justify-between gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setWizardStep(2)}
+                    className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-semibold flex items-center gap-1"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                    <span>{t('back', 'Back')}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setWizardStep(4)}
+                    className="px-5 py-2 rounded-xl bg-gradient-to-r from-gold-500 to-amber-600 hover:from-gold-400 hover:to-amber-500 text-navy-950 font-bold shadow-md shadow-gold-500/20 flex items-center gap-1.5"
+                  >
+                    <span>{t('nextReviewLoan', 'Next: Review Loan')}</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* STEP 4: REVIEW & VALIDATION */}
+            {wizardStep === 4 && (
+              <div className="space-y-4 text-xs">
+                {/* Section 20 Review Box */}
+                <div className="p-4 rounded-2xl bg-navy-950 border border-gold-500/40 space-y-3 font-mono">
+                  <div className="flex items-center justify-between pb-2 border-b border-slate-800 font-sans">
+                    <div>
+                      <h4 className="text-sm font-bold text-white">{selectedCustomerObj?.full_name}</h4>
+                      <p className="text-[11px] text-gold-400">{shopDetails?.shop_name || 'Retail Business'} &bull; {selectedArea}</p>
+                    </div>
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-gold-500/20 text-gold-300 border border-gold-500/40">
+                      {effectiveDays}-Day Plan
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs">
+                    <div className="p-2.5 rounded-xl bg-navy-900 border border-slate-800">
+                      <span className="text-[10px] text-slate-400 block uppercase">{t('requestedAmount', 'Requested')}</span>
+                      <strong className="text-white text-sm">{formatCurrency(requestedAmount)}</strong>
+                    </div>
+                    <div className="p-2.5 rounded-xl bg-navy-900 border border-slate-800">
+                      <span className="text-[10px] text-gold-400 block uppercase">{t('marginRate', 'Margin %')}</span>
+                      <strong className="text-gold-400 text-sm">{marginPercentage}% ({formatCurrency(marginAmount)})</strong>
+                    </div>
+                    <div className="p-2.5 rounded-xl bg-navy-900 border border-gold-500/30">
+                      <span className="text-[10px] text-gold-300 block uppercase font-bold">{t('disbursed', 'Disbursed Principal')}</span>
+                      <strong className="text-gold-300 text-sm">{formatCurrency(disbursedAmount)}</strong>
+                    </div>
+                    <div className="p-2.5 rounded-xl bg-navy-900 border border-purple-500/30">
+                      <span className="text-[10px] text-purple-300 block uppercase font-bold">{t('totalRepayment', 'Repayment Goal')}</span>
+                      <strong className="text-purple-300 text-sm">{formatCurrency(totalRepayment)}</strong>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs pt-1">
+                    <div className="p-2 rounded-xl bg-navy-900 border border-slate-800">
+                      <span className="text-[10px] text-slate-400 block">{t('dailyCollection', 'Daily Due')}</span>
+                      <strong className="text-slate-200">{formatCurrency(dailyCollection)} / day</strong>
+                    </div>
+                    <div className="p-2 rounded-xl bg-navy-900 border border-slate-800">
+                      <span className="text-[10px] text-slate-400 block">{t('collectionPeriod', 'Period')}</span>
+                      <strong className="text-slate-200">{effectiveDays} {t('days', 'Days')}</strong>
+                    </div>
+                    <div className="p-2 rounded-xl bg-navy-900 border border-slate-800">
+                      <span className="text-[10px] text-slate-400 block">{t('startDate', 'Start Date')}</span>
+                      <strong className="text-slate-200">{startDate}</strong>
+                    </div>
+                    <div className="p-2 rounded-xl bg-navy-900 border border-emerald-500/30">
+                      <span className="text-[10px] text-emerald-400 block">{t('endDate', 'End Date')}</span>
+                      <strong className="text-emerald-400">{calculatedEndDate}</strong>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 21: Validation Checklist */}
+                <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1.5 text-[11px]">
+                  <span className="font-bold text-slate-300 block mb-1 uppercase tracking-wider text-[10px]">{t('financialValidationChecks', 'Financial Validation Checks')}:</span>
+                  <div className="flex items-center gap-2 text-emerald-400">
+                    <Check className="w-3.5 h-3.5" />
+                    <span>{t('requestedAmountValid', 'Requested Amount > ₹0 and Disbursed Amount mathematically positive')}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-emerald-400">
+                    <Check className="w-3.5 h-3.5" />
+                    <span>{t('marginCalculated', 'Shop-specific margin computed and snapshot preserved permanently')}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-emerald-400">
+                    <Check className="w-3.5 h-3.5" />
+                    <span>{t('calendarScheduleVerified', 'Exact calendar days cross months continuously without Day 1 reset')}</span>
+                  </div>
+                  {repaymentDifference !== 0 && (
+                    <div className="flex items-center gap-2 text-amber-400 pt-1 border-t border-slate-800">
+                      <AlertCircle className="w-3.5 h-3.5" />
+                      <span>{t('installmentRoundDifference', 'Note: Daily installment rounding creates a')} ₹{Math.abs(repaymentDifference)} {t('differenceAdjustedOnLastInstallment', 'difference, which will be automatically adjusted on Day')} {effectiveDays}.</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="pt-3 border-t border-slate-800 flex justify-between gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setWizardStep(3)}
+                    className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-semibold flex items-center gap-1"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                    <span>{t('backToEdit', 'Back to Edit')}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleDisburse}
+                    disabled={submitting}
+                    className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-gold-500 to-amber-600 hover:from-gold-400 hover:to-amber-500 text-navy-950 font-black shadow-lg shadow-gold-500/25 flex items-center gap-2 text-xs"
+                  >
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>{submitting ? t('creatingAccount...', 'Creating Account & Schedule...') : t('createCollectionAccountBtn', 'CREATE COLLECTION ACCOUNT')}</span>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

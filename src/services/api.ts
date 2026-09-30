@@ -176,11 +176,40 @@ export const api = {
     return handleResponse(res);
   },
 
-  async createCollectionAccount(data: { customer_id: string; plan_id: string; start_date?: string; assigned_collector_id?: string; collection_area?: string }): Promise<CollectionAccount> {
+  async createCollectionAccount(data: {
+    customer_id: string;
+    plan_id?: string;
+    requested_amount?: number;
+    margin_percentage?: number;
+    margin_amount?: number;
+    disbursed_amount?: number;
+    daily_collection?: number;
+    collection_days?: number;
+    start_date?: string;
+    expected_end_date?: string;
+    assigned_collector_id?: string;
+    collection_area?: string;
+  }): Promise<CollectionAccount> {
     const res = await fetch(`${API_BASE}/collection-accounts`, {
       method: 'POST',
       headers: getAuthHeader(),
       body: JSON.stringify(data),
+    });
+    return handleResponse(res);
+  },
+
+  async getCollectionAccountSchedule(id: string): Promise<DailyCollectionRecord[]> {
+    const res = await fetch(`${API_BASE}/collection-accounts/${id}/schedule`, {
+      headers: getAuthHeader(),
+    });
+    return handleResponse(res);
+  },
+
+  async updateShopMargin(customerId: string, default_margin_percentage: number): Promise<BusinessDetails> {
+    const res = await fetch(`${API_BASE}/customers/${customerId}/business-margin`, {
+      method: 'PUT',
+      headers: getAuthHeader(),
+      body: JSON.stringify({ default_margin_percentage }),
     });
     return handleResponse(res);
   },

@@ -148,11 +148,13 @@ export function exportMonthlyReportToExcel(reportData: MonthlyReportData) {
    <Column ss:Width="100"/> <!-- Collector -->
    <Column ss:Width="90"/>  <!-- Account ID -->
    <Column ss:Width="90"/>  <!-- Requested -->
+   <Column ss:Width="65"/>  <!-- Margin % -->
+   <Column ss:Width="85"/>  <!-- Margin Amount -->
    <Column ss:Width="90"/>  <!-- Disbursed -->
    <Column ss:Width="70"/>  <!-- Daily Due -->
-   <Column ss:Width="60"/>  <!-- Days -->
+   <Column ss:Width="60"/>  <!-- Total Days -->
+   <Column ss:Width="85"/>  <!-- Month Sched Days -->
    <Column ss:Width="90"/>  <!-- Repayment -->
-   <Column ss:Width="80"/>  <!-- Margin -->
    <Column ss:Width="90"/>  <!-- Total Collected -->
    <Column ss:Width="90"/>  <!-- Remaining -->
    <Column ss:Width="70"/>  <!-- Status -->
@@ -170,7 +172,7 @@ export function exportMonthlyReportToExcel(reportData: MonthlyReportData) {
    <Column ss:Width="70"/>  <!-- % -->
 `;
 
-  const totalCols = 16 + daysInMonth + 4;
+  const totalCols = 18 + daysInMonth + 4;
 
   // Title Row
   xml += `   <Row ss:Height="30">
@@ -196,11 +198,13 @@ export function exportMonthlyReportToExcel(reportData: MonthlyReportData) {
     <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Collector</Data></Cell>
     <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Account ID</Data></Cell>
     <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Requested (₹)</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Margin %</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Margin (₹)</Data></Cell>
     <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Disbursed (₹)</Data></Cell>
     <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Daily (₹)</Data></Cell>
-    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Days</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Total Days</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Month Sched Days</Data></Cell>
     <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Repayment (₹)</Data></Cell>
-    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Margin (₹)</Data></Cell>
     <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Total Paid (₹)</Data></Cell>
     <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Balance (₹)</Data></Cell>
     <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Status</Data></Cell>
@@ -231,11 +235,13 @@ export function exportMonthlyReportToExcel(reportData: MonthlyReportData) {
     <Cell ss:StyleID="DataText"><Data ss:Type="String">${escapeXml(r.collector)}</Data></Cell>
     <Cell ss:StyleID="DataText"><Data ss:Type="String">${escapeXml(r.collectionAccountId)}</Data></Cell>
     <Cell ss:StyleID="DataNumber"><Data ss:Type="Number">${r.requestedAmount}</Data></Cell>
+    <Cell ss:StyleID="DataNumber"><Data ss:Type="Number">${r.marginPercentage ?? 12}</Data></Cell>
+    <Cell ss:StyleID="DataNumber"><Data ss:Type="Number">${r.marginAmount ?? r.financeMargin}</Data></Cell>
     <Cell ss:StyleID="DataNumber"><Data ss:Type="Number">${r.disbursedAmount}</Data></Cell>
     <Cell ss:StyleID="DataNumber"><Data ss:Type="Number">${r.dailyCollection}</Data></Cell>
     <Cell ss:StyleID="DataNumber"><Data ss:Type="Number">${r.collectionDays}</Data></Cell>
+    <Cell ss:StyleID="DataNumber"><Data ss:Type="Number">${r.scheduledDaysInMonth ?? daysInMonth}</Data></Cell>
     <Cell ss:StyleID="DataNumber"><Data ss:Type="Number">${r.totalRepayment}</Data></Cell>
-    <Cell ss:StyleID="DataNumber"><Data ss:Type="Number">${r.financeMargin}</Data></Cell>
     <Cell ss:StyleID="DataNumber"><Data ss:Type="Number">${r.amountCollected}</Data></Cell>
     <Cell ss:StyleID="DataNumber"><Data ss:Type="Number">${r.remainingAmount}</Data></Cell>
     <Cell ss:StyleID="DataText"><Data ss:Type="String">${escapeXml(r.status)}</Data></Cell>
@@ -260,11 +266,13 @@ export function exportMonthlyReportToExcel(reportData: MonthlyReportData) {
   xml += `   <Row ss:Height="24">
     <Cell ss:MergeAcross="6" ss:StyleID="TotalRowLabel"><Data ss:Type="String">GRAND TOTALS</Data></Cell>
     <Cell ss:StyleID="TotalRowStyle"><Data ss:Type="Number">${totals.requested}</Data></Cell>
+    <Cell ss:StyleID="TotalRowStyle"><Data ss:Type="String">-</Data></Cell>
+    <Cell ss:StyleID="TotalRowStyle"><Data ss:Type="Number">${totals.financeMargin}</Data></Cell>
     <Cell ss:StyleID="TotalRowStyle"><Data ss:Type="Number">${totals.disbursed}</Data></Cell>
     <Cell ss:StyleID="TotalRowStyle"><Data ss:Type="String">-</Data></Cell>
     <Cell ss:StyleID="TotalRowStyle"><Data ss:Type="String">-</Data></Cell>
+    <Cell ss:StyleID="TotalRowStyle"><Data ss:Type="String">-</Data></Cell>
     <Cell ss:StyleID="TotalRowStyle"><Data ss:Type="Number">${totals.totalRepayment}</Data></Cell>
-    <Cell ss:StyleID="TotalRowStyle"><Data ss:Type="Number">${totals.financeMargin}</Data></Cell>
     <Cell ss:StyleID="TotalRowStyle"><Data ss:Type="Number">${totals.actualMonthly}</Data></Cell>
     <Cell ss:StyleID="TotalRowStyle"><Data ss:Type="Number">${totals.totalRepayment - totals.actualMonthly}</Data></Cell>
     <Cell ss:StyleID="TotalRowStyle"><Data ss:Type="String">-</Data></Cell>

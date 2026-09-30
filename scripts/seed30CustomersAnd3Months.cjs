@@ -1288,9 +1288,12 @@ const customer_notes = [];
 const notifications = [];
 const audit_logs = [];
 
+const shopMargins = [10, 12, 15, 10, 12, 10, 15, 12, 10, 15, 12, 10, 15, 12, 10, 12, 15, 10, 12, 15, 10, 12, 15, 10, 12, 10, 15, 12, 10, 12];
+
 customerDefinitions.forEach((def, idx) => {
   const custId = def.id;
   const userNum = String(idx + 1).padStart(3, '0');
+  const marginPct = def.default_margin_percentage || shopMargins[idx % shopMargins.length];
   
   // User login for customer
   users.push({
@@ -1340,7 +1343,7 @@ customerDefinitions.forEach((def, idx) => {
     landmark: def.landmark,
   });
 
-  // Business Details
+  // Business Details with variable Shop Margin % (Section 2 & 3)
   business_details.push({
     id: `SHP${custId.slice(3)}`,
     customer_id: custId,
@@ -1358,19 +1361,26 @@ customerDefinitions.forEach((def, idx) => {
     years_in_business: def.years_biz,
     approx_monthly_income: def.income,
     approx_daily_sales: def.sales,
+    default_margin_percentage: marginPct,
     business_status: 'ACTIVE',
     shop_photo: def.shop_photo,
   });
 
-  // Collection Account
+  // Collection Account with Permanent Margin Snapshot (Section 1, 4, 5, 8)
   const plan = collection_plans.find(p => p.id === def.plan_id) || collection_plans[0];
   const accId = `ACC-2026-${String(idx + 1).padStart(3, '0')}`;
   
-  // Calculate expected end date: start_date + collection_days (approx 100 days)
-  const startDateObj = new Date(def.start_date);
-  const endDateObj = new Date(startDateObj);
-  endDateObj.setDate(endDateObj.getDate() + plan.collection_days);
-  const expectedEndDateStr = endDateObj.toISOString().slice(0, 10);
+  const reqAmount = plan.requested_amount;
+  const marginAmount = safeRound(reqAmount * (marginPct / 100), 2);
+  const disbAmount = safeRound(reqAmount - marginAmount, 2);
+  const colDays = plan.collection_days;
+  const totalRepay = reqAmount; // Customer repays the original requested amount
+  const dailyDue = safeRound(totalRepay / colDays, 2);
+
+  // Exact calendar math: start_date + (colDays - 1) days
+  const [sY, sM, sD] = def.start_date.split('-').map(Number);
+  const endUtc = new Date(Date.UTC(sY, sM - 1, sD + (colDays - 1)));
+  const expectedEndDateStr = `${endUtc.getUTCFullYear()}-${String(endUtc.getUTCMonth() + 1).padStart(2, '0')}-${String(endUtc.getUTCDate()).padStart(2, '0')}`;
 
   collection_accounts.push({
     id: accId,
@@ -1379,18 +1389,20 @@ customerDefinitions.forEach((def, idx) => {
     shop_name: def.shop_name,
     plan_id: plan.id,
     plan_name: plan.plan_name,
-    requested_amount: plan.requested_amount,
-    disbursed_amount: plan.disbursed_amount,
-    daily_collection: plan.daily_collection,
-    collection_days: plan.collection_days,
-    total_repayment: plan.total_repayment,
-    finance_margin: plan.finance_margin,
+    requested_amount: reqAmount,
+    margin_percentage: marginPct,
+    margin_amount: marginAmount,
+    disbursed_amount: disbAmount,
+    daily_collection: dailyDue,
+    collection_days: colDays,
+    total_repayment: totalRepay,
+    finance_margin: marginAmount,
     start_date: def.start_date,
     expected_end_date: expectedEndDateStr,
     amount_collected: 0, // will be calculated by running ledger
-    remaining_amount: plan.total_repayment, // will be calculated
+    remaining_amount: totalRepay, // will be calculated
     completed_days: 0,
-    remaining_days: plan.collection_days,
+    remaining_days: colDays,
     collection_percentage: 0,
     assigned_collector_id: def.collector_id,
     assigned_collector_name: def.collector_name,
@@ -1564,6 +1576,12 @@ allDates.forEach((dateStr, dateIdx) => {
     const recNumber = `DC-REC-2026-${String(receiptSeq++).padStart(5, '0')}`;
     const paymentMode = paid > 0 ? (accIdx % 2 === 0 ? 'Cash' : 'UPI') : undefined;
 
+    const [stY, stM, stD] = acc.start_date.split('-').map(Number);
+    const [curY, curM, curD] = dateStr.split('-').map(Number);
+    const sUtc = Date.UTC(stY, stM - 1, stD);
+    const cUtc = Date.UTC(curY, curM - 1, curD);
+    const dayNumber = Math.round((cUtc - sUtc) / (1000 * 60 * 60 * 24)) + 1;
+
     const dailyRec = {
       id: `DC-${dateStr}-${acc.id}`,
       collection_account_id: acc.id,
@@ -1571,6 +1589,8 @@ allDates.forEach((dateStr, dateIdx) => {
       customer_name: acc.customer_name,
       shop_name: acc.shop_name || '',
       mobile_number: customers.find(c => c.id === acc.customer_id)?.mobile_number || '',
+      collection_day_number: dayNumber,
+      calendar_date: dateStr,
       date: dateStr,
       daily_due: dailyDue,
       paid_amount: paid,
@@ -1633,6 +1653,42 @@ allDates.forEach((dateStr, dateIdx) => {
       });
     }
   });
+});
+
+// Section 10 & 11: Schedule upcoming remaining days (e.g. Days 93-100 in October 2026) for continuous 100-day cycle
+collection_accounts.forEach(acc => {
+  const [stY, stM, stD] = acc.start_date.split('-').map(Number);
+  const sUtc = Date.UTC(stY, stM - 1, stD);
+  const alreadyScheduledCount = daily_collections.filter(d => d.collection_account_id === acc.id).length;
+
+  for (let dayNum = alreadyScheduledCount + 1; dayNum <= acc.collection_days; dayNum++) {
+    const fUtc = new Date(sUtc + (dayNum - 1) * 86400000);
+    const dateStr = `${fUtc.getUTCFullYear()}-${String(fUtc.getUTCMonth() + 1).padStart(2, '0')}-${String(fUtc.getUTCDate()).padStart(2, '0')}`;
+
+    const futureRec = {
+      id: `DC-${dateStr}-${acc.id}`,
+      collection_account_id: acc.id,
+      customer_id: acc.customer_id,
+      customer_name: acc.customer_name,
+      shop_name: acc.shop_name || '',
+      mobile_number: customers.find(c => c.id === acc.customer_id)?.mobile_number || '',
+      collection_day_number: dayNum,
+      calendar_date: dateStr,
+      date: dateStr,
+      daily_due: acc.daily_collection,
+      paid_amount: 0,
+      pending_amount: acc.daily_collection,
+      advance_amount: 0,
+      status: 'PENDING',
+      collector_id: acc.assigned_collector_id,
+      collector_name: acc.assigned_collector_name,
+      collection_area: acc.collection_area,
+      remarks: 'Scheduled doorstep collection installment',
+      balance_remaining: acc.remaining_amount,
+    };
+
+    daily_collections.push(futureRec);
+  }
 });
 
 // Finalize collection accounts summaries

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Customer360Profile, CustomerDocument, Receipt } from '../../types';
+import { Customer360Profile, CustomerDocument, Receipt, DailyCollectionRecord } from '../../types';
 import { api } from '../../services/api';
 import { formatCurrency, formatDate, formatDateTime, getStatusBadgeClass } from '../../utils/formatters';
 import { ReceiptModal } from '../collections/ReceiptModal';
@@ -25,7 +25,9 @@ import {
   ExternalLink,
   ShieldCheck,
   AlertTriangle,
-  MessageSquare
+  MessageSquare,
+  Calendar,
+  Layers
 } from 'lucide-react';
 
 interface CustomerProfile360Props {
@@ -52,6 +54,17 @@ export const CustomerProfile360: React.FC<CustomerProfile360Props> = ({
   const [selectedReceipt, setSelectedReceipt] = useState<Receipt | null>(null);
   const [previewDoc, setPreviewDoc] = useState<CustomerDocument | null>(null);
 
+  // Schedule state for Collection Accounts Tab (Section 11)
+  const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null);
+  const [schedule, setSchedule] = useState<DailyCollectionRecord[]>([]);
+  const [loadingSchedule, setLoadingSchedule] = useState<boolean>(false);
+  const [scheduleFilter, setScheduleFilter] = useState<string>('ALL');
+
+  // Shop margin edit state (Section 3 & 4)
+  const [shopMargin, setShopMargin] = useState<number>(12);
+  const [savingMargin, setSavingMargin] = useState<boolean>(false);
+  const [marginSavedMsg, setMarginSavedMsg] = useState<string | null>(null);
+
   const loadProfile = async () => {
     setLoading(true);
     try {
@@ -67,6 +80,50 @@ export const CustomerProfile360: React.FC<CustomerProfile360Props> = ({
   useEffect(() => {
     loadProfile();
   }, [customerId]);
+
+  useEffect(() => {
+    if (profile?.business?.default_margin_percentage !== undefined) {
+      setShopMargin(profile.business.default_margin_percentage);
+    }
+    if (!selectedAccountId) {
+      if (profile?.activeAccount?.id) {
+        setSelectedAccountId(profile.activeAccount.id);
+      } else if (profile?.accounts?.[0]?.id) {
+        setSelectedAccountId(profile.accounts[0].id);
+      }
+    }
+  }, [profile]);
+
+  useEffect(() => {
+    if (!selectedAccountId) return;
+    const fetchSchedule = async () => {
+      setLoadingSchedule(true);
+      try {
+        const records = await api.getCollectionAccountSchedule(selectedAccountId);
+        setSchedule(records);
+      } catch (err) {
+        console.error('Failed to load collection account schedule:', err);
+      } finally {
+        setLoadingSchedule(false);
+      }
+    };
+    fetchSchedule();
+  }, [selectedAccountId]);
+
+  const handleSaveMargin = async () => {
+    if (!profile?.business) return;
+    setSavingMargin(true);
+    try {
+      await api.updateShopMargin(customerId, Number(shopMargin));
+      setMarginSavedMsg(t('shopMarginSaved', `Default margin updated to ${shopMargin}%. Future accounts for this shop will default to this rate.`));
+      setTimeout(() => setMarginSavedMsg(null), 4000);
+      await loadProfile();
+    } catch (err) {
+      console.error('Failed to update shop margin:', err);
+    } finally {
+      setSavingMargin(false);
+    }
+  };
 
   const handleAddNote = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -323,54 +380,62 @@ export const CustomerProfile360: React.FC<CustomerProfile360Props> = ({
                 </div>
               </div>
 
-              {/* 8 Financial Summary KPI Boxes (Section 16 requirement) */}
+              {/* 8 Financial Summary KPI Boxes (Section 16 & 22 requirement) */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs pt-1">
                 {/* 1. Requested Amount */}
                 <div className="p-3 rounded-xl bg-navy-950 border border-slate-800">
                   <span className="text-slate-400 block text-[10px] uppercase font-semibold">{t('requestedAmount', 'Requested Amount')}</span>
                   <strong className="text-slate-200 text-sm font-mono block mt-0.5">{formatCurrency(activeAccount.requested_amount)}</strong>
+                  <span className="text-[10px] text-slate-500 block">{t('customerRequest', 'Customer Request')}</span>
                 </div>
 
                 {/* 2. Disbursed */}
                 <div className="p-3 rounded-xl bg-navy-950 border border-gold-500/30">
                   <span className="text-gold-400 block text-[10px] uppercase font-bold">{t('disbursed', 'Disbursed Principal')}</span>
                   <strong className="text-gold-300 text-sm font-mono block mt-0.5">{formatCurrency(activeAccount.disbursed_amount)}</strong>
+                  <span className="text-[10px] text-gold-400/80 block">{t('requestedMinusMargin', 'Req − Margin Amount')}</span>
                 </div>
 
-                {/* 3. Daily Collection */}
+                {/* 3. Finance Margin % & Amount */}
+                <div className="p-3 rounded-xl bg-navy-950 border border-gold-500/40">
+                  <span className="text-gold-400 block text-[10px] uppercase font-bold">{t('financeMargin', 'Finance Margin')} ({activeAccount.margin_percentage ?? 12}%)</span>
+                  <strong className="text-gold-400 text-sm font-mono block mt-0.5">{formatCurrency(activeAccount.margin_amount ?? activeAccount.finance_margin)}</strong>
+                  <span className="text-[10px] text-slate-400 block font-mono">{activeAccount.margin_percentage ?? 12}% {t('rateApplied', 'rate applied')}</span>
+                </div>
+
+                {/* 4. Daily Collection */}
                 <div className="p-3 rounded-xl bg-navy-950 border border-slate-800">
                   <span className="text-slate-400 block text-[10px] uppercase font-semibold">{t('dailyCollection', 'Daily Collection')}</span>
-                  <strong className="text-white text-sm font-mono block mt-0.5">{formatCurrency(activeAccount.daily_collection)} / day</strong>
-                </div>
-
-                {/* 4. Collection Period */}
-                <div className="p-3 rounded-xl bg-navy-950 border border-slate-800">
-                  <span className="text-slate-400 block text-[10px] uppercase font-semibold">{t('collectionPeriod', 'Collection Period')}</span>
-                  <strong className="text-white text-sm font-mono block mt-0.5">{activeAccount.collection_days} {t('days', 'Days')}</strong>
+                  <strong className="text-white text-sm font-mono block mt-0.5">{formatCurrency(activeAccount.daily_collection)} / {t('day', 'day')}</strong>
+                  <span className="text-[10px] text-slate-500 block">{t('doorstepDue', 'Doorstep Daily Due')}</span>
                 </div>
 
                 {/* 5. Total Repayment */}
                 <div className="p-3 rounded-xl bg-navy-950 border border-purple-500/30">
                   <span className="text-purple-300 block text-[10px] uppercase font-bold">{t('totalRepayment', 'Total Repayment')}</span>
                   <strong className="text-purple-300 text-sm font-mono block mt-0.5">{formatCurrency(activeAccount.total_repayment)}</strong>
+                  <span className="text-[10px] text-purple-400/80 block">{t('fullRepaymentEqualsReq', '100% Repayment Goal')}</span>
                 </div>
 
-                {/* 6. Finance Margin */}
-                <div className="p-3 rounded-xl bg-navy-950 border border-gold-500/40">
-                  <span className="text-gold-400 block text-[10px] uppercase font-bold">{t('financeMargin', 'Finance Margin')}</span>
-                  <strong className="text-gold-400 text-sm font-mono block mt-0.5">{formatCurrency(activeAccount.finance_margin)}</strong>
+                {/* 6. Collection Period & Calendar Dates */}
+                <div className="p-3 rounded-xl bg-navy-950 border border-slate-800">
+                  <span className="text-slate-400 block text-[10px] uppercase font-semibold">{t('collectionPeriod', 'Collection Period')}</span>
+                  <strong className="text-white text-sm font-mono block mt-0.5">{activeAccount.collection_days} {t('days', 'Days')}</strong>
+                  <span className="text-[10px] text-slate-400 block font-mono truncate">{formatDate(activeAccount.start_date)} &rarr; {formatDate(activeAccount.expected_end_date)}</span>
                 </div>
 
                 {/* 7. Collected */}
                 <div className="p-3 rounded-xl bg-navy-950 border border-emerald-500/30">
                   <span className="text-emerald-400 block text-[10px] uppercase font-bold">{t('collectedSoFar', 'Collected')}</span>
                   <strong className="text-emerald-400 text-sm font-mono block mt-0.5">{formatCurrency(activeAccount.amount_collected)}</strong>
+                  <span className="text-[10px] text-emerald-400/80 block">{activeAccount.completed_days} {t('daysPaid', 'days collected')}</span>
                 </div>
 
                 {/* 8. Remaining */}
                 <div className="p-3 rounded-xl bg-navy-950 border border-amber-500/30">
                   <span className="text-amber-400 block text-[10px] uppercase font-bold">{t('remainingDue', 'Remaining')}</span>
                   <strong className="text-amber-400 text-sm font-mono block mt-0.5">{formatCurrency(activeAccount.remaining_amount)}</strong>
+                  <span className="text-[10px] text-amber-400/80 block">{activeAccount.remaining_days} {t('daysPending', 'days pending')}</span>
                 </div>
               </div>
             </div>
@@ -523,6 +588,68 @@ export const CustomerProfile360: React.FC<CustomerProfile360Props> = ({
             </div>
           </div>
 
+          {/* Shop Default Finance Margin % (Section 3 & 4) */}
+          <div className="p-4 rounded-xl bg-navy-950 border border-gold-500/30 space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h4 className="text-xs font-bold text-gold-400 uppercase tracking-wider flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-gold-400" />
+                  <span>{t('shopDefaultMargin', 'Shop Default Finance Margin %')}</span>
+                </h4>
+                <p className="text-[11px] text-slate-400 mt-0.5">
+                  {t('shopMarginDesc', 'Automatically suggested when creating new collection accounts for this shop. Existing accounts retain their locked historical margin.')}
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="relative">
+                  <input
+                    type="number"
+                    min="1"
+                    max="50"
+                    step="0.5"
+                    value={shopMargin}
+                    onChange={(e) => setShopMargin(Number(e.target.value))}
+                    className="w-24 px-3 py-1.5 rounded-lg bg-navy-900 border border-gold-500/40 text-gold-300 font-mono font-bold text-sm text-right pr-7 focus:outline-none focus:border-gold-400"
+                  />
+                  <span className="absolute right-2.5 top-1.5 text-xs text-gold-400 font-bold">%</span>
+                </div>
+                <button
+                  type="button"
+                  disabled={savingMargin}
+                  onClick={handleSaveMargin}
+                  className="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-gold-500 to-amber-600 hover:from-gold-400 hover:to-amber-500 text-navy-950 font-black text-xs shadow transition-all cursor-pointer disabled:opacity-50"
+                >
+                  {savingMargin ? t('saving', 'Saving...') : t('saveMargin', 'Save Margin %')}
+                </button>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1.5 flex-wrap text-xs pt-1">
+              <span className="text-[10px] text-slate-400 uppercase font-semibold mr-1">{t('marginPresets', 'Presets:')}</span>
+              {[10, 12, 15, 18, 20].map((pct) => (
+                <button
+                  key={pct}
+                  type="button"
+                  onClick={() => setShopMargin(pct)}
+                  className={`px-2.5 py-1 rounded-md text-xs font-mono font-bold transition-all cursor-pointer ${
+                    shopMargin === pct
+                      ? 'bg-gold-500 text-navy-950 shadow-sm'
+                      : 'bg-navy-900 text-slate-300 hover:text-white border border-slate-700'
+                  }`}
+                >
+                  {pct}%
+                </button>
+              ))}
+            </div>
+
+            {marginSavedMsg && (
+              <div className="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-semibold flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                <span>{marginSavedMsg}</span>
+              </div>
+            )}
+          </div>
+
           {/* Premium Shop Commercial Photo Gallery per Section 17 */}
           <div className="pt-4 border-t border-slate-800">
             <h4 className="text-xs font-bold text-white mb-3 flex items-center gap-1.5 uppercase tracking-wider">
@@ -551,52 +678,290 @@ export const CustomerProfile360: React.FC<CustomerProfile360Props> = ({
         </div>
       )}
 
-      {/* 5. COLLECTION ACCOUNTS TAB */}
+      {/* 5. COLLECTION ACCOUNTS TAB & 100-DAY COLLECTION SCHEDULE TABLE (Section 11) */}
       {activeTab === 'accounts' && (
-        <div className="space-y-4">
-          {profile.accounts.map(acc => (
-            <div key={acc.id} className="glass-card p-5 rounded-2xl border border-gold-500/30">
-              <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 pb-3 border-b border-slate-800 mb-3">
-                <div>
-                  <span className="font-mono text-xs font-bold text-gold-400">{acc.id}</span>
-                  <h4 className="text-sm font-bold text-white">{acc.plan_name}</h4>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
-                    acc.status === 'ACTIVE' ? 'bg-emerald-500/20 text-emerald-400' :
-                    acc.status === 'OVERDUE' ? 'bg-rose-500/20 text-rose-400' : 'bg-slate-700 text-slate-300'
+        <div className="space-y-6">
+          {/* Account Selector if multiple accounts exist */}
+          {profile.accounts.length > 1 && (
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+              <span className="text-xs text-slate-400 font-bold uppercase tracking-wider mr-1">{t('selectAccount', 'Select Account:')}</span>
+              {profile.accounts.map(acc => (
+                <button
+                  key={acc.id}
+                  onClick={() => setSelectedAccountId(acc.id)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold font-mono transition-all flex items-center gap-2 cursor-pointer ${
+                    (selectedAccountId || profile.accounts[0].id) === acc.id
+                      ? 'bg-gold-500 text-navy-950 shadow-md shadow-gold-500/20'
+                      : 'bg-navy-950 text-slate-300 hover:text-white border border-slate-800'
+                  }`}
+                >
+                  <span>{acc.id}</span>
+                  <span className={`px-1.5 py-0.2 rounded text-[10px] uppercase font-sans ${
+                    acc.status === 'ACTIVE' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-700 text-slate-300'
                   }`}>
                     {acc.status}
                   </span>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs mb-3">
-                <div className="p-2 rounded-lg bg-navy-950 border border-slate-800">
-                  <span className="text-slate-400 text-[10px] block">{t('req', 'Requested')}</span>
-                  <strong className="text-white font-mono">{formatCurrency(acc.requested_amount)}</strong>
-                </div>
-                <div className="p-2 rounded-lg bg-navy-950 border border-gold-500/30">
-                  <span className="text-gold-400 text-[10px] block font-semibold">{t('disb', 'Disbursed')}</span>
-                  <strong className="text-gold-300 font-mono">{formatCurrency(acc.disbursed_amount)}</strong>
-                </div>
-                <div className="p-2 rounded-lg bg-navy-950 border border-slate-800">
-                  <span className="text-slate-400 text-[10px] block">{t('daily', 'Daily Collection')}</span>
-                  <strong className="text-white font-mono">{formatCurrency(acc.daily_collection)} / {t('day', 'day')}</strong>
-                </div>
-                <div className="p-2 rounded-lg bg-navy-950 border border-emerald-500/30">
-                  <span className="text-emerald-400 text-[10px] block font-semibold">{t('financeMargin', 'Finance Margin')}</span>
-                  <strong className="text-emerald-400 font-mono">{formatCurrency(acc.finance_margin)}</strong>
-                </div>
-              </div>
-
-              <div className="flex justify-between text-xs text-slate-400 pt-2 border-t border-slate-800">
-                <span>{t('date', 'Start Date')}: <strong>{formatDate(acc.start_date)}</strong></span>
-                <span>{t('Expected End:', 'Expected End:')} <strong>{formatDate(acc.expected_end_date)}</strong></span>
-                <span>{t('assignedCollector', 'Assigned Collector')}: <strong>{acc.assigned_collector_name}</strong></span>
-              </div>
+                </button>
+              ))}
             </div>
-          ))}
+          )}
+
+          {(() => {
+            const currentAcc = profile.accounts.find(a => a.id === (selectedAccountId || profile.accounts[0]?.id)) || profile.accounts[0];
+            if (!currentAcc) {
+              return (
+                <div className="glass-card p-6 rounded-2xl text-center text-slate-400 text-xs">
+                  {t('noAccountsFound', 'No collection accounts found for this customer.')}
+                </div>
+              );
+            }
+
+            const filteredSchedule = schedule.filter(s => {
+              if (scheduleFilter === 'ALL') return true;
+              if (scheduleFilter === 'PAID') return s.status === 'PAID' || s.status === 'ADVANCE';
+              if (scheduleFilter === 'PARTIAL') return s.status === 'PARTIAL';
+              if (scheduleFilter === 'PENDING') return s.status === 'PENDING';
+              if (scheduleFilter === 'MISSED') return s.status === 'MISSED';
+              return true;
+            });
+
+            const paidCount = schedule.filter(s => s.status === 'PAID' || s.status === 'ADVANCE').length;
+            const partialCount = schedule.filter(s => s.status === 'PARTIAL').length;
+            const pendingCount = schedule.filter(s => s.status === 'PENDING').length;
+            const missedCount = schedule.filter(s => s.status === 'MISSED').length;
+
+            return (
+              <div className="space-y-5">
+                {/* Account Details Banner */}
+                <div className="glass-card p-5 rounded-2xl border border-gold-500/30 bg-gradient-to-br from-navy-900 to-navy-950">
+                  <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 pb-3 border-b border-slate-800 mb-4">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-xs font-bold text-gold-400">{currentAcc.id}</span>
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                          currentAcc.status === 'ACTIVE' ? 'bg-emerald-500/20 text-emerald-400' :
+                          currentAcc.status === 'OVERDUE' ? 'bg-rose-500/20 text-rose-400' : 'bg-slate-700 text-slate-300'
+                        }`}>
+                          {currentAcc.status}
+                        </span>
+                      </div>
+                      <h4 className="text-base font-bold text-white mt-0.5">{currentAcc.plan_name}</h4>
+                    </div>
+
+                    <div className="text-left sm:text-right">
+                      <span className="text-[10px] text-slate-400 uppercase block">{t('collectionPeriod', 'Collection Period')}</span>
+                      <strong className="text-white text-sm font-mono">{currentAcc.collection_days} {t('days', 'Days')}</strong>
+                      <span className="text-[11px] text-gold-400 block font-mono">
+                        {formatDate(currentAcc.start_date)} &rarr; {formatDate(currentAcc.expected_end_date)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* 8 Stats Grid */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs mb-4">
+                    <div className="p-2.5 rounded-xl bg-navy-950 border border-slate-800">
+                      <span className="text-slate-400 text-[10px] uppercase block">{t('requested', 'Requested Amount')}</span>
+                      <strong className="text-white font-mono text-sm block mt-0.5">{formatCurrency(currentAcc.requested_amount)}</strong>
+                    </div>
+
+                    <div className="p-2.5 rounded-xl bg-navy-950 border border-gold-500/30">
+                      <span className="text-gold-400 text-[10px] uppercase block font-semibold">{t('disbursed', 'Disbursed Principal')}</span>
+                      <strong className="text-gold-300 font-mono text-sm block mt-0.5">{formatCurrency(currentAcc.disbursed_amount)}</strong>
+                      <span className="text-[10px] text-slate-400">{t('requestedMinusMargin', 'Req − Margin')}</span>
+                    </div>
+
+                    <div className="p-2.5 rounded-xl bg-navy-950 border border-gold-500/40">
+                      <span className="text-gold-400 text-[10px] uppercase block font-bold">{t('financeMargin', 'Finance Margin')} ({currentAcc.margin_percentage ?? 12}%)</span>
+                      <strong className="text-gold-400 font-mono text-sm block mt-0.5">{formatCurrency(currentAcc.margin_amount ?? currentAcc.finance_margin)}</strong>
+                      <span className="text-[10px] text-slate-400 font-mono">{currentAcc.margin_percentage ?? 12}% {t('rateApplied', 'applied')}</span>
+                    </div>
+
+                    <div className="p-2.5 rounded-xl bg-navy-950 border border-slate-800">
+                      <span className="text-slate-400 text-[10px] uppercase block">{t('dailyCollection', 'Daily Collection')}</span>
+                      <strong className="text-white font-mono text-sm block mt-0.5">{formatCurrency(currentAcc.daily_collection)} / {t('day', 'day')}</strong>
+                    </div>
+
+                    <div className="p-2.5 rounded-xl bg-navy-950 border border-purple-500/30">
+                      <span className="text-purple-300 text-[10px] uppercase block font-bold">{t('totalRepayment', 'Total Repayment')}</span>
+                      <strong className="text-purple-300 font-mono text-sm block mt-0.5">{formatCurrency(currentAcc.total_repayment)}</strong>
+                    </div>
+
+                    <div className="p-2.5 rounded-xl bg-navy-950 border border-emerald-500/30">
+                      <span className="text-emerald-400 text-[10px] uppercase block font-bold">{t('collectedSoFar', 'Collected')}</span>
+                      <strong className="text-emerald-400 font-mono text-sm block mt-0.5">{formatCurrency(currentAcc.amount_collected)}</strong>
+                      <span className="text-[10px] text-emerald-400/80">{currentAcc.collection_percentage}%</span>
+                    </div>
+
+                    <div className="p-2.5 rounded-xl bg-navy-950 border border-amber-500/30">
+                      <span className="text-amber-400 text-[10px] uppercase block font-bold">{t('remainingDue', 'Remaining Due')}</span>
+                      <strong className="text-amber-400 font-mono text-sm block mt-0.5">{formatCurrency(currentAcc.remaining_amount)}</strong>
+                    </div>
+
+                    <div className="p-2.5 rounded-xl bg-navy-950 border border-slate-800">
+                      <span className="text-slate-400 text-[10px] uppercase block">{t('assignedCollector', 'Assigned Collector')}</span>
+                      <strong className="text-slate-200 text-xs block mt-0.5">{currentAcc.assigned_collector_name}</strong>
+                      <span className="text-[10px] text-slate-400">{currentAcc.collection_area}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 100-DAY COLLECTION SCHEDULE TABLE (Section 11) */}
+                <div className="glass-card rounded-2xl overflow-hidden border border-slate-800 shadow-xl">
+                  {/* Table Control Header */}
+                  <div className="p-4 bg-navy-950 border-b border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-4 h-4 text-gold-400" />
+                      <div>
+                        <h4 className="text-xs font-black text-white uppercase tracking-wider">
+                          {currentAcc.collection_days}{t('dayScheduleTitle', '-Day Collection Schedule & Repayment Ledger')}
+                        </h4>
+                        <p className="text-[10px] text-slate-400">
+                          {t('scheduleSubtitle', 'Daily collection schedule crossing months continuously from')} {formatDate(currentAcc.start_date)} {t('to', 'to')} {formatDate(currentAcc.expected_end_date)}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Filter Pills */}
+                    <div className="flex items-center gap-1.5 flex-wrap text-xs">
+                      {[
+                        { id: 'ALL', label: t('all', 'All'), count: schedule.length },
+                        { id: 'PAID', label: t('paid', 'Paid'), count: paidCount, color: 'text-emerald-400' },
+                        { id: 'PARTIAL', label: t('partial', 'Partial'), count: partialCount, color: 'text-amber-400' },
+                        { id: 'PENDING', label: t('pending', 'Pending'), count: pendingCount, color: 'text-blue-400' },
+                        { id: 'MISSED', label: t('missed', 'Missed'), count: missedCount, color: 'text-rose-400' },
+                      ].map(f => (
+                        <button
+                          key={f.id}
+                          type="button"
+                          onClick={() => setScheduleFilter(f.id)}
+                          className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                            scheduleFilter === f.id
+                              ? 'bg-gold-500 text-navy-950 shadow-sm'
+                              : 'bg-navy-900 text-slate-300 hover:text-white border border-slate-800'
+                          }`}
+                        >
+                          <span>{f.label}</span>
+                          <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono ${
+                            scheduleFilter === f.id ? 'bg-navy-950/20 text-navy-950' : 'bg-navy-950 text-slate-400'
+                          }`}>
+                            {f.count}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Schedule Table */}
+                  <div className="overflow-x-auto max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-700">
+                    {loadingSchedule ? (
+                      <div className="flex items-center justify-center py-12 gap-3">
+                        <div className="w-8 h-8 border-3 border-gold-500 border-t-transparent rounded-full animate-spin" />
+                        <span className="text-xs text-slate-400 font-semibold">{t('loadingSchedule', 'Loading Collection Schedule...')}</span>
+                      </div>
+                    ) : filteredSchedule.length === 0 ? (
+                      <div className="p-8 text-center text-slate-400 text-xs">
+                        {t('noScheduleRecordsFound', 'No collection records match the selected filter.')}
+                      </div>
+                    ) : (
+                      <table className="w-full text-left text-xs">
+                        <thead className="bg-navy-900/90 text-slate-300 font-bold uppercase tracking-wider text-[10px] sticky top-0 z-10 backdrop-blur-md">
+                          <tr>
+                            <th className="py-3 px-3 text-center">{t('dayHash', 'Day #')}</th>
+                            <th className="py-3 px-4">{t('calendarDate', 'Calendar Date')}</th>
+                            <th className="py-3 px-3 text-right">{t('dailyDue', 'Daily Due')}</th>
+                            <th className="py-3 px-3 text-right">{t('amountPaid', 'Paid Amount')}</th>
+                            <th className="py-3 px-3 text-right">{t('pendingAmount', 'Pending Amount')}</th>
+                            <th className="py-3 px-3 text-center">{t('status', 'Status')}</th>
+                            <th className="py-3 px-4">{t('collector', 'Collector')}</th>
+                            <th className="py-3 px-3 text-center">{t('receipt', 'Receipt')}</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-800/60 font-mono text-xs">
+                          {filteredSchedule.map((item, idx) => {
+                            const isPaid = item.status === 'PAID' || item.status === 'ADVANCE';
+                            const isPartial = item.status === 'PARTIAL';
+                            const isMissed = item.status === 'MISSED';
+
+                            return (
+                              <tr key={item.id || idx} className="hover:bg-slate-800/40 transition-colors">
+                                <td className="py-2.5 px-3 text-center font-bold text-gold-400">
+                                  Day {item.collection_day_number || idx + 1}
+                                </td>
+                                <td className="py-2.5 px-4 font-sans font-medium text-slate-200">
+                                  {formatDate(item.calendar_date || item.date)}
+                                </td>
+                                <td className="py-2.5 px-3 text-right text-slate-300">
+                                  {formatCurrency(item.daily_due)}
+                                </td>
+                                <td className={`py-2.5 px-3 text-right font-bold ${
+                                  item.paid_amount > 0 ? 'text-emerald-400' : 'text-slate-500'
+                                }`}>
+                                  {formatCurrency(item.paid_amount)}
+                                </td>
+                                <td className={`py-2.5 px-3 text-right font-bold ${
+                                  item.pending_amount > 0 ? 'text-amber-400' : 'text-slate-500'
+                                }`}>
+                                  {formatCurrency(item.pending_amount)}
+                                </td>
+                                <td className="py-2.5 px-3 text-center font-sans">
+                                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                    isPaid ? 'bg-emerald-500/20 text-emerald-300' :
+                                    isPartial ? 'bg-amber-500/20 text-amber-300' :
+                                    isMissed ? 'bg-rose-500/20 text-rose-300' :
+                                    'bg-blue-500/20 text-blue-300'
+                                  }`}>
+                                    {t(item.status.toLowerCase(), item.status)}
+                                  </span>
+                                </td>
+                                <td className="py-2.5 px-4 font-sans text-slate-400 text-xs">
+                                  {item.collector_name || currentAcc.assigned_collector_name}
+                                </td>
+                                <td className="py-2.5 px-3 text-center font-sans">
+                                  {item.receipt_number ? (
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        const rec = profile.receipts.find(r => r.receipt_number === item.receipt_number) || {
+                                          id: item.receipt_id || `REC-${item.date}-${profile.personal.id}`,
+                                          receipt_number: item.receipt_number,
+                                          payment_id: `PAY-${item.id}`,
+                                          collection_account_id: currentAcc.id,
+                                          customer_id: profile.personal.id,
+                                          customer_name: profile.personal.full_name,
+                                          shop_name: profile.business?.shop_name || '',
+                                          daily_due: item.daily_due,
+                                          amount_paid: item.paid_amount,
+                                          payment_mode: item.payment_mode || 'Cash',
+                                          previous_balance: item.balance_remaining + item.paid_amount,
+                                          remaining_balance: item.balance_remaining,
+                                          collector_name: item.collector_name,
+                                          date: item.date,
+                                          created_at: `${item.date}T12:00:00.000Z`,
+                                          remarks: 'Doorstep daily collection payment',
+                                        };
+                                        setSelectedReceipt(rec as Receipt);
+                                      }}
+                                      className="p-1 px-2 rounded-lg bg-navy-950 border border-gold-500/40 hover:border-gold-400 text-gold-300 font-mono text-[10px] flex items-center gap-1 mx-auto transition-colors cursor-pointer"
+                                      title={t('viewPrintReceipt', 'View & Print Receipt')}
+                                    >
+                                      <Printer className="w-3 h-3 text-gold-400" />
+                                      <span>{item.receipt_number.slice(-5)}</span>
+                                    </button>
+                                  ) : (
+                                    <span className="text-slate-600 text-[10px]">-</span>
+                                  )}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
         </div>
       )}
 

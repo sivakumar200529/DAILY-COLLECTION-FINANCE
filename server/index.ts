@@ -543,6 +543,19 @@ app.delete('/api/customers/:id', (req: Request, res: Response) => {
   res.json({ message: 'Customer deactivated successfully' });
 });
 
+// Update Shop Default Finance Margin %
+app.put('/api/customers/:id/business-margin', (req: Request, res: Response) => {
+  const id = getParam(req, 'id');
+  const db = repository.getDb();
+  const biz = db.business_details.find(b => b.customer_id === id);
+  if (!biz) return res.status(404).json({ error: 'Shop details not found' });
+  const oldMargin = biz.default_margin_percentage;
+  biz.default_margin_percentage = Number(req.body.default_margin_percentage);
+  logAudit('admin', 'ADMIN', 'UPDATE_SHOP_MARGIN', biz.id, 'business_details', { default_margin: oldMargin }, { default_margin: biz.default_margin_percentage });
+  repository.save();
+  res.json(biz);
+});
+
 // -------------------------------------------------------------
 // 4. CUSTOMER 360° VIEW & NOTES
 // -------------------------------------------------------------
@@ -718,44 +731,77 @@ app.get('/api/collection-accounts', (req: Request, res: Response) => {
   res.json(db.collection_accounts);
 });
 
+function calculateEndDateUtc(startDateStr: string, collectionDays: number): string {
+  if (!startDateStr || collectionDays <= 0) return startDateStr || '';
+  const [y, m, d] = startDateStr.split('-').map(Number);
+  const date = new Date(Date.UTC(y, m - 1, d));
+  date.setUTCDate(date.getUTCDate() + (collectionDays - 1));
+  const endYear = date.getUTCFullYear();
+  const endMonth = String(date.getUTCMonth() + 1).padStart(2, '0');
+  const endDay = String(date.getUTCDate()).padStart(2, '0');
+  return `${endYear}-${endMonth}-${endDay}`;
+}
+
 app.post('/api/collection-accounts', (req: Request, res: Response) => {
   const db = repository.getDb();
-  const { customer_id, plan_id, start_date, assigned_collector_id, collection_area } = req.body;
+  const {
+    customer_id,
+    plan_id,
+    requested_amount,
+    margin_percentage,
+    collection_days,
+    daily_collection,
+    start_date,
+    assigned_collector_id,
+    collection_area,
+  } = req.body;
 
   const customer = db.customers.find(c => c.id === customer_id);
+  const biz = db.business_details.find(b => b.customer_id === customer_id);
   const plan = db.collection_plans.find(p => p.id === plan_id);
   const collector = db.collectors.find(c => c.id === assigned_collector_id) || db.collectors[0];
-  const biz = db.business_details.find(b => b.customer_id === customer_id);
 
-  if (!customer || !plan) {
-    return res.status(400).json({ error: 'Valid customer and collection plan are required' });
+  if (!customer) {
+    return res.status(400).json({ error: 'Valid customer is required' });
   }
 
-  const startDateObj = new Date(start_date || new Date().toISOString().slice(0, 10));
-  const endDateObj = new Date(startDateObj);
-  endDateObj.setDate(endDateObj.getDate() + plan.collection_days);
+  // Section 1, 2, 5: Requested Amount -> Margin % -> Disbursed Amount -> Total Repayment
+  const reqAmount = Number(requested_amount) || (plan ? plan.requested_amount : 10000);
+  const marginPct = margin_percentage !== undefined ? Number(margin_percentage) : (biz?.default_margin_percentage ?? 12);
+  const marginAmount = safeRound(reqAmount * (marginPct / 100), 2);
+  const disbursedAmount = safeRound(reqAmount - marginAmount, 2);
+  const totalRepayment = reqAmount; // Customer repays the original requested amount
+
+  // Section 6, 8, 9: Collection Period & Exact Calendar End Date
+  const colDays = Number(collection_days) || (plan ? plan.collection_days : 100);
+  const dailyDue = daily_collection !== undefined ? Number(daily_collection) : safeRound(totalRepayment / colDays, 2);
+  const startDateStr = start_date || new Date().toISOString().slice(0, 10);
+  const expectedEndDateStr = calculateEndDateUtc(startDateStr, colDays);
 
   const accId = `ACC-2026-${String(db.collection_accounts.length + 1).padStart(3, '0')}`;
+  const planName = plan ? plan.plan_name : `${colDays}-Day Doorstep Plan (₹${reqAmount.toLocaleString('en-IN')})`;
 
   const newAccount: CollectionAccount = {
     id: accId,
     customer_id: customer.id,
     customer_name: customer.full_name,
     shop_name: biz?.shop_name || 'Retail Business',
-    plan_id: plan.id,
-    plan_name: plan.plan_name,
-    requested_amount: plan.requested_amount,
-    disbursed_amount: plan.disbursed_amount,
-    daily_collection: plan.daily_collection,
-    collection_days: plan.collection_days,
-    total_repayment: plan.total_repayment,
-    finance_margin: plan.finance_margin,
-    start_date: startDateObj.toISOString().slice(0, 10),
-    expected_end_date: endDateObj.toISOString().slice(0, 10),
+    plan_id: plan ? plan.id : `CUSTOM_${colDays}D_${reqAmount}`,
+    plan_name: planName,
+    requested_amount: reqAmount,
+    margin_percentage: marginPct,
+    margin_amount: marginAmount,
+    disbursed_amount: disbursedAmount,
+    daily_collection: dailyDue,
+    collection_days: colDays,
+    total_repayment: totalRepayment,
+    finance_margin: marginAmount,
+    start_date: startDateStr,
+    expected_end_date: expectedEndDateStr,
     amount_collected: 0,
-    remaining_amount: plan.total_repayment,
+    remaining_amount: totalRepayment,
     completed_days: 0,
-    remaining_days: plan.collection_days,
+    remaining_days: colDays,
     collection_percentage: 0,
     assigned_collector_id: collector.id,
     assigned_collector_name: collector.name,
@@ -767,12 +813,77 @@ app.post('/api/collection-accounts', (req: Request, res: Response) => {
 
   db.collection_accounts.push(newAccount);
 
+  // Section 10 & 11: Generate Full Schedule across calendar months
+  const [sY, sM, sD] = startDateStr.split('-').map(Number);
+  const curDate = new Date(Date.UTC(sY, sM - 1, sD));
+
+  for (let dayNum = 1; dayNum <= colDays; dayNum++) {
+    const yStr = curDate.getUTCFullYear();
+    const mStr = String(curDate.getUTCMonth() + 1).padStart(2, '0');
+    const dStr = String(curDate.getUTCDate()).padStart(2, '0');
+    const dateStr = `${yStr}-${mStr}-${dStr}`;
+
+    const scheduledRecord: DailyCollectionRecord = {
+      id: `DC-${dateStr}-${accId}`,
+      collection_account_id: accId,
+      customer_id: customer.id,
+      customer_name: customer.full_name,
+      shop_name: biz?.shop_name || 'Retail Business',
+      mobile_number: customer.mobile_number,
+      collection_day_number: dayNum,
+      calendar_date: dateStr,
+      date: dateStr,
+      daily_due: dailyDue,
+      due_amount: dailyDue,
+      paid_amount: 0,
+      pending_amount: dailyDue,
+      advance_amount: 0,
+      status: 'PENDING',
+      collector_id: collector.id,
+      collector_name: collector.name,
+      collection_area: newAccount.collection_area,
+      remarks: 'Scheduled collection day',
+      balance_remaining: totalRepayment,
+    };
+
+    // Avoid duplicate if record exists
+    const existingIdx = db.daily_collections.findIndex(d => d.id === scheduledRecord.id);
+    if (existingIdx >= 0) {
+      db.daily_collections[existingIdx] = scheduledRecord;
+    } else {
+      db.daily_collections.push(scheduledRecord);
+    }
+
+    curDate.setUTCDate(curDate.getUTCDate() + 1);
+  }
+
   logAudit('admin', 'ADMIN', 'DISBURSE_COLLECTION_ACCOUNT', accId, 'collection_accounts', null, newAccount);
-  createNotification('ADMIN', 'New Collection Account Disbursed', `Account ${accId} disbursed to ${customer.full_name}: ₹${plan.disbursed_amount} disbursed for ₹${plan.requested_amount} requested.`, 'ACCOUNT', customer.id);
-  createNotification('CUSTOMER', 'Loan Account Activated', `Your collection account ${accId} is active! ₹${plan.disbursed_amount} disbursed. Daily collection: ₹${plan.daily_collection} for ${plan.collection_days} days.`, 'ACCOUNT', customer.id);
+  createNotification(
+    'ADMIN',
+    'New Collection Account Disbursed',
+    `Account ${accId} disbursed to ${customer.full_name}: ₹${disbursedAmount} disbursed for ₹${reqAmount} requested at ${marginPct}% margin.`,
+    'ACCOUNT',
+    customer.id
+  );
+  createNotification(
+    'CUSTOMER',
+    'Loan Account Activated',
+    `Your collection account ${accId} is active! ₹${disbursedAmount} disbursed. Daily collection: ₹${dailyDue} for ${colDays} days.`,
+    'ACCOUNT',
+    customer.id
+  );
 
   repository.save();
   res.status(201).json(newAccount);
+});
+
+app.get('/api/collection-accounts/:id/schedule', (req: Request, res: Response) => {
+  const id = getParam(req, 'id');
+  const db = repository.getDb();
+  const schedule = db.daily_collections
+    .filter(d => d.collection_account_id === id)
+    .sort((a, b) => (a.collection_day_number || 0) - (b.collection_day_number || 0) || a.date.localeCompare(b.date));
+  res.json(schedule);
 });
 
 app.put('/api/collection-accounts/:id', (req: Request, res: Response) => {
@@ -1426,6 +1537,7 @@ app.get('/api/reports/monthly', (req: Request, res: Response) => {
     // Get daily payments for this account in this month
     const dailyCollections: { [day: number]: number } = {};
     let monthlyTotal = 0;
+    let scheduledDaysInMonth = 0;
 
     for (let day = 1; day <= daysInMonth; day++) {
       const dateStr = `${monthPrefix}-${String(day).padStart(2, '0')}`;
@@ -1433,11 +1545,16 @@ app.get('/api/reports/monthly', (req: Request, res: Response) => {
       const paid = rec ? rec.paid_amount : 0;
       dailyCollections[day] = paid;
       monthlyTotal += paid;
+
+      // Section 13: Calculate monthly totals according to actual calendar dates
+      if (dateStr >= acc.start_date && dateStr <= acc.expected_end_date) {
+        scheduledDaysInMonth++;
+      }
     }
 
-    const expectedMonthly = safeRound(acc.daily_collection * daysInMonth, 2);
+    const expectedMonthly = safeRound(acc.daily_collection * scheduledDaysInMonth, 2);
     const monthlyPending = Math.max(0, safeRound(expectedMonthly - monthlyTotal, 2));
-    const collectionPercentage = expectedMonthly > 0 ? safeRound((monthlyTotal / expectedMonthly) * 100, 1) : 0;
+    const collectionPercentage = expectedMonthly > 0 ? safeRound((monthlyTotal / expectedMonthly) * 100, 1) : (monthlyTotal > 0 ? 100 : 0);
 
     return {
       customerId: acc.customer_id,
@@ -1449,6 +1566,8 @@ app.get('/api/reports/monthly', (req: Request, res: Response) => {
       collector: acc.assigned_collector_name,
       collectionAccountId: acc.id,
       requestedAmount: acc.requested_amount,
+      marginPercentage: acc.margin_percentage,
+      marginAmount: acc.margin_amount,
       disbursedAmount: acc.disbursed_amount,
       dailyCollection: acc.daily_collection,
       collectionDays: acc.collection_days,
@@ -1458,6 +1577,7 @@ app.get('/api/reports/monthly', (req: Request, res: Response) => {
       remainingAmount: acc.remaining_amount,
       startDate: acc.start_date,
       endDate: acc.expected_end_date,
+      scheduledDaysInMonth,
       completedDays: acc.completed_days,
       remainingDays: acc.remaining_days,
       status: acc.status,

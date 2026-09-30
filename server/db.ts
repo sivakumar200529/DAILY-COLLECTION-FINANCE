@@ -78,6 +78,7 @@ export interface BusinessDetails {
   years_in_business: number;
   approx_monthly_income: number;
   approx_daily_sales: number;
+  default_margin_percentage?: number; // Shop-specific default finance margin % (e.g. 10, 12, 15)
   business_status: 'ACTIVE' | 'CLOSED' | 'TEMPORARY_SHUT';
   shop_photo?: string;
   business_proof?: string;
@@ -105,11 +106,13 @@ export interface CollectionAccount {
   plan_id: string;
   plan_name: string;
   requested_amount: number;
-  disbursed_amount: number;
-  daily_collection: number;
-  collection_days: number;
-  total_repayment: number;
-  finance_margin: number;
+  margin_percentage?: number; // Specific margin % for this account
+  margin_amount?: number; // Requested * Margin% / 100
+  disbursed_amount: number; // Requested - Margin Amount
+  daily_collection: number; // Total Repayment / Collection Period
+  collection_days: number; // 30, 50, 60, 90, 100, 120, or custom
+  total_repayment: number; // Equals Requested Amount
+  finance_margin: number; // Equals Margin Amount
   start_date: string;
   expected_end_date: string;
   actual_completion_date?: string;
@@ -133,8 +136,11 @@ export interface DailyCollectionRecord {
   customer_name: string;
   shop_name: string;
   mobile_number: string;
+  collection_day_number?: number; // 1, 2, 3... 100
+  calendar_date?: string; // Exact calendar date
   date: string; // YYYY-MM-DD
   daily_due: number;
+  due_amount?: number;
   paid_amount: number;
   pending_amount: number;
   advance_amount: number;

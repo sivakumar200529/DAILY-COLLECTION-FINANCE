@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../../services/api';
 import { formatCurrency, formatDate } from '../../utils/formatters';
-import { exportTableToExcel } from '../../utils/excelExport';
+import { exportTableToExcel, exportMonthlyReportToExcel } from '../../utils/excelExport';
+import { MonthlyReportData } from '../../types';
 import { 
   FileText, 
   Download, 
@@ -12,19 +13,27 @@ import {
   ShieldCheck, 
   UserCheck, 
   Calendar,
-  Search
+  Search,
+  CheckCircle2,
+  Clock
 } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 
 export const ReportsView: React.FC = () => {
   const { t } = useLanguage();
-  const [activeReport, setActiveReport] = useState<string>('outstanding');
+  const [activeReport, setActiveReport] = useState<string>('monthly');
   const [loading, setLoading] = useState<boolean>(true);
 
   // Data sets
   const [accounts, setAccounts] = useState<any[]>([]);
   const [payments, setPayments] = useState<any[]>([]);
   const [collectors, setCollectors] = useState<any[]>([]);
+
+  // Monthly Calendar Report state (Section 12, 13, 14, 15)
+  const [selectedMonth, setSelectedMonth] = useState<number>(9); // September 2026 default
+  const [selectedYear, setSelectedYear] = useState<number>(2026);
+  const [monthlyData, setMonthlyData] = useState<MonthlyReportData | null>(null);
+  const [loadingMonthly, setLoadingMonthly] = useState<boolean>(false);
 
   const loadData = async () => {
     setLoading(true);
@@ -48,7 +57,25 @@ export const ReportsView: React.FC = () => {
     loadData();
   }, []);
 
+  useEffect(() => {
+    if (activeReport === 'monthly') {
+      const loadMonthly = async () => {
+        setLoadingMonthly(true);
+        try {
+          const data = await api.getMonthlyReport({ month: selectedMonth, year: selectedYear });
+          setMonthlyData(data);
+        } catch (err) {
+          console.error('Failed to load monthly report:', err);
+        } finally {
+          setLoadingMonthly(false);
+        }
+      };
+      loadMonthly();
+    }
+  }, [activeReport, selectedMonth, selectedYear]);
+
   const reportTabs = [
+    { id: 'monthly', label: t('monthlyCalendarRegister', 'Monthly Calendar Register (Excel Matrix)'), icon: Calendar },
     { id: 'outstanding', label: t('outstanding balance report', 'Outstanding Balance Report'), icon: DollarSign },
     { id: 'overdue', label: t('overdue accounts report', 'Overdue Accounts Report'), icon: AlertTriangle },
     { id: 'margin', label: t('finance margin report', 'Finance Margin Report'), icon: ShieldCheck },
@@ -57,7 +84,12 @@ export const ReportsView: React.FC = () => {
   ];
 
   const handleExport = () => {
-    if (activeReport === 'outstanding') {
+    if (activeReport === 'monthly') {
+      if (monthlyData) {
+        exportMonthlyReportToExcel(monthlyData);
+      }
+      return;
+    } else if (activeReport === 'outstanding') {
       const headers = ['Account ID', 'Customer ID', 'Customer Name', 'Shop Name', 'Total Repayment', 'Collected', 'Outstanding Balance', 'Completed Days', 'Status'];
       const rows = accounts.map(a => [
         a.id, a.customer_id, a.customer_name, a.shop_name, a.total_repayment, a.amount_collected, a.remaining_amount, a.completed_days, a.status
@@ -136,6 +168,157 @@ export const ReportsView: React.FC = () => {
       {/* Report Table Display */}
       <div className="glass-card rounded-2xl overflow-hidden border border-slate-800 shadow-xl">
         <div className="overflow-x-auto">
+          {/* Monthly Calendar Register & Excel Matrix Tab (Section 12, 13, 14, 15) */}
+          {activeReport === 'monthly' && (
+            <div className="space-y-4 p-4">
+              {/* Controls bar: Month Selector + Direct Excel Export */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">{t('selectMonth', 'Calendar Month:')}</span>
+                  {[
+                    { m: 7, label: 'Jul 2026' },
+                    { m: 8, label: 'Aug 2026' },
+                    { m: 9, label: 'Sep 2026' },
+                    { m: 10, label: 'Oct 2026' },
+                    { m: 11, label: 'Nov 2026' },
+                    { m: 12, label: 'Dec 2026' },
+                  ].map(item => (
+                    <button
+                      key={item.m}
+                      type="button"
+                      onClick={() => setSelectedMonth(item.m)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                        selectedMonth === item.m
+                          ? 'bg-gold-500 text-navy-950 shadow-sm'
+                          : 'bg-navy-900 text-slate-300 hover:text-white border border-slate-700'
+                      }`}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+
+                {monthlyData && (
+                  <button
+                    type="button"
+                    onClick={() => exportMonthlyReportToExcel(monthlyData)}
+                    className="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow transition-all"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>{t('downloadSpreadsheet', `Download ${monthlyData.monthName} Excel (.xls)`)}</span>
+                  </button>
+                )}
+              </div>
+
+              {/* 4 Monthly KPI Cards */}
+              {monthlyData && (
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                  <div className="p-3 rounded-xl bg-navy-950 border border-slate-800">
+                    <span className="text-slate-400 block text-[10px] uppercase font-semibold">{t('expectedMonthly', 'Expected This Month')}</span>
+                    <strong className="text-white text-base font-mono block mt-0.5">{formatCurrency(monthlyData.totals.expectedMonthly)}</strong>
+                    <span className="text-[10px] text-slate-500 block">{t('byCalendarDays', 'Computed by active calendar days')}</span>
+                  </div>
+
+                  <div className="p-3 rounded-xl bg-navy-950 border border-emerald-500/30">
+                    <span className="text-emerald-400 block text-[10px] uppercase font-bold">{t('actualCollectedMonthly', 'Collected This Month')}</span>
+                    <strong className="text-emerald-400 text-base font-mono block mt-0.5">{formatCurrency(monthlyData.totals.actualMonthly)}</strong>
+                    <span className="text-[10px] text-emerald-400/80 block">{monthlyData.rows.length} {t('accountsInRegister', 'accounts scheduled')}</span>
+                  </div>
+
+                  <div className="p-3 rounded-xl bg-navy-950 border border-amber-500/30">
+                    <span className="text-amber-400 block text-[10px] uppercase font-bold">{t('monthlyPending', 'Pending This Month')}</span>
+                    <strong className="text-amber-400 text-base font-mono block mt-0.5">{formatCurrency(monthlyData.totals.monthlyPending)}</strong>
+                    <span className="text-[10px] text-amber-400/80 block">{t('dueThisMonth', 'Due within current month')}</span>
+                  </div>
+
+                  <div className="p-3 rounded-xl bg-navy-950 border border-gold-500/30">
+                    <span className="text-gold-400 block text-[10px] uppercase font-bold">{t('collectionEfficiency', 'Month Efficiency')}</span>
+                    <strong className="text-gold-300 text-base font-mono block mt-0.5">{monthlyData.totals.collectionPercentage}%</strong>
+                    <span className="text-[10px] text-slate-400 block">{t('collectionRate', 'Rate vs expected dues')}</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Monthly Register Matrix Table */}
+              <div className="overflow-x-auto max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-700">
+                {loadingMonthly ? (
+                  <div className="flex items-center justify-center py-12 gap-3">
+                    <div className="w-8 h-8 border-3 border-gold-500 border-t-transparent rounded-full animate-spin" />
+                    <span className="text-xs text-slate-400 font-semibold">{t('loadingMonthlyRegister', 'Generating Monthly Calendar Register...')}</span>
+                  </div>
+                ) : !monthlyData || monthlyData.rows.length === 0 ? (
+                  <div className="p-8 text-center text-slate-400 text-xs">
+                    {t('noMonthlyData', 'No collection records found for this month.')}
+                  </div>
+                ) : (
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-navy-950 text-slate-300 font-bold uppercase tracking-wider text-[10px] sticky top-0 z-10">
+                      <tr>
+                        <th className="py-3 px-4">{t('account id', 'Account ID')}</th>
+                        <th className="py-3 px-4">{t('customer', 'Customer')}</th>
+                        <th className="py-3 px-4">{t('shop', 'Shop')}</th>
+                        <th className="py-3 px-3 text-right">{t('req', 'Requested')}</th>
+                        <th className="py-3 px-3 text-right">{t('margin', 'Margin %')}</th>
+                        <th className="py-3 px-3 text-right">{t('disb', 'Disbursed')}</th>
+                        <th className="py-3 px-3 text-right">{t('daily', 'Daily')}</th>
+                        <th className="py-3 px-3 text-center">{t('schedDays', 'Sched Days')}</th>
+                        <th className="py-3 px-3 text-right">{t('expMonth', 'Expected (Mo)')}</th>
+                        <th className="py-3 px-3 text-right">{t('colMonth', 'Collected (Mo)')}</th>
+                        <th className="py-3 px-3 text-right">{t('pendMonth', 'Pending (Mo)')}</th>
+                        <th className="py-3 px-3 text-center">{t('eff', 'Col %')}</th>
+                        <th className="py-3 px-3 text-center">{t('status', 'Status')}</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800/60 font-mono text-xs">
+                      {monthlyData.rows.map(r => (
+                        <tr key={r.collectionAccountId} className="hover:bg-slate-800/40">
+                          <td className="py-2.5 px-4 font-bold text-gold-400">{r.collectionAccountId}</td>
+                          <td className="py-2.5 px-4 font-sans font-bold text-white">{r.customerName}</td>
+                          <td className="py-2.5 px-4 font-sans text-slate-300">{r.shopName}</td>
+                          <td className="py-2.5 px-3 text-right text-slate-300">{formatCurrency(r.requestedAmount)}</td>
+                          <td className="py-2.5 px-3 text-right text-gold-400 font-bold">
+                            {r.marginPercentage ?? 12}% ({formatCurrency(r.marginAmount ?? r.financeMargin)})
+                          </td>
+                          <td className="py-2.5 px-3 text-right text-gold-300">{formatCurrency(r.disbursedAmount)}</td>
+                          <td className="py-2.5 px-3 text-right text-slate-200">{formatCurrency(r.dailyCollection)}</td>
+                          <td className="py-2.5 px-3 text-center text-slate-300 font-bold">
+                            {r.scheduledDaysInMonth ?? monthlyData.daysInMonth} d
+                          </td>
+                          <td className="py-2.5 px-3 text-right text-slate-200 font-bold">{formatCurrency(r.expectedMonthlyCollection)}</td>
+                          <td className="py-2.5 px-3 text-right text-emerald-400 font-black">{formatCurrency(r.monthlyTotal)}</td>
+                          <td className={`py-2.5 px-3 text-right font-bold ${r.monthlyPending > 0 ? 'text-amber-400' : 'text-slate-500'}`}>
+                            {formatCurrency(r.monthlyPending)}
+                          </td>
+                          <td className="py-2.5 px-3 text-center text-gold-300 font-bold">{r.collectionPercentage}%</td>
+                          <td className="py-2.5 px-3 text-center font-sans">
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-slate-200">
+                              {t(r.status.toLowerCase(), r.status)}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                    <tfoot className="bg-navy-950 font-mono text-xs font-bold text-white border-t-2 border-slate-700">
+                      <tr>
+                        <td colSpan={3} className="py-3 px-4 text-gold-400 uppercase font-sans tracking-wider">{t('grandTotals', 'Grand Totals')}</td>
+                        <td className="py-3 px-3 text-right">{formatCurrency(monthlyData.totals.requested)}</td>
+                        <td className="py-3 px-3 text-right text-gold-400">{formatCurrency(monthlyData.totals.financeMargin)}</td>
+                        <td className="py-3 px-3 text-right text-gold-300">{formatCurrency(monthlyData.totals.disbursed)}</td>
+                        <td className="py-3 px-3 text-right">-</td>
+                        <td className="py-3 px-3 text-center">-</td>
+                        <td className="py-3 px-3 text-right text-white">{formatCurrency(monthlyData.totals.expectedMonthly)}</td>
+                        <td className="py-3 px-3 text-right text-emerald-400">{formatCurrency(monthlyData.totals.actualMonthly)}</td>
+                        <td className="py-3 px-3 text-right text-amber-400">{formatCurrency(monthlyData.totals.monthlyPending)}</td>
+                        <td className="py-3 px-3 text-center text-gold-300">{monthlyData.totals.collectionPercentage}%</td>
+                        <td className="py-3 px-3 text-center">-</td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                )}
+              </div>
+            </div>
+          )}
+
           {activeReport === 'outstanding' && (
             <table className="w-full text-left text-xs">
               <thead className="bg-navy-950 text-slate-300 font-bold uppercase tracking-wider text-[10px]">
