@@ -1433,6 +1433,17 @@ export function initializeDatabase(): void {
 }
 
 export function seedDatabase(): void {
+  if (fs.existsSync(dbBackupFilePath)) {
+    try {
+      const raw = fs.readFileSync(dbBackupFilePath, 'utf-8');
+      const data = JSON.parse(raw);
+      repository.save(data);
+      return;
+    } catch (e) {
+      console.warn('Failed reading backup, falling back to generateSeedDatabase', e);
+    }
+  }
   const seed = generateSeedDatabase();
   repository.save(seed);
 }
+

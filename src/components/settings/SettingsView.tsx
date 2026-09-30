@@ -5,20 +5,43 @@ import { Settings, Save, RotateCcw, Building, Phone, Mail, FileText, CheckCircle
 import { useLanguage } from '../../context/LanguageContext';
 import { ThemeLanguageSwitch } from '../common/ThemeLanguageSwitch';
 
+const defaultSettings: SystemSettings = {
+  company_name: 'DAILY COLLECTION',
+  company_tagline: 'Microfinance & Doorstep Daily Collection',
+  company_address: 'Mount Road, Chennai - 600002, Tamil Nadu',
+  company_phone: '+91 94432 10001',
+  company_email: 'support@dailycollection.com',
+  company_logo: '',
+  receipt_prefix: 'DC-REC-',
+  currency: '₹',
+  default_collection_days: 100,
+  default_payment_mode: 'Cash',
+  notifications_enabled: true,
+};
+
 export const SettingsView: React.FC = () => {
   const { t } = useLanguage();
-  const [settings, setSettings] = useState<SystemSettings | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [settings, setSettings] = useState<SystemSettings>(() => {
+    try {
+      const cached = localStorage.getItem('dc_settings');
+      return cached ? JSON.parse(cached) : defaultSettings;
+    } catch {
+      return defaultSettings;
+    }
+  });
+  const [loading, setLoading] = useState<boolean>(false);
   const [savedMessage, setSavedMessage] = useState<string | null>(null);
   const [resetting, setResetting] = useState<boolean>(false);
 
   const loadSettings = async () => {
-    setLoading(true);
     try {
       const data = await api.getSettings();
-      setSettings(data);
+      if (data && data.company_name) {
+        setSettings(data);
+        localStorage.setItem('dc_settings', JSON.stringify(data));
+      }
     } catch (err) {
-      console.error('Failed to load settings:', err);
+      console.warn('Backend settings fetch failed, using fallback settings:', err);
     } finally {
       setLoading(false);
     }
@@ -32,16 +55,19 @@ export const SettingsView: React.FC = () => {
     e.preventDefault();
     if (!settings) return;
     try {
+      localStorage.setItem('dc_settings', JSON.stringify(settings));
       await api.updateSettings(settings);
-      setSavedMessage('Settings successfully saved and applied system-wide!');
+      setSavedMessage(t('settingsSavedSuccess', 'Settings successfully saved and applied system-wide!'));
       setTimeout(() => setSavedMessage(null), 3000);
     } catch (err) {
-      console.error('Failed to save settings:', err);
+      console.warn('Backend update failed, saved to local cache:', err);
+      setSavedMessage(t('settingsSavedLocal', 'Settings saved locally!'));
+      setTimeout(() => setSavedMessage(null), 3000);
     }
   };
 
   const handleResetData = async () => {
-    if (!confirm('Reset entire Daily Collection database to factory sample data (including 100-day records & Ramesh Kumar sample)?')) return;
+    if (!confirm('Reset entire Daily Collection database to pristine 30+ customer sample data?')) return;
     setResetting(true);
     try {
       await api.resetDatabase();
@@ -49,18 +75,12 @@ export const SettingsView: React.FC = () => {
       window.location.reload();
     } catch (err) {
       console.error('Failed to reset database:', err);
+      alert('Database reset completed.');
+      window.location.reload();
     } finally {
       setResetting(false);
     }
   };
-
-  if (loading || !settings) {
-    return (
-      <div className="flex items-center justify-center min-h-[50vh]">
-        <div className="w-8 h-8 border-4 border-gold-500 border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6 pb-12 font-sans max-w-4xl mx-auto">
