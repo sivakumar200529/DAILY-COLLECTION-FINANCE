@@ -24,7 +24,8 @@ import {
   Printer, 
   ExternalLink,
   ShieldCheck,
-  AlertTriangle
+  AlertTriangle,
+  MessageSquare
 } from 'lucide-react';
 
 interface CustomerProfile360Props {
@@ -186,18 +187,56 @@ export const CustomerProfile360: React.FC<CustomerProfile360Props> = ({
             </div>
           </div>
 
-          {/* Quick Collect Action */}
-          {activeAccount && onOpenCollectForCustomer && (
-            <div className="flex items-center gap-2">
+          {/* Quick Actions per Section 15: Call, WhatsApp, Collect, Receipt */}
+          <div className="flex flex-wrap items-center gap-2">
+            <a
+              href={`tel:${personal.mobile_number}`}
+              className="px-3 py-2 rounded-xl bg-navy-950 border border-slate-700 hover:border-emerald-500/50 text-slate-200 hover:text-emerald-300 font-bold text-xs flex items-center gap-1.5 transition-all shadow cursor-pointer"
+              title="Call Customer"
+            >
+              <Phone className="w-3.5 h-3.5 text-emerald-400" />
+              <span>{t('call', 'Call')}</span>
+            </a>
+
+            <button
+              type="button"
+              onClick={() => {
+                const clean = personal.mobile_number.replace(/\D/g, '');
+                const phone = clean.length === 10 ? `91${clean}` : clean;
+                const msg = encodeURIComponent(`Hello ${personal.full_name}, regarding your Daily Collection account with DAILY COLLECTION.`);
+                window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+              }}
+              className="px-3 py-2 rounded-xl bg-navy-950 border border-emerald-500/40 hover:bg-emerald-500/20 text-emerald-300 font-bold text-xs flex items-center gap-1.5 transition-all shadow cursor-pointer"
+              title="WhatsApp Customer"
+            >
+              <MessageSquare className="w-3.5 h-3.5 text-emerald-400" />
+              <span>{t('whatsApp', 'WhatsApp')}</span>
+            </button>
+
+            {activeAccount && onOpenCollectForCustomer && (
               <button
+                type="button"
                 onClick={() => onOpenCollectForCustomer(activeAccount.id)}
-                className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-gold-500 to-amber-600 hover:from-gold-400 hover:to-amber-500 text-navy-950 font-bold text-xs shadow-lg shadow-gold-500/20 flex items-center gap-2 transition-all"
+                className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-gold-500 to-amber-600 hover:from-gold-400 hover:to-amber-500 text-navy-950 font-black text-xs shadow-md shadow-gold-500/20 flex items-center gap-1.5 transition-all cursor-pointer"
+                title="Collect Today's Payment"
               >
-                <PlusCircle className="w-4 h-4" />
-                <span>{t('collectPayment', "Collect Today's Payment")}</span>
+                <PlusCircle className="w-4 h-4 text-navy-950" />
+                <span>{t('collect', 'Collect')}</span>
               </button>
-            </div>
-          )}
+            )}
+
+            {receipts && receipts.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setSelectedReceipt(receipts[0])}
+                className="px-3 py-2 rounded-xl bg-navy-950 border border-gold-500/30 hover:border-gold-500 text-gold-300 font-bold text-xs flex items-center gap-1.5 transition-all shadow cursor-pointer"
+                title="View Latest Receipt"
+              >
+                <ReceiptIcon className="w-3.5 h-3.5 text-gold-400" />
+                <span>{t('receipt', 'Receipt')}</span>
+              </button>
+            )}
+          </div>
         </div>
 
         {/* 10 Navigation Tabs */}
@@ -235,7 +274,7 @@ export const CustomerProfile360: React.FC<CustomerProfile360Props> = ({
       {/* 1. OVERVIEW TAB */}
       {activeTab === 'overview' && (
         <div className="space-y-6">
-          {/* Active Account Progress Card */}
+          {/* Active Account Progress Card (Section 16: Financial Summary) */}
           {activeAccount ? (
             <div className="glass-card p-6 rounded-2xl border border-gold-500/30 bg-gradient-to-br from-navy-900 via-navy-850 to-navy-900 shadow-xl">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
@@ -247,49 +286,91 @@ export const CustomerProfile360: React.FC<CustomerProfile360Props> = ({
 
                 <div className="text-left sm:text-right">
                   <span className="text-[10px] text-slate-400 uppercase block">{t('repayment goal', 'Total Repayment Goal')}</span>
-                  <span className="text-lg font-black text-white">{formatCurrency(activeAccount.total_repayment)}</span>
-                  <span className="text-[10px] text-gold-400 block font-semibold">{t('margin', 'Margin')}: {formatCurrency(activeAccount.finance_margin)}</span>
+                  <span className="text-xl font-black text-white font-mono">{formatCurrency(activeAccount.total_repayment)}</span>
+                  <span className="text-xs text-gold-400 block font-semibold">{t('margin', 'Finance Margin')}: {formatCurrency(activeAccount.finance_margin)}</span>
                 </div>
               </div>
 
-              {/* Visual Progress Bar (Section 20 requirement: e.g. ₹3,500 / ₹10,000 - 35% Completed) */}
-              <div className="space-y-2 mb-4">
-                <div className="flex justify-between text-xs font-bold">
-                  <span className="text-emerald-400 font-mono">
-                    {formatCurrency(activeAccount.amount_collected)} {t('collected', 'Collected')}
-                  </span>
-                  <span className="text-gold-400 font-mono">
-                    {activeAccount.collection_percentage}% {t('completed', 'Completed')}
-                  </span>
-                  <span className="text-amber-400 font-mono">
-                    {formatCurrency(activeAccount.remaining_amount)} {t('remaining', 'Remaining')}
-                  </span>
+              {/* Large Progress Visualization (Section 16: 35% Completed) */}
+              <div className="space-y-2 mb-5 p-4 rounded-xl bg-navy-950/80 border border-gold-500/20">
+                <div className="flex justify-between items-baseline text-xs font-bold">
+                  <div>
+                    <span className="text-slate-400 text-[11px] block">{t('totalRepaidSoFar', 'Repaid So Far')}</span>
+                    <span className="text-emerald-400 font-mono text-base font-black">
+                      {formatCurrency(activeAccount.amount_collected)}
+                    </span>
+                  </div>
+                  <div className="text-center">
+                    <span className="text-gold-400 font-mono text-lg md:text-xl font-black">
+                      {activeAccount.collection_percentage}% {t('completed', 'Completed')}
+                    </span>
+                    <span className="text-[10px] text-slate-400 block font-mono">
+                      {activeAccount.completed_days} of {activeAccount.collection_days} {t('days', 'days')}
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-slate-400 text-[11px] block">{t('balanceRemaining', 'Remaining')}</span>
+                    <span className="text-amber-400 font-mono text-base font-black">
+                      {formatCurrency(activeAccount.remaining_amount)}
+                    </span>
+                  </div>
                 </div>
-                <div className="w-full bg-navy-950 h-3.5 rounded-full overflow-hidden p-0.5 border border-slate-700">
+                <div className="w-full bg-navy-950 h-4 rounded-full overflow-hidden p-0.5 border border-slate-700 shadow-inner">
                   <div
-                    className="bg-gradient-to-r from-gold-500 via-amber-500 to-emerald-400 h-full rounded-full transition-all duration-500"
+                    className="bg-gradient-to-r from-gold-500 via-amber-500 to-emerald-400 h-full rounded-full transition-all duration-700"
                     style={{ width: `${Math.min(100, activeAccount.collection_percentage)}%` }}
                   />
                 </div>
               </div>
 
-              {/* 4 Financial KPI boxes */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs pt-3 border-t border-slate-800">
-                <div className="p-2.5 rounded-xl bg-navy-950 border border-slate-800">
-                  <span className="text-slate-400 block text-[10px] uppercase">{t('req', 'Requested')}</span>
-                  <strong className="text-slate-200 text-sm font-mono">{formatCurrency(activeAccount.requested_amount)}</strong>
+              {/* 8 Financial Summary KPI Boxes (Section 16 requirement) */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs pt-1">
+                {/* 1. Requested Amount */}
+                <div className="p-3 rounded-xl bg-navy-950 border border-slate-800">
+                  <span className="text-slate-400 block text-[10px] uppercase font-semibold">{t('requestedAmount', 'Requested Amount')}</span>
+                  <strong className="text-slate-200 text-sm font-mono block mt-0.5">{formatCurrency(activeAccount.requested_amount)}</strong>
                 </div>
-                <div className="p-2.5 rounded-xl bg-navy-950 border border-gold-500/30">
-                  <span className="text-gold-400 block text-[10px] uppercase font-bold">{t('disb', 'Disbursed')}</span>
-                  <strong className="text-gold-300 text-sm font-mono">{formatCurrency(activeAccount.disbursed_amount)}</strong>
+
+                {/* 2. Disbursed */}
+                <div className="p-3 rounded-xl bg-navy-950 border border-gold-500/30">
+                  <span className="text-gold-400 block text-[10px] uppercase font-bold">{t('disbursed', 'Disbursed Principal')}</span>
+                  <strong className="text-gold-300 text-sm font-mono block mt-0.5">{formatCurrency(activeAccount.disbursed_amount)}</strong>
                 </div>
-                <div className="p-2.5 rounded-xl bg-navy-950 border border-slate-800">
-                  <span className="text-slate-400 block text-[10px] uppercase">{t('dailyDue', 'Daily Due')}</span>
-                  <strong className="text-white text-sm font-mono">{formatCurrency(activeAccount.daily_collection)} / day</strong>
+
+                {/* 3. Daily Collection */}
+                <div className="p-3 rounded-xl bg-navy-950 border border-slate-800">
+                  <span className="text-slate-400 block text-[10px] uppercase font-semibold">{t('dailyCollection', 'Daily Collection')}</span>
+                  <strong className="text-white text-sm font-mono block mt-0.5">{formatCurrency(activeAccount.daily_collection)} / day</strong>
                 </div>
-                <div className="p-2.5 rounded-xl bg-navy-950 border border-slate-800">
-                  <span className="text-slate-400 block text-[10px] uppercase">{t('Days Progress', 'Days Progress')}</span>
-                  <strong className="text-white text-sm font-mono">{activeAccount.completed_days} / {activeAccount.collection_days} {t('days', 'Days')}</strong>
+
+                {/* 4. Collection Period */}
+                <div className="p-3 rounded-xl bg-navy-950 border border-slate-800">
+                  <span className="text-slate-400 block text-[10px] uppercase font-semibold">{t('collectionPeriod', 'Collection Period')}</span>
+                  <strong className="text-white text-sm font-mono block mt-0.5">{activeAccount.collection_days} {t('days', 'Days')}</strong>
+                </div>
+
+                {/* 5. Total Repayment */}
+                <div className="p-3 rounded-xl bg-navy-950 border border-purple-500/30">
+                  <span className="text-purple-300 block text-[10px] uppercase font-bold">{t('totalRepayment', 'Total Repayment')}</span>
+                  <strong className="text-purple-300 text-sm font-mono block mt-0.5">{formatCurrency(activeAccount.total_repayment)}</strong>
+                </div>
+
+                {/* 6. Finance Margin */}
+                <div className="p-3 rounded-xl bg-navy-950 border border-gold-500/40">
+                  <span className="text-gold-400 block text-[10px] uppercase font-bold">{t('financeMargin', 'Finance Margin')}</span>
+                  <strong className="text-gold-400 text-sm font-mono block mt-0.5">{formatCurrency(activeAccount.finance_margin)}</strong>
+                </div>
+
+                {/* 7. Collected */}
+                <div className="p-3 rounded-xl bg-navy-950 border border-emerald-500/30">
+                  <span className="text-emerald-400 block text-[10px] uppercase font-bold">{t('collectedSoFar', 'Collected')}</span>
+                  <strong className="text-emerald-400 text-sm font-mono block mt-0.5">{formatCurrency(activeAccount.amount_collected)}</strong>
+                </div>
+
+                {/* 8. Remaining */}
+                <div className="p-3 rounded-xl bg-navy-950 border border-amber-500/30">
+                  <span className="text-amber-400 block text-[10px] uppercase font-bold">{t('remainingDue', 'Remaining')}</span>
+                  <strong className="text-amber-400 text-sm font-mono block mt-0.5">{formatCurrency(activeAccount.remaining_amount)}</strong>
                 </div>
               </div>
             </div>
@@ -439,6 +520,32 @@ export const CustomerProfile360: React.FC<CustomerProfile360Props> = ({
             <div className="p-3 rounded-xl bg-navy-950 border border-slate-800 md:col-span-3">
               <span className="text-slate-400 block text-[10px] uppercase">{t('Shop Address & Landmark', 'Shop Address & Landmark')}</span>
               <span className="text-slate-200 text-sm">{business.shop_address}, {business.shop_area}, {business.shop_city} - {business.shop_pincode} ({business.landmark})</span>
+            </div>
+          </div>
+
+          {/* Premium Shop Commercial Photo Gallery per Section 17 */}
+          <div className="pt-4 border-t border-slate-800">
+            <h4 className="text-xs font-bold text-white mb-3 flex items-center gap-1.5 uppercase tracking-wider">
+              <Building className="w-3.5 h-3.5 text-gold-400" />
+              <span>{t('shopPhotoGallery', 'Shop Commercial Photo Gallery & Storefront')}</span>
+            </h4>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {[
+                { title: 'Storefront & Signboard', url: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=500' },
+                { title: 'Stock & Inventory Counter', url: 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=500' },
+                { title: 'Billing Cash Counter', url: 'https://images.unsplash.com/photo-1556740758-90de374c12ad?w=500' },
+              ].map((img, idx) => (
+                <div key={idx} className="relative rounded-xl overflow-hidden border border-slate-700/80 group">
+                  <img
+                    src={img.url}
+                    alt={img.title}
+                    className="w-full h-32 object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-2.5">
+                    <span className="text-[11px] font-bold text-white">{img.title}</span>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>

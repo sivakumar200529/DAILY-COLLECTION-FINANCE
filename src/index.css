@@ -4,30 +4,30 @@
 
 @layer base {
   :root {
-    /* Dark Theme Default */
-    --color-navy-950: 4 7 20;     /* #040714 */
-    --color-navy-900: 8 13 32;    /* #080d20 */
-    --color-navy-850: 11 19 43;   /* #0b132b */
-    --color-navy-800: 15 23 42;   /* #0f172a */
+    /* Dark Theme: Deep Navy #0B1F3A, #0F2444 */
+    --color-navy-950: 11 31 58;    /* #0B1F3A */
+    --color-navy-900: 15 36 68;    /* #0F2444 */
+    --color-navy-850: 18 45 84;    /* #122D54 */
+    --color-navy-800: 23 56 102;   /* #173866 */
   }
 
   html.light {
-    /* Light Theme Crisp Modern Banking Slate & White */
-    --color-navy-950: 248 250 252; /* #f8fafc */
-    --color-navy-900: 255 255 255; /* #ffffff */
-    --color-navy-850: 241 245 249; /* #f1f5f9 */
-    --color-navy-800: 226 232 240; /* #e2e8f0 */
+    /* Light Theme: Crisp FinTech SaaS #F6F8FC and White Cards */
+    --color-navy-950: 246 248 252; /* #F6F8FC */
+    --color-navy-900: 255 255 255; /* #FFFFFF */
+    --color-navy-850: 241 245 249; /* #F1F5F9 */
+    --color-navy-800: 226 232 240; /* #E2E8F0 */
   }
 
   body {
     background-color: rgb(var(--color-navy-950));
     color: #f1f5f9;
-    font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: 'Inter', 'Manrope', 'Outfit', system-ui, -apple-system, sans-serif;
     overflow-x: hidden;
   }
 
   html.light body {
-    color: #0f172a;
+    color: #172033;
   }
 
   /* Sleek gold custom scrollbars */

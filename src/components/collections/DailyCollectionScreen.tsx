@@ -32,7 +32,8 @@ import {
   ExternalLink,
   CreditCard,
   Edit3,
-  Save
+  Save,
+  MessageSquare
 } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 
@@ -100,6 +101,7 @@ export const DailyCollectionScreen: React.FC<DailyCollectionScreenProps> = ({
   // Receipt popup
   const [generatedReceipt, setGeneratedReceipt] = useState<Receipt | null>(null);
   const [receiptCustomerPhone, setReceiptCustomerPhone] = useState<string>('');
+  const [successPayment, setSuccessPayment] = useState<{ amount: number; receipt: Receipt; phone: string } | null>(null);
 
   const loadData = async () => {
     setLoading(true);
@@ -240,6 +242,7 @@ export const DailyCollectionScreen: React.FC<DailyCollectionScreenProps> = ({
     setMissedReason(record.reason || 'Shop closed today');
     setRemarks(record.remarks || '');
     setError(null);
+    setSuccessPayment(null);
     setShowPaymentModal(true);
   };
 
@@ -264,11 +267,15 @@ export const DailyCollectionScreen: React.FC<DailyCollectionScreenProps> = ({
       });
 
       if (res && res.success) {
-        setShowPaymentModal(false);
         await loadData();
         if (res.receipt) {
-          setReceiptCustomerPhone(activeRecord.mobile_number || '');
-          setGeneratedReceipt(res.receipt);
+          setSuccessPayment({
+            amount: isMissed ? 0 : Number(paidAmount),
+            receipt: res.receipt,
+            phone: activeRecord.mobile_number || '',
+          });
+        } else {
+          setShowPaymentModal(false);
         }
       }
     } catch (err: any) {
@@ -390,22 +397,22 @@ export const DailyCollectionScreen: React.FC<DailyCollectionScreenProps> = ({
           <div className="flex items-center gap-2 mb-1">
             <span className="px-2 py-0.5 rounded-full bg-gold-500/20 text-gold-300 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
               <Zap className="w-3 h-3 text-gold-400" />
-              Field Agent Rapid Collection
+              {t('fieldRapidCollection', 'Rapid Field Collection Engine')}
             </span>
             <span className="text-xs text-slate-400 font-mono">Date: {formatDate(selectedDate)}</span>
           </div>
           <h1 className="text-xl md:text-2xl font-black text-white tracking-tight flex items-center gap-2">
-            {t('dailyCollections', 'DAILY COLLECTION SCREEN')}
+            {t('todaysCollectionHeader', "TODAY'S COLLECTION")}
           </h1>
           <p className="text-xs text-slate-300 mt-0.5">
-            Quick collect, bulk collect, missed days/weeks tracking, and WhatsApp receipt delivery built for agents visiting 50+ customers daily.
+            {t('dailyCollectionTagline', 'Fastest collection workflow: 1-Tap collect, mobile cards, instant WhatsApp receipts, and full route sequence.')}
           </p>
         </div>
 
         <div className="flex items-center gap-2.5">
           <button
             onClick={onNavigateToRegister}
-            className="px-3 py-2 rounded-xl bg-navy-950 border border-gold-500/30 hover:border-gold-500 text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-md"
+            className="px-3.5 py-2 rounded-xl bg-navy-950 border border-gold-500/30 hover:border-gold-500 text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-md cursor-pointer"
           >
             <Printer className="w-4 h-4 text-gold-400" />
             <span>{t('printSlip', 'Print Register')}</span>
@@ -413,7 +420,7 @@ export const DailyCollectionScreen: React.FC<DailyCollectionScreenProps> = ({
           <button
             onClick={loadData}
             disabled={loading}
-            className="p-2 rounded-xl bg-navy-950 border border-slate-700 text-slate-300 hover:text-white transition-colors"
+            className="p-2 rounded-xl bg-navy-950 border border-slate-700 text-slate-300 hover:text-white transition-colors cursor-pointer"
             title={t('Refresh Collections', 'Refresh Collections')}
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-gold-400' : ''}`} />
@@ -421,7 +428,7 @@ export const DailyCollectionScreen: React.FC<DailyCollectionScreenProps> = ({
         </div>
       </div>
 
-      {/* Summary KPI Strip */}
+      {/* Summary KPI Strip (Section 11: Expected, Collected, Pending, Collection %) */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5">
         <div className="glass-card p-4 rounded-xl border-l-4 border-l-blue-500">
           <span className="text-[11px] font-semibold text-blue-300 uppercase tracking-wider block mb-1">{t('totalExpected', 'Total Expected')}</span>
@@ -450,9 +457,41 @@ export const DailyCollectionScreen: React.FC<DailyCollectionScreenProps> = ({
         </div>
       </div>
 
+      {/* LARGE PROMINENT SEARCH BAR (Section 11 requirement) */}
+      <div className="glass-card p-3 md:p-3.5 rounded-2xl border border-gold-500/30 shadow-lg">
+        <form onSubmit={handleSearchSubmit} className="relative flex items-center">
+          <Search className="w-5 h-5 text-gold-400 absolute left-3.5 pointer-events-none" />
+          <input
+            type="text"
+            placeholder={t('prominentSearchPlaceholder', 'Search customer, mobile, shop or customer ID...')}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-11 pr-24 py-3 bg-navy-950/90 border border-slate-700/80 rounded-xl text-sm md:text-base font-semibold text-white placeholder-slate-400 focus:outline-none focus:border-gold-500 transition-all"
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => {
+                setSearchQuery('');
+                setTimeout(() => loadData(), 50);
+              }}
+              className="absolute right-20 text-slate-400 hover:text-white p-1"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
+          <button
+            type="submit"
+            className="absolute right-2 px-4 py-2 rounded-lg bg-gradient-to-r from-gold-500 to-amber-600 hover:from-gold-400 hover:to-amber-500 text-navy-950 font-black text-xs transition-all shadow cursor-pointer"
+          >
+            {t('search', 'Search')}
+          </button>
+        </form>
+      </div>
+
       {/* Filter, Sort & Route Sequence Controls */}
       <div className="glass-card p-4 rounded-2xl space-y-3">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
           {/* Date Picker */}
           <div>
             <label className="block text-[11px] font-bold text-slate-300 mb-1 uppercase tracking-wider">{t('date', 'Date')}</label>
@@ -530,21 +569,6 @@ export const DailyCollectionScreen: React.FC<DailyCollectionScreenProps> = ({
               <option value="balance_high">{t('remainingBalance', 'Balance')} (High to Low)</option>
             </select>
           </div>
-
-          {/* Search Box */}
-          <div>
-            <label className="block text-[11px] font-bold text-slate-300 mb-1 uppercase tracking-wider">{t('filter', 'Search')}</label>
-            <form onSubmit={handleSearchSubmit} className="relative">
-              <input
-                type="text"
-                placeholder={t('searchPlaceholder', 'Name, shop, mobile...')}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-8 pr-3 py-2 bg-navy-950/80 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-gold-500"
-              />
-              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-3" />
-            </form>
-          </div>
         </div>
 
         {/* Quick Selection Shortcuts */}
@@ -579,8 +603,8 @@ export const DailyCollectionScreen: React.FC<DailyCollectionScreenProps> = ({
         </div>
       </div>
 
-      {/* Main Daily Collection Working Table */}
-      <div className="glass-card rounded-2xl overflow-hidden border border-gold-500/20 shadow-xl">
+      {/* Desktop Main Daily Collection Working Table (Section 12 requirement) */}
+      <div className="hidden md:block glass-card rounded-2xl overflow-hidden border border-gold-500/20 shadow-xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
@@ -814,6 +838,197 @@ export const DailyCollectionScreen: React.FC<DailyCollectionScreenProps> = ({
         </div>
       </div>
 
+      {/* Mobile Collection Cards View (Section 12: On mobile, convert it into cards) */}
+      <div className="block md:hidden space-y-3.5">
+        {sortedCollections.length === 0 ? (
+          <div className="glass-card p-6 text-center text-slate-400 text-xs rounded-2xl">
+            {t('noCollectionAccountsFound', 'No collection accounts found matching the current filters.')}
+          </div>
+        ) : (
+          sortedCollections.map((row) => {
+            const badge = getStatusBadgeClass(row.status);
+            const isPaidFull = row.status === 'PAID' || row.status === 'ADVANCE';
+            const isSelected = selectedIds.includes(row.collection_account_id);
+            const hasMissed = (row.missed_days_count || 0) > 0;
+
+            return (
+              <div 
+                key={row.id}
+                className={`glass-card p-4 rounded-2xl border transition-all ${
+                  isSelected ? 'border-gold-500 bg-gold-500/10' : 'border-slate-800 hover:border-gold-500/30'
+                }`}
+              >
+                {/* Header: Shop name, Customer ID, Route Order & Status Badge */}
+                <div className="flex items-start justify-between gap-2 mb-2.5">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => handleToggleRow(row.collection_account_id)}
+                      className="rounded border-slate-700 bg-navy-900 text-gold-500 focus:ring-0 cursor-pointer w-4 h-4 mt-0.5"
+                    />
+                    <div>
+                      <h4 className="font-extrabold text-sm text-white tracking-tight flex items-center gap-1.5">
+                        <Building className="w-3.5 h-3.5 text-gold-400 flex-shrink-0" />
+                        <span className="truncate max-w-[190px]">{row.shop_name || 'Retail Business'}</span>
+                      </h4>
+                      <div className="flex items-center gap-1.5 text-[11px] text-slate-400 font-mono mt-0.5">
+                        <button
+                          onClick={() => {
+                            if (currentUser?.role === 'ADMIN') {
+                              onNavigateToCustomer(row.customer_id);
+                            } else {
+                              openCustomerHistory(row);
+                            }
+                          }}
+                          className="text-gold-400 font-bold hover:underline"
+                        >
+                          {row.customer_id}
+                        </button>
+                        <span>&bull;</span>
+                        <span className="text-slate-300 font-medium">{row.customer_name}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                    <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${badge.bg} ${badge.text} ${badge.border}`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${badge.dot}`} />
+                      {row.status}
+                    </span>
+                    <span className="px-1.5 py-0.5 rounded bg-navy-950 border border-slate-800 text-[9px] font-mono text-slate-400 font-bold">
+                      Route #{row.route_order || 1}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Mobile Phone link & Area */}
+                <div className="flex items-center justify-between py-2 border-y border-slate-800/80 text-xs mb-3">
+                  {row.mobile_number ? (
+                    <a
+                      href={`tel:${row.mobile_number}`}
+                      className="inline-flex items-center gap-1.5 text-slate-300 hover:text-gold-400 font-mono font-semibold"
+                    >
+                      <Phone className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>{row.mobile_number}</span>
+                    </a>
+                  ) : (
+                    <span className="text-slate-500 font-mono text-[11px]">No mobile</span>
+                  )}
+                  <span className="text-[11px] text-slate-400 flex items-center gap-1">
+                    <MapPin className="w-3 h-3 text-slate-500" />
+                    {row.collection_area}
+                  </span>
+                </div>
+
+                {/* 3-Column Financial Snapshot (Section 12: Due, Collected, Remaining) */}
+                <div className="grid grid-cols-3 gap-2 p-2.5 rounded-xl bg-navy-950/80 border border-slate-800 mb-3 text-center">
+                  <div>
+                    <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-semibold">{t('todayDue', "Today's Due")}</span>
+                    <strong className="text-base font-black text-white font-mono block mt-0.5">
+                      {formatCurrency(row.daily_due)}
+                    </strong>
+                  </div>
+
+                  <div className="border-x border-slate-800">
+                    <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-semibold">{t('collected', 'Collected')}</span>
+                    <strong className="text-base font-black text-emerald-400 font-mono block mt-0.5">
+                      {row.paid_amount > 0 ? formatCurrency(row.paid_amount) : '₹0'}
+                    </strong>
+                  </div>
+
+                  <div>
+                    <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-semibold">{t('remaining', 'Remaining')}</span>
+                    <strong className="text-base font-black text-amber-400 font-mono block mt-0.5">
+                      {formatCurrency(row.balance_remaining)}
+                    </strong>
+                  </div>
+                </div>
+
+                {/* Missed Days alert banner if applicable */}
+                {hasMissed && (
+                  <div className="mb-3 px-2.5 py-1 rounded-lg bg-rose-500/15 border border-rose-500/30 text-rose-300 text-[11px] font-bold flex items-center justify-between">
+                    <span className="flex items-center gap-1">
+                      <AlertCircle className="w-3.5 h-3.5" />
+                      {row.missed_days_count} {t('daysMissed', 'days missed')} ({formatCurrency(row.missed_amount || row.missed_days_count! * row.daily_due)})
+                    </span>
+                    {row.missed_days_count! >= 7 && (
+                      <span className="text-[9px] uppercase tracking-wider bg-rose-500 text-white px-1.5 py-0.2 rounded font-black">
+                        {Math.floor(row.missed_days_count! / 7)}w Overdue
+                      </span>
+                    )}
+                  </div>
+                )}
+
+                {/* Primary Action Button: COLLECT PAYMENT (Section 12: Must be highly visible) */}
+                <div className="flex items-center gap-2">
+                  {!isPaidFull ? (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => openPaymentModal(row)}
+                        className="flex-1 py-3 px-3.5 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                      >
+                        <Zap className="w-4 h-4 text-emerald-200" />
+                        <span>{t('collectPaymentUpper', 'COLLECT PAYMENT')} ({formatCurrency(row.daily_due)})</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleQuickCollect(row)}
+                        disabled={quickCollectingId === row.id}
+                        className="py-3 px-3 rounded-xl bg-gold-500 hover:bg-gold-400 text-navy-950 font-black text-xs shadow-md shadow-gold-500/20 flex items-center gap-1"
+                        title="1-Tap Instant Cash Collect"
+                      >
+                        {quickCollectingId === row.id ? '...' : t('1-Tap', '1-Tap')}
+                      </button>
+                    </>
+                  ) : (
+                    <div className="flex-1 flex items-center gap-2">
+                      <div className="flex-1 py-2.5 px-3 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 font-bold text-xs flex items-center justify-center gap-1.5">
+                        <CheckCircle2 className="w-4 h-4" />
+                        <span>{t('paidToday', 'PAID TODAY')}</span>
+                      </div>
+                      <button
+                        onClick={() => openPaymentModal(row)}
+                        className="py-2.5 px-3 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold hover:bg-slate-700"
+                      >
+                        {t('edit', 'Edit')}
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Receipt WhatsApp / Print */}
+                  {row.receipt_id && (
+                    <button
+                      onClick={async () => {
+                        const rec = await api.getReceipt(row.receipt_id!);
+                        if (rec) {
+                          setReceiptCustomerPhone(row.mobile_number || '');
+                          setGeneratedReceipt(rec);
+                        }
+                      }}
+                      className="p-3 rounded-xl bg-navy-950 border border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/20"
+                      title={t('Share Receipt', 'Share Receipt')}
+                    >
+                      <Share2 className="w-4 h-4" />
+                    </button>
+                  )}
+
+                  {/* History button */}
+                  <button
+                    onClick={() => openCustomerHistory(row)}
+                    className="p-3 rounded-xl bg-navy-950 border border-slate-700 text-slate-300 hover:text-white"
+                    title={t('View History', 'View History')}
+                  >
+                    <History className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+
       {/* STICKY FLOATING BULK COLLECTION ACTION BAR */}
       {selectedIds.length > 0 && (
         <div className="fixed bottom-4 left-4 right-4 max-w-4xl mx-auto z-40 bg-navy-900/95 border-2 border-gold-500/50 rounded-2xl p-4 shadow-2xl backdrop-blur-xl animate-in slide-in-from-bottom-5 duration-200">
@@ -1017,206 +1232,299 @@ export const DailyCollectionScreen: React.FC<DailyCollectionScreenProps> = ({
               </div>
             )}
 
-            <form onSubmit={handleCollectSubmit} className="space-y-4">
-              {/* Account Quick Glance */}
-              <div className="p-3 rounded-xl bg-navy-950/80 border border-slate-800 space-y-1.5 text-xs">
-                <div className="flex justify-between">
-                  <span className="text-slate-400">{t('Customer:', 'Customer:')}</span>
-                  <strong className="text-white">{activeRecord.customer_name} ({activeRecord.customer_id})</strong>
+            {successPayment ? (
+              /* Success View per Section 14 */
+              <div className="py-6 px-2 text-center space-y-4 animate-in zoom-in-95 duration-200">
+                <div className="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 border-2 border-emerald-500/40 flex items-center justify-center mx-auto shadow-xl shadow-emerald-500/20 animate-bounce">
+                  <CheckCircle2 className="w-10 h-10" />
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400">{t('Shop:', 'Shop:')}</span>
-                  <span className="text-slate-300">{activeRecord.shop_name} ({activeRecord.collection_area})</span>
+
+                <div>
+                  <span className="text-xs font-black text-emerald-400 uppercase tracking-widest block">
+                    ✓ {t('paymentSuccessful', 'PAYMENT SUCCESSFUL')}
+                  </span>
+                  <h3 className="text-3xl md:text-4xl font-black text-white font-mono mt-1 tracking-tight">
+                    {formatCurrency(successPayment.amount)}
+                  </h3>
+                  <p className="text-xs text-slate-400 font-mono mt-1">
+                    {t('Receipt No:', 'Receipt No:')} <span className="text-gold-400 font-bold">{successPayment.receipt?.receipt_number}</span>
+                  </p>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400">{t('Daily Installment Due:', 'Daily Installment Due:')}</span>
-                  <strong className="text-gold-400 font-mono">{formatCurrency(activeRecord.daily_due)}</strong>
+
+                <div className="p-3.5 rounded-xl bg-navy-950 border border-slate-800 text-xs text-slate-300 space-y-1.5 text-left">
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">{t('Customer:', 'Customer:')}</span>
+                    <strong className="text-white">{activeRecord.customer_name} ({activeRecord.customer_id})</strong>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">{t('Shop:', 'Shop:')}</span>
+                    <span className="text-slate-200 font-medium">{activeRecord.shop_name}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">{t('Remaining Balance:', 'Remaining Balance:')}</span>
+                    <strong className="text-amber-400 font-mono font-bold">
+                      {formatCurrency(successPayment.receipt?.remaining_balance ?? Math.max(0, activeRecord.balance_remaining - successPayment.amount))}
+                    </strong>
+                  </div>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400">{t('Current Remaining Balance:', 'Current Remaining Balance:')}</span>
-                  <strong className="text-amber-400 font-mono">{formatCurrency(activeRecord.balance_remaining)}</strong>
+
+                {/* 3 Action Buttons per Section 14: VIEW RECEIPT, SHARE, DONE */}
+                <div className="grid grid-cols-3 gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setReceiptCustomerPhone(successPayment.phone);
+                      setGeneratedReceipt(successPayment.receipt);
+                      setShowPaymentModal(false);
+                      setSuccessPayment(null);
+                    }}
+                    className="py-3 px-2 rounded-xl bg-navy-950 border border-gold-500/50 hover:bg-gold-500/20 text-gold-300 font-black text-xs flex items-center justify-center gap-1.5 transition-all shadow cursor-pointer"
+                  >
+                    <Printer className="w-3.5 h-3.5 text-gold-400" />
+                    <span>{t('viewReceipt', 'VIEW RECEIPT')}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const cleanPhone = (successPayment.phone || '').replace(/\D/g, '');
+                      const phoneWithCountry = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
+                      const msg = encodeURIComponent(
+                        `*DAILY COLLECTION - OFFICIAL PAYMENT RECEIPT*\n` +
+                        `----------------------------------------\n` +
+                        `*Receipt No:* ${successPayment.receipt?.receipt_number}\n` +
+                        `*Customer:* ${activeRecord.customer_name} (${activeRecord.customer_id})\n` +
+                        `*Shop:* ${activeRecord.shop_name}\n` +
+                        `*Amount Paid:* ${formatCurrency(successPayment.amount)}\n` +
+                        `*Remaining Balance:* ${formatCurrency(successPayment.receipt?.remaining_balance ?? Math.max(0, activeRecord.balance_remaining - successPayment.amount))}\n` +
+                        `*Date:* ${new Date().toLocaleDateString('en-IN')}\n` +
+                        `----------------------------------------\n` +
+                        `Thank you for your prompt daily payment.\n` +
+                        `DAILY COLLECTION • Mount Road, Chennai`
+                      );
+                      window.open(`https://wa.me/${phoneWithCountry}?text=${msg}`, '_blank');
+                    }}
+                    className="py-3 px-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs flex items-center justify-center gap-1.5 transition-all shadow-md shadow-emerald-600/25 cursor-pointer"
+                  >
+                    <Share2 className="w-3.5 h-3.5" />
+                    <span>{t('share', 'SHARE')}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowPaymentModal(false);
+                      setSuccessPayment(null);
+                    }}
+                    className="py-3 px-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs transition-all cursor-pointer"
+                  >
+                    <span>{t('done', 'DONE')}</span>
+                  </button>
                 </div>
-                {activeRecord.missed_days_count && activeRecord.missed_days_count > 0 && (
-                  <div className="flex justify-between pt-1 border-t border-slate-800/80 text-rose-400 font-semibold">
-                    <span>{t('missed days', 'Missed Days')} ({activeRecord.missed_days_count} {t('days', 'days')}):</span>
-                    <span className="font-mono">{formatCurrency(activeRecord.missed_amount || activeRecord.missed_days_count * activeRecord.daily_due)}</span>
+              </div>
+            ) : (
+              <form onSubmit={handleCollectSubmit} className="space-y-4">
+                {/* Account Quick Glance */}
+                <div className="p-3 rounded-xl bg-navy-950/80 border border-slate-800 space-y-1.5 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">{t('Customer:', 'Customer:')}</span>
+                    <strong className="text-white">{activeRecord.customer_name} ({activeRecord.customer_id})</strong>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">{t('Shop:', 'Shop:')}</span>
+                    <span className="text-slate-300">{activeRecord.shop_name} ({activeRecord.collection_area})</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">{t('Daily Installment Due:', 'Daily Installment Due:')}</span>
+                    <strong className="text-gold-400 font-mono">{formatCurrency(activeRecord.daily_due)}</strong>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">{t('Current Remaining Balance:', 'Current Remaining Balance:')}</span>
+                    <strong className="text-amber-400 font-mono">{formatCurrency(activeRecord.balance_remaining)}</strong>
+                  </div>
+                  {activeRecord.missed_days_count && activeRecord.missed_days_count > 0 && (
+                    <div className="flex justify-between pt-1 border-t border-slate-800/80 text-rose-400 font-semibold">
+                      <span>{t('missed days', 'Missed Days')} ({activeRecord.missed_days_count} {t('days', 'days')}):</span>
+                      <span className="font-mono">{formatCurrency(activeRecord.missed_amount || activeRecord.missed_days_count * activeRecord.daily_due)}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Missed / Not Paid Checkbox */}
+                <div className="flex items-center gap-2 p-2.5 rounded-xl bg-navy-950 border border-slate-800">
+                  <input
+                    type="checkbox"
+                    id="isMissed"
+                    checked={isMissed}
+                    onChange={(e) => setIsMissed(e.target.checked)}
+                    className="rounded border-slate-700 bg-navy-900 text-rose-500 focus:ring-0 cursor-pointer"
+                  />
+                  <label htmlFor="isMissed" className="text-xs font-semibold text-slate-300 cursor-pointer">
+                    {t('mark as missed collection (customer unable to pay today)', 'Mark as Missed Collection (Customer unable to pay today)')}
+                  </label>
+                </div>
+
+                {!isMissed ? (
+                  <>
+                    {/* Amount Paid Input & Quick Preset Chips */}
+                    <div>
+                      <label className="block text-xs font-bold text-slate-300 mb-1 uppercase tracking-wider">
+                        {t('Amount Paid (₹)', 'Amount Paid (₹)')}
+                      </label>
+                      <div className="relative">
+                        <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 font-bold">₹</span>
+                        <input
+                          type="number"
+                          min="1"
+                          step="1"
+                          max={activeRecord.balance_remaining}
+                          value={paidAmount}
+                          onChange={(e) => setPaidAmount(Number(e.target.value))}
+                          required
+                          className="w-full pl-8 pr-4 py-2.5 bg-navy-950 border border-slate-700 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-gold-500 font-mono"
+                        />
+                      </div>
+
+                      {/* Quick Preset Buttons for Agents visiting 50+ shops */}
+                      <div className="flex items-center gap-1.5 mt-2 flex-wrap text-[11px] font-mono">
+                        <button
+                          type="button"
+                          onClick={() => setPaidAmount(activeRecord.daily_due)}
+                          className="px-2 py-1 rounded-lg bg-navy-950 border border-slate-700 hover:border-gold-500 text-slate-300"
+                        >
+                          {t('1 day', '1 Day')} ({formatCurrency(activeRecord.daily_due)})
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setPaidAmount(activeRecord.daily_due * 2)}
+                          className="px-2 py-1 rounded-lg bg-navy-950 border border-slate-700 hover:border-gold-500 text-slate-300"
+                        >
+                          {t('2 days', '2 Days')} ({formatCurrency(activeRecord.daily_due * 2)})
+                        </button>
+
+                        {activeRecord.missed_days_count && activeRecord.missed_days_count > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => setPaidAmount(activeRecord.missed_amount || activeRecord.missed_days_count! * activeRecord.daily_due)}
+                            className="px-2 py-1 rounded-lg bg-amber-500/20 border border-amber-500/40 text-amber-300 font-bold"
+                          >
+                            {activeRecord.missed_days_count} {t('missed days', 'Missed Days')} ({formatCurrency(activeRecord.missed_amount || activeRecord.missed_days_count! * activeRecord.daily_due)})
+                          </button>
+                        )}
+
+                        <button
+                          type="button"
+                          onClick={() => setPaidAmount(activeRecord.daily_due * 7)}
+                          className="px-2 py-1 rounded-lg bg-navy-950 border border-slate-700 hover:border-gold-500 text-slate-300"
+                        >
+                          {t('1 week', '1 Week')} ({formatCurrency(activeRecord.daily_due * 7)})
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setPaidAmount(activeRecord.balance_remaining)}
+                          className="px-2 py-1 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-bold ml-auto"
+                        >
+                          {t('full balance', 'Full Balance')} ({formatCurrency(activeRecord.balance_remaining)})
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Payment Mode */}
+                    <div>
+                      <label className="block text-xs font-bold text-slate-300 mb-1 uppercase tracking-wider">
+                        {t('Payment Mode', 'Payment Mode')}
+                      </label>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        {[
+                          { id: 'Cash', label: t('Cash (Agent Doorstep)', 'Cash (Agent Doorstep)'), desc: t('Field Agent In-Person', 'Field Agent In-Person') },
+                          { id: 'Razorpay UPI', label: t('Razorpay UPI', 'Razorpay UPI'), desc: t('GPay, PhonePe, QR', 'GPay, PhonePe, QR') },
+                          { id: 'Razorpay NetBanking', label: t('Razorpay NetBanking', 'Razorpay NetBanking'), desc: t('Online Bank Gateway', 'Online Bank Gateway') },
+                          { id: 'Bank Transfer', label: t('Direct Bank Transfer', 'Direct Bank Transfer'), desc: t('NEFT / IMPS / RTGS', 'NEFT / IMPS / RTGS') },
+                        ].map(item => (
+                          <button
+                            key={item.id}
+                            type="button"
+                            onClick={() => setPaymentMode(item.id)}
+                            className={`py-2 px-2 text-center rounded-xl border transition-all flex flex-col items-center justify-center gap-0.5 ${
+                              paymentMode === item.id
+                                ? 'bg-gold-500/20 border-gold-500 text-gold-300 font-bold shadow-sm'
+                                : 'bg-navy-950 border-slate-700 text-slate-400 hover:text-white'
+                            }`}
+                          >
+                            <span className="text-xs">{item.label}</span>
+                            <span className="text-[9px] text-slate-500">{item.desc}</span>
+                          </button>
+                        ))}
+                      </div>
+                      {paymentMode === 'Cash' && (
+                        <p className="mt-1.5 text-[10px] text-amber-400/90 font-medium">
+                          🛡️ {t('Cash collection policy: Cash is collected strictly in-person by the authorized agent at the customer\'s shop. Instant digital receipt will be recorded.', 'Cash collection policy: Cash is collected strictly in-person by the authorized agent at the customer\'s shop. Instant digital receipt will be recorded.')}
+                        </p>
+                      )}
+                    </div>
+                  </>
+                ) : (
+                  /* Missed Collection Reason */
+                  <div>
+                    <label className="block text-xs font-bold text-rose-300 mb-1 uppercase tracking-wider">
+                      {t('reason for missed collection', 'Reason for Missed Collection')}
+                    </label>
+                    <select
+                      value={missedReason}
+                      onChange={(e) => setMissedReason(e.target.value)}
+                      className="w-full px-3 py-2.5 bg-navy-950 border border-rose-500/40 rounded-xl text-xs text-white focus:outline-none focus:border-rose-400"
+                    >
+                      <option value="Shop closed today">{t('shop closed today', 'Shop closed today')}</option>
+                      <option value="Customer out of town">{t('customer out of town', 'Customer out of town')}</option>
+                      <option value="Cash shortage - promised tomorrow">{t('cash shortage - promised tomorrow', 'Cash shortage - promised tomorrow')}</option>
+                      <option value="Medical / Family emergency">{t('medical / family emergency', 'Medical / Family emergency')}</option>
+                      <option value="Bank holiday / ATM issue">{t('bank holiday / atm issue', 'Bank holiday / ATM issue')}</option>
+                      <option value="Refused to pay / Dispute">{t('refused to pay / dispute', 'Refused to pay / Dispute')}</option>
+                    </select>
                   </div>
                 )}
-              </div>
 
-              {/* Missed / Not Paid Checkbox */}
-              <div className="flex items-center gap-2 p-2.5 rounded-xl bg-navy-950 border border-slate-800">
-                <input
-                  type="checkbox"
-                  id="isMissed"
-                  checked={isMissed}
-                  onChange={(e) => setIsMissed(e.target.checked)}
-                  className="rounded border-slate-700 bg-navy-900 text-rose-500 focus:ring-0 cursor-pointer"
-                />
-                <label htmlFor="isMissed" className="text-xs font-semibold text-slate-300 cursor-pointer">
-                  {t('mark as missed collection (customer unable to pay today)', 'Mark as Missed Collection (Customer unable to pay today)')}
-                </label>
-              </div>
-
-              {!isMissed ? (
-                <>
-                  {/* Amount Paid Input & Quick Preset Chips */}
-                  <div>
-                    <label className="block text-xs font-bold text-slate-300 mb-1 uppercase tracking-wider">
-                      {t('Amount Paid (₹)', 'Amount Paid (₹)')}
-                    </label>
-                    <div className="relative">
-                      <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 font-bold">₹</span>
-                      <input
-                        type="number"
-                        min="1"
-                        step="1"
-                        max={activeRecord.balance_remaining}
-                        value={paidAmount}
-                        onChange={(e) => setPaidAmount(Number(e.target.value))}
-                        required
-                        className="w-full pl-8 pr-4 py-2.5 bg-navy-950 border border-slate-700 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-gold-500 font-mono"
-                      />
-                    </div>
-
-                    {/* Quick Preset Buttons for Agents visiting 50+ shops */}
-                    <div className="flex items-center gap-1.5 mt-2 flex-wrap text-[11px] font-mono">
-                      <button
-                        type="button"
-                        onClick={() => setPaidAmount(activeRecord.daily_due)}
-                        className="px-2 py-1 rounded-lg bg-navy-950 border border-slate-700 hover:border-gold-500 text-slate-300"
-                      >
-                        {t('1 day', '1 Day')} ({formatCurrency(activeRecord.daily_due)})
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => setPaidAmount(activeRecord.daily_due * 2)}
-                        className="px-2 py-1 rounded-lg bg-navy-950 border border-slate-700 hover:border-gold-500 text-slate-300"
-                      >
-                        {t('2 days', '2 Days')} ({formatCurrency(activeRecord.daily_due * 2)})
-                      </button>
-
-                      {activeRecord.missed_days_count && activeRecord.missed_days_count > 0 && (
-                        <button
-                          type="button"
-                          onClick={() => setPaidAmount(activeRecord.missed_amount || activeRecord.missed_days_count! * activeRecord.daily_due)}
-                          className="px-2 py-1 rounded-lg bg-amber-500/20 border border-amber-500/40 text-amber-300 font-bold"
-                        >
-                          {activeRecord.missed_days_count} {t('missed days', 'Missed Days')} ({formatCurrency(activeRecord.missed_amount || activeRecord.missed_days_count! * activeRecord.daily_due)})
-                        </button>
-                      )}
-
-                      <button
-                        type="button"
-                        onClick={() => setPaidAmount(activeRecord.daily_due * 7)}
-                        className="px-2 py-1 rounded-lg bg-navy-950 border border-slate-700 hover:border-gold-500 text-slate-300"
-                      >
-                        {t('1 week', '1 Week')} ({formatCurrency(activeRecord.daily_due * 7)})
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => setPaidAmount(activeRecord.balance_remaining)}
-                        className="px-2 py-1 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-bold ml-auto"
-                      >
-                        {t('full balance', 'Full Balance')} ({formatCurrency(activeRecord.balance_remaining)})
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Payment Mode */}
-                  <div>
-                    <label className="block text-xs font-bold text-slate-300 mb-1 uppercase tracking-wider">
-                      {t('Payment Mode', 'Payment Mode')}
-                    </label>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                      {[
-                        { id: 'Cash', label: t('Cash (Agent Doorstep)', 'Cash (Agent Doorstep)'), desc: t('Field Agent In-Person', 'Field Agent In-Person') },
-                        { id: 'Razorpay UPI', label: t('Razorpay UPI', 'Razorpay UPI'), desc: t('GPay, PhonePe, QR', 'GPay, PhonePe, QR') },
-                        { id: 'Razorpay NetBanking', label: t('Razorpay NetBanking', 'Razorpay NetBanking'), desc: t('Online Bank Gateway', 'Online Bank Gateway') },
-                        { id: 'Bank Transfer', label: t('Direct Bank Transfer', 'Direct Bank Transfer'), desc: t('NEFT / IMPS / RTGS', 'NEFT / IMPS / RTGS') },
-                      ].map(item => (
-                        <button
-                          key={item.id}
-                          type="button"
-                          onClick={() => setPaymentMode(item.id)}
-                          className={`py-2 px-2 text-center rounded-xl border transition-all flex flex-col items-center justify-center gap-0.5 ${
-                            paymentMode === item.id
-                              ? 'bg-gold-500/20 border-gold-500 text-gold-300 font-bold shadow-sm'
-                              : 'bg-navy-950 border-slate-700 text-slate-400 hover:text-white'
-                          }`}
-                        >
-                          <span className="text-xs">{item.label}</span>
-                          <span className="text-[9px] text-slate-500">{item.desc}</span>
-                        </button>
-                      ))}
-                    </div>
-                    {paymentMode === 'Cash' && (
-                      <p className="mt-1.5 text-[10px] text-amber-400/90 font-medium">
-                        🛡️ {t('Cash collection policy: Cash is collected strictly in-person by the authorized agent at the customer\'s shop. Instant digital receipt will be recorded.', 'Cash collection policy: Cash is collected strictly in-person by the authorized agent at the customer\'s shop. Instant digital receipt will be recorded.')}
-                      </p>
-                    )}
-                  </div>
-                </>
-              ) : (
-                /* Missed Collection Reason */
+                {/* Remarks */}
                 <div>
-                  <label className="block text-xs font-bold text-rose-300 mb-1 uppercase tracking-wider">
-                    {t('reason for missed collection', 'Reason for Missed Collection')}
-                  </label>
-                  <select
-                    value={missedReason}
-                    onChange={(e) => setMissedReason(e.target.value)}
-                    className="w-full px-3 py-2.5 bg-navy-950 border border-rose-500/40 rounded-xl text-xs text-white focus:outline-none focus:border-rose-400"
-                  >
-                    <option value="Shop closed today">{t('shop closed today', 'Shop closed today')}</option>
-                    <option value="Customer out of town">{t('customer out of town', 'Customer out of town')}</option>
-                    <option value="Cash shortage - promised tomorrow">{t('cash shortage - promised tomorrow', 'Cash shortage - promised tomorrow')}</option>
-                    <option value="Medical / Family emergency">{t('medical / family emergency', 'Medical / Family emergency')}</option>
-                    <option value="Bank holiday / ATM issue">{t('bank holiday / atm issue', 'Bank holiday / ATM issue')}</option>
-                    <option value="Refused to pay / Dispute">{t('refused to pay / dispute', 'Refused to pay / Dispute')}</option>
-                  </select>
+                  <label className="block text-xs font-bold text-slate-300 mb-1 uppercase tracking-wider">{t('remarks / notes', 'Remarks / Notes')}</label>
+                  <input
+                    type="text"
+                    placeholder={t('e.g. Collected cash at cash counter / promised tomorrow morning', 'e.g. Collected cash at cash counter / promised tomorrow morning')}
+                    value={remarks}
+                    onChange={(e) => setRemarks(e.target.value)}
+                    className="w-full px-3.5 py-2 bg-navy-950 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-gold-500"
+                  />
                 </div>
-              )}
 
-              {/* Remarks */}
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1 uppercase tracking-wider">{t('remarks / notes', 'Remarks / Notes')}</label>
-                <input
-                  type="text"
-                  placeholder={t('e.g. Collected cash at cash counter / promised tomorrow morning', 'e.g. Collected cash at cash counter / promised tomorrow morning')}
-                  value={remarks}
-                  onChange={(e) => setRemarks(e.target.value)}
-                  className="w-full px-3.5 py-2 bg-navy-950 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-gold-500"
-                />
-              </div>
-
-              {/* Submit Buttons */}
-              <div className="pt-2 flex gap-2">
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-gold-500 to-amber-600 hover:from-gold-400 hover:to-amber-500 text-navy-950 font-bold text-xs shadow-md shadow-gold-500/20 flex items-center justify-center gap-2 transition-all disabled:opacity-50 cursor-pointer"
-                >
-                  {submitting ? (
-                    <div className="w-4 h-4 border-2 border-navy-950 border-t-transparent rounded-full animate-spin" />
-                  ) : (
-                    <>
-                      <span>{isMissed ? t('Record Missed Collection', 'Record Missed Collection') : `${t('Confirm & Record', 'Confirm & Record')} ${formatCurrency(paidAmount)}`}</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </>
-                  )}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowPaymentModal(false)}
-                  className="py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold"
-                >
-                  {t('cancel', 'Cancel')}
-                </button>
-              </div>
-            </form>
+                {/* Primary Button: CONFIRM COLLECTION (Section 14 requirement) */}
+                <div className="pt-2 flex gap-2">
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-gold-500 via-amber-500 to-amber-600 hover:from-gold-400 hover:to-amber-500 text-navy-950 font-black text-xs shadow-lg shadow-gold-500/25 flex items-center justify-center gap-2 transition-all disabled:opacity-50 cursor-pointer"
+                  >
+                    {submitting ? (
+                      <div className="w-4 h-4 border-2 border-navy-950 border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <>
+                        <Zap className="w-4 h-4 text-navy-950" />
+                        <span>{isMissed ? t('RECORD MISSED', 'RECORD MISSED') : `${t('CONFIRM COLLECTION', 'CONFIRM COLLECTION')} (${formatCurrency(paidAmount)})`}</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </>
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowPaymentModal(false)}
+                    className="py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold cursor-pointer"
+                  >
+                    {t('cancel', 'Cancel')}
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
         </div>
       )}

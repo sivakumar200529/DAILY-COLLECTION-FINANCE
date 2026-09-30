@@ -20,6 +20,7 @@ import { ReportsView } from './components/reports/ReportsView';
 import { SettingsView } from './components/settings/SettingsView';
 import { NotificationsView } from './components/notifications/NotificationsView';
 import { CustomerDashboard } from './components/customer-portal/CustomerDashboard';
+import { MobileBottomNav } from './components/layout/MobileBottomNav';
 
 export function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(() => {
@@ -132,6 +133,7 @@ export function App() {
         currentUser={currentUser}
         onLogout={handleLogout}
         onNavigate={setCurrentView}
+        currentView={currentView}
         onOpenQuickCollect={() => handleOpenQuickCollect()}
         onGlobalSearch={handleGlobalSearch}
         notifications={notifications}
@@ -157,7 +159,7 @@ export function App() {
         />
 
         {/* Content View Container */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 bg-gradient-to-b from-navy-950 via-navy-900 to-navy-950">
+        <main className="flex-1 overflow-y-auto p-3 sm:p-5 md:p-6 lg:p-8 pb-20 lg:pb-8 bg-gradient-to-b from-navy-950 via-navy-900 to-navy-950">
           {/* 3. CUSTOMER PORTAL VIEWS */}
           {currentUser.role === 'CUSTOMER' && (
             <>
@@ -291,6 +293,15 @@ export function App() {
           )}
         </main>
       </div>
+
+      {/* Mobile Bottom Navigation Bar */}
+      <MobileBottomNav
+        currentRole={currentUser.role}
+        currentView={currentView}
+        onNavigate={setCurrentView}
+        onOpenMenu={() => setMobileMenuOpen(true)}
+        onOpenQuickCollect={() => handleOpenQuickCollect()}
+      />
     </div>
   );
 }
