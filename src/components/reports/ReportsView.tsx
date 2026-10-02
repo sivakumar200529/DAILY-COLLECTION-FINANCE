@@ -1,485 +1,174 @@
 import React, { useEffect, useState } from 'react';
-import { api } from '../../services/api';
-import { formatCurrency, formatDate } from '../../utils/formatters';
-import { exportTableToExcel, exportMonthlyReportToExcel } from '../../utils/excelExport';
-import { MonthlyReportData } from '../../types';
-import { 
-  FileText, 
-  Download, 
-  TrendingUp, 
-  Users, 
-  AlertTriangle, 
-  DollarSign, 
-  ShieldCheck, 
-  UserCheck, 
-  Calendar,
-  Search,
-  CheckCircle2,
-  Clock
-} from 'lucide-react';
+import { AlertTriangle, Download, HandCoins, PiggyBank, TrendingUp, Wallet } from 'lucide-react';
+import { api, CustomerListItem } from '../../services/api';
+import { CollectionAccount, Collector, PaymentTransaction } from '../../types';
+import { formatCurrency } from '../../utils/formatters';
+import { exportTableToExcel } from '../../utils/excelExport';
+import { todayIso } from '../../../shared/finance';
 import { useLanguage } from '../../context/LanguageContext';
+import { useConfig } from '../../context/ConfigContext';
+import { BigButton, CallButton, EmptyState, PageTitle, PillTabs, Spinner, StatTile } from '../common/ui';
+import { MonthlyExcelReportView } from './MonthlyExcelReportView';
+import { ReceiptsMasterView } from '../collections/ReceiptsMasterView';
 
-export const ReportsView: React.FC = () => {
+type ReportTab = 'monthly' | 'not-paying' | 'summary' | 'receipts';
+
+/** Four reports: the monthly register, who is not paying, the money summary, and all receipts. */
+export const ReportsView: React.FC<{ onOpenCustomer: (customerId: string) => void }> = ({ onOpenCustomer }) => {
   const { t } = useLanguage();
-  const [activeReport, setActiveReport] = useState<string>('monthly');
-  const [loading, setLoading] = useState<boolean>(true);
-
-  // Data sets
-  const [accounts, setAccounts] = useState<any[]>([]);
-  const [payments, setPayments] = useState<any[]>([]);
-  const [collectors, setCollectors] = useState<any[]>([]);
-
-  // Monthly Calendar Report state (Section 12, 13, 14, 15)
-  const [selectedMonth, setSelectedMonth] = useState<number>(9); // September 2026 default
-  const [selectedYear, setSelectedYear] = useState<number>(2026);
-  const [monthlyData, setMonthlyData] = useState<MonthlyReportData | null>(null);
-  const [loadingMonthly, setLoadingMonthly] = useState<boolean>(false);
-
-  const loadData = async () => {
-    setLoading(true);
-    try {
-      const [accs, pays, cols] = await Promise.all([
-        api.getCollectionAccounts(),
-        api.getPayments(),
-        api.getCollectors(),
-      ]);
-      setAccounts(accs);
-      setPayments(pays);
-      setCollectors(cols);
-    } catch (err) {
-      console.error('Failed to load report data:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  useEffect(() => {
-    if (activeReport === 'monthly') {
-      const loadMonthly = async () => {
-        setLoadingMonthly(true);
-        try {
-          const data = await api.getMonthlyReport({ month: selectedMonth, year: selectedYear });
-          setMonthlyData(data);
-        } catch (err) {
-          console.error('Failed to load monthly report:', err);
-        } finally {
-          setLoadingMonthly(false);
-        }
-      };
-      loadMonthly();
-    }
-  }, [activeReport, selectedMonth, selectedYear]);
-
-  const reportTabs = [
-    { id: 'monthly', label: t('monthlyCalendarRegister', 'Monthly Calendar Register (Excel Matrix)'), icon: Calendar },
-    { id: 'outstanding', label: t('outstanding balance report', 'Outstanding Balance Report'), icon: DollarSign },
-    { id: 'overdue', label: t('overdue accounts report', 'Overdue Accounts Report'), icon: AlertTriangle },
-    { id: 'margin', label: t('finance margin report', 'Finance Margin Report'), icon: ShieldCheck },
-    { id: 'collector', label: t('collector performance report', 'Collector Performance Report'), icon: UserCheck },
-    { id: 'payments', label: t('payment ledger report', 'Payment Ledger Report'), icon: TrendingUp },
-  ];
-
-  const handleExport = () => {
-    if (activeReport === 'monthly') {
-      if (monthlyData) {
-        exportMonthlyReportToExcel(monthlyData);
-      }
-      return;
-    } else if (activeReport === 'outstanding') {
-      const headers = ['Account ID', 'Customer ID', 'Customer Name', 'Shop Name', 'Total Repayment', 'Collected', 'Outstanding Balance', 'Completed Days', 'Status'];
-      const rows = accounts.map(a => [
-        a.id, a.customer_id, a.customer_name, a.shop_name, a.total_repayment, a.amount_collected, a.remaining_amount, a.completed_days, a.status
-      ]);
-      exportTableToExcel('Daily Collection - Outstanding Balance Report', headers, rows, 'Daily_Collection_Outstanding_Report');
-    } else if (activeReport === 'overdue') {
-      const overdues = accounts.filter(a => a.status === 'OVERDUE');
-      const headers = ['Account ID', 'Customer Name', 'Shop Name', 'Daily Due', 'Remaining Balance', 'Assigned Collector', 'Status'];
-      const rows = overdues.map(a => [
-        a.id, a.customer_name, a.shop_name, a.daily_collection, a.remaining_amount, a.assigned_collector_name, a.status
-      ]);
-      exportTableToExcel('Daily Collection - Overdue Accounts Report', headers, rows, 'Daily_Collection_Overdue_Report');
-    } else if (activeReport === 'margin') {
-      const headers = ['Account ID', 'Customer Name', 'Requested Amount', 'Disbursed Amount', 'Repayment Goal', 'Finance Margin', 'Status'];
-      const rows = accounts.map(a => [
-        a.id, a.customer_name, a.requested_amount, a.disbursed_amount, a.total_repayment, a.finance_margin, a.status
-      ]);
-      exportTableToExcel('Daily Collection - Finance Margin Report', headers, rows, 'Daily_Collection_Finance_Margin_Report');
-    } else if (activeReport === 'collector') {
-      const headers = ['Collector ID', 'Name', 'Assigned Area', 'Mobile', 'Target Amount', 'Today Collected', 'Monthly Collected'];
-      const rows = collectors.map(c => [
-        c.id, c.name, c.assigned_area, c.mobile, c.target_amount, c.today_collected_amount, c.monthly_collected_amount
-      ]);
-      exportTableToExcel('Daily Collection - Collector Performance Report', headers, rows, 'Daily_Collection_Collector_Performance_Report');
-    } else if (activeReport === 'payments') {
-      const headers = ['Receipt #', 'Date', 'Customer Name', 'Daily Due', 'Amount Paid', 'Mode', 'Collector', 'Remaining Balance'];
-      const rows = payments.map(p => [
-        p.receipt_number, p.collection_date, p.customer_name, p.daily_due, p.amount_paid, p.payment_mode, p.collector_name, p.remaining_balance
-      ]);
-      exportTableToExcel('Daily Collection - Payment Ledger Report', headers, rows, 'Daily_Collection_Payment_Ledger_Report');
-    }
-  };
+  const [tab, setTab] = useState<ReportTab>('monthly');
 
   return (
-    <div className="space-y-6 pb-12 font-sans">
-      <div className="glass-card p-5 rounded-2xl border border-gold-500/25 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <span className="px-2 py-0.5 rounded-full bg-gold-500/20 text-gold-300 text-[10px] font-bold uppercase tracking-wider block w-fit mb-1">
-            {t('financial intelligence', 'Financial Intelligence')}
-          </span>
-          <h1 className="text-xl md:text-2xl font-black text-white">{t('reports & audit suite', 'REPORTS & AUDIT SUITE')}</h1>
-          <p className="text-xs text-slate-300 mt-0.5">{t('generate, filter, and export detailed analytical reports to excel.', 'Generate, filter, and export detailed analytical reports to Excel.')}</p>
+    <div className="space-y-4 pb-8">
+      <PageTitle title={t('reports', 'Reports')} />
+      <PillTabs<ReportTab>
+        value={tab}
+        onChange={setTab}
+        tabs={[
+          { id: 'monthly', label: t('monthlyRegister', 'Monthly register') },
+          { id: 'not-paying', label: t('tabNotPaying', 'Not paying') },
+          { id: 'summary', label: t('summary', 'Summary') },
+          { id: 'receipts', label: t('receipts', 'Receipts') },
+        ]}
+      />
+      {tab === 'monthly' && <MonthlyExcelReportView />}
+      {tab === 'not-paying' && <NotPayingReport onOpenCustomer={onOpenCustomer} />}
+      {tab === 'summary' && <SummaryReport />}
+      {tab === 'receipts' && <ReceiptsMasterView />}
+    </div>
+  );
+};
+
+/** Running loans that are behind by at least the "not paying" limit, worst first, with a call button. */
+const NotPayingReport: React.FC<{ onOpenCustomer: (customerId: string) => void }> = ({ onOpenCustomer }) => {
+  const { t } = useLanguage();
+  const limit = useConfig().config.masters.not_paying_after_days;
+  const [customers, setCustomers] = useState<CustomerListItem[] | null>(null);
+
+  useEffect(() => {
+    api.getCustomers().then(setCustomers).catch(() => setCustomers([]));
+  }, []);
+  if (!customers) return <Spinner />;
+
+  const rows = customers
+    .filter(c => (c.activeAccount?.days_behind ?? 0) >= limit)
+    .sort((a, b) => (b.activeAccount!.days_behind ?? 0) - (a.activeAccount!.days_behind ?? 0));
+
+  const download = () =>
+    exportTableToExcel(
+      t('tabNotPaying', 'Not paying'),
+      [t('customer', 'Customer'), t('shop', 'Shop'), t('mobile', 'Mobile'), t('collector', 'Collector'), t('daysNotPaid', 'Days not paid'), t('amountBehind', 'Amount behind'), t('balance', 'Balance')],
+      rows.map(c => {
+        const a = c.activeAccount!;
+        return [c.full_name, c.business?.shop_name || '', c.mobile_number, a.assigned_collector_name, a.days_behind ?? 0, (a.days_behind ?? 0) * a.daily_collection, a.remaining_amount];
+      }),
+      'Not_paying'
+    );
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-sm text-slate-400">
+          {t('notPayingRule', 'Behind by')} {limit}+ {t('days', 'days')} • {rows.length} {t('customers', 'customers')}
+        </p>
+        <BigButton small icon={Download} label="Excel" onClick={download} />
+      </div>
+      {rows.length === 0 ? (
+        <EmptyState icon={AlertTriangle} text={t('everyonePaying', 'Everyone is paying')} />
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {rows.map(c => {
+            const a = c.activeAccount!;
+            return (
+              <div key={c.id} className="glass-card rounded-2xl p-4 flex items-center gap-3 border border-rose-500/30">
+                <button type="button" onClick={() => onOpenCustomer(c.id)} className="flex-1 min-w-0 text-left">
+                  <div className="text-lg font-black text-white truncate">{c.full_name}</div>
+                  <div className="text-sm text-slate-400 truncate">{c.business?.shop_name} • {a.assigned_collector_name}</div>
+                  <div className="text-sm font-bold text-rose-300 mt-1">
+                    {a.days_behind} {t('daysNotPaid', 'days not paid')} • {formatCurrency((a.days_behind ?? 0) * a.daily_collection)}
+                  </div>
+                  <div className="text-xs text-slate-400">{t('balance', 'Balance')}: {formatCurrency(a.remaining_amount)}</div>
+                </button>
+                <CallButton phone={c.mobile_number} label={t('call', 'Call')} />
+              </div>
+            );
+          })}
         </div>
+      )}
+    </div>
+  );
+};
 
-        <button
-          onClick={handleExport}
-          className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-md shadow-emerald-600/20 flex items-center gap-1.5 cursor-pointer"
-        >
-          <Download className="w-4 h-4" />
-          <span>{t('export current report to excel', 'Export Current Report to Excel')}</span>
-        </button>
+/** The business in four numbers, plus each collector's collection today and this month. */
+const SummaryReport: React.FC = () => {
+  const { t } = useLanguage();
+  const [data, setData] = useState<{ accounts: CollectionAccount[]; payments: PaymentTransaction[]; collectors: Collector[] } | null>(null);
+
+  useEffect(() => {
+    Promise.all([api.getCollectionAccounts(), api.getPayments(), api.getCollectors()])
+      .then(([accounts, payments, collectors]) => setData({ accounts, payments, collectors }))
+      .catch(() => setData({ accounts: [], payments: [], collectors: [] }));
+  }, []);
+  if (!data) return <Spinner />;
+
+  const loans = data.accounts.filter(a => a.status !== 'CANCELLED');
+  const running = loans.filter(a => a.status === 'ACTIVE' || a.status === 'OVERDUE');
+  const given = loans.reduce((s, a) => s + a.disbursed_amount, 0);
+  const collected = loans.reduce((s, a) => s + a.amount_collected, 0);
+  const balance = running.reduce((s, a) => s + a.remaining_amount, 0);
+  const interest = loans.reduce((s, a) => s + a.finance_margin, 0);
+
+  const today = todayIso();
+  const month = today.slice(0, 7);
+  const active = data.payments.filter(p => p.status !== 'CANCELLED');
+  const perCollector = data.collectors.map(c => {
+    const mine = active.filter(p => p.collector_id === c.id);
+    return {
+      collector: c,
+      today: mine.filter(p => p.collection_date === today).reduce((s, p) => s + p.amount_paid, 0),
+      month: mine.filter(p => p.collection_date.startsWith(month)).reduce((s, p) => s + p.amount_paid, 0),
+      loans: running.filter(a => a.assigned_collector_id === c.id).length,
+    };
+  });
+
+  const download = () =>
+    exportTableToExcel(
+      t('summary', 'Summary'),
+      [t('collector', 'Collector'), t('runningLoans', 'Running loans'), t('collectedToday', 'Collected today'), t('collectedThisMonth', 'Collected this month')],
+      perCollector.map(r => [r.collector.name, r.loans, r.today, r.month]),
+      'Summary_by_collector'
+    );
+
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <StatTile icon={HandCoins} label={t('givenOut', 'Money given out')} value={formatCurrency(given)} tone="blue" />
+        <StatTile icon={Wallet} label={t('collected', 'Collected')} value={formatCurrency(collected)} tone="green" />
+        <StatTile icon={TrendingUp} label={t('balanceToCollect', 'Balance to collect')} value={formatCurrency(balance)} tone="gold" />
+        <StatTile icon={PiggyBank} label={t('interestEarned', 'Interest earned')} value={formatCurrency(interest)} tone="gold" />
       </div>
 
-      {/* Report Selector Tabs */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-xs font-semibold">
-        {reportTabs.map(tab => {
-          const Icon = tab.icon;
-          const isActive = activeReport === tab.id;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveReport(tab.id)}
-              className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl whitespace-nowrap transition-all cursor-pointer ${
-                isActive
-                  ? 'bg-gold-500 text-navy-950 font-bold shadow-md shadow-gold-500/20'
-                  : 'glass-card text-slate-300 hover:text-white'
-              }`}
-            >
-              <Icon className="w-3.5 h-3.5" />
-              <span>{tab.label}</span>
-            </button>
-          );
-        })}
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-lg font-black text-white">{t('byCollector', 'By collector')}</h2>
+        <BigButton small icon={Download} label="Excel" onClick={download} />
       </div>
-
-      {/* Report Table Display */}
-      <div className="glass-card rounded-2xl overflow-hidden border border-slate-800 shadow-xl">
-        <div className="overflow-x-auto">
-          {/* Monthly Calendar Register & Excel Matrix Tab (Section 12, 13, 14, 15) */}
-          {activeReport === 'monthly' && (
-            <div className="space-y-4 p-4">
-              {/* Controls bar: Month Selector + Direct Excel Export */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">{t('selectMonth', 'Calendar Month:')}</span>
-                  {[
-                    { m: 7, label: 'Jul 2026' },
-                    { m: 8, label: 'Aug 2026' },
-                    { m: 9, label: 'Sep 2026' },
-                    { m: 10, label: 'Oct 2026' },
-                    { m: 11, label: 'Nov 2026' },
-                    { m: 12, label: 'Dec 2026' },
-                  ].map(item => (
-                    <button
-                      key={item.m}
-                      type="button"
-                      onClick={() => setSelectedMonth(item.m)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                        selectedMonth === item.m
-                          ? 'bg-gold-500 text-navy-950 shadow-sm'
-                          : 'bg-navy-900 text-slate-300 hover:text-white border border-slate-700'
-                      }`}
-                    >
-                      {item.label}
-                    </button>
-                  ))}
-                </div>
-
-                {monthlyData && (
-                  <button
-                    type="button"
-                    onClick={() => exportMonthlyReportToExcel(monthlyData)}
-                    className="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow transition-all"
-                  >
-                    <Download className="w-3.5 h-3.5" />
-                    <span>{t('downloadSpreadsheet', `Download ${monthlyData.monthName} Excel (.xls)`)}</span>
-                  </button>
-                )}
-              </div>
-
-              {/* 4 Monthly KPI Cards */}
-              {monthlyData && (
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-                  <div className="p-3 rounded-xl bg-navy-950 border border-slate-800">
-                    <span className="text-slate-400 block text-[10px] uppercase font-semibold">{t('expectedMonthly', 'Expected This Month')}</span>
-                    <strong className="text-white text-base font-mono block mt-0.5">{formatCurrency(monthlyData.totals.expectedMonthly)}</strong>
-                    <span className="text-[10px] text-slate-500 block">{t('byCalendarDays', 'Computed by active calendar days')}</span>
-                  </div>
-
-                  <div className="p-3 rounded-xl bg-navy-950 border border-emerald-500/30">
-                    <span className="text-emerald-400 block text-[10px] uppercase font-bold">{t('actualCollectedMonthly', 'Collected This Month')}</span>
-                    <strong className="text-emerald-400 text-base font-mono block mt-0.5">{formatCurrency(monthlyData.totals.actualMonthly)}</strong>
-                    <span className="text-[10px] text-emerald-400/80 block">{monthlyData.rows.length} {t('accountsInRegister', 'accounts scheduled')}</span>
-                  </div>
-
-                  <div className="p-3 rounded-xl bg-navy-950 border border-amber-500/30">
-                    <span className="text-amber-400 block text-[10px] uppercase font-bold">{t('monthlyPending', 'Pending This Month')}</span>
-                    <strong className="text-amber-400 text-base font-mono block mt-0.5">{formatCurrency(monthlyData.totals.monthlyPending)}</strong>
-                    <span className="text-[10px] text-amber-400/80 block">{t('dueThisMonth', 'Due within current month')}</span>
-                  </div>
-
-                  <div className="p-3 rounded-xl bg-navy-950 border border-gold-500/30">
-                    <span className="text-gold-400 block text-[10px] uppercase font-bold">{t('collectionEfficiency', 'Month Efficiency')}</span>
-                    <strong className="text-gold-300 text-base font-mono block mt-0.5">{monthlyData.totals.collectionPercentage}%</strong>
-                    <span className="text-[10px] text-slate-400 block">{t('collectionRate', 'Rate vs expected dues')}</span>
-                  </div>
-                </div>
-              )}
-
-              {/* Monthly Register Matrix Table */}
-              <div className="overflow-x-auto max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-700">
-                {loadingMonthly ? (
-                  <div className="flex items-center justify-center py-12 gap-3">
-                    <div className="w-8 h-8 border-3 border-gold-500 border-t-transparent rounded-full animate-spin" />
-                    <span className="text-xs text-slate-400 font-semibold">{t('loadingMonthlyRegister', 'Generating Monthly Calendar Register...')}</span>
-                  </div>
-                ) : !monthlyData || monthlyData.rows.length === 0 ? (
-                  <div className="p-8 text-center text-slate-400 text-xs">
-                    {t('noMonthlyData', 'No collection records found for this month.')}
-                  </div>
-                ) : (
-                  <table className="w-full text-left text-xs">
-                    <thead className="bg-navy-950 text-slate-300 font-bold uppercase tracking-wider text-[10px] sticky top-0 z-10">
-                      <tr>
-                        <th className="py-3 px-4">{t('account id', 'Account ID')}</th>
-                        <th className="py-3 px-4">{t('customer', 'Customer')}</th>
-                        <th className="py-3 px-4">{t('shop', 'Shop')}</th>
-                        <th className="py-3 px-3 text-right">{t('req', 'Requested')}</th>
-                        <th className="py-3 px-3 text-right">{t('margin', 'Margin %')}</th>
-                        <th className="py-3 px-3 text-right">{t('disb', 'Disbursed')}</th>
-                        <th className="py-3 px-3 text-right">{t('daily', 'Daily')}</th>
-                        <th className="py-3 px-3 text-center">{t('schedDays', 'Sched Days')}</th>
-                        <th className="py-3 px-3 text-right">{t('expMonth', 'Expected (Mo)')}</th>
-                        <th className="py-3 px-3 text-right">{t('colMonth', 'Collected (Mo)')}</th>
-                        <th className="py-3 px-3 text-right">{t('pendMonth', 'Pending (Mo)')}</th>
-                        <th className="py-3 px-3 text-center">{t('eff', 'Col %')}</th>
-                        <th className="py-3 px-3 text-center">{t('status', 'Status')}</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-800/60 font-mono text-xs">
-                      {monthlyData.rows.map(r => (
-                        <tr key={r.collectionAccountId} className="hover:bg-slate-800/40">
-                          <td className="py-2.5 px-4 font-bold text-gold-400">{r.collectionAccountId}</td>
-                          <td className="py-2.5 px-4 font-sans font-bold text-white">{r.customerName}</td>
-                          <td className="py-2.5 px-4 font-sans text-slate-300">{r.shopName}</td>
-                          <td className="py-2.5 px-3 text-right text-slate-300">{formatCurrency(r.requestedAmount)}</td>
-                          <td className="py-2.5 px-3 text-right text-gold-400 font-bold">
-                            {r.marginPercentage ?? 12}% ({formatCurrency(r.marginAmount ?? r.financeMargin)})
-                          </td>
-                          <td className="py-2.5 px-3 text-right text-gold-300">{formatCurrency(r.disbursedAmount)}</td>
-                          <td className="py-2.5 px-3 text-right text-slate-200">{formatCurrency(r.dailyCollection)}</td>
-                          <td className="py-2.5 px-3 text-center text-slate-300 font-bold">
-                            {r.scheduledDaysInMonth ?? monthlyData.daysInMonth} d
-                          </td>
-                          <td className="py-2.5 px-3 text-right text-slate-200 font-bold">{formatCurrency(r.expectedMonthlyCollection)}</td>
-                          <td className="py-2.5 px-3 text-right text-emerald-400 font-black">{formatCurrency(r.monthlyTotal)}</td>
-                          <td className={`py-2.5 px-3 text-right font-bold ${r.monthlyPending > 0 ? 'text-amber-400' : 'text-slate-500'}`}>
-                            {formatCurrency(r.monthlyPending)}
-                          </td>
-                          <td className="py-2.5 px-3 text-center text-gold-300 font-bold">{r.collectionPercentage}%</td>
-                          <td className="py-2.5 px-3 text-center font-sans">
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-slate-200">
-                              {t(r.status.toLowerCase(), r.status)}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                    <tfoot className="bg-navy-950 font-mono text-xs font-bold text-white border-t-2 border-slate-700">
-                      <tr>
-                        <td colSpan={3} className="py-3 px-4 text-gold-400 uppercase font-sans tracking-wider">{t('grandTotals', 'Grand Totals')}</td>
-                        <td className="py-3 px-3 text-right">{formatCurrency(monthlyData.totals.requested)}</td>
-                        <td className="py-3 px-3 text-right text-gold-400">{formatCurrency(monthlyData.totals.financeMargin)}</td>
-                        <td className="py-3 px-3 text-right text-gold-300">{formatCurrency(monthlyData.totals.disbursed)}</td>
-                        <td className="py-3 px-3 text-right">-</td>
-                        <td className="py-3 px-3 text-center">-</td>
-                        <td className="py-3 px-3 text-right text-white">{formatCurrency(monthlyData.totals.expectedMonthly)}</td>
-                        <td className="py-3 px-3 text-right text-emerald-400">{formatCurrency(monthlyData.totals.actualMonthly)}</td>
-                        <td className="py-3 px-3 text-right text-amber-400">{formatCurrency(monthlyData.totals.monthlyPending)}</td>
-                        <td className="py-3 px-3 text-center text-gold-300">{monthlyData.totals.collectionPercentage}%</td>
-                        <td className="py-3 px-3 text-center">-</td>
-                      </tr>
-                    </tfoot>
-                  </table>
-                )}
-              </div>
+      <div className="space-y-2">
+        {perCollector.map(r => (
+          <div key={r.collector.id} className="glass-card rounded-2xl p-4 grid grid-cols-3 gap-2 items-center">
+            <div className="min-w-0">
+              <div className="text-base font-bold text-white truncate">{r.collector.name}</div>
+              <div className="text-xs text-slate-400">{r.loans} {t('runningLoans', 'running loans')}</div>
             </div>
-          )}
-
-          {activeReport === 'outstanding' && (
-            <table className="w-full text-left text-xs">
-              <thead className="bg-navy-950 text-slate-300 font-bold uppercase tracking-wider text-[10px]">
-                <tr>
-                  <th className="py-3 px-4">{t('account id', 'Account ID')}</th>
-                  <th className="py-3 px-4">{t('customer', 'Customer')}</th>
-                  <th className="py-3 px-4">{t('shop', 'Shop')}</th>
-                  <th className="py-3 px-4 text-right">{t('repayment goal', 'Repayment Goal')}</th>
-                  <th className="py-3 px-4 text-right">{t('amount collected', 'Collected')}</th>
-                  <th className="py-3 px-4 text-right">{t('outstanding balance', 'Outstanding Balance')}</th>
-                  <th className="py-3 px-4 text-center">{t('progress %', 'Progress %')}</th>
-                  <th className="py-3 px-4 text-center">{t('status', 'Status')}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800/60 font-mono">
-                {accounts.map(a => (
-                  <tr key={a.id} className="hover:bg-slate-800/40">
-                    <td className="py-2.5 px-4 font-bold text-gold-400">{a.id}</td>
-                    <td className="py-2.5 px-4 font-sans font-bold text-white">{a.customer_name}</td>
-                    <td className="py-2.5 px-4 font-sans text-slate-300">{a.shop_name}</td>
-                    <td className="py-2.5 px-4 text-right">{formatCurrency(a.total_repayment)}</td>
-                    <td className="py-2.5 px-4 text-right text-emerald-400 font-bold">{formatCurrency(a.amount_collected)}</td>
-                    <td className="py-2.5 px-4 text-right text-amber-400 font-black">{formatCurrency(a.remaining_amount)}</td>
-                    <td className="py-2.5 px-4 text-center text-gold-300 font-bold">{a.collection_percentage}%</td>
-                    <td className="py-2.5 px-4 text-center font-sans">
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-slate-200">
-                        {t(a.status?.toLowerCase() || '', a.status)}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-
-          {activeReport === 'margin' && (
-            <table className="w-full text-left text-xs">
-              <thead className="bg-navy-950 text-slate-300 font-bold uppercase tracking-wider text-[10px]">
-                <tr>
-                  <th className="py-3 px-4">{t('account id', 'Account ID')}</th>
-                  <th className="py-3 px-4">{t('customer name', 'Customer Name')}</th>
-                  <th className="py-3 px-4 text-right">{t('req', 'Requested')}</th>
-                  <th className="py-3 px-4 text-right">{t('disb', 'Disbursed (Loan)')}</th>
-                  <th className="py-3 px-4 text-right">{t('repayment goal', 'Repayment Goal')}</th>
-                  <th className="py-3 px-4 text-right">{t('finance margin', 'Finance Margin')}</th>
-                  <th className="py-3 px-4 text-center">{t('status', 'Status')}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800/60 font-mono">
-                {accounts.map(a => (
-                  <tr key={a.id} className="hover:bg-slate-800/40">
-                    <td className="py-2.5 px-4 font-bold text-gold-400">{a.id}</td>
-                    <td className="py-2.5 px-4 font-sans font-bold text-white">{a.customer_name}</td>
-                    <td className="py-2.5 px-4 text-right text-slate-300">{formatCurrency(a.requested_amount)}</td>
-                    <td className="py-2.5 px-4 text-right text-gold-400 font-bold">{formatCurrency(a.disbursed_amount)}</td>
-                    <td className="py-2.5 px-4 text-right text-purple-300">{formatCurrency(a.total_repayment)}</td>
-                    <td className="py-2.5 px-4 text-right text-emerald-400 font-black">{formatCurrency(a.finance_margin)}</td>
-                    <td className="py-2.5 px-4 text-center font-sans">
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-slate-200">
-                        {t(a.status?.toLowerCase() || '', a.status)}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-
-          {activeReport === 'overdue' && (
-            <table className="w-full text-left text-xs">
-              <thead className="bg-navy-950 text-slate-300 font-bold uppercase tracking-wider text-[10px]">
-                <tr>
-                  <th className="py-3 px-4">{t('account id', 'Account ID')}</th>
-                  <th className="py-3 px-4">{t('customer name', 'Customer Name')}</th>
-                  <th className="py-3 px-4">{t('shop', 'Shop')}</th>
-                  <th className="py-3 px-4 text-right">{t('daily due', 'Daily Due')}</th>
-                  <th className="py-3 px-4 text-right">{t('remaining balance', 'Remaining Balance')}</th>
-                  <th className="py-3 px-4">{t('assigned collector', 'Assigned Collector')}</th>
-                  <th className="py-3 px-4 text-center">{t('status', 'Status')}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800/60 font-mono">
-                {accounts.filter(a => a.status === 'OVERDUE').map(a => (
-                  <tr key={a.id} className="hover:bg-slate-800/40">
-                    <td className="py-2.5 px-4 font-bold text-rose-400">{a.id}</td>
-                    <td className="py-2.5 px-4 font-sans font-bold text-white">{a.customer_name}</td>
-                    <td className="py-2.5 px-4 font-sans text-slate-300">{a.shop_name}</td>
-                    <td className="py-2.5 px-4 text-right text-slate-200">{formatCurrency(a.daily_collection)}</td>
-                    <td className="py-2.5 px-4 text-right text-rose-400 font-black">{formatCurrency(a.remaining_amount)}</td>
-                    <td className="py-2.5 px-4 font-sans text-slate-300">{a.assigned_collector_name}</td>
-                    <td className="py-2.5 px-4 text-center font-sans">
-                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/20 text-rose-300">
-                        {t('overdue', 'OVERDUE')}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-
-          {activeReport === 'collector' && (
-            <table className="w-full text-left text-xs">
-              <thead className="bg-navy-950 text-slate-300 font-bold uppercase tracking-wider text-[10px]">
-                <tr>
-                  <th className="py-3 px-4">{t('collector id', 'Collector ID')}</th>
-                  <th className="py-3 px-4">{t('customer name', 'Name')}</th>
-                  <th className="py-3 px-4">{t('route / area', 'Route / Area')}</th>
-                  <th className="py-3 px-4">{t('mobile', 'Mobile')}</th>
-                  <th className="py-3 px-4 text-right">{t('target', 'Target')}</th>
-                  <th className="py-3 px-4 text-right">{t('today collected', 'Today Collected')}</th>
-                  <th className="py-3 px-4 text-right">{t('monthly collection', 'Monthly Collected')}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800/60 font-mono">
-                {collectors.map(c => (
-                  <tr key={c.id} className="hover:bg-slate-800/40">
-                    <td className="py-2.5 px-4 font-bold text-gold-400">{c.id}</td>
-                    <td className="py-2.5 px-4 font-sans font-bold text-white">{c.name}</td>
-                    <td className="py-2.5 px-4 font-sans text-slate-300">{c.assigned_area}</td>
-                    <td className="py-2.5 px-4 text-slate-400">{c.mobile}</td>
-                    <td className="py-2.5 px-4 text-right">{formatCurrency(c.target_amount)}</td>
-                    <td className="py-2.5 px-4 text-right text-emerald-400 font-bold">{formatCurrency(c.today_collected_amount || 0)}</td>
-                    <td className="py-2.5 px-4 text-right text-gold-300 font-black">{formatCurrency(c.monthly_collected_amount || 0)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-
-          {activeReport === 'payments' && (
-            <table className="w-full text-left text-xs">
-              <thead className="bg-navy-950 text-slate-300 font-bold uppercase tracking-wider text-[10px]">
-                <tr>
-                  <th className="py-3 px-4">{t('receipt #', 'Receipt #')}</th>
-                  <th className="py-3 px-4">{t('date', 'Date')}</th>
-                  <th className="py-3 px-4">{t('customer', 'Customer')}</th>
-                  <th className="py-3 px-4 text-right">{t('daily due', 'Daily Due')}</th>
-                  <th className="py-3 px-4 text-right">{t('amount paid', 'Amount Paid')}</th>
-                  <th className="py-3 px-4">{t('mode', 'Mode')}</th>
-                  <th className="py-3 px-4">{t('collector', 'Collector')}</th>
-                  <th className="py-3 px-4 text-right">{t('remaining balance', 'Remaining Balance')}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800/60 font-mono">
-                {payments.slice(0, 50).map(p => (
-                  <tr key={p.id} className="hover:bg-slate-800/40">
-                    <td className="py-2 px-4 font-bold text-gold-400">{p.receipt_number}</td>
-                    <td className="py-2 px-4 text-slate-300">{formatDate(p.collection_date)}</td>
-                    <td className="py-2 px-4 font-sans font-bold text-white">{p.customer_name}</td>
-                    <td className="py-2 px-4 text-right text-slate-400">{formatCurrency(p.daily_due)}</td>
-                    <td className="py-2 px-4 text-right text-emerald-400 font-black">{formatCurrency(p.amount_paid)}</td>
-                    <td className="py-2 px-4 text-slate-300 font-sans uppercase text-[10px]">{p.payment_mode ? t(p.payment_mode.toLowerCase(), p.payment_mode) : ''}</td>
-                    <td className="py-2 px-4 font-sans text-slate-400">{p.collector_name}</td>
-                    <td className="py-2 px-4 text-right text-slate-200">{formatCurrency(p.remaining_balance)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
+            <div className="text-right">
+              <div className="text-xs text-slate-400">{t('today', 'Today')}</div>
+              <div className="text-base font-black text-emerald-400">{formatCurrency(r.today)}</div>
+            </div>
+            <div className="text-right">
+              <div className="text-xs text-slate-400">{t('thisMonth', 'This month')}</div>
+              <div className="text-base font-black text-white">{formatCurrency(r.month)}</div>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

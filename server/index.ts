@@ -1,13 +1,16 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
+import * as fs from 'fs';
+import * as path from 'path';
+import { fileURLToPath } from 'url';
 import {
   repository,
   initializeDatabase,
-  seedDatabase,
+  loadSampleData,
+  nextId,
   CustomerPersonalDetails,
   CustomerAddress,
   BusinessDetails,
-  CollectionPlan,
   CollectionAccount,
   DailyCollectionRecord,
   PaymentTransaction,
@@ -18,15 +21,21 @@ import {
   Notification,
   CustomerNote,
   AuditLog,
-  SystemSettings,
   User,
 } from './db.ts';
+import { createLoanAccount, planLoan, commitLoan, LoanValidationError, IssueLoanInput, LoanParty, PlannedLoan } from './loans.ts';
+import { todayIso, roundMoney } from '../shared/finance.ts';
+import { CONFIG_SECTIONS, ConfigSection, LoanProduct as ConfigLoanProduct, MasterLists, Numbering, NumberingKind } from '../shared/config.ts';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
+
+// Customer photos and document copies live in uploads/ (git-ignored), never in the data file.
+const uploadsDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'uploads');
+app.use('/api/uploads', express.static(uploadsDir, { maxAge: '7d' }));
 
 // Initialize DB schema & seeds
 initializeDatabase();
@@ -37,9 +46,40 @@ function getParam(req: Request, key: string): string {
   return Array.isArray(val) ? val[0] : val || '';
 }
 
-function safeRound(num: number, decimals: number = 2): number {
-  const factor = Math.pow(10, decimals);
-  return Math.round((num + Number.EPSILON) * factor) / factor;
+const safeRound = roundMoney;
+
+/** Calendar days elapsed since the account started minus the days already paid for. */
+function daysBehindSchedule(acc: CollectionAccount, dateStr: string): number {
+  const elapsed = Math.floor((Date.parse(dateStr) - Date.parse(acc.start_date)) / 86400000);
+  return Math.max(0, elapsed - acc.completed_days);
+}
+
+function isRunning(acc: CollectionAccount): boolean {
+  return acc.status === 'ACTIVE' || acc.status === 'OVERDUE';
+}
+
+/** A running loan whose collection has started on or before the given date. */
+function isCollecting(acc: CollectionAccount, dateStr: string): boolean {
+  return isRunning(acc) && acc.start_date <= dateStr;
+}
+
+/** Adds how many days a running loan is behind its schedule (drives "Not paying"). */
+function withDaysBehind(acc: CollectionAccount) {
+  return { ...acc, days_behind: isRunning(acc) ? daysBehindSchedule(acc, todayIso()) : 0 };
+}
+
+/** Undone payments stay on record but never count toward totals. */
+function isActivePayment(p: PaymentTransaction): boolean {
+  return p.status !== 'CANCELLED';
+}
+
+/** Recomputes the derived totals of an account after its collected amount changes. */
+function refreshAccountTotals(acc: CollectionAccount) {
+  acc.remaining_amount = Math.max(0, safeRound(acc.total_repayment - acc.amount_collected, 2));
+  acc.completed_days = Math.floor(acc.amount_collected / acc.daily_collection);
+  acc.remaining_days = Math.max(0, acc.collection_days - acc.completed_days);
+  acc.collection_percentage = safeRound((acc.amount_collected / acc.total_repayment) * 100, 1);
+  acc.updated_at = new Date().toISOString();
 }
 
 function logAudit(
@@ -75,6 +115,7 @@ function createNotification(
   customer_id?: string
 ) {
   const db = repository.getDb();
+  if (!db.config.company.notifications_enabled) return;
   const notif: Notification = {
     id: `NOTIF-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
     recipient_role,
@@ -208,27 +249,32 @@ app.get('/api/auth/me', (req: Request, res: Response) => {
 // -------------------------------------------------------------
 app.get('/api/dashboard/stats', (req: Request, res: Response) => {
   const db = repository.getDb();
-  const todayStr = new Date().toISOString().slice(0, 10);
+  const todayStr = todayIso();
   const currentMonthStr = todayStr.slice(0, 7); // YYYY-MM
 
-  const activeAccounts = db.collection_accounts.filter(a => a.status === 'ACTIVE' || a.status === 'OVERDUE');
-  
+  const activeAccounts = db.collection_accounts.filter(isRunning);
+  const collectingToday = activeAccounts.filter(a => isCollecting(a, todayStr));
+
   // Today's collections
   const todayCollections = db.daily_collections.filter(d => d.date === todayStr);
-  const todayExpected = activeAccounts.reduce((sum, a) => sum + a.daily_collection, 0);
+  const todayExpected = collectingToday.reduce((sum, a) => sum + a.daily_collection, 0);
   const todayCollected = todayCollections.reduce((sum, d) => sum + d.paid_amount, 0);
   const todayPending = Math.max(0, todayExpected - todayCollected);
   const todayCollectionRate = todayExpected > 0 ? safeRound((todayCollected / todayExpected) * 100, 1) : 0;
 
   // Monthly collections
-  const monthlyPayments = db.payments.filter(p => p.collection_date.startsWith(currentMonthStr));
+  const monthlyPayments = db.payments.filter(p => isActivePayment(p) && p.collection_date.startsWith(currentMonthStr));
   const monthlyCollection = monthlyPayments.reduce((sum, p) => sum + p.amount_paid, 0);
+  const notPayingCount = activeAccounts.filter(
+    a => daysBehindSchedule(a, todayStr) >= db.config.masters.not_paying_after_days
+  ).length;
 
-  // Financial aggregates
-  const totalOutstanding = db.collection_accounts.reduce((sum, a) => sum + a.remaining_amount, 0);
-  const totalFinanceMargin = db.collection_accounts.reduce((sum, a) => sum + a.finance_margin, 0);
-  const totalDisbursed = db.collection_accounts.reduce((sum, a) => sum + a.disbursed_amount, 0);
-  const totalRepayment = db.collection_accounts.reduce((sum, a) => sum + a.total_repayment, 0);
+  // Financial aggregates (cancelled loans never happened; only running loans still owe money)
+  const liveAccounts = db.collection_accounts.filter(a => a.status !== 'CANCELLED');
+  const totalOutstanding = activeAccounts.reduce((sum, a) => sum + a.remaining_amount, 0);
+  const totalFinanceMargin = liveAccounts.reduce((sum, a) => sum + a.finance_margin, 0);
+  const totalDisbursed = liveAccounts.reduce((sum, a) => sum + a.disbursed_amount, 0);
+  const totalRepayment = liveAccounts.reduce((sum, a) => sum + a.total_repayment, 0);
   const overdueCustomersCount = db.collection_accounts.filter(a => a.status === 'OVERDUE').length;
 
   res.json({
@@ -244,98 +290,7 @@ app.get('/api/dashboard/stats', (req: Request, res: Response) => {
     totalDisbursed,
     totalRepayment,
     overdueCustomersCount,
-  });
-});
-
-app.get('/api/dashboard/charts', (req: Request, res: Response) => {
-  const db = repository.getDb();
-
-  // 1. Daily trend (past 14 days)
-  const dailyTrend: { date: string; expected: number; collected: number; pending: number }[] = [];
-  const now = new Date();
-  for (let i = 13; i >= 0; i--) {
-    const d = new Date(now);
-    d.setDate(d.getDate() - i);
-    const dateStr = d.toISOString().slice(0, 10);
-    const recs = db.daily_collections.filter(r => r.date === dateStr);
-    const dayCollected = recs.reduce((sum, r) => sum + r.paid_amount, 0);
-    const dayExpected = recs.length > 0 
-      ? recs.reduce((sum, r) => sum + r.daily_due, 0)
-      : db.collection_accounts.filter(a => a.status === 'ACTIVE').reduce((sum, a) => sum + a.daily_collection, 0);
-    const dayPending = Math.max(0, dayExpected - dayCollected);
-
-    dailyTrend.push({
-      date: d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }),
-      expected: dayExpected,
-      collected: dayCollected,
-      pending: dayPending,
-    });
-  }
-
-  // 2. Monthly trend
-  const months = ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'];
-  const monthlyTrend = months.map((m, idx) => {
-    const monthNum = String(idx + 4).padStart(2, '0');
-    const monthStr = `2026-${monthNum}`;
-    const pays = db.payments.filter(p => p.collection_date.startsWith(monthStr));
-    const collected = pays.length > 0 ? pays.reduce((sum, p) => sum + p.amount_paid, 0) : (idx + 1) * 22000;
-    const disbursed = (idx === 4 || idx === 5) ? 61600 : 44000;
-    return {
-      month: m,
-      target: 65000,
-      collected,
-      disbursed,
-    };
-  });
-
-  // 3. Payment Status breakdown for active accounts today
-  const todayStr = new Date().toISOString().slice(0, 10);
-  const todayRecs = db.daily_collections.filter(r => r.date === todayStr);
-  const paidCount = todayRecs.filter(r => r.status === 'PAID' || r.status === 'ADVANCE').length || 4;
-  const partialCount = todayRecs.filter(r => r.status === 'PARTIAL').length || 1;
-  const pendingCount = todayRecs.filter(r => r.status === 'PENDING').length || 1;
-  const overdueCount = db.collection_accounts.filter(a => a.status === 'OVERDUE').length || 1;
-
-  const paymentStatusDistribution = [
-    { name: 'Paid in Full', value: paidCount, color: '#10b981' },
-    { name: 'Partial Paid', value: partialCount, color: '#f59e0b' },
-    { name: 'Pending Today', value: pendingCount, color: '#3b82f6' },
-    { name: 'Overdue / Missed', value: overdueCount, color: '#ef4444' },
-  ];
-
-  // 4. Financial Summary
-  const totalDisbursed = db.collection_accounts.reduce((sum, a) => sum + a.disbursed_amount, 0);
-  const totalRepayment = db.collection_accounts.reduce((sum, a) => sum + a.total_repayment, 0);
-  const totalCollected = db.collection_accounts.reduce((sum, a) => sum + a.amount_collected, 0);
-  const totalOutstanding = db.collection_accounts.reduce((sum, a) => sum + a.remaining_amount, 0);
-  const totalMargin = db.collection_accounts.reduce((sum, a) => sum + a.finance_margin, 0);
-
-  const financeSummary = [
-    { name: 'Disbursed', amount: totalDisbursed, fill: '#3b82f6' },
-    { name: 'Repayment Goal', amount: totalRepayment, fill: '#8b5cf6' },
-    { name: 'Collected', amount: totalCollected, fill: '#10b981' },
-    { name: 'Outstanding', amount: totalOutstanding, fill: '#f59e0b' },
-    { name: 'Margin', amount: totalMargin, fill: '#d97706' },
-  ];
-
-  // 5. Area Performance
-  const areaPerformance = db.areas.map(a => {
-    const areaAccs = db.collection_accounts.filter(acc => acc.collection_area === a.area_name);
-    const collected = areaAccs.reduce((sum, acc) => sum + acc.amount_collected, 0);
-    const target = areaAccs.reduce((sum, acc) => sum + acc.total_repayment, 0);
-    return {
-      area: a.area_name,
-      collected,
-      target: target > 0 ? target : 20000,
-    };
-  });
-
-  res.json({
-    dailyTrend,
-    monthlyTrend,
-    paymentStatusDistribution,
-    financeSummary,
-    areaPerformance,
+    notPayingCount,
   });
 });
 
@@ -351,13 +306,16 @@ app.get('/api/customers', (req: Request, res: Response) => {
   let list = db.customers.map(c => {
     const addr = db.customer_addresses.find(a => a.customer_id === c.id);
     const biz = db.business_details.find(b => b.customer_id === c.id);
-    const activeAcc = db.collection_accounts.find(a => a.customer_id === c.id && (a.status === 'ACTIVE' || a.status === 'OVERDUE'));
+    const accounts = db.collection_accounts.filter(a => a.customer_id === c.id);
+    const activeAcc = accounts.find(isRunning);
+    const latestAcc = [...accounts].sort((a, b) => a.created_at.localeCompare(b.created_at)).pop();
 
     return {
       ...c,
       address: addr,
       business: biz,
-      activeAccount: activeAcc,
+      activeAccount: activeAcc ? withDaysBehind(activeAcc) : undefined,
+      latestAccount: latestAcc,
     };
   });
 
@@ -385,36 +343,51 @@ app.get('/api/customers', (req: Request, res: Response) => {
 app.post('/api/customers', (req: Request, res: Response) => {
   const db = repository.getDb();
   const { personal, address, business, loan } = req.body;
+  const loc = db.config.masters.default_location;
 
   if (!personal || !personal.full_name || !personal.mobile_number) {
     return res.status(400).json({ error: 'Customer full name and mobile number are required.' });
   }
-
-  // Generate Customer ID: DC1000X
-  const nextNum = db.customers.length + 10001;
-  const customerId = personal.id || `DC${nextNum}`;
-
-  // Check duplicate
   if (db.customers.some(c => c.mobile_number === personal.mobile_number)) {
     return res.status(400).json({ error: 'A customer with this mobile number already exists.' });
   }
 
+  const party: LoanParty = {
+    shop_name: business?.shop_name,
+    shop_area: business?.shop_area || address?.area,
+    home_area: address?.area,
+  };
+
+  // Validate the loan before anything is written, so a rejected loan leaves no partial customer.
+  let plannedLoan: PlannedLoan | null = null;
+  if (loan && Number(loan.requested_amount) > 0) {
+    try {
+      plannedLoan = planLoan(db, loan as IssueLoanInput, party);
+    } catch (err) {
+      if (err instanceof LoanValidationError) return res.status(400).json({ error: err.message });
+      throw err;
+    }
+  }
+
+  const customerId = nextId(db, 'customer', db.customers.map(c => c.id));
+  const now = new Date().toISOString();
+
   const newCustomer: CustomerPersonalDetails = {
     id: customerId,
     full_name: personal.full_name,
-    profile_photo: personal.profile_photo || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150',
-    gender: personal.gender || 'Male',
-    dob: personal.dob || '1990-01-01',
+    profile_photo: personal.profile_photo || '',
+    gender: personal.gender || 'Other',
+    dob: personal.dob || '',
     father_or_husband_name: personal.father_or_husband_name || '',
     mother_name: personal.mother_name || '',
-    marital_status: personal.marital_status || 'Married',
+    marital_status: personal.marital_status || 'Other',
     mobile_number: personal.mobile_number,
     alternate_number: personal.alternate_number || '',
     whatsapp_number: personal.whatsapp_number || personal.mobile_number,
-    email: personal.email || `${customerId.toLowerCase()}@krsfinance.com`,
+    email: personal.email || '',
     status: 'ACTIVE',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
+    created_at: now,
+    updated_at: now,
   };
   db.customers.push(newCustomer);
 
@@ -424,167 +397,67 @@ app.post('/api/customers', (req: Request, res: Response) => {
       customer_id: customerId,
       door_number: address.door_number || '',
       street: address.street || '',
-      area: address.area || 'Bazaar Main Road',
-      village_or_town: address.village_or_town || 'Salem',
-      city: address.city || 'Salem',
-      district: address.district || 'Salem',
-      state: address.state || 'Tamil Nadu',
-      pincode: address.pincode || '636001',
+      area: address.area || loc.area,
+      village_or_town: address.village_or_town || address.city || loc.city,
+      city: address.city || loc.city,
+      district: address.district || loc.district,
+      state: address.state || loc.state,
+      pincode: address.pincode || loc.pincode,
       landmark: address.landmark || '',
     };
     db.customer_addresses.push(newAddress);
   }
 
-  let newBiz: BusinessDetails | null = null;
   if (business) {
-    newBiz = {
+    const newBiz: BusinessDetails = {
       id: `SHP-${customerId}`,
       customer_id: customerId,
-      shop_name: business.shop_name || `${personal.full_name}'s Business`,
+      shop_name: business.shop_name || personal.full_name,
       owner_name: personal.full_name,
-      business_type: business.business_type || 'Retail',
-      business_category: business.business_category || 'Commercial',
+      business_type: business.business_type || '',
+      business_category: business.business_category || '',
       shop_mobile: business.shop_mobile || personal.mobile_number,
       shop_address: business.shop_address || address?.street || '',
-      shop_area: business.shop_area || address?.area || 'Bazaar Main Road',
-      shop_city: business.shop_city || 'Salem',
-      shop_district: business.shop_district || 'Salem',
-      shop_pincode: business.shop_pincode || '636001',
+      shop_area: business.shop_area || address?.area || loc.area,
+      shop_city: business.shop_city || address?.city || loc.city,
+      shop_district: business.shop_district || address?.district || loc.district,
+      shop_pincode: business.shop_pincode || address?.pincode || loc.pincode,
       landmark: business.landmark || '',
-      years_in_business: Number(business.years_in_business) || 5,
-      approx_monthly_income: Number(business.approx_monthly_income) || 50000,
-      approx_daily_sales: Number(business.approx_daily_sales) || 10000,
+      years_in_business: Number(business.years_in_business) || 0,
+      approx_monthly_income: Number(business.approx_monthly_income) || 0,
+      approx_daily_sales: Number(business.approx_daily_sales) || 0,
       business_status: 'ACTIVE',
-      default_margin_percentage: business.default_margin_percentage !== undefined ? Number(business.default_margin_percentage) : (loan?.margin_percentage ? Number(loan.margin_percentage) : 12),
-      shop_photo: business.shop_photo || 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=500',
+      ...(business.default_margin_percentage !== undefined && business.default_margin_percentage !== ''
+        ? { default_margin_percentage: Number(business.default_margin_percentage) }
+        : {}),
+      shop_photo: business.shop_photo || '',
     };
     db.business_details.push(newBiz);
   }
 
-  // Create login user credentials for customer
+  // Customer portal login (default PIN until authentication is reworked).
   const custUser: User = {
     id: `USR-${customerId}`,
     username: customerId,
-    email: newCustomer.email || `${customerId.toLowerCase()}@krsfinance.com`,
-    password: '1234', // Default PIN
+    email: newCustomer.email || '',
+    password: '1234',
     role: 'CUSTOMER',
     customer_id: customerId,
     name: newCustomer.full_name,
     phone: newCustomer.mobile_number,
     is_active: true,
-    created_at: new Date().toISOString(),
+    created_at: now,
   };
   db.users.push(custUser);
 
-  // If initial loan details are provided, automatically disburse collection account
-  let newAccount: CollectionAccount | null = null;
-  if (loan && Number(loan.requested_amount) > 0) {
-    const reqAmount = Number(loan.requested_amount);
-    const marginPct = loan.margin_percentage !== undefined ? Number(loan.margin_percentage) : (newBiz?.default_margin_percentage ?? 12);
-    const marginAmount = safeRound(reqAmount * (marginPct / 100), 2);
-    const disbursedAmount = safeRound(reqAmount - marginAmount, 2);
-    const totalRepayment = reqAmount;
-    const colDays = Number(loan.collection_days) || 100;
-    const dailyDue = loan.daily_collection !== undefined ? Number(loan.daily_collection) : safeRound(totalRepayment / colDays, 2);
-    const startDateStr = loan.start_date || new Date().toISOString().slice(0, 10);
-    const expectedEndDateStr = calculateEndDateUtc(startDateStr, colDays);
-    const collector = db.collectors.find(c => c.id === loan.assigned_collector_id) || db.collectors[0] || { id: 'COL101', name: 'Field Collector' };
-
-    const maxAccNum = db.collection_accounts.reduce((max, a) => {
-      const match = a.id.match(/\d+$/);
-      const n = match ? parseInt(match[0], 10) : 0;
-      return n > max ? n : max;
-    }, 0);
-    const accId = `ACC-2026-${String(maxAccNum + 1).padStart(3, '0')}`;
-    const planName = `${colDays}-Day Doorstep Plan (₹${reqAmount.toLocaleString('en-IN')})`;
-
-    newAccount = {
-      id: accId,
-      customer_id: customerId,
-      customer_name: newCustomer.full_name,
-      shop_name: newBiz?.shop_name || `${newCustomer.full_name}'s Store`,
-      plan_id: `CUSTOM_${colDays}D_${reqAmount}`,
-      plan_name: planName,
-      requested_amount: reqAmount,
-      margin_percentage: marginPct,
-      margin_amount: marginAmount,
-      disbursed_amount: disbursedAmount,
-      daily_collection: dailyDue,
-      collection_days: colDays,
-      total_repayment: totalRepayment,
-      finance_margin: marginAmount,
-      start_date: startDateStr,
-      expected_end_date: expectedEndDateStr,
-      amount_collected: 0,
-      remaining_amount: totalRepayment,
-      completed_days: 0,
-      remaining_days: colDays,
-      collection_percentage: 0,
-      assigned_collector_id: collector.id,
-      assigned_collector_name: collector.name,
-      collection_area: newBiz?.shop_area || address?.area || 'Bazaar Main Road',
-      status: 'ACTIVE',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-
-    db.collection_accounts.push(newAccount);
-
-    // Generate daily schedule
-    const [sY, sM, sD] = startDateStr.split('-').map(Number);
-    const curDate = new Date(Date.UTC(sY, sM - 1, sD));
-
-    for (let dayNum = 1; dayNum <= colDays; dayNum++) {
-      const yStr = curDate.getUTCFullYear();
-      const mStr = String(curDate.getUTCMonth() + 1).padStart(2, '0');
-      const dStr = String(curDate.getUTCDate()).padStart(2, '0');
-      const dateStr = `${yStr}-${mStr}-${dStr}`;
-
-      const scheduledRecord: DailyCollectionRecord = {
-        id: `DC-${dateStr}-${accId}`,
-        collection_account_id: accId,
-        customer_id: customerId,
-        customer_name: newCustomer.full_name,
-        shop_name: newAccount.shop_name || 'Retail Business',
-        mobile_number: newCustomer.mobile_number,
-        collection_day_number: dayNum,
-        calendar_date: dateStr,
-        date: dateStr,
-        daily_due: dailyDue,
-        due_amount: dailyDue,
-        paid_amount: 0,
-        pending_amount: dailyDue,
-        advance_amount: 0,
-        status: 'PENDING',
-        collector_id: collector.id,
-        collector_name: collector.name,
-        collection_area: newAccount.collection_area,
-        remarks: 'Scheduled collection day',
-        balance_remaining: totalRepayment,
-      };
-
-      const existingIdx = db.daily_collections.findIndex(d => d.id === scheduledRecord.id);
-      if (existingIdx >= 0) {
-        db.daily_collections[existingIdx] = scheduledRecord;
-      } else {
-        db.daily_collections.push(scheduledRecord);
-      }
-
-      curDate.setUTCDate(curDate.getUTCDate() + 1);
-    }
-
-    logAudit('admin', 'ADMIN', 'DISBURSE_COLLECTION_ACCOUNT', accId, 'collection_accounts', null, newAccount);
-    createNotification(
-      'ADMIN',
-      'New Collection Account Disbursed',
-      `Account ${accId} disbursed to ${newCustomer.full_name}: ₹${disbursedAmount} disbursed for ₹${reqAmount} requested at ${marginPct}% margin.`,
-      'ACCOUNT',
-      customerId
-    );
-  }
-
   logAudit('admin', 'ADMIN', 'CREATE_CUSTOMER', customerId, 'customers', null, newCustomer);
   createNotification('ADMIN', 'New Customer Added', `Customer ${newCustomer.full_name} (${customerId}) registered successfully.`, 'SYSTEM', customerId);
+
+  let newAccount: CollectionAccount | null = null;
+  if (plannedLoan) {
+    newAccount = commitLoan(db, plannedLoan, newCustomer, party);
+    recordLoanIssued(newAccount);
+  }
 
   repository.save();
   res.status(201).json({ ...newCustomer, activeAccount: newAccount });
@@ -677,13 +550,18 @@ app.get('/api/customers/:id/360', (req: Request, res: Response) => {
 
   const address = db.customer_addresses.find(a => a.customer_id === id);
   const business = db.business_details.find(b => b.customer_id === id);
-  const accounts = db.collection_accounts.filter(a => a.customer_id === id);
-  const activeAccount = accounts.find(a => a.status === 'ACTIVE' || a.status === 'OVERDUE') || accounts[0];
-  const recentPayments = db.payments.filter(p => p.customer_id === id).slice(-30);
+  const accounts = db.collection_accounts
+    .filter(a => a.customer_id === id)
+    .sort((a, b) => b.created_at.localeCompare(a.created_at));
+  const running = accounts.find(isRunning);
+  const activeAccount = running ? withDaysBehind(running) : undefined;
+  const latestAccount = accounts[0];
+  const recentPayments = db.payments.filter(p => p.customer_id === id).slice(-60);
   const receipts = db.receipts.filter(r => r.customer_id === id);
   const documents = db.documents.filter(d => d.customer_id === id);
   const notes = db.customer_notes.filter(n => n.customer_id === id);
-  const auditLogs = db.audit_logs.filter(l => l.record_id === id || l.record_id === activeAccount?.id);
+  const accountIds = new Set(accounts.map(a => a.id));
+  const auditLogs = db.audit_logs.filter(l => l.record_id === id || accountIds.has(l.record_id));
 
   const totalRequested = accounts.reduce((s, a) => s + a.requested_amount, 0);
   const totalDisbursed = accounts.reduce((s, a) => s + a.disbursed_amount, 0);
@@ -702,6 +580,7 @@ app.get('/api/customers/:id/360', (req: Request, res: Response) => {
     business,
     accounts,
     activeAccount,
+    latestAccount,
     recentPayments,
     receipts,
     documents,
@@ -717,7 +596,7 @@ app.get('/api/customers/:id/360', (req: Request, res: Response) => {
       remainingDays,
       overallPercentage,
       missedCount,
-      overdueDays: activeAccount?.status === 'OVERDUE' ? 5 : 0,
+      overdueDays: activeAccount?.days_behind ?? 0,
     },
   });
 });
@@ -747,89 +626,76 @@ app.post('/api/customers/:id/notes', (req: Request, res: Response) => {
 });
 
 // -------------------------------------------------------------
-// 5. COLLECTION PLANS
+// 5. CONFIGURATION (loan products, master lists, numbering, company)
 // -------------------------------------------------------------
-app.get('/api/plans', (req: Request, res: Response) => {
-  const db = repository.getDb();
-  res.json(db.collection_plans);
+app.get('/api/config', (req: Request, res: Response) => {
+  res.json(repository.getDb().config);
 });
 
-app.post('/api/plans', (req: Request, res: Response) => {
+app.put('/api/config/:section', (req: Request, res: Response) => {
+  const section = getParam(req, 'section') as ConfigSection;
+  if (!CONFIG_SECTIONS.includes(section)) {
+    return res.status(404).json({ error: `Unknown configuration section: ${section}` });
+  }
   const db = repository.getDb();
-  const {
-    plan_name,
-    requested_amount,
-    disbursed_amount,
-    daily_collection,
-    collection_days,
-    description,
-  } = req.body;
-
-  const reqAmt = Number(requested_amount);
-  const disbAmt = Number(disbursed_amount);
-  const daily = Number(daily_collection);
-  const days = Number(collection_days);
-
-  if (!plan_name || reqAmt <= 0 || disbAmt <= 0 || daily <= 0 || days <= 0) {
-    return res.status(400).json({ error: 'All plan amounts and duration are required and must be greater than zero.' });
+  const previous = db.config[section];
+  const value = req.body;
+  const isArraySection = Array.isArray(previous);
+  if (isArraySection !== Array.isArray(value) || value === null || typeof value !== 'object') {
+    return res.status(400).json({ error: `Invalid value for configuration section "${section}".` });
   }
 
-  // Exact Daily Collection Business Model Formula:
-  // Total Repayment = Daily Collection * Collection Days
-  // Finance Margin = Total Repayment - Disbursed Amount
-  const totalRepayment = safeRound(daily * days, 2);
-  const financeMargin = safeRound(totalRepayment - disbAmt, 2);
-
-  const planId = `PLAN-${Date.now()}`;
-  const newPlan: CollectionPlan = {
-    id: planId,
-    plan_name,
-    requested_amount: reqAmt,
-    disbursed_amount: disbAmt,
-    daily_collection: daily,
-    collection_days: days,
-    total_repayment: totalRepayment,
-    finance_margin: financeMargin,
-    status: 'ACTIVE',
-    description: description || `${reqAmt} requested, ${disbAmt} disbursed, ${daily}/day for ${days} days. Margin: ${financeMargin}`,
-    created_at: new Date().toISOString(),
-  };
-
-  db.collection_plans.push(newPlan);
-  logAudit('admin', 'ADMIN', 'CREATE_PLAN', planId, 'collection_plans', null, newPlan);
-  repository.save();
-
-  res.status(201).json(newPlan);
-});
-
-app.put('/api/plans/:id', (req: Request, res: Response) => {
-  const id = getParam(req, 'id');
-  const db = repository.getDb();
-  const plan = db.collection_plans.find(p => p.id === id);
-  if (!plan) return res.status(404).json({ error: 'Plan not found' });
-
-  const oldPlan = { ...plan };
-  Object.assign(plan, req.body);
-
-  if (req.body.daily_collection || req.body.collection_days || req.body.disbursed_amount) {
-    plan.total_repayment = safeRound(plan.daily_collection * plan.collection_days, 2);
-    plan.finance_margin = safeRound(plan.total_repayment - plan.disbursed_amount, 2);
+  if (section === 'loan_products') {
+    const products = value as ConfigLoanProduct[];
+    const ids = new Set<string>();
+    for (const p of products) {
+      if (!p.id || !p.name) return res.status(400).json({ error: 'Every loan product needs an ID and a name.' });
+      if (ids.has(p.id)) return res.status(400).json({ error: `Duplicate loan product ID: ${p.id}` });
+      ids.add(p.id);
+      if (!(p.margin_percentage >= 0 && p.margin_percentage < 100)) return res.status(400).json({ error: `"${p.name}": margin % must be between 0 and 100.` });
+      if (!Array.isArray(p.day_options) || p.day_options.length === 0 || p.day_options.some(d => !(d > 0))) {
+        return res.status(400).json({ error: `"${p.name}": add at least one collection period.` });
+      }
+      if (!p.day_options.includes(p.default_days)) return res.status(400).json({ error: `"${p.name}": default days must be one of its collection periods.` });
+      if (p.max_amount > 0 && p.min_amount > p.max_amount) return res.status(400).json({ error: `"${p.name}": minimum amount is above the maximum.` });
+    }
+    // Products already used by accounts cannot be removed, only deactivated.
+    const removed = (previous as ConfigLoanProduct[]).filter(p => !ids.has(p.id));
+    const inUse = removed.filter(p => db.collection_accounts.some(a => a.plan_id === p.id));
+    if (inUse.length > 0) {
+      return res.status(400).json({ error: `Cannot delete ${inUse.map(p => p.name).join(', ')}: used by existing accounts. Set it inactive instead.` });
+    }
   }
 
-  logAudit('admin', 'ADMIN', 'UPDATE_PLAN', id, 'collection_plans', oldPlan, plan);
-  repository.save();
-  res.json(plan);
-});
+  if (section === 'masters') {
+    const m = value as Partial<MasterLists>;
+    if (!Array.isArray(m.payment_modes) || m.payment_modes.length === 0) {
+      return res.status(400).json({ error: 'Add at least one way to pay.' });
+    }
+    if (!Array.isArray(m.not_paid_reasons) || m.not_paid_reasons.length === 0) {
+      return res.status(400).json({ error: 'Add at least one reason for "Not paid".' });
+    }
+    if (!(Number(m.not_paying_after_days) >= 1)) {
+      return res.status(400).json({ error: '"Not paying" days must be 1 or more.' });
+    }
+  }
 
-app.delete('/api/plans/:id', (req: Request, res: Response) => {
-  const id = getParam(req, 'id');
-  const db = repository.getDb();
-  const idx = db.collection_plans.findIndex(p => p.id === id);
-  if (idx === -1) return res.status(404).json({ error: 'Plan not found' });
-  const [removed] = db.collection_plans.splice(idx, 1);
-  logAudit('admin', 'ADMIN', 'DELETE_PLAN', id, 'collection_plans', removed, null);
+  if (section === 'numbering') {
+    // Counters never move backwards, even if the editor was opened before new IDs were issued.
+    const current = previous as Numbering;
+    for (const kind of Object.keys(current) as NumberingKind[]) {
+      const rule = (value as Partial<Numbering>)[kind];
+      if (rule) {
+        rule.next = Math.max(current[kind].next, Number(rule.next) || 0);
+        rule.pad = Math.max(1, Math.min(10, Number(rule.pad) || current[kind].pad));
+      }
+    }
+  }
+
+  (db.config as unknown as Record<string, unknown>)[section] = isArraySection ? value : { ...previous, ...value };
+  logAudit('admin', 'ADMIN', 'UPDATE_CONFIG', section, 'config', previous, db.config[section]);
   repository.save();
-  res.json({ message: 'Plan deleted successfully' });
+  res.json(db.config);
 });
 
 // -------------------------------------------------------------
@@ -837,158 +703,44 @@ app.delete('/api/plans/:id', (req: Request, res: Response) => {
 // -------------------------------------------------------------
 app.get('/api/collection-accounts', (req: Request, res: Response) => {
   const db = repository.getDb();
-  res.json(db.collection_accounts);
+  res.json(db.collection_accounts.map(withDaysBehind));
 });
 
-function calculateEndDateUtc(startDateStr: string, collectionDays: number): string {
-  if (!startDateStr || collectionDays <= 0) return startDateStr || '';
-  const [y, m, d] = startDateStr.split('-').map(Number);
-  const date = new Date(Date.UTC(y, m - 1, d));
-  date.setUTCDate(date.getUTCDate() + (collectionDays - 1));
-  const endYear = date.getUTCFullYear();
-  const endMonth = String(date.getUTCMonth() + 1).padStart(2, '0');
-  const endDay = String(date.getUTCDate()).padStart(2, '0');
-  return `${endYear}-${endMonth}-${endDay}`;
-}
-
-app.post('/api/collection-accounts', (req: Request, res: Response) => {
-  const db = repository.getDb();
-  const {
-    customer_id,
-    plan_id,
-    requested_amount,
-    margin_percentage,
-    collection_days,
-    daily_collection,
-    start_date,
-    assigned_collector_id,
-    collection_area,
-  } = req.body;
-
-  const customer = db.customers.find(c => c.id === customer_id);
-  const biz = db.business_details.find(b => b.customer_id === customer_id);
-  const plan = db.collection_plans.find(p => p.id === plan_id);
-  const collector = db.collectors.find(c => c.id === assigned_collector_id) || db.collectors[0] || { id: 'COL101', name: 'Field Collector' };
-
-  if (!customer) {
-    return res.status(400).json({ error: 'Valid customer is required' });
+/** Audit trail and notifications for a newly issued loan, including any product overrides. */
+function recordLoanIssued(account: CollectionAccount) {
+  logAudit('admin', 'ADMIN', 'DISBURSE_COLLECTION_ACCOUNT', account.id, 'collection_accounts', null, account);
+  if (account.overrides && account.overrides.length > 0) {
+    logAudit('admin', 'ADMIN', 'OVERRIDE_LOAN_TERMS', account.id, 'collection_accounts',
+      { product: account.plan_id, terms: account.overrides.map(o => ({ [o.field]: o.product_value })) },
+      { terms: account.overrides.map(o => ({ [o.field]: o.applied_value })) });
   }
-
-  // Section 1, 2, 5: Requested Amount -> Margin % -> Disbursed Amount -> Total Repayment
-  const reqAmount = Number(requested_amount) || (plan ? plan.requested_amount : 10000);
-  const marginPct = margin_percentage !== undefined ? Number(margin_percentage) : (biz?.default_margin_percentage ?? 12);
-  const marginAmount = safeRound(reqAmount * (marginPct / 100), 2);
-  const disbursedAmount = safeRound(reqAmount - marginAmount, 2);
-  const totalRepayment = reqAmount; // Customer repays the original requested amount
-
-  // Section 6, 8, 9: Collection Period & Exact Calendar End Date
-  const colDays = Number(collection_days) || (plan ? plan.collection_days : 100);
-  const dailyDue = daily_collection !== undefined ? Number(daily_collection) : safeRound(totalRepayment / colDays, 2);
-  const startDateStr = start_date || new Date().toISOString().slice(0, 10);
-  const expectedEndDateStr = calculateEndDateUtc(startDateStr, colDays);
-
-  const maxAccNum = db.collection_accounts.reduce((max, a) => {
-    const match = a.id.match(/\d+$/);
-    const n = match ? parseInt(match[0], 10) : 0;
-    return n > max ? n : max;
-  }, 0);
-  const accId = `ACC-2026-${String(maxAccNum + 1).padStart(3, '0')}`;
-  const planName = plan ? plan.plan_name : `${colDays}-Day Doorstep Plan (₹${reqAmount.toLocaleString('en-IN')})`;
-
-  const newAccount: CollectionAccount = {
-    id: accId,
-    customer_id: customer.id,
-    customer_name: customer.full_name,
-    shop_name: biz?.shop_name || 'Retail Business',
-    plan_id: plan ? plan.id : `CUSTOM_${colDays}D_${reqAmount}`,
-    plan_name: planName,
-    requested_amount: reqAmount,
-    margin_percentage: marginPct,
-    margin_amount: marginAmount,
-    disbursed_amount: disbursedAmount,
-    daily_collection: dailyDue,
-    collection_days: colDays,
-    total_repayment: totalRepayment,
-    finance_margin: marginAmount,
-    start_date: startDateStr,
-    expected_end_date: expectedEndDateStr,
-    amount_collected: 0,
-    remaining_amount: totalRepayment,
-    completed_days: 0,
-    remaining_days: colDays,
-    collection_percentage: 0,
-    assigned_collector_id: collector.id,
-    assigned_collector_name: collector.name,
-    collection_area: collection_area || biz?.shop_area || 'Bazaar Main Road',
-    status: 'ACTIVE',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  };
-
-  db.collection_accounts.push(newAccount);
-
-  // Section 10 & 11: Generate Full Schedule across calendar months
-  const [sY, sM, sD] = startDateStr.split('-').map(Number);
-  const curDate = new Date(Date.UTC(sY, sM - 1, sD));
-
-  for (let dayNum = 1; dayNum <= colDays; dayNum++) {
-    const yStr = curDate.getUTCFullYear();
-    const mStr = String(curDate.getUTCMonth() + 1).padStart(2, '0');
-    const dStr = String(curDate.getUTCDate()).padStart(2, '0');
-    const dateStr = `${yStr}-${mStr}-${dStr}`;
-
-    const scheduledRecord: DailyCollectionRecord = {
-      id: `DC-${dateStr}-${accId}`,
-      collection_account_id: accId,
-      customer_id: customer.id,
-      customer_name: customer.full_name,
-      shop_name: biz?.shop_name || 'Retail Business',
-      mobile_number: customer.mobile_number,
-      collection_day_number: dayNum,
-      calendar_date: dateStr,
-      date: dateStr,
-      daily_due: dailyDue,
-      due_amount: dailyDue,
-      paid_amount: 0,
-      pending_amount: dailyDue,
-      advance_amount: 0,
-      status: 'PENDING',
-      collector_id: collector.id,
-      collector_name: collector.name,
-      collection_area: newAccount.collection_area,
-      remarks: 'Scheduled collection day',
-      balance_remaining: totalRepayment,
-    };
-
-    // Avoid duplicate if record exists
-    const existingIdx = db.daily_collections.findIndex(d => d.id === scheduledRecord.id);
-    if (existingIdx >= 0) {
-      db.daily_collections[existingIdx] = scheduledRecord;
-    } else {
-      db.daily_collections.push(scheduledRecord);
-    }
-
-    curDate.setUTCDate(curDate.getUTCDate() + 1);
-  }
-
-  logAudit('admin', 'ADMIN', 'DISBURSE_COLLECTION_ACCOUNT', accId, 'collection_accounts', null, newAccount);
   createNotification(
     'ADMIN',
     'New Collection Account Disbursed',
-    `Account ${accId} disbursed to ${customer.full_name}: ₹${disbursedAmount} disbursed for ₹${reqAmount} requested at ${marginPct}% margin.`,
+    `Account ${account.id} disbursed to ${account.customer_name}: ₹${account.disbursed_amount} disbursed for ₹${account.requested_amount} requested at ${account.margin_percentage}% margin.`,
     'ACCOUNT',
-    customer.id
+    account.customer_id
   );
   createNotification(
     'CUSTOMER',
     'Loan Account Activated',
-    `Your collection account ${accId} is active! ₹${disbursedAmount} disbursed. Daily collection: ₹${dailyDue} for ${colDays} days.`,
+    `Your collection account ${account.id} is active! ₹${account.disbursed_amount} disbursed. Daily collection: ₹${account.daily_collection} for ${account.collection_days} days.`,
     'ACCOUNT',
-    customer.id
+    account.customer_id
   );
+}
 
-  repository.save();
-  res.status(201).json(newAccount);
+app.post('/api/collection-accounts', (req: Request, res: Response) => {
+  const db = repository.getDb();
+  try {
+    const account = createLoanAccount(db, req.body as IssueLoanInput);
+    recordLoanIssued(account);
+    repository.save();
+    res.status(201).json(account);
+  } catch (err) {
+    if (err instanceof LoanValidationError) return res.status(400).json({ error: err.message });
+    throw err;
+  }
 });
 
 app.get('/api/collection-accounts/:id/schedule', (req: Request, res: Response) => {
@@ -1000,116 +752,61 @@ app.get('/api/collection-accounts/:id/schedule', (req: Request, res: Response) =
   res.json(schedule);
 });
 
+// Only who collects and where can change on a running loan; money terms are fixed once issued.
 app.put('/api/collection-accounts/:id', (req: Request, res: Response) => {
   const id = getParam(req, 'id');
   const db = repository.getDb();
   const acc = db.collection_accounts.find(a => a.id === id);
   if (!acc) return res.status(404).json({ error: 'Collection account not found' });
 
-  const oldVal = { ...acc };
-  const {
-    daily_collection,
-    remaining_amount,
-    amount_collected,
-    disbursed_amount,
-    requested_amount,
-    collection_days,
-    total_repayment,
-    assigned_collector_id,
-    assigned_collector_name,
-    collection_area,
-    status,
-  } = req.body;
+  const { assigned_collector_id, collection_area } = req.body;
+  const collector = assigned_collector_id ? db.collectors.find(c => c.id === assigned_collector_id) : undefined;
+  if (assigned_collector_id && !collector) return res.status(400).json({ error: 'Collector not found' });
+  if (!collector && !collection_area) return res.status(400).json({ error: 'Nothing to change' });
 
-  if (daily_collection !== undefined) acc.daily_collection = Number(daily_collection);
-  if (remaining_amount !== undefined) acc.remaining_amount = Number(remaining_amount);
-  if (amount_collected !== undefined) acc.amount_collected = Number(amount_collected);
-  if (disbursed_amount !== undefined) acc.disbursed_amount = Number(disbursed_amount);
-  if (requested_amount !== undefined) acc.requested_amount = Number(requested_amount);
-  if (collection_days !== undefined) acc.collection_days = Number(collection_days);
-  if (total_repayment !== undefined) acc.total_repayment = Number(total_repayment);
-  if (assigned_collector_id) {
-    acc.assigned_collector_id = assigned_collector_id;
-    const col = db.collectors.find(c => c.id === assigned_collector_id);
-    if (col) acc.assigned_collector_name = col.name;
+  const oldVal = { collector: acc.assigned_collector_id, area: acc.collection_area };
+  if (collector) {
+    acc.assigned_collector_id = collector.id;
+    acc.assigned_collector_name = collector.name;
   }
-  if (assigned_collector_name) acc.assigned_collector_name = assigned_collector_name;
   if (collection_area) acc.collection_area = collection_area;
-  if (status) acc.status = status;
-
-  // Recalculate metrics
-  acc.completed_days = Math.floor(acc.amount_collected / (acc.daily_collection || 100));
-  acc.remaining_days = Math.max(0, acc.collection_days - acc.completed_days);
-  acc.collection_percentage = safeRound((acc.amount_collected / (acc.total_repayment || 1)) * 100, 1);
-  if (acc.remaining_amount === 0) {
-    acc.status = 'COMPLETED';
-  }
   acc.updated_at = new Date().toISOString();
 
-  // Cascade changes to today's daily collection record
-  const todayStr = new Date().toISOString().slice(0, 10);
-  const dailyRec = db.daily_collections.find(d => d.collection_account_id === acc.id && d.date === todayStr);
-  if (dailyRec) {
-    dailyRec.daily_due = acc.daily_collection;
-    dailyRec.balance_remaining = acc.remaining_amount;
-    if (assigned_collector_id) dailyRec.collector_id = acc.assigned_collector_id;
-    if (acc.assigned_collector_name) dailyRec.collector_name = acc.assigned_collector_name;
-    if (collection_area) dailyRec.collection_area = acc.collection_area;
-  }
+  // Days still to be collected move to the new collector / area.
+  const todayStr = todayIso();
+  db.daily_collections
+    .filter(d => d.collection_account_id === acc.id && d.date >= todayStr && d.status === 'PENDING')
+    .forEach(d => {
+      d.collector_id = acc.assigned_collector_id;
+      d.collector_name = acc.assigned_collector_name;
+      d.collection_area = acc.collection_area;
+    });
 
-  logAudit('admin', 'ADMIN', 'UPDATE_COLLECTION_ACCOUNT', acc.id, 'collection_accounts', oldVal, acc);
+  logAudit('admin', 'ADMIN', 'UPDATE_COLLECTION_ACCOUNT', acc.id, 'collection_accounts', oldVal,
+    { collector: acc.assigned_collector_id, area: acc.collection_area });
   repository.save();
-  res.json(acc);
+  res.json(withDaysBehind(acc));
 });
 
+// Cancel a loan issued by mistake. Only allowed before any payment has been taken.
 app.delete('/api/collection-accounts/:id', (req: Request, res: Response) => {
   const id = getParam(req, 'id');
   const db = repository.getDb();
-  const idx = db.collection_accounts.findIndex(a => a.id === id);
-  if (idx === -1) return res.status(404).json({ error: 'Collection account not found' });
-
-  const deleted = db.collection_accounts.splice(idx, 1)[0];
-  db.daily_collections = db.daily_collections.filter(d => d.collection_account_id !== id);
-
-  logAudit('admin', 'ADMIN', 'DELETE_COLLECTION_ACCOUNT', id, 'collection_accounts', deleted, null);
-  repository.save();
-  res.json({ message: 'Collection account deleted successfully' });
-});
-
-app.put('/api/daily-collections/:id', (req: Request, res: Response) => {
-  const id = getParam(req, 'id');
-  const db = repository.getDb();
-  const rec = db.daily_collections.find(d => d.id === id);
-  if (!rec) return res.status(404).json({ error: 'Daily collection record not found' });
-
-  const oldVal = { ...rec };
-  const {
-    daily_due,
-    paid_amount,
-    status,
-    payment_mode,
-    collector_id,
-    route_order,
-    remarks,
-    reason,
-  } = req.body;
-
-  if (daily_due !== undefined) rec.daily_due = Number(daily_due);
-  if (paid_amount !== undefined) rec.paid_amount = Number(paid_amount);
-  if (status) rec.status = status;
-  if (payment_mode) rec.payment_mode = payment_mode;
-  if (route_order !== undefined) rec.route_order = Number(route_order);
-  if (collector_id) {
-    rec.collector_id = collector_id;
-    const col = db.collectors.find(c => c.id === collector_id);
-    if (col) rec.collector_name = col.name;
+  const acc = db.collection_accounts.find(a => a.id === id);
+  if (!acc) return res.status(404).json({ error: 'Collection account not found' });
+  if (!isRunning(acc)) return res.status(400).json({ error: 'This loan is already closed.' });
+  if (db.payments.some(p => p.collection_account_id === id && isActivePayment(p))) {
+    return res.status(400).json({ error: 'This loan already has payments, so it cannot be cancelled.' });
   }
-  if (remarks !== undefined) rec.remarks = remarks;
-  if (reason !== undefined) rec.reason = reason;
 
-  logAudit('admin', 'ADMIN', 'UPDATE_DAILY_COLLECTION_RECORD', rec.id, 'daily_collections', oldVal, rec);
+  acc.status = 'CANCELLED';
+  acc.updated_at = new Date().toISOString();
+  // Drop the days that were only scheduled; keep any day that has a record of activity.
+  db.daily_collections = db.daily_collections.filter(d => d.collection_account_id !== id || d.status !== 'PENDING');
+
+  logAudit('admin', 'ADMIN', 'CANCEL_LOAN', id, 'collection_accounts', { status: 'ACTIVE' }, { status: 'CANCELLED' });
   repository.save();
-  res.json(rec);
+  res.json({ message: 'Loan cancelled' });
 });
 
 // -------------------------------------------------------------
@@ -1117,24 +814,21 @@ app.put('/api/daily-collections/:id', (req: Request, res: Response) => {
 // -------------------------------------------------------------
 app.get('/api/daily-collections', (req: Request, res: Response) => {
   const db = repository.getDb();
-  const dateStr = (req.query.date as string) || new Date().toISOString().slice(0, 10);
+  const dateStr = (req.query.date as string) || todayIso();
   const area = req.query.area as string;
   const collector = req.query.collector as string;
   const status = req.query.status as string;
   const search = String(req.query.search || '').toLowerCase().trim();
 
-  // Find or generate today's collection working records for all active accounts
-  // Find or generate today's collection working records for all active accounts
-  const activeAccounts = db.collection_accounts.filter(a => a.status === 'ACTIVE' || a.status === 'OVERDUE');
+  // Find or create the day's working record for every loan being collected on that date
+  const activeAccounts = db.collection_accounts.filter(a => isCollecting(a, dateStr));
+  const collectingIds = new Set(activeAccounts.map(a => a.id));
 
   activeAccounts.forEach((acc, index) => {
     let rec = db.daily_collections.find(d => d.collection_account_id === acc.id && d.date === dateStr);
     
     // Calculate missed days based on start_date, completed days, and account status
-    const elapsedDays = Math.max(0, Math.floor((new Date(dateStr).getTime() - new Date(acc.start_date).getTime()) / (1000 * 60 * 60 * 24)));
-    const missedDays = acc.status === 'OVERDUE' 
-      ? Math.max(3, elapsedDays - acc.completed_days)
-      : Math.max(0, elapsedDays - acc.completed_days);
+    const missedDays = daysBehindSchedule(acc, dateStr);
     const missedAmount = safeRound(missedDays * acc.daily_collection, 2);
 
     if (!rec) {
@@ -1169,7 +863,10 @@ app.get('/api/daily-collections', (req: Request, res: Response) => {
     }
   });
 
-  let records = db.daily_collections.filter(d => d.date === dateStr);
+  // Loans that closed or have not started only appear if something happened on that day.
+  let records = db.daily_collections.filter(
+    d => d.date === dateStr && (collectingIds.has(d.collection_account_id) || d.paid_amount > 0 || d.status === 'MISSED')
+  );
 
   if (area && area !== 'ALL') {
     records = records.filter(r => r.collection_area === area);
@@ -1216,12 +913,27 @@ app.post('/api/daily-collections/collect', (req: Request, res: Response) => {
   } = req.body;
 
   const resolvedTxRef = transaction_ref || razorpay_payment_id || undefined;
-  const dateStr = collection_date || new Date().toISOString().slice(0, 10);
+  const dateStr = collection_date || todayIso();
   const paid = is_missed ? 0 : Number(amount_paid);
 
   const account = db.collection_accounts.find(a => a.id === collection_account_id);
   if (!account) {
     return res.status(404).json({ error: 'Collection account not found' });
+  }
+  if (!isRunning(account)) {
+    return res.status(400).json({ error: 'This loan is closed.' });
+  }
+  if (!is_missed && (!Number.isFinite(paid) || paid < 0)) {
+    return res.status(400).json({ error: 'Enter a valid amount.' });
+  }
+  if (paid > account.remaining_amount) {
+    return res.status(400).json({ error: `The amount is more than the balance (₹${account.remaining_amount}).` });
+  }
+  // One collection per customer per day: a wrong entry is undone first, then collected again.
+  const existingRecord = db.daily_collections.find(d => d.collection_account_id === account.id && d.date === dateStr);
+  if (existingRecord?.receipt_number &&
+      db.payments.some(p => p.receipt_number === existingRecord.receipt_number && isActivePayment(p))) {
+    return res.status(409).json({ error: 'Already collected for this day. Undo it first to change it.' });
   }
 
   const collector = db.collectors.find(c => c.id === collector_id) || {
@@ -1258,20 +970,14 @@ app.post('/api/daily-collections/collect', (req: Request, res: Response) => {
   // Update Account Financials accurately (Remaining balance strictly decreases as amount is collected!)
   const prevBalance = account.remaining_amount;
   account.amount_collected = safeRound(account.amount_collected + netPaidDiff, 2);
-  account.remaining_amount = Math.max(0, safeRound(account.total_repayment - account.amount_collected, 2));
-  account.completed_days = Math.floor(account.amount_collected / account.daily_collection);
-  account.remaining_days = Math.max(0, account.collection_days - account.completed_days);
-  account.collection_percentage = safeRound((account.amount_collected / account.total_repayment) * 100, 1);
+  refreshAccountTotals(account);
 
   if (account.remaining_amount === 0) {
     account.status = 'COMPLETED';
     account.actual_completion_date = dateStr;
   }
-  account.updated_at = new Date().toISOString();
 
-  // Receipt Number
-  const prefix = db.settings?.receipt_prefix || 'DC-REC-';
-  const receiptNum = `${prefix}2026-${String(db.receipts.length + 1).padStart(4, '0')}`;
+  const receiptNum = nextId(db, 'receipt', db.receipts.map(r => r.receipt_number));
   const paymentId = `PAY-${Date.now()}`;
   const receiptId = `REC-${Date.now()}`;
 
@@ -1289,7 +995,7 @@ app.post('/api/daily-collections/collect', (req: Request, res: Response) => {
       pending_amount: pendingAmount,
       advance_amount: advanceAmount,
       status,
-      payment_mode: paid > 0 ? (payment_mode || 'Cash') : undefined,
+      payment_mode: paid > 0 ? (payment_mode || db.config.masters.default_payment_mode) : undefined,
       collector_id: collector.id,
       collector_name: collector.name,
       collection_area: account.collection_area,
@@ -1305,7 +1011,7 @@ app.post('/api/daily-collections/collect', (req: Request, res: Response) => {
     dailyRecord.pending_amount = pendingAmount;
     dailyRecord.advance_amount = advanceAmount;
     dailyRecord.status = status;
-    dailyRecord.payment_mode = paid > 0 ? (payment_mode || 'Cash') : undefined;
+    dailyRecord.payment_mode = paid > 0 ? (payment_mode || db.config.masters.default_payment_mode) : undefined;
     dailyRecord.collector_id = collector.id;
     dailyRecord.collector_name = collector.name;
     dailyRecord.reason = reason;
@@ -1330,7 +1036,7 @@ app.post('/api/daily-collections/collect', (req: Request, res: Response) => {
       daily_due: dailyDue,
       amount_paid: paid,
       advance_amount: advanceAmount,
-      payment_mode: payment_mode || 'Cash',
+      payment_mode: payment_mode || db.config.masters.default_payment_mode,
       collector_id: collector.id,
       collector_name: collector.name,
       previous_balance: prevBalance,
@@ -1352,7 +1058,7 @@ app.post('/api/daily-collections/collect', (req: Request, res: Response) => {
       shop_name: account.shop_name || '',
       daily_due: dailyDue,
       amount_paid: paid,
-      payment_mode: payment_mode || 'Cash',
+      payment_mode: payment_mode || db.config.masters.default_payment_mode,
       transaction_ref: resolvedTxRef,
       previous_balance: prevBalance,
       remaining_balance: account.remaining_amount,
@@ -1392,172 +1098,6 @@ app.post('/api/daily-collections/collect', (req: Request, res: Response) => {
     dailyRecord,
     account,
     receipt: createdReceipt,
-  });
-});
-
-/**
- * BULK COLLECT PAYMENTS (For fast processing of multiple accounts)
- */
-app.post('/api/daily-collections/bulk-collect', (req: Request, res: Response) => {
-  const db = repository.getDb();
-  const {
-    items, // Array of { collection_account_id: string; amount_paid: number; payment_mode?: string; collector_id?: string; remarks?: string }
-    collection_date,
-    payment_mode,
-    collector_id,
-  } = req.body;
-
-  if (!Array.isArray(items) || items.length === 0) {
-    return res.status(400).json({ error: 'No collection items provided for bulk collection.' });
-  }
-
-  const dateStr = collection_date || new Date().toISOString().slice(0, 10);
-  const processedReceipts: Receipt[] = [];
-  let totalCollected = 0;
-
-  for (const item of items) {
-    const account = db.collection_accounts.find(a => a.id === item.collection_account_id);
-    if (!account) continue;
-
-    const paid = Number(item.amount_paid);
-    if (paid <= 0) continue;
-
-    const mode = item.payment_mode || payment_mode || 'Cash';
-    const coll = db.collectors.find(c => c.id === (item.collector_id || collector_id)) || {
-      id: account.assigned_collector_id,
-      name: account.assigned_collector_name,
-    };
-
-    const dailyDue = account.daily_collection;
-    let status: 'PAID' | 'PARTIAL' | 'PENDING' | 'MISSED' | 'ADVANCE' = 'PAID';
-    let pendingAmount = 0;
-    let advanceAmount = 0;
-
-    if (paid < dailyDue) {
-      status = 'PARTIAL';
-      pendingAmount = safeRound(dailyDue - paid, 2);
-    } else if (paid > dailyDue) {
-      status = 'ADVANCE';
-      advanceAmount = safeRound(paid - dailyDue, 2);
-    } else {
-      status = 'PAID';
-      pendingAmount = 0;
-    }
-
-    let dailyRecord = db.daily_collections.find(
-      d => d.collection_account_id === account.id && d.date === dateStr
-    );
-    const oldPaid = dailyRecord ? (dailyRecord.paid_amount || 0) : 0;
-    const netPaidDiff = safeRound(paid - oldPaid, 2);
-
-    const prevBalance = account.remaining_amount;
-    account.amount_collected = safeRound(account.amount_collected + netPaidDiff, 2);
-    account.remaining_amount = Math.max(0, safeRound(account.total_repayment - account.amount_collected, 2));
-    account.completed_days = Math.floor(account.amount_collected / account.daily_collection);
-    account.remaining_days = Math.max(0, account.collection_days - account.completed_days);
-    account.collection_percentage = safeRound((account.amount_collected / account.total_repayment) * 100, 1);
-
-    if (account.remaining_amount === 0) {
-      account.status = 'COMPLETED';
-      account.actual_completion_date = dateStr;
-    }
-    account.updated_at = new Date().toISOString();
-
-    const prefix = db.settings?.receipt_prefix || 'DC-REC-';
-    const receiptNum = `${prefix}2026-${String(db.receipts.length + 1).padStart(4, '0')}`;
-    const paymentId = `PAY-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-    const receiptId = `REC-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-
-    if (!dailyRecord) {
-      dailyRecord = {
-        id: `DC-${dateStr}-${account.id}`,
-        collection_account_id: account.id,
-        customer_id: account.customer_id,
-        customer_name: account.customer_name,
-        shop_name: account.shop_name || '',
-        mobile_number: db.customers.find(c => c.id === account.customer_id)?.mobile_number || '',
-        date: dateStr,
-        daily_due: dailyDue,
-        paid_amount: paid,
-        pending_amount: pendingAmount,
-        advance_amount: advanceAmount,
-        status,
-        payment_mode: mode as any,
-        collector_id: coll.id,
-        collector_name: coll.name,
-        collection_area: account.collection_area,
-        remarks: item.remarks || 'Bulk collection by agent',
-        receipt_id: receiptId,
-        receipt_number: receiptNum,
-        balance_remaining: account.remaining_amount,
-      };
-      db.daily_collections.push(dailyRecord);
-    } else {
-      dailyRecord.paid_amount = paid;
-      dailyRecord.pending_amount = pendingAmount;
-      dailyRecord.advance_amount = advanceAmount;
-      dailyRecord.status = status;
-      dailyRecord.payment_mode = mode as any;
-      dailyRecord.collector_id = coll.id;
-      dailyRecord.collector_name = coll.name;
-      dailyRecord.remarks = item.remarks || 'Bulk collection by agent';
-      dailyRecord.receipt_id = receiptId;
-      dailyRecord.receipt_number = receiptNum;
-      dailyRecord.balance_remaining = account.remaining_amount;
-    }
-
-    const paymentTx: PaymentTransaction = {
-      id: paymentId,
-      receipt_number: receiptNum,
-      collection_account_id: account.id,
-      customer_id: account.customer_id,
-      customer_name: account.customer_name,
-      shop_name: account.shop_name || '',
-      collection_date: dateStr,
-      daily_due: dailyDue,
-      amount_paid: paid,
-      advance_amount: advanceAmount,
-      payment_mode: mode as any,
-      collector_id: coll.id,
-      collector_name: coll.name,
-      previous_balance: prevBalance,
-      remaining_balance: account.remaining_amount,
-      status: advanceAmount > 0 ? 'ADVANCE' : (pendingAmount > 0 ? 'PARTIAL' : 'SUCCESS'),
-      remarks: item.remarks || 'Bulk collection by agent',
-      created_at: new Date().toISOString(),
-    };
-    db.payments.push(paymentTx);
-
-    const newReceipt: Receipt = {
-      id: receiptId,
-      receipt_number: receiptNum,
-      payment_id: paymentId,
-      collection_account_id: account.id,
-      customer_id: account.customer_id,
-      customer_name: account.customer_name,
-      shop_name: account.shop_name || '',
-      daily_due: dailyDue,
-      amount_paid: paid,
-      payment_mode: mode,
-      previous_balance: prevBalance,
-      remaining_balance: account.remaining_amount,
-      collector_name: coll.name,
-      date: dateStr,
-      created_at: new Date().toISOString(),
-      remarks: item.remarks || 'Bulk collection receipt',
-    };
-    processedReceipts.push(newReceipt);
-    db.receipts.push(newReceipt);
-    totalCollected += paid;
-  }
-
-  repository.save();
-
-  res.json({
-    success: true,
-    processed_count: processedReceipts.length,
-    total_collected: totalCollected,
-    receipts: processedReceipts,
   });
 });
 
@@ -1608,8 +1148,80 @@ app.get('/api/receipts/:id', (req: Request, res: Response) => {
   res.json(receipt);
 });
 
+/**
+ * UNDO A PAYMENT taken today. The payment and receipt are kept but marked CANCELLED,
+ * the loan balance goes back, and the day returns to "to collect".
+ */
+app.post('/api/payments/:id/undo', (req: Request, res: Response) => {
+  const id = getParam(req, 'id');
+  const db = repository.getDb();
+  const payment = db.payments.find(p => p.id === id || p.receipt_number === id);
+  if (!payment) return res.status(404).json({ error: 'Payment not found' });
+  if (!isActivePayment(payment)) return res.status(400).json({ error: 'This payment was already undone.' });
+  if (payment.collection_date !== todayIso()) {
+    return res.status(400).json({ error: "Only today's payments can be undone." });
+  }
+  const latest = db.payments
+    .filter(p => p.collection_account_id === payment.collection_account_id && isActivePayment(p))
+    .sort((a, b) => a.created_at.localeCompare(b.created_at))
+    .pop();
+  if (latest?.id !== payment.id) {
+    return res.status(400).json({ error: 'Undo the latest payment of this loan first.' });
+  }
+  const account = db.collection_accounts.find(a => a.id === payment.collection_account_id);
+  if (!account) return res.status(404).json({ error: 'Collection account not found' });
+
+  const balanceBefore = account.remaining_amount;
+  account.amount_collected = safeRound(account.amount_collected - payment.amount_paid, 2);
+  refreshAccountTotals(account);
+  if (account.status === 'COMPLETED') {
+    account.status = 'ACTIVE';
+    delete account.actual_completion_date;
+  }
+
+  const dailyRecord = db.daily_collections.find(
+    d => d.collection_account_id === account.id && d.date === payment.collection_date
+  );
+  if (dailyRecord) {
+    dailyRecord.paid_amount = 0;
+    dailyRecord.pending_amount = dailyRecord.daily_due;
+    dailyRecord.advance_amount = 0;
+    dailyRecord.status = 'PENDING';
+    dailyRecord.payment_mode = undefined;
+    dailyRecord.receipt_id = undefined;
+    dailyRecord.receipt_number = undefined;
+    dailyRecord.reason = undefined;
+    dailyRecord.remarks = 'Payment undone';
+    dailyRecord.balance_remaining = account.remaining_amount;
+  }
+
+  const now = new Date().toISOString();
+  payment.status = 'CANCELLED';
+  payment.cancelled_at = now;
+  const receipt = db.receipts.find(r => r.payment_id === payment.id || r.receipt_number === payment.receipt_number);
+  if (receipt) {
+    receipt.status = 'CANCELLED';
+    receipt.cancelled_at = now;
+  }
+
+  const by = String(req.body?.by || 'admin');
+  const role = String(req.body?.role || 'ADMIN');
+  logAudit(by, role, 'UNDO_PAYMENT', account.id, 'payments',
+    { receipt: payment.receipt_number, paid: payment.amount_paid, balance: balanceBefore },
+    { balance: account.remaining_amount });
+  createNotification(
+    'CUSTOMER',
+    `Payment cancelled: ₹${payment.amount_paid}`,
+    `Receipt #${payment.receipt_number} was cancelled. Balance: ₹${account.remaining_amount}.`,
+    'PAYMENT',
+    account.customer_id
+  );
+  repository.save();
+  res.json({ success: true, account: withDaysBehind(account), dailyRecord });
+});
+
 // -------------------------------------------------------------
-// 9. MONTHLY EXCEL REPORT MATRIX (Day-by-Day Columns 01-Sep..30-Sep)
+// 9. MONTHLY EXCEL REPORT MATRIX
 // -------------------------------------------------------------
 app.get('/api/reports/monthly', (req: Request, res: Response) => {
   const db = repository.getDb();
@@ -1742,7 +1354,7 @@ app.get('/api/collectors', (req: Request, res: Response) => {
   const db = repository.getDb();
   const list = db.collectors.map(col => {
     const assignedAccounts = db.collection_accounts.filter(a => a.assigned_collector_id === col.id);
-    const todayStr = new Date().toISOString().slice(0, 10);
+    const todayStr = todayIso();
     const todayRecs = db.daily_collections.filter(d => d.collector_id === col.id && d.date === todayStr);
     const todayCollected = todayRecs.reduce((sum, d) => sum + d.paid_amount, 0);
 
@@ -1758,17 +1370,17 @@ app.get('/api/collectors', (req: Request, res: Response) => {
 
 app.post('/api/collectors', (req: Request, res: Response) => {
   const db = repository.getDb();
-  const colId = `COL${db.collectors.length + 101}`;
+  const colId = nextId(db, 'collector', db.collectors.map(c => c.id));
   const newCol: Collector = {
     id: colId,
     name: req.body.name,
-    photo: req.body.photo || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
+    photo: req.body.photo || '',
     mobile: req.body.mobile,
     email: req.body.email,
     address: req.body.address || '',
-    assigned_area: req.body.assigned_area || 'Bazaar Main Road',
-    joining_date: req.body.joining_date || new Date().toISOString().slice(0, 10),
-    target_amount: Number(req.body.target_amount) || 25000,
+    assigned_area: req.body.assigned_area || db.config.masters.default_location.area,
+    joining_date: req.body.joining_date || todayIso(),
+    target_amount: Number(req.body.target_amount) || 0,
     status: 'ACTIVE',
   };
 
@@ -1795,6 +1407,9 @@ app.delete('/api/collectors/:id', (req: Request, res: Response) => {
   const db = repository.getDb();
   const idx = db.collectors.findIndex(c => c.id === id);
   if (idx === -1) return res.status(404).json({ error: 'Collector not found' });
+  if (db.collection_accounts.some(a => a.assigned_collector_id === id && isRunning(a))) {
+    return res.status(400).json({ error: 'This collector still has running loans. Switch "Working" off instead, or move the loans first.' });
+  }
   const [removed] = db.collectors.splice(idx, 1);
   logAudit('admin', 'ADMIN', 'DELETE_COLLECTOR', id, 'collectors', removed, null);
   repository.save();
@@ -1803,22 +1418,28 @@ app.delete('/api/collectors/:id', (req: Request, res: Response) => {
 
 app.get('/api/areas', (req: Request, res: Response) => {
   const db = repository.getDb();
-  const list = db.areas.map(a => {
-    const count = db.collection_accounts.filter(acc => acc.collection_area === a.area_name).length;
-    return { ...a, customer_count: count };
-  });
+  const list = db.areas.map(a => ({
+    ...a,
+    customer_count: db.collection_accounts.filter(acc => acc.collection_area === a.area_name && isRunning(acc)).length,
+  }));
   res.json(list);
 });
 
 app.post('/api/areas', (req: Request, res: Response) => {
   const db = repository.getDb();
-  const areaId = `AREA${db.areas.length + 101}`;
+  const name = String(req.body.area_name || '').trim();
+  if (!name) return res.status(400).json({ error: 'Enter the area name.' });
+  if (db.areas.some(a => a.area_name.toLowerCase() === name.toLowerCase())) {
+    return res.status(400).json({ error: 'An area with this name already exists.' });
+  }
+  const areaId = nextId(db, 'area', db.areas.map(a => a.id));
+  const loc = db.config.masters.default_location;
   const newArea: Area = {
     id: areaId,
-    area_name: req.body.area_name,
-    city: req.body.city || 'Salem',
-    district: req.body.district || 'Salem',
-    pincode: req.body.pincode || '636001',
+    area_name: name,
+    city: req.body.city || loc.city,
+    district: req.body.district || loc.district,
+    pincode: req.body.pincode || loc.pincode,
     assigned_collector_id: req.body.assigned_collector_id,
     assigned_collector_name: req.body.assigned_collector_name,
     customer_count: 0,
@@ -1829,13 +1450,37 @@ app.post('/api/areas', (req: Request, res: Response) => {
   res.status(201).json(newArea);
 });
 
+// Records refer to areas by name, so a rename is carried over to everything that uses the old name.
 app.put('/api/areas/:id', (req: Request, res: Response) => {
   const id = getParam(req, 'id');
   const db = repository.getDb();
   const area = db.areas.find(a => a.id === id);
   if (!area) return res.status(404).json({ error: 'Area not found' });
   const oldArea = { ...area };
-  Object.assign(area, req.body);
+
+  const newName = req.body.area_name !== undefined ? String(req.body.area_name).trim() : area.area_name;
+  if (!newName) return res.status(400).json({ error: 'Enter the area name.' });
+  if (db.areas.some(a => a.id !== id && a.area_name.toLowerCase() === newName.toLowerCase())) {
+    return res.status(400).json({ error: 'An area with this name already exists.' });
+  }
+  if (req.body.assigned_collector_id) {
+    const collector = db.collectors.find(c => c.id === req.body.assigned_collector_id);
+    if (!collector) return res.status(400).json({ error: 'Collector not found' });
+    area.assigned_collector_id = collector.id;
+    area.assigned_collector_name = collector.name;
+  }
+
+  if (newName !== oldArea.area_name) {
+    const from = oldArea.area_name;
+    area.area_name = newName;
+    db.collection_accounts.forEach(a => { if (a.collection_area === from) a.collection_area = newName; });
+    db.daily_collections.forEach(d => { if (d.collection_area === from) d.collection_area = newName; });
+    db.customer_addresses.forEach(a => { if (a.area === from) a.area = newName; });
+    db.business_details.forEach(b => { if (b.shop_area === from) b.shop_area = newName; });
+    db.collectors.forEach(c => { if (c.assigned_area === from) c.assigned_area = newName; });
+    if (db.config.masters.default_location.area === from) db.config.masters.default_location.area = newName;
+  }
+
   logAudit('admin', 'ADMIN', 'UPDATE_AREA', id, 'areas', oldArea, area);
   repository.save();
   res.json(area);
@@ -1846,6 +1491,10 @@ app.delete('/api/areas/:id', (req: Request, res: Response) => {
   const db = repository.getDb();
   const idx = db.areas.findIndex(a => a.id === id);
   if (idx === -1) return res.status(404).json({ error: 'Area not found' });
+  const name = db.areas[idx].area_name;
+  if (db.collection_accounts.some(a => a.collection_area === name && isRunning(a))) {
+    return res.status(400).json({ error: 'This area still has running loans, so it cannot be removed.' });
+  }
   const [removed] = db.areas.splice(idx, 1);
   logAudit('admin', 'ADMIN', 'DELETE_AREA', id, 'areas', removed, null);
   repository.save();
@@ -1853,8 +1502,23 @@ app.delete('/api/areas/:id', (req: Request, res: Response) => {
 });
 
 // -------------------------------------------------------------
-// 11. KYC DOCUMENTS
+// 11. PHOTOS & DOCUMENTS
 // -------------------------------------------------------------
+
+// Saves a photo taken or chosen in the app (already shrunk in the browser) and returns its URL.
+app.post('/api/uploads', (req: Request, res: Response) => {
+  const match = /^data:image\/(jpeg|png|webp);base64,([A-Za-z0-9+/=]+)$/.exec(String(req.body?.data_url || ''));
+  if (!match) return res.status(400).json({ error: 'Send a JPEG, PNG or WebP photo.' });
+  const bytes = Buffer.from(match[2], 'base64');
+  if (bytes.length > 5 * 1024 * 1024) return res.status(400).json({ error: 'The photo is too large.' });
+
+  fs.mkdirSync(uploadsDir, { recursive: true });
+  const ext = match[1] === 'jpeg' ? 'jpg' : match[1];
+  const name = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+  fs.writeFileSync(path.join(uploadsDir, name), bytes);
+  res.status(201).json({ url: `/api/uploads/${name}` });
+});
+
 app.get('/api/documents', (req: Request, res: Response) => {
   const db = repository.getDb();
   const customerId = req.query.customer_id as string;
@@ -1874,8 +1538,8 @@ app.post('/api/documents', (req: Request, res: Response) => {
   const db = repository.getDb();
   const { customer_id, document_type, document_number, file_url, file_name, uploaded_by, remarks } = req.body;
 
-  if (!customer_id || !document_type) {
-    return res.status(400).json({ error: 'Customer ID and Document Type are required' });
+  if (!customer_id || !document_type || !file_url) {
+    return res.status(400).json({ error: 'Customer, document type and photo are required' });
   }
 
   const docId = `DOC-${Date.now()}`;
@@ -1883,10 +1547,10 @@ app.post('/api/documents', (req: Request, res: Response) => {
     id: docId,
     customer_id,
     document_type,
-    document_number: document_number || 'DOC' + Math.floor(100000 + Math.random() * 900000),
-    file_url: file_url || 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=600',
-    file_name: file_name || `${document_type.toLowerCase().replace(/\s+/g, '_')}.pdf`,
-    upload_date: new Date().toISOString().slice(0, 10),
+    document_number: document_number || '',
+    file_url,
+    file_name: file_name || path.basename(String(file_url)),
+    upload_date: todayIso(),
     uploaded_by: uploaded_by || 'Admin',
     verification_status: 'Pending Verification',
     remarks,
@@ -1971,22 +1635,14 @@ app.get('/api/audit-logs', (req: Request, res: Response) => {
   res.json(db.audit_logs.slice(0, 100));
 });
 
-app.get('/api/settings', (req: Request, res: Response) => {
-  const db = repository.getDb();
-  res.json(db.settings);
-});
-
-app.put('/api/settings', (req: Request, res: Response) => {
-  const db = repository.getDb();
-  Object.assign(db.settings, req.body);
-  repository.save();
-  res.json(db.settings);
-});
-
-// Reset database to initial seed
+// Replace the live data with the committed sample data set (data/sample_data.json).
 app.post('/api/seed/reset', (req: Request, res: Response) => {
-  seedDatabase();
-  res.json({ message: 'Database reset to sample seed successfully.' });
+  try {
+    loadSampleData();
+    res.json({ message: 'Sample data loaded successfully.' });
+  } catch (err) {
+    res.status(500).json({ error: (err as Error).message });
+  }
 });
 
 // Start Express Server

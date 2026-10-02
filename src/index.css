@@ -262,4 +262,19 @@ html.light .bg-rose-500\/20 {
     box-shadow: none !important;
     color: black !important;
   }
+
+  /* Printing a single receipt: only the receipt slip is printed (58/80 mm printers or A4). */
+  body.print-receipt * {
+    visibility: hidden !important;
+  }
+  body.print-receipt .receipt-print,
+  body.print-receipt .receipt-print * {
+    visibility: visible !important;
+  }
+  body.print-receipt .receipt-print {
+    position: absolute !important;
+    left: 0;
+    top: 0;
+    width: 80mm;
+  }
 }

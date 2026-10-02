@@ -35,3 +35,6 @@ lerna-debug.log*
 *.sln
 *.sw?
 Thumbs.db
+
+# Photos uploaded from the app (customer photos, ID copies) must never go into git
+uploads/

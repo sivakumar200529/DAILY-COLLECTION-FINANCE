@@ -1,6 +1,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
+import { AppConfig, DEFAULT_CONFIG, LoanProduct, MasterLists, NumberingKind, formatId } from '../shared/config.ts';
+import { LoanOverride } from '../shared/finance.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -8,6 +10,8 @@ const __dirname = path.dirname(__filename);
 const dbFilePath = path.resolve(__dirname, '..', 'krs_finance_data.json');
 const dbBackupFilePath = path.resolve(__dirname, '..', 'krs_finance_data.backup.json');
 const dbTmpFilePath = path.resolve(__dirname, '..', 'krs_finance_data.tmp.json');
+// Committed, read-only sample data set. Loaded on demand from the admin Data tab.
+export const sampleDataFilePath = path.resolve(__dirname, '..', 'data', 'sample_data.json');
 
 export function safeRound(num: number, decimals: number = 2): number {
   const factor = Math.pow(10, decimals);
@@ -125,6 +129,8 @@ export interface CollectionAccount {
   assigned_collector_name: string;
   collection_area: string;
   status: 'ACTIVE' | 'COMPLETED' | 'OVERDUE' | 'PENDING' | 'CANCELLED';
+  /** Terms that differ from the loan product the account was issued under. */
+  overrides?: LoanOverride[];
   created_at: string;
   updated_at: string;
 }
@@ -145,7 +151,7 @@ export interface DailyCollectionRecord {
   pending_amount: number;
   advance_amount: number;
   status: 'PAID' | 'PARTIAL' | 'PENDING' | 'MISSED' | 'ADVANCE';
-  payment_mode?: 'Cash' | 'Razorpay UPI' | 'Razorpay NetBanking' | 'UPI' | 'Bank Transfer' | 'Other';
+  payment_mode?: string; // one of config.masters.payment_modes
   collector_id: string;
   collector_name: string;
   collection_area: string;
@@ -170,15 +176,17 @@ export interface PaymentTransaction {
   daily_due: number;
   amount_paid: number;
   advance_amount: number;
-  payment_mode: 'Cash' | 'Razorpay UPI' | 'Razorpay NetBanking' | 'UPI' | 'Bank Transfer' | 'Other';
+  payment_mode: string; // one of config.masters.payment_modes
   collector_id: string;
   collector_name: string;
   previous_balance: number;
   remaining_balance: number;
-  status: 'SUCCESS' | 'PARTIAL' | 'ADVANCE';
+  /** CANCELLED = undone; kept for the record but left out of all totals. */
+  status: 'SUCCESS' | 'PARTIAL' | 'ADVANCE' | 'CANCELLED';
   transaction_ref?: string;
   remarks?: string;
   created_at: string;
+  cancelled_at?: string;
 }
 
 export interface Receipt {
@@ -199,6 +207,9 @@ export interface Receipt {
   date: string;
   created_at: string;
   remarks?: string;
+  /** Set when the payment behind this receipt was undone. */
+  status?: 'CANCELLED';
+  cancelled_at?: string;
 }
 
 export interface Collector {
@@ -281,7 +292,7 @@ export interface SystemSettings {
   receipt_prefix: string;
   currency: string;
   default_collection_days: number;
-  default_payment_mode: 'Cash' | 'UPI' | 'Bank Transfer' | 'Other';
+  default_payment_mode: string;
   notifications_enabled: boolean;
 }
 
@@ -290,7 +301,6 @@ export interface KRSFinanceDatabase {
   customers: CustomerPersonalDetails[];
   customer_addresses: CustomerAddress[];
   business_details: BusinessDetails[];
-  collection_plans: CollectionPlan[];
   collection_accounts: CollectionAccount[];
   daily_collections: DailyCollectionRecord[];
   payments: PaymentTransaction[];
@@ -301,7 +311,132 @@ export interface KRSFinanceDatabase {
   notifications: Notification[];
   customer_notes: CustomerNote[];
   audit_logs: AuditLog[];
-  settings: SystemSettings;
+  config: AppConfig;
+}
+
+/** Shape of data files written before the config block existed. */
+type LegacyDatabase = Omit<KRSFinanceDatabase, 'config'> & {
+  config?: Partial<AppConfig>;
+  settings?: Partial<SystemSettings>;
+  collection_plans?: CollectionPlan[];
+};
+
+function trailingNumber(id: string): number {
+  const match = String(id).match(/(\d+)$/);
+  return match ? parseInt(match[1], 10) : 0;
+}
+
+function mostCommon(values: (string | undefined)[]): string {
+  const counts = new Map<string, number>();
+  values.forEach(v => { if (v) counts.set(v, (counts.get(v) || 0) + 1); });
+  let best = '';
+  let bestCount = 0;
+  counts.forEach((c, v) => { if (c > bestCount) { best = v; bestCount = c; } });
+  return best;
+}
+
+function planToProduct(plan: CollectionPlan): LoanProduct {
+  const margin = plan.requested_amount > 0 ? safeRound((plan.finance_margin / plan.requested_amount) * 100, 2) : 0;
+  return {
+    id: plan.id,
+    name: plan.plan_name,
+    description: plan.description,
+    margin_percentage: margin,
+    day_options: [plan.collection_days],
+    default_days: plan.collection_days,
+    min_amount: plan.requested_amount,
+    max_amount: plan.requested_amount,
+    allow_overrides: true,
+    status: plan.status,
+    created_at: plan.created_at,
+  };
+}
+
+/**
+ * Brings any data file up to the current shape: builds db.config from the legacy
+ * settings / collection_plans (or from defaults) and fills in keys added later.
+ */
+export function migrateDatabase(raw: LegacyDatabase): KRSFinanceDatabase {
+  const existing = raw.config || {};
+  const legacy = raw.settings || {};
+
+  const company = {
+    ...DEFAULT_CONFIG.company,
+    ...(legacy.company_name !== undefined ? {
+      company_name: legacy.company_name,
+      company_tagline: legacy.company_tagline ?? DEFAULT_CONFIG.company.company_tagline,
+      company_address: legacy.company_address ?? '',
+      company_phone: legacy.company_phone ?? '',
+      company_email: legacy.company_email ?? '',
+      company_logo: legacy.company_logo ?? '',
+      currency: legacy.currency ?? DEFAULT_CONFIG.company.currency,
+      notifications_enabled: legacy.notifications_enabled ?? true,
+    } : {}),
+    ...existing.company,
+  };
+
+  // The default location is derived from the data itself the first time.
+  const addrs = raw.customer_addresses || [];
+  const derivedLocation = {
+    area: mostCommon((raw.areas || []).map(a => a.area_name)),
+    city: mostCommon(addrs.map(a => a.city)),
+    district: mostCommon(addrs.map(a => a.district)),
+    state: mostCommon(addrs.map(a => a.state)),
+    pincode: mostCommon(addrs.map(a => a.pincode)),
+  };
+  // Only known keys are kept, so lists retired in later versions drop out of old files.
+  const em: Partial<MasterLists> = existing.masters || {};
+  const dm = DEFAULT_CONFIG.masters;
+  const masters: MasterLists = {
+    payment_modes: em.payment_modes ?? dm.payment_modes,
+    default_payment_mode: em.default_payment_mode ?? legacy.default_payment_mode ?? dm.default_payment_mode,
+    not_paid_reasons: em.not_paid_reasons ?? dm.not_paid_reasons,
+    not_paying_after_days: em.not_paying_after_days ?? dm.not_paying_after_days,
+    default_location: {
+      ...dm.default_location,
+      ...(existing.masters ? {} : derivedLocation),
+      ...em.default_location,
+    },
+  };
+
+  let loan_products = existing.loan_products;
+  if (!loan_products) {
+    const flex = { ...DEFAULT_CONFIG.loan_products[0] };
+    if (legacy.default_collection_days) flex.default_days = legacy.default_collection_days;
+    loan_products = [flex, ...(raw.collection_plans || []).map(planToProduct)];
+  }
+
+  const idsByKind: Record<NumberingKind, string[]> = {
+    customer: (raw.customers || []).map(c => c.id),
+    account: (raw.collection_accounts || []).map(a => a.id),
+    receipt: (raw.receipts || []).map(r => r.receipt_number),
+    collector: (raw.collectors || []).map(c => c.id),
+    area: (raw.areas || []).map(a => a.id),
+  };
+  const numbering = { ...DEFAULT_CONFIG.numbering, ...existing.numbering };
+  (Object.keys(idsByKind) as NumberingKind[]).forEach(kind => {
+    const rule = { ...DEFAULT_CONFIG.numbering[kind], ...existing.numbering?.[kind] };
+    if (kind === 'receipt' && !existing.numbering?.receipt && legacy.receipt_prefix) rule.prefix = legacy.receipt_prefix;
+    const maxSeq = idsByKind[kind].reduce((m, id) => Math.max(m, trailingNumber(id)), 0);
+    rule.next = Math.max(rule.next, maxSeq + 1);
+    numbering[kind] = rule;
+  });
+
+  const { settings: _settings, collection_plans: _plans, config: _config, ...rest } = raw;
+  return { ...rest, config: { company, masters, loan_products, numbering } };
+}
+
+/** Allocates the next ID of a kind from the configured numbering rule, skipping any already taken. */
+export function nextId(db: KRSFinanceDatabase, kind: NumberingKind, existingIds: string[]): string {
+  const rule = db.config.numbering[kind];
+  const taken = new Set(existingIds);
+  let id = formatId(rule, rule.next);
+  rule.next += 1;
+  while (taken.has(id)) {
+    id = formatId(rule, rule.next);
+    rule.next += 1;
+  }
+  return id;
 }
 
 class Repository {
@@ -324,39 +459,45 @@ class Repository {
       const json = JSON.stringify(this.db, null, 2);
       fs.writeFileSync(dbTmpFilePath, json, 'utf-8');
       fs.renameSync(dbTmpFilePath, dbFilePath);
-      // Periodic backup
-      fs.writeFileSync(dbBackupFilePath, json, 'utf-8');
     } catch (err) {
       console.error('Failed to write database file:', err);
     }
   }
 
   public load(): KRSFinanceDatabase {
-    if (fs.existsSync(dbFilePath)) {
+    const candidates = [dbFilePath, dbBackupFilePath, sampleDataFilePath];
+    for (const file of candidates) {
+      if (!fs.existsSync(file)) continue;
       try {
-        const raw = fs.readFileSync(dbFilePath, 'utf-8');
-        this.db = JSON.parse(raw);
-        return this.db!;
+        this.db = migrateDatabase(JSON.parse(fs.readFileSync(file, 'utf-8')));
+        return this.db;
       } catch (err) {
-        console.warn('Primary DB corrupt or unreadable, checking backup...', err);
-        if (fs.existsSync(dbBackupFilePath)) {
-          const rawBackup = fs.readFileSync(dbBackupFilePath, 'utf-8');
-          this.db = JSON.parse(rawBackup);
-          return this.db!;
-        }
+        console.warn(`Data file ${path.basename(file)} is unreadable, trying the next one...`, err);
       }
     }
 
-    // Default initial seed
     this.db = generateSeedDatabase();
-    this.save();
     return this.db;
+  }
+
+  /** Snapshot of the live data taken once per server start, not on every write. */
+  public writeStartupBackup(): void {
+    if (!this.db) return;
+    try {
+      fs.writeFileSync(dbBackupFilePath, JSON.stringify(this.db, null, 2), 'utf-8');
+    } catch (err) {
+      console.error('Failed to write startup backup:', err);
+    }
   }
 }
 
 export const repository = new Repository();
 
 export function generateSeedDatabase(): KRSFinanceDatabase {
+  return migrateDatabase(generateLegacySeed());
+}
+
+function generateLegacySeed(): LegacyDatabase {
   const todayStr = new Date().toISOString().slice(0, 10);
   const currentYear = new Date().getFullYear();
   const currentMonth = new Date().getMonth() + 1;
@@ -1436,20 +1577,16 @@ export function generateSeedDatabase(): KRSFinanceDatabase {
 
 export function initializeDatabase(): void {
   repository.load();
+  // Persist any migration applied on load, then keep one snapshot per start.
+  repository.save();
+  repository.writeStartupBackup();
 }
 
-export function seedDatabase(): void {
-  if (fs.existsSync(dbBackupFilePath)) {
-    try {
-      const raw = fs.readFileSync(dbBackupFilePath, 'utf-8');
-      const data = JSON.parse(raw);
-      repository.save(data);
-      return;
-    } catch (e) {
-      console.warn('Failed reading backup, falling back to generateSeedDatabase', e);
-    }
+/** Replaces the live data with the committed sample data set. */
+export function loadSampleData(): void {
+  if (!fs.existsSync(sampleDataFilePath)) {
+    throw new Error('Sample data file data/sample_data.json was not found.');
   }
-  const seed = generateSeedDatabase();
-  repository.save(seed);
+  repository.save(migrateDatabase(JSON.parse(fs.readFileSync(sampleDataFilePath, 'utf-8'))));
 }
 

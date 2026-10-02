@@ -83,84 +83,21 @@ export const MonthlyExcelReportView: React.FC = () => {
   const daysArray = reportData ? Array.from({ length: reportData.daysInMonth }, (_, i) => i + 1) : [];
 
   return (
-    <div className="space-y-6 pb-12 font-sans">
-      {/* Top Banner */}
-      <div className="glass-card p-5 rounded-2xl border border-gold-500/25 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
-              <FileSpreadsheet className="w-3 h-3" />
-              {t('major audit & finance record', 'Major Audit & Finance Record')}
-            </span>
-            <span className="text-xs text-slate-400 font-mono">
-              {reportData?.monthName} {year} Matrix
-            </span>
-          </div>
-          <h1 className="text-xl md:text-2xl font-black text-white tracking-tight">
-            {t('monthly excel collection register', 'MONTHLY EXCEL COLLECTION REGISTER')}
-          </h1>
-          <p className="text-xs text-slate-300 mt-0.5">
-            {t('full 30-day matrix displaying exact doorstep collections per calendar day for each customer with automated monthly totals, margins, and excel export.', 'Full 30-day matrix displaying exact doorstep collections per calendar day for each customer with automated monthly totals, margins, and Excel export.')}
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2.5">
-          <button
-            onClick={handleExport}
-            disabled={!reportData || reportData.rows.length === 0}
-            className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-lg shadow-emerald-600/20 flex items-center gap-2 transition-all disabled:opacity-50"
-          >
-            <Download className="w-4 h-4" />
-            <span>{t('export to excel (.xls)', 'EXPORT TO EXCEL (.XLS)')}</span>
-          </button>
-
-          <button
-            onClick={loadData}
-            disabled={loading}
-            className="p-2.5 rounded-xl bg-navy-950 border border-slate-700 text-slate-300 hover:text-white transition-colors"
-          >
-            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-gold-400' : ''}`} />
-          </button>
-        </div>
-      </div>
-
-      {/* Monthly Financial Summary Cards (Section 25) */}
+    <div className="space-y-4 font-sans">
+      {/* This month in three numbers */}
       {reportData && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-          <div className="glass-card p-3.5 rounded-xl border-l-4 border-l-blue-500">
-            <span className="text-[10px] font-bold text-blue-300 uppercase block">{t('total disbursed', 'Total Disbursed')}</span>
-            <span className="text-lg font-black text-white">{formatCurrency(reportData.totals.disbursed)}</span>
-            <span className="text-[10px] text-slate-400 block mt-0.5">{t('req', 'Req')}: {formatCurrency(reportData.totals.requested)}</span>
+        <div className="grid grid-cols-3 gap-2">
+          <div className="glass-card rounded-2xl p-3">
+            <div className="text-xs text-slate-400 font-semibold">{t('expectedThisMonth', 'Expected')}</div>
+            <div className="text-lg sm:text-2xl font-black text-white">{formatCurrency(reportData.totals.expectedMonthly)}</div>
           </div>
-
-          <div className="glass-card p-3.5 rounded-xl border-l-4 border-l-purple-500">
-            <span className="text-[10px] font-bold text-purple-300 uppercase block">{t('total repayment', 'Total Repayment')}</span>
-            <span className="text-lg font-black text-white">{formatCurrency(reportData.totals.totalRepayment)}</span>
-            <span className="text-[10px] text-slate-400 block mt-0.5">{t('100-day goal', '100-Day Goal')}</span>
+          <div className="glass-card rounded-2xl p-3">
+            <div className="text-xs text-slate-400 font-semibold">{t('collected', 'Collected')}</div>
+            <div className="text-lg sm:text-2xl font-black text-emerald-400">{formatCurrency(reportData.totals.actualMonthly)}</div>
           </div>
-
-          <div className="glass-card p-3.5 rounded-xl border-l-4 border-l-amber-500">
-            <span className="text-[10px] font-bold text-gold-400 uppercase block">{t('finance margin', 'Finance Margin')}</span>
-            <span className="text-lg font-black text-gold-400">{formatCurrency(reportData.totals.financeMargin)}</span>
-            <span className="text-[10px] text-slate-400 block mt-0.5">{t('repay - disbursed', 'Repay - Disbursed')}</span>
-          </div>
-
-          <div className="glass-card p-3.5 rounded-xl border-l-4 border-l-emerald-500">
-            <span className="text-[10px] font-bold text-emerald-300 uppercase block">{t('actual collected', 'Actual Collected')}</span>
-            <span className="text-lg font-black text-emerald-400">{formatCurrency(reportData.totals.actualMonthly)}</span>
-            <span className="text-[10px] text-slate-400 block mt-0.5">{reportData.totals.collectionPercentage}% {t('col rate', 'col rate')}</span>
-          </div>
-
-          <div className="glass-card p-3.5 rounded-xl border-l-4 border-l-rose-500">
-            <span className="text-[10px] font-bold text-rose-300 uppercase block">{t('monthly pending', 'Monthly Pending')}</span>
-            <span className="text-lg font-black text-rose-400">{formatCurrency(reportData.totals.monthlyPending)}</span>
-            <span className="text-[10px] text-slate-400 block mt-0.5">{t('expected', 'Expected')}: {formatCurrency(reportData.totals.expectedMonthly)}</span>
-          </div>
-
-          <div className="glass-card p-3.5 rounded-xl border-l-4 border-l-sky-500">
-            <span className="text-[10px] font-bold text-sky-300 uppercase block">{t('accounts in matrix', 'Accounts in Matrix')}</span>
-            <span className="text-lg font-black text-white">{reportData.rows.length}</span>
-            <span className="text-[10px] text-slate-400 block mt-0.5">{reportData.daysInMonth} {t('calendar days', 'calendar days')}</span>
+          <div className="glass-card rounded-2xl p-3">
+            <div className="text-xs text-slate-400 font-semibold">{t('stillToCollect', 'Still to collect')}</div>
+            <div className="text-lg sm:text-2xl font-black text-rose-400">{formatCurrency(reportData.totals.monthlyPending)}</div>
           </div>
         </div>
       )}
@@ -190,9 +127,9 @@ export const MonthlyExcelReportView: React.FC = () => {
               onChange={(e) => setYear(Number(e.target.value))}
               className="w-full px-3 py-2 bg-navy-950/80 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-gold-500 font-mono"
             >
-              <option value={2025}>2025</option>
-              <option value={2026}>2026</option>
-              <option value={2027}>2027</option>
+              {Array.from({ length: 4 }, (_, i) => new Date().getFullYear() - 2 + i).map(y => (
+                <option key={y} value={y}>{y}</option>
+              ))}
             </select>
           </div>
 
@@ -226,19 +163,15 @@ export const MonthlyExcelReportView: React.FC = () => {
             </select>
           </div>
 
-          {/* Status */}
-          <div>
-            <label className="block text-[11px] font-bold text-slate-300 mb-1 uppercase tracking-wider">{t('status', 'Status')}</label>
-            <select
-              value={selectedStatus}
-              onChange={(e) => setSelectedStatus(e.target.value)}
-              className="w-full px-3 py-2 bg-navy-950/80 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-gold-500"
+          <div className="flex items-end">
+            <button
+              onClick={handleExport}
+              disabled={!reportData || reportData.rows.length === 0}
+              className="w-full px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-50"
             >
-              <option value="ALL">{t('all statuses', 'All Statuses')}</option>
-              <option value="ACTIVE">{t('active', 'ACTIVE')}</option>
-              <option value="OVERDUE">{t('overdue', 'OVERDUE')}</option>
-              <option value="COMPLETED">{t('completed', 'COMPLETED')}</option>
-            </select>
+              <Download className="w-4 h-4" />
+              <span>Excel</span>
+            </button>
           </div>
         </div>
       </div>

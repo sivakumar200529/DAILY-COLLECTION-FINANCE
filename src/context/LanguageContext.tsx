@@ -7,44 +7,49 @@ interface LanguageContextType {
   toggleLanguage: () => void;
   t: (key: string, fallback?: string) => string;
   isTamil: boolean;
+  /** False until the person has picked a language on this device (the login screen asks first). */
+  hasChosenLanguage: boolean;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
+function readSavedLanguage(): Language | null {
+  try {
+    const saved = localStorage.getItem('krs_language');
+    if (saved === 'ta' || saved === 'en') return saved;
+  } catch {
+    // storage unavailable (private mode etc.)
+  }
+  return null;
+}
+
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [language, setLanguageState] = useState<Language>(() => {
-    try {
-      const saved = localStorage.getItem('krs_language');
-      if (saved === 'ta' || saved === 'en') return saved;
-    } catch {
-      // ignore
-    }
-    return 'en'; // default English
-  });
+  const [language, setLanguageState] = useState<Language>(() => readSavedLanguage() ?? 'en');
+  const [hasChosenLanguage, setHasChosenLanguage] = useState<boolean>(() => readSavedLanguage() !== null);
 
   useEffect(() => {
+    document.documentElement.lang = language;
+    if (!hasChosenLanguage) return;
     try {
       localStorage.setItem('krs_language', language);
-      document.documentElement.lang = language;
     } catch {
       // ignore
     }
-  }, [language]);
-
-  const toggleLanguage = () => {
-    setLanguageState(prev => (prev === 'en' ? 'ta' : 'en'));
-  };
+  }, [language, hasChosenLanguage]);
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
+    setHasChosenLanguage(true);
   };
+
+  const toggleLanguage = () => setLanguage(language === 'en' ? 'ta' : 'en');
 
   const t = (key: string, fallback?: string): string => {
     return getTranslation(key, language, fallback);
   };
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, toggleLanguage, t, isTamil: language === 'ta' }}>
+    <LanguageContext.Provider value={{ language, setLanguage, toggleLanguage, t, isTamil: language === 'ta', hasChosenLanguage }}>
       {children}
     </LanguageContext.Provider>
   );

@@ -19,6 +19,8 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 
+// NOT SHOWN ANYWHERE: this checkout is simulated (it records a payment without real money).
+// It is kept so it can be wired to a real UPI/Razorpay connection later; see Passbook.tsx.
 interface RazorpayCheckoutModalProps {
   account: CollectionAccount;
   profile: Customer360Profile | null;

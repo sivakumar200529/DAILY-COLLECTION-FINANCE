@@ -3,7 +3,6 @@ import {
   CustomerPersonalDetails,
   CustomerAddress,
   BusinessDetails,
-  CollectionPlan,
   CollectionAccount,
   DailyCollectionRecord,
   PaymentTransaction,
@@ -14,12 +13,36 @@ import {
   Notification,
   CustomerNote,
   AuditLog,
-  SystemSettings,
   Customer360Profile,
   DashboardStats,
-  DashboardCharts,
   MonthlyReportData,
+  AppConfig,
+  ConfigSection,
 } from '../types';
+
+/** Payload for issuing a loan; money values are computed by the server from these terms. */
+export interface IssueLoanPayload {
+  customer_id?: string;
+  product_id: string;
+  requested_amount: number;
+  margin_percentage: number;
+  collection_days: number;
+  /** Only sent when the daily amount was entered manually. */
+  daily_collection?: number;
+  start_date: string;
+  assigned_collector_id: string;
+  collection_area: string;
+}
+
+/** A customer row as returned by the list endpoint. */
+export type CustomerListItem = CustomerPersonalDetails & {
+  address?: CustomerAddress;
+  business?: BusinessDetails;
+  /** The running loan, with days_behind filled in. */
+  activeAccount?: CollectionAccount;
+  /** The newest loan, running or closed. */
+  latestAccount?: CollectionAccount;
+};
 
 const API_BASE = '/api';
 
@@ -72,15 +95,8 @@ export const api = {
     return handleResponse(res);
   },
 
-  async getDashboardCharts(): Promise<DashboardCharts> {
-    const res = await fetch(`${API_BASE}/dashboard/charts`, {
-      headers: getAuthHeader(),
-    });
-    return handleResponse(res);
-  },
-
   // Customers
-  async getCustomers(params?: { search?: string; status?: string; area?: string }): Promise<(CustomerPersonalDetails & { address?: CustomerAddress; business?: BusinessDetails; activeAccount?: CollectionAccount })[]> {
+  async getCustomers(params?: { search?: string; status?: string; area?: string }): Promise<CustomerListItem[]> {
     const query = new URLSearchParams();
     if (params?.search) query.set('search', params.search);
     if (params?.status) query.set('status', params.status);
@@ -96,15 +112,7 @@ export const api = {
     personal: Partial<CustomerPersonalDetails>;
     address?: Partial<CustomerAddress>;
     business?: Partial<BusinessDetails>;
-    loan?: {
-      requested_amount: number;
-      margin_percentage?: number;
-      collection_days?: number;
-      daily_collection?: number;
-      start_date?: string;
-      assigned_collector_id?: string;
-      collection_area?: string;
-    };
+    loan?: Omit<IssueLoanPayload, 'customer_id'>;
   }): Promise<CustomerPersonalDetails & { activeAccount?: CollectionAccount }> {
     const res = await fetch(`${API_BASE}/customers`, {
       method: 'POST',
@@ -147,36 +155,19 @@ export const api = {
     return handleResponse(res);
   },
 
-  // Plans
-  async getPlans(): Promise<CollectionPlan[]> {
-    const res = await fetch(`${API_BASE}/plans`, {
+  // Configuration (loan products, master lists, numbering, company profile)
+  async getConfig(): Promise<AppConfig> {
+    const res = await fetch(`${API_BASE}/config`, {
       headers: getAuthHeader(),
     });
     return handleResponse(res);
   },
 
-  async createPlan(data: Partial<CollectionPlan>): Promise<CollectionPlan> {
-    const res = await fetch(`${API_BASE}/plans`, {
-      method: 'POST',
-      headers: getAuthHeader(),
-      body: JSON.stringify(data),
-    });
-    return handleResponse(res);
-  },
-
-  async updatePlan(id: string, data: Partial<CollectionPlan>): Promise<CollectionPlan> {
-    const res = await fetch(`${API_BASE}/plans/${id}`, {
+  async updateConfigSection<K extends ConfigSection>(section: K, value: AppConfig[K]): Promise<AppConfig> {
+    const res = await fetch(`${API_BASE}/config/${section}`, {
       method: 'PUT',
       headers: getAuthHeader(),
-      body: JSON.stringify(data),
-    });
-    return handleResponse(res);
-  },
-
-  async deletePlan(id: string): Promise<{ message: string }> {
-    const res = await fetch(`${API_BASE}/plans/${id}`, {
-      method: 'DELETE',
-      headers: getAuthHeader(),
+      body: JSON.stringify(value),
     });
     return handleResponse(res);
   },
@@ -189,20 +180,7 @@ export const api = {
     return handleResponse(res);
   },
 
-  async createCollectionAccount(data: {
-    customer_id: string;
-    plan_id?: string;
-    requested_amount?: number;
-    margin_percentage?: number;
-    margin_amount?: number;
-    disbursed_amount?: number;
-    daily_collection?: number;
-    collection_days?: number;
-    start_date?: string;
-    expected_end_date?: string;
-    assigned_collector_id?: string;
-    collection_area?: string;
-  }): Promise<CollectionAccount> {
+  async createCollectionAccount(data: IssueLoanPayload & { customer_id: string }): Promise<CollectionAccount> {
     const res = await fetch(`${API_BASE}/collection-accounts`, {
       method: 'POST',
       headers: getAuthHeader(),
@@ -227,7 +205,8 @@ export const api = {
     return handleResponse(res);
   },
 
-  async updateCollectionAccount(id: string, data: Partial<CollectionAccount>): Promise<CollectionAccount> {
+  /** Only the collector and area of a running loan can change. */
+  async updateCollectionAccount(id: string, data: { assigned_collector_id?: string; collection_area?: string }): Promise<CollectionAccount> {
     const res = await fetch(`${API_BASE}/collection-accounts/${id}`, {
       method: 'PUT',
       headers: getAuthHeader(),
@@ -236,19 +215,11 @@ export const api = {
     return handleResponse(res);
   },
 
-  async deleteCollectionAccount(id: string): Promise<{ message: string }> {
+  /** Cancels a loan issued by mistake; refused once any payment has been taken. */
+  async cancelLoan(id: string): Promise<{ message: string }> {
     const res = await fetch(`${API_BASE}/collection-accounts/${id}`, {
       method: 'DELETE',
       headers: getAuthHeader(),
-    });
-    return handleResponse(res);
-  },
-
-  async updateDailyCollection(id: string, data: Partial<DailyCollectionRecord>): Promise<DailyCollectionRecord> {
-    const res = await fetch(`${API_BASE}/daily-collections/${id}`, {
-      method: 'PUT',
-      headers: getAuthHeader(),
-      body: JSON.stringify(data),
     });
     return handleResponse(res);
   },
@@ -288,22 +259,22 @@ export const api = {
     return handleResponse(res);
   },
 
-  async bulkCollect(data: {
-    items: Array<{
-      collection_account_id: string;
-      amount_paid: number;
-      payment_mode?: string;
-      collector_id?: string;
-      remarks?: string;
-    }>;
-    collection_date?: string;
-    payment_mode?: string;
-    collector_id?: string;
-  }): Promise<{ success: boolean; processed_count: number; total_collected: number; receipts: Receipt[] }> {
-    const res = await fetch(`${API_BASE}/daily-collections/bulk-collect`, {
+  /** Undoes one of today's payments (by payment ID or receipt number). */
+  async undoPayment(paymentOrReceiptId: string, by: { name: string; role: string }): Promise<{ success: boolean; account: CollectionAccount; dailyRecord?: DailyCollectionRecord }> {
+    const res = await fetch(`${API_BASE}/payments/${encodeURIComponent(paymentOrReceiptId)}/undo`, {
       method: 'POST',
       headers: getAuthHeader(),
-      body: JSON.stringify(data),
+      body: JSON.stringify({ by: by.name, role: by.role }),
+    });
+    return handleResponse(res);
+  },
+
+  /** Saves a photo (data URL, already shrunk in the browser) and returns where it is served from. */
+  async uploadPhoto(dataUrl: string): Promise<{ url: string }> {
+    const res = await fetch(`${API_BASE}/uploads`, {
+      method: 'POST',
+      headers: getAuthHeader(),
+      body: JSON.stringify({ data_url: dataUrl }),
     });
     return handleResponse(res);
   },
@@ -487,7 +458,7 @@ export const api = {
     return handleResponse(res);
   },
 
-  // Audit Logs & Settings
+  // Audit Logs & Data
   async getAuditLogs(): Promise<AuditLog[]> {
     const res = await fetch(`${API_BASE}/audit-logs`, {
       headers: getAuthHeader(),
@@ -495,23 +466,8 @@ export const api = {
     return handleResponse(res);
   },
 
-  async getSettings(): Promise<SystemSettings> {
-    const res = await fetch(`${API_BASE}/settings`, {
-      headers: getAuthHeader(),
-    });
-    return handleResponse(res);
-  },
-
-  async updateSettings(data: Partial<SystemSettings>): Promise<SystemSettings> {
-    const res = await fetch(`${API_BASE}/settings`, {
-      method: 'PUT',
-      headers: getAuthHeader(),
-      body: JSON.stringify(data),
-    });
-    return handleResponse(res);
-  },
-
-  async resetDatabase(): Promise<{ message: string }> {
+  /** Replaces the live data with the committed sample data set. */
+  async loadSampleData(): Promise<{ message: string }> {
     const res = await fetch(`${API_BASE}/seed/reset`, {
       method: 'POST',
       headers: getAuthHeader(),

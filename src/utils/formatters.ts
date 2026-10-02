@@ -2,11 +2,14 @@
 
 export function formatCurrency(amount: number | undefined | null): string {
   if (amount === undefined || amount === null || isNaN(amount)) return '₹0';
+  // Whole rupees stay short (₹100); paise are shown when present (₹133.33) so the
+  // amount on screen is exactly what gets recorded.
+  const hasPaise = Math.round(amount * 100) % 100 !== 0;
   return new Intl.NumberFormat('en-IN', {
     style: 'currency',
     currency: 'INR',
-    maximumFractionDigits: 0,
-    minimumFractionDigits: 0,
+    maximumFractionDigits: hasPaise ? 2 : 0,
+    minimumFractionDigits: hasPaise ? 2 : 0,
   }).format(amount);
 }
 

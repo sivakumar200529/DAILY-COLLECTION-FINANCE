@@ -1,5 +1,9 @@
 // DAILY COLLECTION - Comprehensive TypeScript Type Definitions
 
+import type { LoanOverride } from '../../shared/finance';
+export type { LoanOverride, OverridableField, LoanCalculation, LoanTerms } from '../../shared/finance';
+export type { AppConfig, CompanyProfile, LoanProduct, MasterLists, Numbering, NumberingRule, NumberingKind, ConfigSection, DefaultLocation } from '../../shared/config';
+
 export type Role = 'ADMIN' | 'CUSTOMER' | 'COLLECTOR';
 
 export interface User {
@@ -117,20 +121,6 @@ export interface CustomerNote {
   created_at: string;
 }
 
-export interface CollectionPlan {
-  id: string;
-  plan_name: string;
-  requested_amount: number; // e.g. 10,000
-  disbursed_amount: number; // e.g. 8,800
-  daily_collection: number; // e.g. 100
-  collection_days: number;  // e.g. 100
-  total_repayment: number;  // e.g. 10,000 (Daily * Days)
-  finance_margin: number;   // e.g. 1,200 (Total Repayment - Disbursed)
-  status: 'ACTIVE' | 'INACTIVE';
-  description?: string;
-  created_at: string;
-}
-
 export type CollectionAccountStatus = 'ACTIVE' | 'COMPLETED' | 'OVERDUE' | 'PENDING' | 'CANCELLED';
 
 export interface CollectionAccount {
@@ -160,11 +150,16 @@ export interface CollectionAccount {
   assigned_collector_name: string;
   collection_area: string;
   status: CollectionAccountStatus;
+  /** Terms that differ from the loan product the account was issued under. */
+  overrides?: LoanOverride[];
+  /** Days a running loan is behind schedule (sent by the server; drives "Not paying"). */
+  days_behind?: number;
   created_at: string;
   updated_at: string;
 }
 
-export type PaymentMode = 'Cash' | 'Razorpay UPI' | 'Razorpay NetBanking' | 'UPI' | 'Bank Transfer' | 'Other';
+/** One of Configuration → Master Lists → payment modes. */
+export type PaymentMode = string;
 export type DailyCollectionStatus = 'PAID' | 'PARTIAL' | 'PENDING' | 'MISSED' | 'ADVANCE';
 
 export interface DailyCollectionRecord {
@@ -213,7 +208,9 @@ export interface PaymentTransaction {
   collector_name: string;
   previous_balance: number;
   remaining_balance: number;
-  status: 'SUCCESS' | 'PARTIAL' | 'ADVANCE';
+  /** CANCELLED = undone; kept on record but left out of totals. */
+  status: 'SUCCESS' | 'PARTIAL' | 'ADVANCE' | 'CANCELLED';
+  cancelled_at?: string;
   transaction_ref?: string;
   remarks?: string;
   created_at: string;
@@ -237,6 +234,9 @@ export interface Receipt {
   date: string;
   created_at: string;
   remarks?: string;
+  /** Set when the payment behind this receipt was undone. */
+  status?: 'CANCELLED';
+  cancelled_at?: string;
 }
 
 export interface Collector {
@@ -289,27 +289,16 @@ export interface AuditLog {
   timestamp: string;
 }
 
-export interface SystemSettings {
-  company_name: string;
-  company_tagline: string;
-  company_address: string;
-  company_phone: string;
-  company_email: string;
-  company_logo?: string;
-  receipt_prefix: string;
-  currency: string;
-  default_collection_days: number;
-  default_payment_mode: PaymentMode;
-  notifications_enabled: boolean;
-}
-
 // 360-degree aggregated Customer profile
 export interface Customer360Profile {
   personal: CustomerPersonalDetails;
   address?: CustomerAddress;
   business?: BusinessDetails;
   accounts: CollectionAccount[];
+  /** The running loan, if any. */
   activeAccount?: CollectionAccount;
+  /** The newest loan (running or closed). */
+  latestAccount?: CollectionAccount;
   recentPayments: PaymentTransaction[];
   receipts: Receipt[];
   documents: CustomerDocument[];
@@ -343,14 +332,8 @@ export interface DashboardStats {
   totalDisbursed: number;
   totalRepayment: number;
   overdueCustomersCount: number;
-}
-
-export interface DashboardCharts {
-  dailyTrend: { date: string; expected: number; collected: number; pending: number }[];
-  monthlyTrend: { month: string; target: number; collected: number; disbursed: number }[];
-  paymentStatusDistribution: { name: string; value: number; color: string }[];
-  financeSummary: { name: string; amount: number; fill: string }[];
-  areaPerformance: { area: string; collected: number; target: number }[];
+  /** Running loans at least `not_paying_after_days` behind schedule. */
+  notPayingCount: number;
 }
 
 // Monthly Excel Report row format

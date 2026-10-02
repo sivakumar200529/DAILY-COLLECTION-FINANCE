@@ -81,8 +81,8 @@ export const translations: Record<string, { en: string; ta: string }> = {
     ta: 'வசூல் அறிக்கைகள்',
   },
   notifications: {
-    en: 'Notifications',
-    ta: 'அறிவிப்புகள்',
+    en: 'Messages',
+    ta: 'செய்திகள்',
   },
   settings: {
     en: 'Settings',
@@ -93,7 +93,7 @@ export const translations: Record<string, { en: string; ta: string }> = {
     ta: 'கணினி அமைப்புகள்',
   },
   logout: {
-    en: 'Logout',
+    en: 'Sign out',
     ta: 'வெளியேறு',
   },
 
@@ -129,8 +129,8 @@ export const translations: Record<string, { en: string; ta: string }> = {
     ta: '2. வசூல் முகவர்',
   },
   roleCustomer: {
-    en: '3. CUSTOMER',
-    ta: '3. வாடிக்கையாளர்',
+    en: 'Customer',
+    ta: 'வாடிக்கையாளர்',
   },
   adminTitle: {
     en: '1. Administrator (Can Do Anything)',
@@ -240,7 +240,7 @@ export const translations: Record<string, { en: string; ta: string }> = {
   },
   cancel: {
     en: 'Cancel',
-    ta: 'ரத்து செய்',
+    ta: 'வேண்டாம்',
   },
   submit: {
     en: 'Submit',
@@ -261,8 +261,8 @@ export const translations: Record<string, { en: string; ta: string }> = {
     ta: 'தினசரி தவணை',
   },
   paidToday: {
-    en: 'Paid Today',
-    ta: 'இன்று செலுத்தியது',
+    en: 'Paid',
+    ta: 'கட்டியது',
   },
   remainingBalance: {
     en: 'Remaining Balance',
@@ -297,8 +297,8 @@ export const translations: Record<string, { en: string; ta: string }> = {
     ta: 'வசூல் விகிதம்',
   },
   loanClosed: {
-    en: 'LOAN CLOSED',
-    ta: 'கடன் முடிந்தது',
+    en: 'Last loan closed',
+    ta: 'கடைசி கடன் முடிந்தது',
   },
   nilDue: {
     en: 'Nil Due',
@@ -479,12 +479,12 @@ export const translations: Record<string, { en: string; ta: string }> = {
     ta: 'விரைவு செயல்கள்',
   },
   viewAllNotifications: {
-    en: 'View All Notifications',
-    ta: 'அனைத்து அறிவிப்புகளையும் பார்க்க',
+    en: 'See all messages',
+    ta: 'எல்லா செய்திகளையும் பார்',
   },
   noNotifications: {
-    en: 'No notifications yet',
-    ta: 'அறிவிப்புகள் எதுவும் இல்லை',
+    en: 'No messages yet',
+    ta: 'இன்னும் செய்திகள் இல்லை',
   },
   date: {
     en: 'Date',
@@ -793,8 +793,8 @@ export const translations: Record<string, { en: string; ta: string }> = {
     ta: 'அடையாளம்',
   },
   shopName: {
-    en: 'Shop / Business Name',
-    ta: 'கடை / வணிகப் பெயர்',
+    en: 'Shop name',
+    ta: 'கடையின் பெயர்',
   },
   businessType: {
     en: 'Business Type',
@@ -917,8 +917,8 @@ export const translations: Record<string, { en: string; ta: string }> = {
     ta: 'கள வசூல் அதிகாரிகள்',
   },
   addCollector: {
-    en: 'Add Collection Officer',
-    ta: 'புதிய வசூல் அதிகாரியைச் சேர்க்க',
+    en: 'Add collector',
+    ta: 'வசூலிப்பாளரைச் சேர்',
   },
   collectorName: {
     en: 'Collector Name',
@@ -933,8 +933,8 @@ export const translations: Record<string, { en: string; ta: string }> = {
     ta: 'வசூல் பகுதிகள்',
   },
   addArea: {
-    en: 'Add Collection Area',
-    ta: 'புதிய வசூல் பகுதியைச் சேர்க்க',
+    en: 'Add area',
+    ta: 'பகுதியைச் சேர்',
   },
   areaName: {
     en: 'Area Name',
@@ -993,6 +993,960 @@ export const translations: Record<string, { en: string; ta: string }> = {
   payNow: {
     en: 'Pay Now',
     ta: 'உடனே செலுத்தவும்',
+  },
+
+  // Simplified screens (plain words for everyday users)
+  navHome: {
+    en: 'Home',
+    ta: 'முகப்பு',
+  },
+  navCollect: {
+    en: 'Collect',
+    ta: 'வசூல்',
+  },
+  navStaffAreas: {
+    en: 'Staff & areas',
+    ta: 'பணியாளர் & பகுதிகள்',
+  },
+  navMyDay: {
+    en: 'My day',
+    ta: 'இன்றைய கணக்கு',
+  },
+  navPassbook: {
+    en: 'Passbook',
+    ta: 'கணக்குப் புத்தகம்',
+  },
+  navMessages: {
+    en: 'Messages',
+    ta: 'செய்திகள்',
+  },
+  more: {
+    en: 'More',
+    ta: 'மேலும்',
+  },
+  menu: {
+    en: 'Menu',
+    ta: 'மெனு',
+  },
+  roleOffice: {
+    en: 'Office',
+    ta: 'அலுவலகம்',
+  },
+  lightScreen: {
+    en: 'Light screen',
+    ta: 'வெளிர் திரை',
+  },
+  darkScreen: {
+    en: 'Dark screen',
+    ta: 'இருண்ட திரை',
+  },
+  whoAreYou: {
+    en: 'Who are you?',
+    ta: 'நீங்கள் யார்?',
+  },
+  username: {
+    en: 'Username',
+    ta: 'பயனர் பெயர்',
+  },
+  mobileOrId: {
+    en: 'Mobile number or ID',
+    ta: 'மொபைல் எண் அல்லது ஐடி',
+  },
+  pin: {
+    en: 'PIN',
+    ta: 'பின் எண் (PIN)',
+  },
+  hide: {
+    en: 'Hide',
+    ta: 'மறை',
+  },
+  show: {
+    en: 'Show',
+    ta: 'காட்டு',
+  },
+  loginFailed: {
+    en: 'Could not sign in. Check the mobile/ID and PIN.',
+    ta: 'உள்நுழைய முடியவில்லை. மொபைல்/ஐடி மற்றும் பின் எண்ணைச் சரிபார்க்கவும்.',
+  },
+  demoAccountsNote: {
+    en: 'Demo accounts are filled in when you choose who you are (testing only).',
+    ta: 'நீங்கள் யார் என்று தேர்ந்தெடுத்தவுடன் டெமோ கணக்கு நிரப்பப்படும் (சோதனைக்கு மட்டும்).',
+  },
+  all: {
+    en: 'All',
+    ta: 'அனைத்தும்',
+  },
+  yes: {
+    en: 'Yes',
+    ta: 'ஆம்',
+  },
+  no: {
+    en: 'No',
+    ta: 'இல்லை',
+  },
+  back: {
+    en: 'Back',
+    ta: 'பின்செல்',
+  },
+  remove: {
+    en: 'Remove',
+    ta: 'நீக்கு',
+  },
+  yesRemove: {
+    en: 'Yes, remove',
+    ta: 'ஆம், நீக்கு',
+  },
+  removed: {
+    en: 'Removed',
+    ta: 'நீக்கப்பட்டது',
+  },
+  saved: {
+    en: 'Saved',
+    ta: 'சேமிக்கப்பட்டது',
+  },
+  change: {
+    en: 'Change',
+    ta: 'மாற்று',
+  },
+  give: {
+    en: 'Give',
+    ta: 'கொடு',
+  },
+  name: {
+    en: 'Name',
+    ta: 'பெயர்',
+  },
+  call: {
+    en: 'Call',
+    ta: 'அழை',
+  },
+  of: {
+    en: 'of',
+    ta: '/',
+  },
+  day: {
+    en: 'day',
+    ta: 'நாள்',
+  },
+  default: {
+    en: 'default',
+    ta: 'இயல்பு',
+  },
+  showMore: {
+    en: 'Show more',
+    ta: 'மேலும் காட்டு',
+  },
+  nothingFound: {
+    en: 'Nothing found',
+    ta: 'எதுவும் கிடைக்கவில்லை',
+  },
+  nothingYet: {
+    en: 'Nothing yet',
+    ta: 'இன்னும் எதுவும் இல்லை',
+  },
+  nobodyHere: {
+    en: 'Nobody here',
+    ta: 'இங்கே யாரும் இல்லை',
+  },
+  searchCustomers: {
+    en: 'Search name, shop or mobile',
+    ta: 'பெயர், கடை அல்லது மொபைல் தேடு',
+  },
+  inactive: {
+    en: 'Inactive',
+    ta: 'செயலில் இல்லை',
+  },
+  INACTIVE: {
+    en: 'Inactive',
+    ta: 'செயலில் இல்லை',
+  },
+  cannotBeUndone: {
+    en: 'This cannot be undone.',
+    ta: 'இதைத் திரும்பப் பெற முடியாது.',
+  },
+  balance: {
+    en: 'Balance',
+    ta: 'மீதி',
+  },
+  fullBalance: {
+    en: 'Full balance',
+    ta: 'முழு மீதித் தொகை',
+  },
+  paidSoFar: {
+    en: 'Paid',
+    ta: 'இதுவரை கட்டியது',
+  },
+  paidButton: {
+    en: 'Paid',
+    ta: 'கட்டினார்',
+  },
+  tabPaid: {
+    en: 'Paid',
+    ta: 'கட்டியவர்',
+  },
+  notPaid: {
+    en: 'Not paid',
+    ta: 'கட்டவில்லை',
+  },
+  dailyPayment: {
+    en: 'Daily payment',
+    ta: 'தினசரி தவணை',
+  },
+  collectDaily: {
+    en: 'Collect',
+    ta: 'தினசரி தவணை',
+  },
+  perDayFor: {
+    en: 'a day for',
+    ta: '×',
+  },
+  interest: {
+    en: 'Interest',
+    ta: 'வட்டி',
+  },
+  interestPercent: {
+    en: 'Interest %',
+    ta: 'வட்டி %',
+  },
+  loanAmount: {
+    en: 'Loan amount',
+    ta: 'கடன் தொகை',
+  },
+  loanType: {
+    en: 'Loan type',
+    ta: 'கடன் வகை',
+  },
+  loanTypes: {
+    en: 'Loan types',
+    ta: 'கடன் வகைகள்',
+  },
+  giveNow: {
+    en: 'Give now',
+    ta: 'இப்போது கையில் கொடுப்பது',
+  },
+  given: {
+    en: 'Given',
+    ta: 'கொடுத்தது',
+  },
+  disbursed: {
+    en: 'disbursed',
+    ta: 'கொடுத்தது',
+  },
+  lastDay: {
+    en: 'Last day',
+    ta: 'கடைசி நாள்',
+  },
+  toCollect: {
+    en: 'To collect',
+    ta: 'வசூலிக்க வேண்டியது',
+  },
+  collected: {
+    en: 'Collected',
+    ta: 'வசூலானது',
+  },
+  left: {
+    en: 'Left',
+    ta: 'மீதி',
+  },
+  stillToCollect: {
+    en: 'Still to collect',
+    ta: 'இன்னும் வசூலிக்க வேண்டியது',
+  },
+  balanceToCollect: {
+    en: 'Balance to collect',
+    ta: 'வசூலிக்க வேண்டிய மீதி',
+  },
+  collectedToday: {
+    en: 'Collected today',
+    ta: 'இன்று வசூலானது',
+  },
+  collectedThisMonth: {
+    en: 'Collected this month',
+    ta: 'இந்த மாதம் வசூலானது',
+  },
+  givenOut: {
+    en: 'Money given out',
+    ta: 'கொடுத்த மொத்தப் பணம்',
+  },
+  interestEarned: {
+    en: 'Interest earned',
+    ta: 'கிடைத்த வட்டி',
+  },
+  amountBehind: {
+    en: 'Amount behind',
+    ta: 'தவறிய தொகை',
+  },
+  runningLoans: {
+    en: 'running loans',
+    ta: 'நடப்பு கடன்கள்',
+  },
+  tabToCollect: {
+    en: 'To collect',
+    ta: 'வசூலிக்க வேண்டியவர்',
+  },
+  otherAmount: {
+    en: 'Other amount',
+    ta: 'வேறு தொகை',
+  },
+  daysNotPaid: {
+    en: 'days not paid',
+    ta: 'நாட்கள் கட்டவில்லை',
+  },
+  printList: {
+    en: 'Print list',
+    ta: 'பட்டியலை அச்சிடு',
+  },
+  showingOneCustomer: {
+    en: 'Showing one customer',
+    ta: 'ஒரு வாடிக்கையாளர் மட்டும் காட்டப்படுகிறார்',
+  },
+  showEveryone: {
+    en: 'Show everyone',
+    ta: 'அனைவரையும் காட்டு',
+  },
+  allDoneToday: {
+    en: 'Everyone is done for today',
+    ta: 'இன்று அனைவரிடமும் வசூல் முடிந்தது',
+  },
+  undo: {
+    en: 'Undo',
+    ta: 'திரும்பப் பெறு',
+  },
+  undoQuestion: {
+    en: 'Undo this payment?',
+    ta: 'இந்தப் பணத்தைத் திரும்பப் பெறவா?',
+  },
+  undoExplain: {
+    en: 'The receipt will be marked cancelled and the balance goes back.',
+    ta: 'ரசீது "ரத்து" என்று குறிக்கப்படும், மீதித் தொகை முன்பு இருந்தபடி ஆகும்.',
+  },
+  yesUndo: {
+    en: 'Yes, undo',
+    ta: 'ஆம், திரும்பப் பெறு',
+  },
+  paymentUndone: {
+    en: 'Payment undone',
+    ta: 'பணம் திரும்பப் பெறப்பட்டது',
+  },
+  paymentSaved: {
+    en: 'Payment saved',
+    ta: 'பணம் சேமிக்கப்பட்டது',
+  },
+  cancelled: {
+    en: 'Cancelled',
+    ta: 'ரத்து',
+  },
+  why: {
+    en: 'Why?',
+    ta: 'ஏன்?',
+  },
+  noteOptional: {
+    en: 'Note (optional)',
+    ta: 'குறிப்பு (விருப்பம்)',
+  },
+  saveNotPaid: {
+    en: 'Save as not paid',
+    ta: 'கட்டவில்லை எனச் சேமி',
+  },
+  todayPlusMissed: {
+    en: 'Today + missed',
+    ta: 'இன்று + தவறியது',
+  },
+  amountFrom: {
+    en: 'Amount from',
+    ta: 'தொகை:',
+  },
+  orTypeAmount: {
+    en: 'Or type the amount',
+    ta: 'அல்லது தொகையை உள்ளிடவும்',
+  },
+  moreThanBalance: {
+    en: 'More than the balance',
+    ta: 'மீதித் தொகையை விட அதிகம்',
+  },
+  enterAmount: {
+    en: 'Enter an amount',
+    ta: 'தொகையை உள்ளிடவும்',
+  },
+  paidBy: {
+    en: 'Paid by',
+    ta: 'கட்டிய விதம்',
+  },
+  todaysReceipts: {
+    en: 'Today\'s receipts',
+    ta: 'இன்றைய ரசீதுகள்',
+  },
+  noPaymentsYet: {
+    en: 'No payments yet',
+    ta: 'இன்னும் கட்டணம் எதுவும் இல்லை',
+  },
+  receiptNo: {
+    en: 'Receipt No',
+    ta: 'ரசீது எண்',
+  },
+  collectedBy: {
+    en: 'Collected by',
+    ta: 'வசூலித்தவர்',
+  },
+  searchReceipts: {
+    en: 'Receipt number, name or shop',
+    ta: 'ரசீது எண், பெயர் அல்லது கடை',
+  },
+  openCollect: {
+    en: 'Open Collect',
+    ta: 'வசூலுக்குச் செல்',
+  },
+  'Shop closed': {
+    en: 'Shop closed',
+    ta: 'கடை மூடியிருந்தது',
+  },
+  'No money today': {
+    en: 'No money today',
+    ta: 'இன்று பணம் இல்லை',
+  },
+  'Asked to come later': {
+    en: 'Asked to come later',
+    ta: 'பிறகு வரச் சொன்னார்',
+  },
+  'Customer not there': {
+    en: 'Customer not there',
+    ta: 'வாடிக்கையாளர் இல்லை',
+  },
+  tabPaying: {
+    en: 'Paying',
+    ta: 'கட்டுபவர்கள்',
+  },
+  tabNotPaying: {
+    en: 'Not paying',
+    ta: 'தவணை தவறியவர்கள்',
+  },
+  tabNoLoan: {
+    en: 'No loan',
+    ta: 'கடன் இல்லை',
+  },
+  tabPayments: {
+    en: 'Payments',
+    ta: 'கட்டியவை',
+  },
+  tabDetails: {
+    en: 'Details',
+    ta: 'விவரங்கள்',
+  },
+  giveLoan: {
+    en: 'Give loan',
+    ta: 'கடன் கொடு',
+  },
+  giveLoanNow: {
+    en: 'Give a loan now',
+    ta: 'இப்போதே கடன் கொடு',
+  },
+  noLoanYet: {
+    en: 'No loan yet',
+    ta: 'இன்னும் கடன் இல்லை',
+  },
+  noRunningLoan: {
+    en: 'No running loan',
+    ta: 'நடப்பு கடன் இல்லை',
+  },
+  pastLoans: {
+    en: 'Past loans',
+    ta: 'பழைய கடன்கள்',
+  },
+  customerNotFound: {
+    en: 'Customer not found',
+    ta: 'வாடிக்கையாளர் கிடைக்கவில்லை',
+  },
+  customerSince: {
+    en: 'Customer since',
+    ta: 'வாடிக்கையாளரான நாள்',
+  },
+  editCustomer: {
+    en: 'Edit customer',
+    ta: 'வாடிக்கையாளர் விவரத்தை மாற்று',
+  },
+  moreDetails: {
+    en: 'More details',
+    ta: 'மேலும் விவரங்கள்',
+  },
+  otherPhone: {
+    en: 'Other phone',
+    ta: 'மற்றொரு போன்',
+  },
+  customerPhoto: {
+    en: 'Customer photo',
+    ta: 'வாடிக்கையாளர் படம்',
+  },
+  shopPhoto: {
+    en: 'Shop photo',
+    ta: 'கடை படம்',
+  },
+  usualInterest: {
+    en: 'Usual interest % for this shop',
+    ta: 'இந்தக் கடைக்கு வழக்கமான வட்டி %',
+  },
+  useShopMargin: {
+    en: 'Shop usual',
+    ta: 'கடையின் வழக்கம்',
+  },
+  needName: {
+    en: 'Enter the name.',
+    ta: 'பெயரை உள்ளிடவும்.',
+  },
+  needMobile: {
+    en: 'Enter a 10-digit mobile number.',
+    ta: '10 இலக்க மொபைல் எண்ணை உள்ளிடவும்.',
+  },
+  needShop: {
+    en: 'Enter the shop name.',
+    ta: 'கடையின் பெயரை உள்ளிடவும்.',
+  },
+  needArea: {
+    en: 'Choose the area.',
+    ta: 'பகுதியைத் தேர்ந்தெடுக்கவும்.',
+  },
+  needAddress: {
+    en: 'Enter the address.',
+    ta: 'முகவரியை உள்ளிடவும்.',
+  },
+  selectArea: {
+    en: 'Choose area',
+    ta: 'பகுதியைத் தேர்ந்தெடு',
+  },
+  selectCollector: {
+    en: 'Choose collector',
+    ta: 'வசூலிப்பாளரைத் தேர்ந்தெடு',
+  },
+  changeCollectorArea: {
+    en: 'Change collector or area',
+    ta: 'வசூலிப்பாளர் அல்லது பகுதியை மாற்று',
+  },
+  cancelLoan: {
+    en: 'Cancel this loan',
+    ta: 'இந்தக் கடனை ரத்து செய்',
+  },
+  cancelLoanQuestion: {
+    en: 'Cancel this loan?',
+    ta: 'இந்தக் கடனை ரத்து செய்யவா?',
+  },
+  cancelLoanExplain: {
+    en: 'Only for a loan given by mistake. No payments have been taken on it.',
+    ta: 'தவறுதலாகக் கொடுத்த கடனுக்கு மட்டும். இதில் இதுவரை பணம் எதுவும் வசூலிக்கப்படவில்லை.',
+  },
+  yesCancelLoan: {
+    en: 'Yes, cancel loan',
+    ta: 'ஆம், கடனை ரத்து செய்',
+  },
+  loanCancelled: {
+    en: 'Loan cancelled',
+    ta: 'கடன் ரத்து செய்யப்பட்டது',
+  },
+  seeAllDays: {
+    en: 'See all days',
+    ta: 'எல்லா நாட்களையும் பார்',
+  },
+  documentAdded: {
+    en: 'Document added',
+    ta: 'ஆவணம் சேர்க்கப்பட்டது',
+  },
+  checked: {
+    en: 'Checked',
+    ta: 'சரிபார்க்கப்பட்டது',
+  },
+  markChecked: {
+    en: 'Mark checked',
+    ta: 'சரிபார்த்தேன்',
+  },
+  notCheckedYet: {
+    en: 'Not checked yet',
+    ta: 'இன்னும் சரிபார்க்கவில்லை',
+  },
+  addDocumentPhoto: {
+    en: 'Photo of the document',
+    ta: 'ஆவணத்தின் படம்',
+  },
+  chooseDocumentType: {
+    en: 'Choose the document type to add a photo',
+    ta: 'படம் சேர்க்க ஆவண வகையைத் தேர்ந்தெடுக்கவும்',
+  },
+  removeDocumentQuestion: {
+    en: 'Remove this document?',
+    ta: 'இந்த ஆவணத்தை நீக்கவா?',
+  },
+  'Business Proof': {
+    en: 'Business Proof',
+    ta: 'வணிகச் சான்று',
+  },
+  'Other Documents': {
+    en: 'Other Documents',
+    ta: 'பிற ஆவணங்கள்',
+  },
+  noteAdded: {
+    en: 'Note added',
+    ta: 'குறிப்பு சேர்க்கப்பட்டது',
+  },
+  writeNote: {
+    en: 'Write a note',
+    ta: 'குறிப்பு எழுதவும்',
+  },
+  changeHistory: {
+    en: 'Change history',
+    ta: 'மாற்றங்களின் வரலாறு',
+  },
+  makeInactive: {
+    en: 'Make customer inactive',
+    ta: 'வாடிக்கையாளரை நிறுத்து',
+  },
+  makeInactiveQuestion: {
+    en: 'Make this customer inactive?',
+    ta: 'இந்த வாடிக்கையாளரை நிறுத்தவா?',
+  },
+  makeInactiveExplain: {
+    en: 'They will not be able to log in, and no new loan can be given.',
+    ta: 'அவரால் உள்நுழைய முடியாது, புதிய கடனும் கொடுக்க முடியாது.',
+  },
+  takePhoto: {
+    en: 'Take photo',
+    ta: 'படம் எடு',
+  },
+  uploading: {
+    en: 'Saving photo...',
+    ta: 'படம் சேமிக்கப்படுகிறது...',
+  },
+  changeTerms: {
+    en: 'Change interest or days',
+    ta: 'வட்டி அல்லது நாட்களை மாற்று',
+  },
+  autoCalculate: {
+    en: 'Work it out for me',
+    ta: 'தானாகக் கணக்கிடு',
+  },
+  seeByMonth: {
+    en: 'See by month',
+    ta: 'மாதவாரியாகப் பார்',
+  },
+  overridesRecorded: {
+    en: 'Changed from the loan type (this is recorded)',
+    ta: 'கடன் வகையிலிருந்து மாற்றியது (இது பதிவு செய்யப்படும்)',
+  },
+  noLoanTypes: {
+    en: 'No loan types – add one in Settings',
+    ta: 'கடன் வகை இல்லை – அமைப்புகளில் சேர்க்கவும்',
+  },
+  loanIssue_NO_PRODUCT: {
+    en: 'Select a loan type.',
+    ta: 'கடன் வகையைத் தேர்ந்தெடுக்கவும்.',
+  },
+  loanIssue_PRODUCT_INACTIVE: {
+    en: 'Loan type "{product}" is switched off.',
+    ta: '"{product}" கடன் வகை நிறுத்தப்பட்டுள்ளது.',
+  },
+  loanIssue_AMOUNT_ZERO: {
+    en: 'Enter the loan amount.',
+    ta: 'கடன் தொகையை உள்ளிடவும்.',
+  },
+  loanIssue_BELOW_MIN: {
+    en: 'The amount must be at least {limit} for "{product}".',
+    ta: '"{product}" கடனுக்குத் தொகை குறைந்தது {limit} இருக்க வேண்டும்.',
+  },
+  loanIssue_ABOVE_MAX: {
+    en: 'The amount must not be more than {limit} for "{product}".',
+    ta: '"{product}" கடனுக்குத் தொகை {limit} ஐ விட அதிகமாக இருக்கக்கூடாது.',
+  },
+  loanIssue_DAYS_ZERO: {
+    en: 'Enter the number of days.',
+    ta: 'நாட்களின் எண்ணிக்கையை உள்ளிடவும்.',
+  },
+  loanIssue_MARGIN_RANGE: {
+    en: 'Interest % must be between 0 and 100.',
+    ta: 'வட்டி % 0 முதல் 100 க்குள் இருக்க வேண்டும்.',
+  },
+  loanIssue_DAILY_ZERO: {
+    en: 'Daily payment must be more than zero.',
+    ta: 'தினசரி தவணை பூஜ்ஜியத்தை விட அதிகமாக இருக்க வேண்டும்.',
+  },
+  loanIssue_NO_START: {
+    en: 'Choose the start date.',
+    ta: 'தொடக்க நாளைத் தேர்ந்தெடுக்கவும்.',
+  },
+  loanIssue_OVERRIDES_NOT_ALLOWED: {
+    en: '"{product}" does not allow changing its terms.',
+    ta: '"{product}" கடன் வகையில் விதிமுறைகளை மாற்ற அனுமதி இல்லை.',
+  },
+  loanIssue_NO_AREA: {
+    en: 'Choose the area.',
+    ta: 'பகுதியைத் தேர்ந்தெடுக்கவும்.',
+  },
+  loanIssue_NO_COLLECTOR: {
+    en: 'Choose the collector.',
+    ta: 'வசூலிப்பாளரைத் தேர்ந்தெடுக்கவும்.',
+  },
+  audit_CREATE_CUSTOMER: {
+    en: 'Customer added',
+    ta: 'வாடிக்கையாளர் சேர்க்கப்பட்டார்',
+  },
+  audit_UPDATE_CUSTOMER: {
+    en: 'Details changed',
+    ta: 'விவரங்கள் மாற்றப்பட்டன',
+  },
+  audit_DEACTIVATE_CUSTOMER: {
+    en: 'Customer made inactive',
+    ta: 'வாடிக்கையாளர் நிறுத்தப்பட்டார்',
+  },
+  audit_DISBURSE_COLLECTION_ACCOUNT: {
+    en: 'Loan given',
+    ta: 'கடன் கொடுக்கப்பட்டது',
+  },
+  audit_OVERRIDE_LOAN_TERMS: {
+    en: 'Loan terms changed from loan type',
+    ta: 'கடன் வகையிலிருந்து விதிமுறைகள் மாற்றப்பட்டன',
+  },
+  audit_UPDATE_COLLECTION_ACCOUNT: {
+    en: 'Collector or area changed',
+    ta: 'வசூலிப்பாளர் அல்லது பகுதி மாற்றப்பட்டது',
+  },
+  audit_CANCEL_LOAN: {
+    en: 'Loan cancelled',
+    ta: 'கடன் ரத்து செய்யப்பட்டது',
+  },
+  audit_COLLECT_PAYMENT: {
+    en: 'Payment collected',
+    ta: 'பணம் வசூலானது',
+  },
+  audit_MISSED_COLLECTION: {
+    en: 'Marked not paid',
+    ta: 'கட்டவில்லை எனக் குறிக்கப்பட்டது',
+  },
+  audit_UNDO_PAYMENT: {
+    en: 'Payment undone',
+    ta: 'பணம் திரும்பப் பெறப்பட்டது',
+  },
+  audit_ADD_NOTE: {
+    en: 'Note added',
+    ta: 'குறிப்பு சேர்க்கப்பட்டது',
+  },
+  audit_UPLOAD_DOCUMENT: {
+    en: 'Document added',
+    ta: 'ஆவணம் சேர்க்கப்பட்டது',
+  },
+  audit_VERIFY_DOCUMENT: {
+    en: 'Document checked',
+    ta: 'ஆவணம் சரிபார்க்கப்பட்டது',
+  },
+  audit_UPDATE_SHOP_MARGIN: {
+    en: 'Usual interest changed',
+    ta: 'வழக்கமான வட்டி மாற்றப்பட்டது',
+  },
+  monthlyRegister: {
+    en: 'Monthly register',
+    ta: 'மாதாந்திர பதிவேடு',
+  },
+  summary: {
+    en: 'Summary',
+    ta: 'சுருக்கம்',
+  },
+  notPayingRule: {
+    en: 'Behind by',
+    ta: 'தவறியது:',
+  },
+  everyonePaying: {
+    en: 'Everyone is paying',
+    ta: 'அனைவரும் கட்டுகிறார்கள்',
+  },
+  byCollector: {
+    en: 'By collector',
+    ta: 'வசூலிப்பாளர் வாரியாக',
+  },
+  thisMonth: {
+    en: 'This month',
+    ta: 'இந்த மாதம்',
+  },
+  editCollector: {
+    en: 'Edit collector',
+    ta: 'வசூலிப்பாளர் விவரத்தை மாற்று',
+  },
+  editArea: {
+    en: 'Edit area',
+    ta: 'பகுதியை மாற்று',
+  },
+  needAreaName: {
+    en: 'Enter the area name.',
+    ta: 'பகுதியின் பெயரை உள்ளிடவும்.',
+  },
+  needCollector: {
+    en: 'Choose the collector.',
+    ta: 'வசூலிப்பாளரைத் தேர்ந்தெடுக்கவும்.',
+  },
+  stopped: {
+    en: 'Stopped',
+    ta: 'நிறுத்தப்பட்டார்',
+  },
+  working: {
+    en: 'Working',
+    ta: 'பணியில் உள்ளார்',
+  },
+  dailyTargetOptional: {
+    en: 'Daily target (optional)',
+    ta: 'தினசரி இலக்கு (விருப்பம்)',
+  },
+  removeCollectorQuestion: {
+    en: 'Remove this collector?',
+    ta: 'இந்த வசூலிப்பாளரை நீக்கவா?',
+  },
+  removeCollectorExplain: {
+    en: 'Only possible when no running loan is assigned to them. Otherwise switch "Working" off.',
+    ta: 'இவருக்கு நடப்பு கடன் எதுவும் இல்லாதபோது மட்டுமே நீக்க முடியும். இல்லையெனில் "பணியில் உள்ளார்" என்பதை அணைக்கவும்.',
+  },
+  removeAreaQuestion: {
+    en: 'Remove this area?',
+    ta: 'இந்தப் பகுதியை நீக்கவா?',
+  },
+  removeAreaExplain: {
+    en: 'Only possible when no running loan is in this area.',
+    ta: 'இந்தப் பகுதியில் நடப்பு கடன் எதுவும் இல்லாதபோது மட்டுமே நீக்க முடியும்.',
+  },
+  businessDetails: {
+    en: 'Business',
+    ta: 'நிறுவனம்',
+  },
+  businessName: {
+    en: 'Business name',
+    ta: 'நிறுவனப் பெயர்',
+  },
+  emailOptional: {
+    en: 'Email (optional)',
+    ta: 'மின்னஞ்சல் (விருப்பம்)',
+  },
+  printedOnReceipts: {
+    en: 'These are printed on every receipt.',
+    ta: 'இவை ஒவ்வொரு ரசீதிலும் அச்சிடப்படும்.',
+  },
+  paymentsAndReasons: {
+    en: 'Payments',
+    ta: 'பணம்',
+  },
+  testing: {
+    en: 'Testing',
+    ta: 'சோதனை',
+  },
+  paymentWays: {
+    en: 'Ways customers pay',
+    ta: 'வாடிக்கையாளர்கள் கட்டும் வழிகள்',
+  },
+  defaultPaymentMode: {
+    en: 'Used for one-tap "Paid"',
+    ta: 'ஒரே தட்டில் "கட்டினார்" என்பதற்கான வழி',
+  },
+  notPaidReasons: {
+    en: 'Reasons for "Not paid"',
+    ta: '"கட்டவில்லை" என்பதற்கான காரணங்கள்',
+  },
+  notPayingAfterDays: {
+    en: 'Count as "Not paying" after how many missed days?',
+    ta: 'எத்தனை நாள் தவறிய பிறகு "தவணை தவறியவர்" எனக் கணக்கிடலாம்?',
+  },
+  defaultArea: {
+    en: 'Area for new customers',
+    ta: 'புதிய வாடிக்கையாளர்களுக்கான பகுதி',
+  },
+  loanTypesDesc: {
+    en: 'Every loan starts from a loan type. If "can change" is on, staff may change interest, days or daily payment for one loan; each change is recorded.',
+    ta: 'ஒவ்வொரு கடனும் ஒரு கடன் வகையிலிருந்து தொடங்குகிறது. "மாற்றலாம்" இயக்கத்தில் இருந்தால், ஒரு கடனுக்கு வட்டி, நாட்கள் அல்லது தினசரி தவணையை ஊழியர்கள் மாற்றலாம்; ஒவ்வொரு மாற்றமும் பதிவு செய்யப்படும்.',
+  },
+  addLoanType: {
+    en: 'Add loan type',
+    ta: 'கடன் வகையைச் சேர்',
+  },
+  editLoanType: {
+    en: 'Edit loan type',
+    ta: 'கடன் வகையை மாற்று',
+  },
+  canChange: {
+    en: 'Can change per loan',
+    ta: 'ஒரு கடனுக்கு மாற்றலாம்',
+  },
+  productName: {
+    en: 'Name',
+    ta: 'பெயர்',
+  },
+  minAmount: {
+    en: 'Min amount',
+    ta: 'குறைந்த தொகை',
+  },
+  maxAmount: {
+    en: 'Max amount',
+    ta: 'அதிக தொகை',
+  },
+  zeroNoLimit: {
+    en: '0 means no limit.',
+    ta: '0 என்றால் வரம்பு இல்லை.',
+  },
+  collectionPeriods: {
+    en: 'Collection periods (days)',
+    ta: 'வசூல் காலங்கள் (நாட்கள்)',
+  },
+  defaultDays: {
+    en: 'Default period',
+    ta: 'இயல்பு காலம்',
+  },
+  allowOverrides: {
+    en: 'Staff can change interest, days and daily payment for one loan (recorded)',
+    ta: 'ஒரு கடனுக்கு வட்டி, நாட்கள், தினசரி தவணையை ஊழியர்கள் மாற்றலாம் (பதிவு செய்யப்படும்)',
+  },
+  removeLoanTypeQuestion: {
+    en: 'Remove this loan type?',
+    ta: 'இந்தக் கடன் வகையை நீக்கவா?',
+  },
+  removeLoanTypeExplain: {
+    en: 'A loan type already used by loans cannot be removed; switch it to Inactive instead.',
+    ta: 'ஏற்கனவே கடன்களில் பயன்படுத்திய கடன் வகையை நீக்க முடியாது; அதற்குப் பதிலாக "செயலில் இல்லை" என மாற்றவும்.',
+  },
+  forTestingOnly: {
+    en: 'For testing only',
+    ta: 'சோதனைக்கு மட்டும்',
+  },
+  sampleDataDesc: {
+    en: 'Loading the sample data removes ALL customers, loans, payments and settings, and puts back the sample set kept in data/sample_data.json.',
+    ta: 'மாதிரித் தரவை ஏற்றினால் அனைத்து வாடிக்கையாளர்கள், கடன்கள், பணம் மற்றும் அமைப்புகள் நீக்கப்பட்டு, data/sample_data.json இல் உள்ள மாதிரி மீண்டும் வைக்கப்படும்.',
+  },
+  loadSampleData: {
+    en: 'Load sample data',
+    ta: 'மாதிரித் தரவை ஏற்று',
+  },
+  loadSampleQuestion: {
+    en: 'Remove all data and load the sample?',
+    ta: 'எல்லா தரவையும் நீக்கி மாதிரியை ஏற்றவா?',
+  },
+  yesLoadSample: {
+    en: 'Yes, load sample',
+    ta: 'ஆம், மாதிரியை ஏற்று',
+  },
+  hello: {
+    en: 'Hello',
+    ta: 'வணக்கம்',
+  },
+  passbookUnavailable: {
+    en: 'Your passbook could not be opened. Please call the office.',
+    ta: 'உங்கள் கணக்குப் புத்தகத்தைத் திறக்க முடியவில்லை. அலுவலகத்தை அழைக்கவும்.',
+  },
+  notPaidYetToday: {
+    en: 'Not paid yet today',
+    ta: 'இன்று இன்னும் கட்டவில்லை',
+  },
+  loanFullyPaid: {
+    en: 'Loan fully paid. Thank you!',
+    ta: 'கடன் முழுவதும் கட்டப்பட்டது. நன்றி!',
+  },
+  yourCollector: {
+    en: 'Your collector',
+    ta: 'உங்கள் வசூலிப்பாளர்',
+  },
+  myPayments: {
+    en: 'My payments',
+    ta: 'நான் கட்டியவை',
+  },
+  myDetails: {
+    en: 'My details',
+    ta: 'என் விவரங்கள்',
   },
 };
 
@@ -1633,6 +2587,15 @@ export function getTranslation(key: string, lang: Language, fallback?: string): 
     }
   }
 
+  reportMissingTamil(key, fallback);
   return item?.en || fallback || key;
+}
+
+// While developing, list every text that has no Tamil yet (once each) so gaps are easy to fix.
+const reportedMissing = new Set<string>();
+function reportMissingTamil(key: string, fallback?: string) {
+  if (!import.meta.env.DEV || reportedMissing.has(key)) return;
+  reportedMissing.add(key);
+  console.warn(`[i18n] Missing Tamil for "${key}"${fallback && fallback !== key ? ` (${fallback})` : ''}`);
 }
 

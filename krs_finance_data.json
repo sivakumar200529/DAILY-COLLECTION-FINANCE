@@ -1977,60 +1977,6 @@
       "shop_photo": "https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=500"
     }
   ],
-  "collection_plans": [
-    {
-      "id": "PLAN100_10K",
-      "plan_name": "Standard 100-Day Plan (₹10,000)",
-      "requested_amount": 10000,
-      "disbursed_amount": 8800,
-      "daily_collection": 100,
-      "collection_days": 100,
-      "total_repayment": 10000,
-      "finance_margin": 1200,
-      "status": "ACTIVE",
-      "description": "Standard Daily Collection plan: ₹10,000 requested → ₹8,800 disbursed → ₹100 × 100 days → ₹10,000 collected → ₹1,200 margin.",
-      "created_at": "2026-01-01T00:00:00.000Z"
-    },
-    {
-      "id": "PLAN100_20K",
-      "plan_name": "Silver 100-Day Plan (₹20,000)",
-      "requested_amount": 20000,
-      "disbursed_amount": 17600,
-      "daily_collection": 200,
-      "collection_days": 100,
-      "total_repayment": 20000,
-      "finance_margin": 2400,
-      "status": "ACTIVE",
-      "description": "High volume plan: ₹20,000 requested → ₹17,600 disbursed → ₹200 × 100 days → ₹20,000 collected → ₹2,400 margin.",
-      "created_at": "2026-01-01T00:00:00.000Z"
-    },
-    {
-      "id": "PLAN100_50K",
-      "plan_name": "Gold 100-Day Plan (₹50,000)",
-      "requested_amount": 50000,
-      "disbursed_amount": 44000,
-      "daily_collection": 500,
-      "collection_days": 100,
-      "total_repayment": 50000,
-      "finance_margin": 6000,
-      "status": "ACTIVE",
-      "description": "Premium business plan: ₹50,000 requested → ₹44,000 disbursed → ₹500 × 100 days → ₹50,000 collected → ₹6,000 margin.",
-      "created_at": "2026-01-01T00:00:00.000Z"
-    },
-    {
-      "id": "PLAN50_10K",
-      "plan_name": "Express 50-Day Plan (₹10,000)",
-      "requested_amount": 10000,
-      "disbursed_amount": 9000,
-      "daily_collection": 200,
-      "collection_days": 50,
-      "total_repayment": 10000,
-      "finance_margin": 1000,
-      "status": "ACTIVE",
-      "description": "Short cycle plan: ₹10,000 requested → ₹9,000 disbursed → ₹200 × 50 days → ₹10,000 collected → ₹1,000 margin.",
-      "created_at": "2026-01-01T00:00:00.000Z"
-    }
-  ],
   "collection_accounts": [
     {
       "id": "ACC-2026-001",
@@ -167211,17 +167157,155 @@
       "timestamp": "2026-09-30T05:27:23.931Z"
     }
   ],
-  "settings": {
-    "company_name": "DAILY COLLECTION",
-    "company_tagline": "Daily Collection System",
-    "company_address": "Mount Road, Chennai - 600002, Tamil Nadu",
-    "company_phone": "+91 94432 10001",
-    "company_email": "support@dailycollection.com",
-    "company_logo": "",
-    "receipt_prefix": "DC-REC-",
-    "currency": "₹",
-    "default_collection_days": 100,
-    "default_payment_mode": "Cash",
-    "notifications_enabled": true
+  "config": {
+    "company": {
+      "company_name": "DAILY COLLECTION",
+      "company_tagline": "Daily Collection System",
+      "company_address": "Mount Road, Chennai - 600002, Tamil Nadu",
+      "company_phone": "+91 94432 10001",
+      "company_email": "support@dailycollection.com",
+      "company_logo": "",
+      "currency": "₹",
+      "notifications_enabled": true
+    },
+    "masters": {
+      "payment_modes": [
+        "Cash",
+        "UPI",
+        "Razorpay UPI",
+        "Razorpay NetBanking",
+        "Bank Transfer",
+        "Other"
+      ],
+      "default_payment_mode": "Cash",
+      "not_paid_reasons": [
+        "Shop closed",
+        "No money today",
+        "Asked to come later",
+        "Customer not there"
+      ],
+      "not_paying_after_days": 3,
+      "default_location": {
+        "area": "Bazaar Main Road",
+        "city": "Salem",
+        "district": "Salem",
+        "state": "Tamil Nadu",
+        "pincode": "636002"
+      }
+    },
+    "loan_products": [
+      {
+        "id": "PROD-FLEX",
+        "name": "Flexible Daily Loan",
+        "description": "Any amount within limits; choose the collection period.",
+        "margin_percentage": 12,
+        "day_options": [
+          30,
+          50,
+          60,
+          90,
+          100,
+          120
+        ],
+        "default_days": 100,
+        "min_amount": 1000,
+        "max_amount": 500000,
+        "allow_overrides": true,
+        "status": "ACTIVE",
+        "created_at": "2026-01-01T00:00:00.000Z"
+      },
+      {
+        "id": "PLAN100_10K",
+        "name": "Standard 100-Day Plan (₹10,000)",
+        "description": "Standard Daily Collection plan: ₹10,000 requested → ₹8,800 disbursed → ₹100 × 100 days → ₹10,000 collected → ₹1,200 margin.",
+        "margin_percentage": 12,
+        "day_options": [
+          100
+        ],
+        "default_days": 100,
+        "min_amount": 10000,
+        "max_amount": 10000,
+        "allow_overrides": true,
+        "status": "ACTIVE",
+        "created_at": "2026-01-01T00:00:00.000Z"
+      },
+      {
+        "id": "PLAN100_20K",
+        "name": "Silver 100-Day Plan (₹20,000)",
+        "description": "High volume plan: ₹20,000 requested → ₹17,600 disbursed → ₹200 × 100 days → ₹20,000 collected → ₹2,400 margin.",
+        "margin_percentage": 12,
+        "day_options": [
+          100
+        ],
+        "default_days": 100,
+        "min_amount": 20000,
+        "max_amount": 20000,
+        "allow_overrides": true,
+        "status": "ACTIVE",
+        "created_at": "2026-01-01T00:00:00.000Z"
+      },
+      {
+        "id": "PLAN100_50K",
+        "name": "Gold 100-Day Plan (₹50,000)",
+        "description": "Premium business plan: ₹50,000 requested → ₹44,000 disbursed → ₹500 × 100 days → ₹50,000 collected → ₹6,000 margin.",
+        "margin_percentage": 12,
+        "day_options": [
+          100
+        ],
+        "default_days": 100,
+        "min_amount": 50000,
+        "max_amount": 50000,
+        "allow_overrides": true,
+        "status": "ACTIVE",
+        "created_at": "2026-01-01T00:00:00.000Z"
+      },
+      {
+        "id": "PLAN50_10K",
+        "name": "Express 50-Day Plan (₹10,000)",
+        "description": "Short cycle plan: ₹10,000 requested → ₹9,000 disbursed → ₹200 × 50 days → ₹10,000 collected → ₹1,000 margin.",
+        "margin_percentage": 10,
+        "day_options": [
+          50
+        ],
+        "default_days": 50,
+        "min_amount": 10000,
+        "max_amount": 10000,
+        "allow_overrides": true,
+        "status": "ACTIVE",
+        "created_at": "2026-01-01T00:00:00.000Z"
+      }
+    ],
+    "numbering": {
+      "customer": {
+        "prefix": "DC",
+        "include_year": false,
+        "pad": 5,
+        "next": 10032
+      },
+      "account": {
+        "prefix": "ACC-",
+        "include_year": true,
+        "pad": 3,
+        "next": 32
+      },
+      "receipt": {
+        "prefix": "DC-REC-",
+        "include_year": true,
+        "pad": 5,
+        "next": 3694
+      },
+      "collector": {
+        "prefix": "COL",
+        "include_year": false,
+        "pad": 3,
+        "next": 104
+      },
+      "area": {
+        "prefix": "AREA",
+        "include_year": false,
+        "pad": 3,
+        "next": 106
+      }
+    }
   }
 }

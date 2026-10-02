@@ -21,26 +21,8 @@ export interface MonthlyBreakdown {
   expectedAmount: number; // e.g. 600
 }
 
-/**
- * Calculates the exact final calendar end date given a start date and collection days.
- * Day 1 is the start date. Day N is start date + (N - 1) calendar days.
- * Uses UTC date math to avoid daylight saving or timezone shifts.
- */
-export function calculateEndDate(startDateStr: string, collectionDays: number): string {
-  if (!startDateStr || collectionDays <= 0) return startDateStr || '';
-  
-  const [y, m, d] = startDateStr.split('-').map(Number);
-  const date = new Date(Date.UTC(y, m - 1, d));
-  
-  // Day 1 is start date, so add (collectionDays - 1) days
-  date.setUTCDate(date.getUTCDate() + (collectionDays - 1));
-  
-  const endYear = date.getUTCFullYear();
-  const endMonth = String(date.getUTCMonth() + 1).padStart(2, '0');
-  const endDay = String(date.getUTCDate()).padStart(2, '0');
-  
-  return `${endYear}-${endMonth}-${endDay}`;
-}
+// End-date math is shared with the server so previews match stored accounts.
+export { calculateEndDate } from '../../shared/finance';
 
 /**
  * Generates the full day-by-day collection schedule from Day 1 to Day N.
