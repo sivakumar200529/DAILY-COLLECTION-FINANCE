@@ -18,6 +18,7 @@ import {
   MonthlyReportData,
   AppConfig,
   ConfigSection,
+  LoanRequest,
 } from '../types';
 
 /** Payload for issuing a loan; money values are computed by the server from these terms. */
@@ -470,6 +471,29 @@ export const api = {
   async loadSampleData(): Promise<{ message: string }> {
     const res = await fetch(`${API_BASE}/seed/reset`, {
       method: 'POST',
+      headers: getAuthHeader(),
+    });
+    return handleResponse(res);
+  },
+
+  // Customer Loan Renewal Requests
+  async requestLoanRenewal(data: {
+    customer_id: string;
+    requested_amount: number;
+    collection_days?: number;
+    purpose?: string;
+    remarks?: string;
+  }): Promise<{ success: boolean; request: LoanRequest }> {
+    const res = await fetch(`${API_BASE}/customer/loan-request`, {
+      method: 'POST',
+      headers: getAuthHeader(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(res);
+  },
+
+  async getCustomerLoanRequests(customerId: string): Promise<LoanRequest[]> {
+    const res = await fetch(`${API_BASE}/customer/loan-requests?customer_id=${encodeURIComponent(customerId)}`, {
       headers: getAuthHeader(),
     });
     return handleResponse(res);

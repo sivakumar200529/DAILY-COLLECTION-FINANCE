@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Printer, Search, CheckCircle2, Users } from 'lucide-react';
+import { Printer, Search, CheckCircle2, Users, MapPin, ArrowUpDown } from 'lucide-react';
 import { Area, Collector, DailyCollectionRecord, Receipt, User } from '../../types';
 import { api } from '../../services/api';
 import { formatCurrency, formatDate } from '../../utils/formatters';
@@ -13,6 +13,8 @@ import { OtherAmountSheet } from './OtherAmountSheet';
 import { NotPaidSheet } from './NotPaidSheet';
 import { PaymentDoneSheet } from './PaymentDoneSheet';
 import { PassbookDrawer } from './PassbookDrawer';
+import { AgentCollectQrModal } from './AgentCollectQrModal';
+import { QuickHistoryModal } from './QuickHistoryModal';
 import { CollectTab, dayState, matchesSearch, quickAmount } from './collectHelpers';
 
 interface CollectScreenProps {
@@ -52,6 +54,10 @@ export const CollectScreen: React.FC<CollectScreenProps> = ({ currentUser, focus
   const [passbookFor, setPassbookFor] = useState<DailyCollectionRecord | null>(null);
   const [undoFor, setUndoFor] = useState<{ receiptNumber: string; name: string; amount: number } | null>(null);
   const [showRegister, setShowRegister] = useState<boolean>(false);
+  const [qrFor, setQrFor] = useState<DailyCollectionRecord | null>(null);
+  const [historyFor, setHistoryFor] = useState<DailyCollectionRecord | null>(null);
+  const [selectedStreet, setSelectedStreet] = useState<string>('ALL');
+  const [routeSort, setRouteSort] = useState<'route' | 'street' | 'balance' | 'name'>('route');
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -171,7 +177,29 @@ export const CollectScreen: React.FC<CollectScreenProps> = ({ currentUser, focus
     paid: records.filter(r => dayState(r) === 'paid').length,
     notPaid: records.filter(r => dayState(r) === 'not-paid').length,
   };
-  const visible = (focused ?? records.filter(r => tab === 'all' || dayState(r) === tab)).filter(r => matchesSearch(r, search));
+  const streets = Array.from(new Set(records.map(r => r.street || r.collection_area).filter(Boolean))).sort();
+
+  let baseList = focused ?? records.filter(r => tab === 'all' || dayState(r) === tab);
+  if (selectedStreet !== 'ALL') {
+    baseList = baseList.filter(r => (r.street || r.collection_area) === selectedStreet);
+  }
+  const filtered = baseList.filter(r => matchesSearch(r, search));
+
+  const visible = [...filtered].sort((a, b) => {
+    if (routeSort === 'street') {
+      const sA = (a.street || a.collection_area || '').toLowerCase();
+      const sB = (b.street || b.collection_area || '').toLowerCase();
+      if (sA !== sB) return sA.localeCompare(sB);
+      return (a.route_order || 9999) - (b.route_order || 9999);
+    }
+    if (routeSort === 'balance') {
+      return b.balance_remaining - a.balance_remaining;
+    }
+    if (routeSort === 'name') {
+      return a.customer_name.localeCompare(b.customer_name);
+    }
+    return (a.route_order || 9999) - (b.route_order || 9999);
+  });
 
   const totalDue = records.reduce((s, r) => s + r.daily_due, 0);
   const collected = records.reduce((s, r) => s + r.paid_amount, 0);
@@ -181,7 +209,7 @@ export const CollectScreen: React.FC<CollectScreenProps> = ({ currentUser, focus
   return (
     <div className="space-y-4 pb-8">
       <PageTitle
-        title={t('navCollect', 'Collect')}
+        title={t('navCollect', 'Daily Collection')}
         subtitle={date === today ? t('today', 'Today') : formatDate(date)}
         action={<BigButton small icon={Printer} label={t('printList', 'Print list')} onClick={() => setShowRegister(true)} />}
       />
@@ -249,15 +277,65 @@ export const CollectScreen: React.FC<CollectScreenProps> = ({ currentUser, focus
               { id: 'all', label: t('all', 'All'), count: records.length },
             ]}
           />
-          <div className="relative">
-            <Search className="w-5 h-5 text-slate-500 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
-            <input
-              type="search"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              placeholder={t('searchCustomers', 'Search name, shop or mobile')}
-              className="w-full pl-12 pr-4 py-3 bg-navy-950 border border-slate-700 rounded-2xl text-base text-white placeholder-slate-500 focus:border-gold-500 focus:outline-none"
-            />
+
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-2">
+            <div className="relative md:col-span-6">
+              <Search className="w-5 h-5 text-slate-500 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="search"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                placeholder={t('searchCustomers', 'Search name, shop or mobile')}
+                className="w-full pl-12 pr-4 py-3 bg-navy-950 border border-slate-700 rounded-2xl text-base text-white placeholder-slate-500 focus:border-gold-500 focus:outline-none"
+              />
+            </div>
+
+            {/* Street Filter */}
+            <div className="flex items-center gap-2 px-3 py-2 bg-navy-950 border border-slate-700 rounded-2xl md:col-span-3">
+              <MapPin className="w-4 h-4 text-gold-400 flex-shrink-0" />
+              <select
+                value={selectedStreet}
+                onChange={e => setSelectedStreet(e.target.value)}
+                className="bg-transparent text-sm text-white w-full focus:outline-none cursor-pointer"
+                aria-label={t('filterByStreet', 'Filter by Street')}
+              >
+                <option value="ALL" className="bg-navy-900 text-white">
+                  {t('allStreets', 'All Streets')} ({records.length})
+                </option>
+                {streets.map(st => {
+                  const count = records.filter(r => (r.street || r.collection_area) === st).length;
+                  return (
+                    <option key={st} value={st} className="bg-navy-900 text-white">
+                      {st} ({count})
+                    </option>
+                  );
+                })}
+              </select>
+            </div>
+
+            {/* Sort Order */}
+            <div className="flex items-center gap-2 px-3 py-2 bg-navy-950 border border-slate-700 rounded-2xl md:col-span-3">
+              <ArrowUpDown className="w-4 h-4 text-sky-400 flex-shrink-0" />
+              <select
+                value={routeSort}
+                onChange={e => setRouteSort(e.target.value as any)}
+                className="bg-transparent text-sm text-white w-full focus:outline-none cursor-pointer"
+                aria-label={t('sortBy', 'Sort Order')}
+              >
+                <option value="route" className="bg-navy-900 text-white">
+                  {t('routeOrder', 'Route Order (#1, #2...)')}
+                </option>
+                <option value="street" className="bg-navy-900 text-white">
+                  {t('orderByStreet', 'Group by Street (A-Z)')}
+                </option>
+                <option value="balance" className="bg-navy-900 text-white">
+                  {t('byBalance', 'By Balance Remaining')}
+                </option>
+                <option value="name" className="bg-navy-900 text-white">
+                  {t('byName', 'Customer Name (A-Z)')}
+                </option>
+              </select>
+            </div>
           </div>
         </>
       )}
@@ -279,14 +357,16 @@ export const CollectScreen: React.FC<CollectScreenProps> = ({ currentUser, focus
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-          {visible.map(record => (
+          {visible.map((record, index) => (
             <CollectCard
               key={record.id}
               record={record}
               busy={busyId === record.id}
               canCollect={canCollect}
               canUndo={canCollect && !!record.receipt_number}
-              onPaid={() => savePayment(record, quickAmount(record))}
+              stopNumber={index + 1}
+              onPaid={() => savePayment(record, quickAmount(record), 'Cash')}
+              onQrPay={() => setQrFor(record)}
               onOther={() => setOtherFor(record)}
               onNotPaid={() => setNotPaidFor(record)}
               onReceipt={() => record.receipt_number && showReceipt(record.receipt_number, record.mobile_number)}
@@ -295,6 +375,7 @@ export const CollectScreen: React.FC<CollectScreenProps> = ({ currentUser, focus
                 setUndoFor({ receiptNumber: record.receipt_number, name: record.customer_name, amount: record.paid_amount })
               }
               onOpenCustomer={() => (onOpenCustomer ? onOpenCustomer(record.customer_id) : setPassbookFor(record))}
+              onOpenHistory={() => setHistoryFor(record)}
             />
           ))}
         </div>
@@ -352,6 +433,28 @@ export const CollectScreen: React.FC<CollectScreenProps> = ({ currentUser, focus
       )}
       {receiptView && (
         <ReceiptModal receipt={receiptView.receipt} customerMobile={receiptView.phone} onClose={() => setReceiptView(null)} />
+      )}
+      {qrFor && (
+        <AgentCollectQrModal
+          record={qrFor}
+          busy={busyId === qrFor.id}
+          onConfirm={async (amount) => {
+            await savePayment(qrFor, amount, 'UPI');
+            setQrFor(null);
+          }}
+          onClose={() => setQrFor(null)}
+        />
+      )}
+      {historyFor && (
+        <QuickHistoryModal
+          record={historyFor}
+          onShowReceipt={receiptNumber => showReceipt(receiptNumber, historyFor.mobile_number)}
+          onOpenFullPassbook={() => {
+            setPassbookFor(historyFor);
+            setHistoryFor(null);
+          }}
+          onClose={() => setHistoryFor(null)}
+        />
       )}
     </div>
   );

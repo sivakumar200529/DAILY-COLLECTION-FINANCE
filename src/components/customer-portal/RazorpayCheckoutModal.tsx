@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { CollectionAccount, Customer360Profile } from '../../types';
 import { formatCurrency } from '../../utils/formatters';
+import { api } from '../../services/api';
 import { 
   ShieldCheck, 
   X, 
@@ -119,24 +120,15 @@ export const RazorpayCheckoutModal: React.FC<RazorpayCheckoutModalProps> = ({
           ? `Razorpay UPI Payment via ${selectedUpiApp || 'UPI'} (Ref: ${razorpayPayId})`
           : `Razorpay NetBanking via ${selectedBank} (Ref: ${razorpayPayId})`;
 
-        // Post to backend
-        const response = await fetch('/api/daily-collections/collect', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            ...(localStorage.getItem('dc_token') ? { 'Authorization': `Bearer ${localStorage.getItem('dc_token')}` } : {}),
-          },
-          body: JSON.stringify({
-            collection_account_id: account.id,
-            amount_paid: amount,
-            payment_mode: mode,
-            transaction_ref: razorpayPayId,
-            razorpay_payment_id: razorpayPayId,
-            remarks,
-          }),
+        // Post to backend using shared api client
+        const data = await api.collectPayment({
+          collection_account_id: account.id,
+          amount_paid: amount,
+          payment_mode: mode,
+          transaction_ref: razorpayPayId,
+          razorpay_payment_id: razorpayPayId,
+          remarks,
         });
-
-        const data = await response.json();
         
         if (data && data.success) {
           setProcessingState('success');
@@ -146,7 +138,7 @@ export const RazorpayCheckoutModal: React.FC<RazorpayCheckoutModalProps> = ({
           }, 1200);
         } else {
           setProcessingState('failed');
-          setProcessingMessage(data.error || 'Payment confirmation failed.');
+          setProcessingMessage('Payment confirmation failed.');
         }
       } catch (err: any) {
         setProcessingState('failed');

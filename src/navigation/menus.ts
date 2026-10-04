@@ -32,7 +32,7 @@ export interface MenuItem {
 
 const ADMIN_MENU: MenuItem[] = [
   { id: 'home', labelKey: 'navHome', label: 'Home', icon: Home },
-  { id: 'collect', labelKey: 'navCollect', label: 'Collect', icon: CalendarCheck },
+  { id: 'collect', labelKey: 'navCollect', label: 'Daily Collection', icon: CalendarCheck },
   { id: 'customers', labelKey: 'customers', label: 'Customers', icon: Users },
   { id: 'reports', labelKey: 'reports', label: 'Reports', icon: FileText },
   { id: 'staff', labelKey: 'navStaffAreas', label: 'Staff & areas', icon: UserCheck },
@@ -40,7 +40,7 @@ const ADMIN_MENU: MenuItem[] = [
 ];
 
 const COLLECTOR_MENU: MenuItem[] = [
-  { id: 'collect', labelKey: 'navCollect', label: 'Collect', icon: CalendarCheck },
+  { id: 'collect', labelKey: 'navCollect', label: 'Daily Collection', icon: CalendarCheck },
   { id: 'my-day', labelKey: 'navMyDay', label: 'My day', icon: ClipboardList },
 ];
 

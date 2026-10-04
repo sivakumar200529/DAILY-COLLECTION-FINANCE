@@ -190,6 +190,18 @@ export interface DailyCollectionRecord {
   route_order?: number;
   missed_days_count?: number;
   missed_amount?: number;
+  street?: string;
+  landmark?: string;
+  shop_address?: string;
+  whatsapp_number?: string;
+  recent_history?: Array<{
+    date: string;
+    amount: number;
+    status: 'PAID' | 'MISSED' | 'PENDING' | 'BEFORE_START';
+    mode?: string;
+    receipt_number?: string;
+    reason?: string;
+  }>;
 }
 
 export interface PaymentTransaction {
@@ -272,8 +284,22 @@ export interface Notification {
   customer_id?: string;
   title: string;
   message: string;
-  type: 'PAYMENT' | 'MISSED' | 'OVERDUE' | 'KYC' | 'ACCOUNT' | 'SYSTEM';
+  type: 'PAYMENT' | 'MISSED' | 'OVERDUE' | 'KYC' | 'ACCOUNT' | 'SYSTEM' | 'LOAN_REQUEST';
   is_read: boolean;
+  created_at: string;
+  action_url?: string;
+}
+
+export interface LoanRequest {
+  id: string;
+  customer_id: string;
+  customer_name: string;
+  shop_name: string;
+  requested_amount: number;
+  collection_days: number;
+  purpose?: string;
+  remarks?: string;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
   created_at: string;
 }
 

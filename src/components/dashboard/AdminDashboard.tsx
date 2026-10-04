@@ -49,7 +49,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenCollect, o
         <ProgressBar percent={stats.todayCollectionRate} />
         <div className="flex items-center gap-2 text-sm font-bold text-gold-400">
           <CalendarCheck className="w-5 h-5" />
-          {t('openCollect', 'Open Collect')} →
+          {t('openCollect', 'Open Daily Collection')} →
         </div>
       </button>
 

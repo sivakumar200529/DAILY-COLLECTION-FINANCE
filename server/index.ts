@@ -24,7 +24,7 @@ import {
   User,
 } from './db.ts';
 import { createLoanAccount, planLoan, commitLoan, LoanValidationError, IssueLoanInput, LoanParty, PlannedLoan } from './loans.ts';
-import { todayIso, roundMoney } from '../shared/finance.ts';
+import { todayIso, roundMoney, addDaysIso } from '../shared/finance.ts';
 import { CONFIG_SECTIONS, ConfigSection, LoanProduct as ConfigLoanProduct, MasterLists, Numbering, NumberingKind } from '../shared/config.ts';
 
 const app = express();
@@ -556,7 +556,7 @@ app.get('/api/customers/:id/360', (req: Request, res: Response) => {
   const running = accounts.find(isRunning);
   const activeAccount = running ? withDaysBehind(running) : undefined;
   const latestAccount = accounts[0];
-  const recentPayments = db.payments.filter(p => p.customer_id === id).slice(-60);
+  const recentPayments = db.payments.filter(p => p.customer_id === id);
   const receipts = db.receipts.filter(r => r.customer_id === id);
   const documents = db.documents.filter(d => d.customer_id === id);
   const notes = db.customer_notes.filter(n => n.customer_id === id);
@@ -812,10 +812,73 @@ app.delete('/api/collection-accounts/:id', (req: Request, res: Response) => {
 // -------------------------------------------------------------
 // 7. DAILY COLLECTION SCREEN & PAYMENT PROCESSING
 // -------------------------------------------------------------
+function get7DayHistory(accId: string, startDate: string, dateStr: string, db: any) {
+  const history: Array<{
+    date: string;
+    amount: number;
+    status: 'PAID' | 'MISSED' | 'PENDING' | 'BEFORE_START';
+    mode?: string;
+    receipt_number?: string;
+    reason?: string;
+  }> = [];
+
+  for (let i = -6; i <= 0; i++) {
+    const dIso = addDaysIso(dateStr, i);
+    const payment = db.payments?.find((p: any) => p.collection_account_id === accId && p.collection_date === dIso && p.status !== 'CANCELLED');
+    const dailyRec = db.daily_collections?.find((d: any) => d.collection_account_id === accId && d.date === dIso);
+
+    if (payment) {
+      history.push({
+        date: dIso,
+        amount: payment.amount_paid,
+        status: 'PAID',
+        mode: payment.payment_mode,
+        receipt_number: payment.receipt_number,
+      });
+    } else if (dailyRec && dailyRec.paid_amount > 0) {
+      history.push({
+        date: dIso,
+        amount: dailyRec.paid_amount,
+        status: 'PAID',
+        mode: dailyRec.payment_mode,
+        receipt_number: dailyRec.receipt_number,
+      });
+    } else if (dailyRec && dailyRec.status === 'MISSED') {
+      history.push({
+        date: dIso,
+        amount: 0,
+        status: 'MISSED',
+        reason: dailyRec.reason || 'Missed',
+      });
+    } else if (dIso === dateStr) {
+      history.push({
+        date: dIso,
+        amount: 0,
+        status: 'PENDING',
+      });
+    } else if (dIso < startDate) {
+      history.push({
+        date: dIso,
+        amount: 0,
+        status: 'BEFORE_START',
+      });
+    } else {
+      history.push({
+        date: dIso,
+        amount: 0,
+        status: 'MISSED',
+        reason: 'Not paid',
+      });
+    }
+  }
+  return history;
+}
+
 app.get('/api/daily-collections', (req: Request, res: Response) => {
   const db = repository.getDb();
   const dateStr = (req.query.date as string) || todayIso();
   const area = req.query.area as string;
+  const street = req.query.street as string;
   const collector = req.query.collector as string;
   const status = req.query.status as string;
   const search = String(req.query.search || '').toLowerCase().trim();
@@ -868,30 +931,75 @@ app.get('/api/daily-collections', (req: Request, res: Response) => {
     d => d.date === dateStr && (collectingIds.has(d.collection_account_id) || d.paid_amount > 0 || d.status === 'MISSED')
   );
 
+  // Enrich with customer address, business details, whatsapp, and 7-day history
+  let enriched = records.map(rec => {
+    const cust = db.customers.find(c => c.id === rec.customer_id);
+    const addr = db.customer_addresses?.find(a => a.customer_id === rec.customer_id);
+    const biz = db.business_details?.find(b => b.customer_id === rec.customer_id);
+    const acc = db.collection_accounts.find(a => a.id === rec.collection_account_id);
+
+    const streetName = biz?.shop_address || addr?.street || rec.collection_area || '';
+    const landmark = biz?.landmark || addr?.landmark || '';
+    const shopAddress = biz?.shop_address || addr?.street || '';
+    const whatsapp = cust?.whatsapp_number || cust?.mobile_number || rec.mobile_number || '';
+
+    return {
+      ...rec,
+      street: streetName,
+      landmark: landmark,
+      shop_address: shopAddress,
+      whatsapp_number: whatsapp,
+      recent_history: get7DayHistory(rec.collection_account_id, acc?.start_date || rec.date, dateStr, db),
+    };
+  });
+
   if (area && area !== 'ALL') {
-    records = records.filter(r => r.collection_area === area);
+    enriched = enriched.filter(r => r.collection_area === area);
+  }
+  if (street && street !== 'ALL') {
+    enriched = enriched.filter(r => r.street === street || r.collection_area === street);
   }
   if (collector && collector !== 'ALL') {
-    records = records.filter(r => r.collector_id === collector || r.collector_name === collector);
+    enriched = enriched.filter(r => r.collector_id === collector || r.collector_name === collector);
   }
   if (status === 'MISSED_DAYS') {
-    records = records.filter(r => (r.missed_days_count || 0) > 0);
+    enriched = enriched.filter(r => (r.missed_days_count || 0) > 0);
   } else if (status && status !== 'ALL') {
-    records = records.filter(r => r.status === status);
+    enriched = enriched.filter(r => r.status === status);
   }
   if (search) {
-    records = records.filter(r =>
+    enriched = enriched.filter(r =>
       r.customer_id.toLowerCase().includes(search) ||
       r.customer_name.toLowerCase().includes(search) ||
       r.shop_name.toLowerCase().includes(search) ||
-      r.mobile_number.includes(search)
+      r.mobile_number.includes(search) ||
+      (r.street && r.street.toLowerCase().includes(search)) ||
+      (r.landmark && r.landmark.toLowerCase().includes(search))
     );
   }
 
   // Sort by route_order by default
-  records.sort((a, b) => (a.route_order || 9999) - (b.route_order || 9999));
+  enriched.sort((a, b) => (a.route_order || 9999) - (b.route_order || 9999));
 
-  res.json(records);
+  res.json(enriched);
+});
+
+app.post('/api/daily-collections/reorder-route', (req: Request, res: Response) => {
+  const db = repository.getDb();
+  const { items } = req.body as { items: Array<{ id: string; route_order: number }> };
+  if (!Array.isArray(items)) {
+    return res.status(400).json({ error: 'Items array is required' });
+  }
+
+  items.forEach(item => {
+    const rec = db.daily_collections.find(d => d.id === item.id);
+    if (rec) {
+      rec.route_order = item.route_order;
+    }
+  });
+
+  repository.save();
+  res.json({ ok: true });
 });
 
 /**
@@ -1628,6 +1736,75 @@ app.put('/api/notifications/read-all', (req: Request, res: Response) => {
   db.notifications.forEach(n => { n.is_read = true; });
   repository.save();
   res.json({ success: true });
+});
+
+app.post('/api/customer/loan-request', (req: Request, res: Response) => {
+  const { customer_id, requested_amount, collection_days, purpose, remarks } = req.body;
+  if (!customer_id || !requested_amount) {
+    return res.status(400).json({ error: 'Customer ID and requested amount are required' });
+  }
+  const db = repository.getDb();
+  const customer = db.customers.find(c => c.id === customer_id);
+  const biz = db.business_details.find(b => b.customer_id === customer_id);
+  const now = new Date().toISOString();
+  const reqId = `LR-${Date.now().toString().slice(-6)}`;
+
+  const customerName = customer ? customer.full_name : customer_id;
+  const shopName = biz?.shop_name || customerName;
+
+  // Add notification for Admin
+  const adminNotif: any = {
+    id: `NOTIF-${Date.now()}-A`,
+    recipient_role: 'ADMIN',
+    type: 'LOAN_REQUEST',
+    title: 'New Loan Renewal Request',
+    message: `${customerName} (${shopName}) has requested a new loan of ₹${Number(requested_amount).toLocaleString('en-IN')} for ${collection_days || 100} days.${purpose ? ` Purpose: ${purpose}` : ''}`,
+    created_at: now,
+    is_read: false,
+    customer_id,
+  };
+  db.notifications.unshift(adminNotif);
+
+  // Add confirmation notification for Customer
+  const custNotif: any = {
+    id: `NOTIF-${Date.now()}-C`,
+    recipient_role: 'CUSTOMER',
+    type: 'LOAN_REQUEST',
+    title: 'Loan Renewal Request Received',
+    message: `Your request for ₹${Number(requested_amount).toLocaleString('en-IN')} has been submitted successfully (Ref: ${reqId}). The office team will contact you.`,
+    created_at: now,
+    is_read: false,
+    customer_id,
+  };
+  db.notifications.unshift(custNotif);
+
+  if (!db.loan_requests) db.loan_requests = [];
+  const requestRecord = {
+    id: reqId,
+    customer_id,
+    customer_name: customerName,
+    shop_name: shopName,
+    requested_amount: Number(requested_amount),
+    collection_days: Number(collection_days || 100),
+    purpose: purpose || 'Working Capital',
+    remarks: remarks || '',
+    status: 'PENDING' as const,
+    created_at: now,
+  };
+  db.loan_requests.unshift(requestRecord);
+
+  repository.save();
+  res.json({ success: true, request: requestRecord });
+});
+
+app.get('/api/customer/loan-requests', (req: Request, res: Response) => {
+  const customerId = req.query.customer_id as string;
+  const db = repository.getDb();
+  let list = db.loan_requests || [];
+  if (customerId) {
+    list = list.filter(r => r.customer_id === customerId);
+  }
+  res.json(list);
 });
 
 app.get('/api/audit-logs', (req: Request, res: Response) => {

@@ -5,6 +5,7 @@ import { formatCurrency, formatDateTime } from '../../utils/formatters';
 import { useLanguage } from '../../context/LanguageContext';
 import { useConfig } from '../../context/ConfigContext';
 import { receiptMessage, shareOnWhatsApp } from '../../utils/receiptShare';
+import { printReceiptSlip } from '../../utils/printHelper';
 
 interface ReceiptModalProps {
   receipt: Receipt | null;
@@ -20,13 +21,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ receipt, customerMob
   const cancelled = receipt.status === 'CANCELLED';
 
   const handlePrint = () => {
-    document.body.classList.add('print-receipt');
-    const cleanup = () => {
-      document.body.classList.remove('print-receipt');
-      window.removeEventListener('afterprint', cleanup);
-    };
-    window.addEventListener('afterprint', cleanup);
-    window.print();
+    printReceiptSlip(receipt, company, t);
   };
 
   const row = (label: string, value: React.ReactNode, strong = false) => (

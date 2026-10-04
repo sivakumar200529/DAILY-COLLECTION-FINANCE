@@ -1001,8 +1001,8 @@ export const translations: Record<string, { en: string; ta: string }> = {
     ta: 'முகப்பு',
   },
   navCollect: {
-    en: 'Collect',
-    ta: 'வசூல்',
+    en: 'Daily Collection',
+    ta: 'தினசரி வசூல்',
   },
   navStaffAreas: {
     en: 'Staff & areas',
@@ -1393,8 +1393,8 @@ export const translations: Record<string, { en: string; ta: string }> = {
     ta: 'ரசீது எண், பெயர் அல்லது கடை',
   },
   openCollect: {
-    en: 'Open Collect',
-    ta: 'வசூலுக்குச் செல்',
+    en: 'Open Daily Collection',
+    ta: 'தினசரி வசூலுக்குச் செல்',
   },
   'Shop closed': {
     en: 'Shop closed',
@@ -2559,6 +2559,40 @@ const englishToTamilMap: Record<string, string> = {
   '100-day dynamic formula': '100-நாள் மாறும் சூத்திரம்',
   'e.g. silver 100-day plan (₹20,000)': 'உதா: சில்வர் 100-நாள் திட்டம் (₹20,000)',
   'optional plan description...': 'விருப்பமான திட்ட விளக்கம்...',
+
+  // Agent Field Features: Denominations, UPI QR, Contacts & Street Navigation
+  'cash handover & denomination counter': 'பண ஒப்படைப்பு & ரூபாய் நோட்டு கணக்கீடு',
+  'count cash notes for office handover and verify against app collections': 'அலுவலக ஒப்படைப்பிற்கு ரூபாய் நோட்டுகளை எண்ணி பயன்பாட்டுடன் சரிபார்க்கவும்',
+  'coins / change amount': 'நாணயங்கள் / சில்லறைத் தொகை',
+  'physical cash counted': 'எண்ணிய ரொக்கப் பணம்',
+  'expected cash in app': 'பயன்பாட்டில் உள்ள ரொக்கம்',
+  'digital / upi': 'டிஜிட்டல் / UPI',
+  'cash matches exactly!': 'ரொக்கப் பணம் சரியாக உள்ளது!',
+  '0 discrepancy': '0 முரண்பாடு',
+  'shortage': 'குறைவு',
+  'counted cash is less than recorded collections': 'எண்ணிய பணம் வசூலிக்கப்பட்ட தொகையை விட குறைவாக உள்ளது',
+  'excess': 'கூடுதல்',
+  'counted cash is more than recorded collections': 'எண்ணிய பணம் வசூலிக்கப்பட்ட தொகையை விட அதிகமாக உள்ளது',
+  'enter counted note quantities above to verify cash before office handover.': 'அலுவலகத்தில் ஒப்படைப்பதற்கு முன் பணத்தை சரிபார்க்க மேலே உள்ள நோட்டுகளின் எண்ணிக்கையை உள்ளிடவும்.',
+  'print handover slip': 'ஒப்படைப்பு ரசீது அச்சிடுக',
+  'share slip on whatsapp': 'வாட்ஸ்அப்பில் சீட்டைப் பகிர்க',
+  'upi qr pay': 'UPI QR கட்டணம்',
+  'customer scans to pay': 'வாடிக்கையாளர் ஸ்கேன் செய்து செலுத்தலாம்',
+  'last 7 days collection': 'கடந்த 7 நாள் வசூல் விவரம்',
+  '7-day history': '7 நாள் வரலாறு',
+  'all streets': 'அனைத்து தெருக்களும்',
+  'filter by street': 'தெரு வாரியாக வடிகட்டு',
+  'route order (#1, #2...)': 'சுற்றுப்பாதை வரிசை (#1, #2...)',
+  'group by street (a-z)': 'தெரு வாரியாகக் குழுவாக்கு (A-Z)',
+  'by balance remaining': 'மீதமுள்ள இருப்பு வாரியாக',
+  'customer name (a-z)': 'வாடிக்கையாளர் பெயர் (A-Z)',
+  'google maps navigation': 'கூகுள் மேப்ஸ் வழிசெலுத்தல்',
+  'whatsapp': 'வாட்ஸ்அப்',
+  'confirm paid (upi)': 'செலுத்தப்பட்டது என உறுதிசெய் (UPI)',
+  'view 100-day passbook': '100-நாள் பாஸ்புக்கைக் காண்க',
+  'official upi vpa': 'அதிகாரப்பூர்வ UPI VPA',
+  'direct deposit to krs finance bank account': 'KRS Finance வங்கி கணக்கில் நேரடியாக வரவு வைக்கப்படும்',
+  '7-day total': '7 நாள் மொத்த வசூல்',
 };
 
 export function getTranslation(key: string, lang: Language, fallback?: string): string {
