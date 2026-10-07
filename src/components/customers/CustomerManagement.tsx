@@ -23,7 +23,7 @@ export const CustomerManagement: React.FC<CustomerManagementProps> = ({ onOpenCu
   const { t } = useLanguage();
   const notPayingAfter = useConfig().config.masters.not_paying_after_days;
   const [customers, setCustomers] = useState<CustomerListItem[] | null>(null);
-  const [tab, setTab] = useState<CustomersTab>(initialTab ?? (initialSearch ? 'all' : 'paying'));
+  const [tab, setTab] = useState<CustomersTab>(initialTab ?? 'all');
   const [search, setSearch] = useState(initialSearch ?? '');
   const [showAdd, setShowAdd] = useState(false);
   const [loanFor, setLoanFor] = useState<string | null>(null);
@@ -34,6 +34,12 @@ export const CustomerManagement: React.FC<CustomerManagementProps> = ({ onOpenCu
   useEffect(() => {
     load();
   }, []);
+
+  useEffect(() => {
+    if (initialTab) {
+      setTab(initialTab);
+    }
+  }, [initialTab]);
 
   const tabOf = (c: CustomerListItem): Exclude<CustomersTab, 'all'> => {
     if (!c.activeAccount) return 'no-loan';

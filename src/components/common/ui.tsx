@@ -118,10 +118,24 @@ export function PillTabs<T extends string>({
 }
 
 const tileTone: Record<'gold' | 'green' | 'red' | 'blue', string> = {
-  gold: 'text-gold-300',
+  gold: 'text-amber-300',
   green: 'text-emerald-400',
   red: 'text-rose-400',
   blue: 'text-sky-300',
+};
+
+const tileBg: Record<'gold' | 'green' | 'red' | 'blue', string> = {
+  gold: 'from-amber-500/10 via-navy-900/70 to-navy-950/90 border-amber-500/25 hover:border-amber-400/40',
+  green: 'from-emerald-500/10 via-navy-900/70 to-navy-950/90 border-emerald-500/25 hover:border-emerald-400/40',
+  red: 'from-rose-500/10 via-navy-900/70 to-navy-950/90 border-rose-500/25 hover:border-rose-400/40',
+  blue: 'from-sky-500/10 via-navy-900/70 to-navy-950/90 border-sky-500/25 hover:border-sky-400/40',
+};
+
+const tileIconBox: Record<'gold' | 'green' | 'red' | 'blue', string> = {
+  gold: 'bg-amber-500/15 border-amber-500/30 text-amber-400',
+  green: 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400',
+  red: 'bg-rose-500/15 border-rose-500/30 text-rose-400',
+  blue: 'bg-sky-500/15 border-sky-500/30 text-sky-400',
 };
 
 export const StatTile: React.FC<{
@@ -134,20 +148,26 @@ export const StatTile: React.FC<{
 }> = ({ label, value, icon: IconCmp, tone = 'gold', hint, onClick }) => {
   const body = (
     <>
-      <div className="flex items-center gap-2 text-slate-300 text-sm font-semibold">
-        <IconCmp className={`w-5 h-5 ${tileTone[tone]}`} />
-        <span>{label}</span>
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-slate-300 text-xs sm:text-sm font-bold truncate">{label}</span>
+        <div className={`p-2 rounded-xl border ${tileIconBox[tone]} flex-shrink-0`}>
+          <IconCmp className="w-4 h-4" />
+        </div>
       </div>
-      <div className={`text-2xl md:text-3xl font-black mt-2 ${tileTone[tone]}`}>{value}</div>
-      {hint && <div className="text-xs text-slate-400 mt-1">{hint}</div>}
+      <div className={`text-2xl sm:text-3xl font-black mt-2 font-mono tracking-tight ${tileTone[tone]}`}>{value}</div>
+      {hint && <div className="text-xs text-slate-400 mt-1 font-medium">{hint}</div>}
     </>
   );
   return onClick ? (
-    <button type="button" onClick={onClick} className="glass-card glass-card-hover rounded-2xl p-4 text-left w-full cursor-pointer">
+    <button
+      type="button"
+      onClick={onClick}
+      className={`glass-card glass-card-hover bg-gradient-to-br ${tileBg[tone]} rounded-2xl p-4 text-left w-full cursor-pointer shadow-lg transition-all relative overflow-hidden`}
+    >
       {body}
     </button>
   ) : (
-    <div className="glass-card rounded-2xl p-4">{body}</div>
+    <div className={`glass-card bg-gradient-to-br ${tileBg[tone]} rounded-2xl p-4 shadow-lg relative overflow-hidden`}>{body}</div>
   );
 };
 
@@ -175,10 +195,18 @@ export const PageTitle: React.FC<{ title: string; subtitle?: string; action?: Re
 );
 
 export const ProgressBar: React.FC<{ percent: number; tone?: 'green' | 'gold' | 'red' }> = ({ percent, tone = 'green' }) => {
-  const color = tone === 'green' ? 'bg-emerald-500' : tone === 'red' ? 'bg-rose-500' : 'bg-gold-500';
+  const color =
+    tone === 'green'
+      ? 'bg-gradient-to-r from-emerald-500 to-teal-400 shadow-sm shadow-emerald-500/50'
+      : tone === 'red'
+      ? 'bg-gradient-to-r from-rose-500 to-pink-500 shadow-sm shadow-rose-500/50'
+      : 'bg-gradient-to-r from-gold-500 to-amber-400 shadow-sm shadow-amber-500/50';
   return (
-    <div className="h-3 rounded-full bg-navy-950 border border-slate-800 overflow-hidden">
-      <div className={`h-full ${color} transition-all`} style={{ width: `${Math.max(0, Math.min(100, percent))}%` }} />
+    <div className="h-3 rounded-full bg-navy-950/90 border border-slate-800/80 overflow-hidden shadow-inner p-0.5">
+      <div
+        className={`h-full ${color} transition-all duration-700 ease-out rounded-full`}
+        style={{ width: `${Math.max(0, Math.min(100, percent))}%` }}
+      />
     </div>
   );
 };

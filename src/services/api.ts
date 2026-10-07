@@ -1,5 +1,6 @@
 import {
   User,
+  Role,
   CustomerPersonalDetails,
   CustomerAddress,
   BusinessDetails,
@@ -114,6 +115,8 @@ export const api = {
     address?: Partial<CustomerAddress>;
     business?: Partial<BusinessDetails>;
     loan?: Omit<IssueLoanPayload, 'customer_id'>;
+    username?: string;
+    password?: string;
   }): Promise<CustomerPersonalDetails & { activeAccount?: CollectionAccount }> {
     const res = await fetch(`${API_BASE}/customers`, {
       method: 'POST',
@@ -123,7 +126,16 @@ export const api = {
     return handleResponse(res);
   },
 
-  async updateCustomer(id: string, data: { personal?: Partial<CustomerPersonalDetails>; address?: Partial<CustomerAddress>; business?: Partial<BusinessDetails> }): Promise<CustomerPersonalDetails> {
+  async updateCustomer(
+    id: string,
+    data: {
+      personal?: Partial<CustomerPersonalDetails>;
+      address?: Partial<CustomerAddress>;
+      business?: Partial<BusinessDetails>;
+      username?: string;
+      password?: string;
+    }
+  ): Promise<CustomerPersonalDetails> {
     const res = await fetch(`${API_BASE}/customers/${id}`, {
       method: 'PUT',
       headers: getAuthHeader(),
@@ -334,7 +346,7 @@ export const api = {
     return handleResponse(res);
   },
 
-  async createCollector(data: Partial<Collector>): Promise<Collector> {
+  async createCollector(data: Partial<Collector> & { username?: string; password?: string }): Promise<Collector> {
     const res = await fetch(`${API_BASE}/collectors`, {
       method: 'POST',
       headers: getAuthHeader(),
@@ -343,7 +355,7 @@ export const api = {
     return handleResponse(res);
   },
 
-  async updateCollector(id: string, data: Partial<Collector>): Promise<Collector> {
+  async updateCollector(id: string, data: Partial<Collector> & { username?: string; password?: string }): Promise<Collector> {
     const res = await fetch(`${API_BASE}/collectors/${id}`, {
       method: 'PUT',
       headers: getAuthHeader(),
@@ -497,5 +509,47 @@ export const api = {
       headers: getAuthHeader(),
     });
     return handleResponse(res);
+  },
+
+  // User Credential & Account Management
+  async getUsers(role?: Role): Promise<User[]> {
+    const url = role ? `${API_BASE}/users?role=${role}` : `${API_BASE}/users`;
+    const res = await fetch(url, { headers: getAuthHeader() });
+    return handleResponse<User[]>(res);
+  },
+
+  async createUser(data: {
+    username: string;
+    password?: string;
+    role: Role;
+    name: string;
+    phone?: string;
+    email?: string;
+    customer_id?: string;
+    collector_id?: string;
+  }): Promise<User> {
+    const res = await fetch(`${API_BASE}/users`, {
+      method: 'POST',
+      headers: getAuthHeader(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse<User>(res);
+  },
+
+  async updateUser(id: string, data: Partial<User>): Promise<User> {
+    const res = await fetch(`${API_BASE}/users/${id}`, {
+      method: 'PUT',
+      headers: getAuthHeader(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse<User>(res);
+  },
+
+  async deleteUser(id: string): Promise<{ success: boolean; message: string }> {
+    const res = await fetch(`${API_BASE}/users/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeader(),
+    });
+    return handleResponse<{ success: boolean; message: string }>(res);
   },
 };

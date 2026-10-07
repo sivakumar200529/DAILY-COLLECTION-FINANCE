@@ -20,6 +20,114 @@ export const translations: Record<string, { en: string; ta: string }> = {
   },
 
   // Navigation Items
+  amount: {
+    en: 'Amount',
+    ta: 'தொகை',
+  },
+  totalAmountWantToCollect: {
+    en: 'Total Amount Want to Collect',
+    ta: 'வசூலிக்க வேண்டிய மொத்த தொகை',
+  },
+  totalBalance: {
+    en: 'Total Balance',
+    ta: 'மொத்த இருப்பு',
+  },
+  totalBalanceCollected: {
+    en: 'Total Balance',
+    ta: 'மொத்த இருப்பு',
+  },
+  onlyCollectedStored: {
+    en: 'Only collected amount stored',
+    ta: 'வசூலான தொகை மட்டுமே சேமிக்கப்படுகிறது',
+  },
+  openingBalance: {
+    en: 'Opening Cash Capital (₹)',
+    ta: 'தொடக்க பண மூலதனம் (₹)',
+  },
+  deductsOnNewLoan: {
+    en: 'Reduces on new customer loan',
+    ta: 'புதிய வாடிக்கையாளர் கடனுக்கு குறையும்',
+  },
+  balanceFormulaNote: {
+    en: 'Deducts for new customer loans, increases as collected',
+    ta: 'புதிய வாடிக்கையாளர் கடனுக்கு குறையும், வசூலில் கூடும்',
+  },
+  reducesWithCollection: {
+    en: 'Reduces as payments are collected',
+    ta: 'வசூலாக வசூலாக குறையும்',
+  },
+  storesAllCollections: {
+    en: 'Only collected cash stored here',
+    ta: 'வசூலான பணம் மட்டுமே இதில் சேரும்',
+  },
+  viewLoans: {
+    en: 'View loans',
+    ta: 'கடன்களைக் காண்க',
+  },
+  refreshed: {
+    en: 'Updated!',
+    ta: 'புதுப்பிக்கப்பட்டது!',
+  },
+  refreshing: {
+    en: 'Refreshing...',
+    ta: 'புதுப்பிக்கிறது...',
+  },
+  todayCollectionFlowNote: {
+    en: 'When collected today: it immediately reduces the Total Amount to Collect, and only the collected amount is stored in Total Balance.',
+    ta: 'இன்று வசூலாகும் பணம் நேரடியாக வசூலிக்க வேண்டிய தொகையைக் குறைத்து, வசூலான தொகை மட்டுமே மொத்த இருப்பில் சேமிக்கப்படுகிறது.',
+  },
+  userManagement: {
+    en: 'User Logins',
+    ta: 'பயனர் உள்நுழைவுகள்',
+  },
+  userAccounts: {
+    en: 'Users & Logins',
+    ta: 'பயனர்கள் & உள்நுழைவுகள்',
+  },
+  addUser: {
+    en: 'Create User',
+    ta: 'புதிய பயனர் உருவாக்கு',
+  },
+  editUser: {
+    en: 'Edit User',
+    ta: 'பயனரைத் திருத்து',
+  },
+  userId: {
+    en: 'User ID / Username',
+    ta: 'பயனர் ஐடி / பெயர்',
+  },
+  allUsers: {
+    en: 'All Users',
+    ta: 'அனைத்து பயனர்கள்',
+  },
+  admins: {
+    en: 'Admins',
+    ta: 'நிர்வாகிகள்',
+  },
+  agents: {
+    en: 'Agents / Collectors',
+    ta: 'வசூலிப்பாளர்கள்',
+  },
+  activeUsers: {
+    en: 'Active',
+    ta: 'செயலில் உள்ளவை',
+  },
+  deactivated: {
+    en: 'Deactivated',
+    ta: 'முடக்கப்பட்டது',
+  },
+  generatePassword: {
+    en: 'Generate PIN',
+    ta: 'பின் உருவாக்கு',
+  },
+  copyCredentials: {
+    en: 'Copy Login',
+    ta: 'உள்நுழைவு நகலெடு',
+  },
+  credentialsCopied: {
+    en: 'Copied to clipboard!',
+    ta: 'நகலெடுக்கப்பட்டது!',
+  },
   dashboard: {
     en: 'Dashboard',
     ta: 'முகப்பு பலகை',

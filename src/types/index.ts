@@ -13,6 +13,7 @@ export interface User {
   role: Role;
   name: string;
   phone: string;
+  password?: string;
   customer_id?: string;
   collector_id?: string;
   is_active: boolean;
@@ -354,12 +355,15 @@ export interface DashboardStats {
   todayCollectionRate: number;
   monthlyCollection: number;
   totalOutstanding: number;
+  totalCollected: number;
   totalFinanceMargin: number;
   totalDisbursed: number;
   totalRepayment: number;
   overdueCustomersCount: number;
   /** Running loans at least `not_paying_after_days` behind schedule. */
   notPayingCount: number;
+  totalBalance?: number;
+  openingBalance?: number;
 }
 
 // Monthly Excel Report row format

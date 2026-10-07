@@ -419,6 +419,18 @@
       "phone": "6369003460",
       "is_active": true,
       "created_at": "2026-09-30T09:08:40.794Z"
+    },
+    {
+      "id": "USR-DC10032",
+      "username": "borrower_101",
+      "email": "",
+      "password": "test_custom_password",
+      "role": "CUSTOMER",
+      "customer_id": "DC10032",
+      "name": "Test Borrower",
+      "phone": "9112233445",
+      "is_active": false,
+      "created_at": "2026-10-07T13:41:49.586Z"
     }
   ],
   "customers": [
@@ -948,6 +960,23 @@
       "status": "ACTIVE",
       "created_at": "2026-09-30T09:08:40.794Z",
       "updated_at": "2026-09-30T09:24:42.379Z"
+    },
+    {
+      "id": "DC10032",
+      "full_name": "Test Borrower",
+      "profile_photo": "",
+      "gender": "Other",
+      "dob": "",
+      "father_or_husband_name": "",
+      "mother_name": "",
+      "marital_status": "Other",
+      "mobile_number": "9112233445",
+      "alternate_number": "",
+      "whatsapp_number": "9112233445",
+      "email": "",
+      "status": "INACTIVE",
+      "created_at": "2026-10-07T13:41:49.586Z",
+      "updated_at": "2026-10-07T13:41:49.724Z"
     }
   ],
   "customer_addresses": [
@@ -1352,6 +1381,19 @@
       "district": "Salem",
       "state": "Tamil Nadu",
       "pincode": "636001",
+      "landmark": ""
+    },
+    {
+      "id": "ADDR-DC10032",
+      "customer_id": "DC10032",
+      "door_number": "",
+      "street": "12 Main Road",
+      "area": "T. Nagar",
+      "village_or_town": "Salem",
+      "city": "Salem",
+      "district": "Salem",
+      "state": "Tamil Nadu",
+      "pincode": "636002",
       "landmark": ""
     }
   ],
@@ -1975,6 +2017,26 @@
       "approx_daily_sales": 12000,
       "business_status": "ACTIVE",
       "shop_photo": "https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=500"
+    },
+    {
+      "id": "SHP-DC10032",
+      "customer_id": "DC10032",
+      "shop_name": "Test Provision",
+      "owner_name": "Test Borrower",
+      "business_type": "",
+      "business_category": "",
+      "shop_mobile": "9112233445",
+      "shop_address": "12 Main Road",
+      "shop_area": "T. Nagar",
+      "shop_city": "Salem",
+      "shop_district": "Salem",
+      "shop_pincode": "636002",
+      "landmark": "",
+      "years_in_business": 0,
+      "approx_monthly_income": 0,
+      "approx_daily_sales": 0,
+      "business_status": "ACTIVE",
+      "shop_photo": ""
     }
   ],
   "collection_accounts": [
@@ -1993,17 +2055,17 @@
       "finance_margin": 1200,
       "start_date": "2026-07-01",
       "expected_end_date": "2026-10-09",
-      "amount_collected": 9300,
-      "remaining_amount": 700,
-      "completed_days": 93,
-      "remaining_days": 7,
-      "collection_percentage": 93,
+      "amount_collected": 9500,
+      "remaining_amount": 500,
+      "completed_days": 95,
+      "remaining_days": 5,
+      "collection_percentage": 95,
       "assigned_collector_id": "COL101",
       "assigned_collector_name": "Murugan S.",
       "collection_area": "Bazaar Main Road",
       "status": "ACTIVE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-10-04T12:15:37.700Z"
+      "updated_at": "2026-10-07T13:42:07.497Z"
     },
     {
       "id": "ACC-2026-002",
@@ -2020,17 +2082,17 @@
       "finance_margin": 2400,
       "start_date": "2026-07-01",
       "expected_end_date": "2026-10-09",
-      "amount_collected": 18600,
-      "remaining_amount": 1400,
-      "completed_days": 93,
-      "remaining_days": 7,
-      "collection_percentage": 93,
+      "amount_collected": 18800,
+      "remaining_amount": 1200,
+      "completed_days": 94,
+      "remaining_days": 6,
+      "collection_percentage": 94,
       "assigned_collector_id": "COL102",
       "assigned_collector_name": "Karthik Raja",
       "collection_area": "Town Hall Road",
       "status": "ACTIVE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-09-30T10:00:00.000Z"
+      "updated_at": "2026-10-07T13:42:16.515Z"
     },
     {
       "id": "ACC-2026-003",
@@ -2047,17 +2109,17 @@
       "finance_margin": 6000,
       "start_date": "2026-07-01",
       "expected_end_date": "2026-10-09",
-      "amount_collected": 46000,
-      "remaining_amount": 4000,
-      "completed_days": 92,
-      "remaining_days": 8,
-      "collection_percentage": 92,
+      "amount_collected": 46500,
+      "remaining_amount": 3500,
+      "completed_days": 93,
+      "remaining_days": 7,
+      "collection_percentage": 93,
       "assigned_collector_id": "COL103",
       "assigned_collector_name": "Saravanan P.",
       "collection_area": "Car Street",
       "status": "ACTIVE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-09-30T10:00:00.000Z"
+      "updated_at": "2026-10-07T13:42:11.883Z"
     },
     {
       "id": "ACC-2026-004",
@@ -2084,7 +2146,7 @@
       "collection_area": "Market Gate",
       "status": "OVERDUE",
       "created_at": "2026-06-15T10:00:00.000Z",
-      "updated_at": "2026-10-04T12:16:21.566Z"
+      "updated_at": "2026-10-07T13:42:19.453Z"
     },
     {
       "id": "ACC-2026-005",
@@ -2138,7 +2200,7 @@
       "collection_area": "Bazaar Main Road",
       "status": "ACTIVE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-10-04T12:15:40.457Z"
+      "updated_at": "2026-10-07T13:42:22.343Z"
     },
     {
       "id": "ACC-2026-007",
@@ -2155,17 +2217,17 @@
       "finance_margin": 2400,
       "start_date": "2026-07-01",
       "expected_end_date": "2026-10-09",
-      "amount_collected": 18200,
-      "remaining_amount": 1800,
-      "completed_days": 91,
-      "remaining_days": 9,
-      "collection_percentage": 91,
+      "amount_collected": 18400,
+      "remaining_amount": 1600,
+      "completed_days": 92,
+      "remaining_days": 8,
+      "collection_percentage": 92,
       "assigned_collector_id": "COL102",
       "assigned_collector_name": "Karthik Raja",
       "collection_area": "Town Hall Road",
       "status": "ACTIVE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-09-30T10:00:00.000Z"
+      "updated_at": "2026-10-07T13:42:25.028Z"
     },
     {
       "id": "ACC-2026-008",
@@ -2182,17 +2244,17 @@
       "finance_margin": 1200,
       "start_date": "2026-07-01",
       "expected_end_date": "2026-10-09",
-      "amount_collected": 9050,
-      "remaining_amount": 950,
-      "completed_days": 90,
-      "remaining_days": 10,
-      "collection_percentage": 90.5,
+      "amount_collected": 9150,
+      "remaining_amount": 850,
+      "completed_days": 91,
+      "remaining_days": 9,
+      "collection_percentage": 91.5,
       "assigned_collector_id": "COL103",
       "assigned_collector_name": "Saravanan P.",
       "collection_area": "Car Street",
       "status": "ACTIVE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-09-30T10:00:00.000Z"
+      "updated_at": "2026-10-07T13:42:27.901Z"
     },
     {
       "id": "ACC-2026-009",
@@ -2209,17 +2271,17 @@
       "finance_margin": 1200,
       "start_date": "2026-07-10",
       "expected_end_date": "2026-10-18",
-      "amount_collected": 8150,
-      "remaining_amount": 1850,
-      "completed_days": 81,
-      "remaining_days": 19,
-      "collection_percentage": 81.5,
+      "amount_collected": 8250,
+      "remaining_amount": 1750,
+      "completed_days": 82,
+      "remaining_days": 18,
+      "collection_percentage": 82.5,
       "assigned_collector_id": "COL101",
       "assigned_collector_name": "Murugan S.",
       "collection_area": "Market Gate",
       "status": "ACTIVE",
       "created_at": "2026-07-10T10:00:00.000Z",
-      "updated_at": "2026-10-04T12:15:57.459Z"
+      "updated_at": "2026-10-07T13:42:31.672Z"
     },
     {
       "id": "ACC-2026-010",
@@ -2236,17 +2298,17 @@
       "finance_margin": 2400,
       "start_date": "2026-07-01",
       "expected_end_date": "2026-10-09",
-      "amount_collected": 18100,
-      "remaining_amount": 1900,
-      "completed_days": 90,
-      "remaining_days": 10,
-      "collection_percentage": 90.5,
+      "amount_collected": 18300,
+      "remaining_amount": 1700,
+      "completed_days": 91,
+      "remaining_days": 9,
+      "collection_percentage": 91.5,
       "assigned_collector_id": "COL102",
       "assigned_collector_name": "Karthik Raja",
       "collection_area": "New Bus Stand Area",
       "status": "ACTIVE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-09-30T10:00:00.000Z"
+      "updated_at": "2026-10-07T13:42:34.247Z"
     },
     {
       "id": "ACC-2026-011",
@@ -2273,7 +2335,7 @@
       "collection_area": "Bazaar Main Road",
       "status": "ACTIVE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-10-04T12:16:27.094Z"
+      "updated_at": "2026-10-07T13:42:36.892Z"
     },
     {
       "id": "ACC-2026-012",
@@ -2290,17 +2352,17 @@
       "finance_margin": 1200,
       "start_date": "2026-07-05",
       "expected_end_date": "2026-10-13",
-      "amount_collected": 8650,
-      "remaining_amount": 1350,
-      "completed_days": 86,
-      "remaining_days": 14,
-      "collection_percentage": 86.5,
+      "amount_collected": 8750,
+      "remaining_amount": 1250,
+      "completed_days": 87,
+      "remaining_days": 13,
+      "collection_percentage": 87.5,
       "assigned_collector_id": "COL102",
       "assigned_collector_name": "Karthik Raja",
       "collection_area": "Town Hall Road",
       "status": "ACTIVE",
       "created_at": "2026-07-05T10:00:00.000Z",
-      "updated_at": "2026-09-30T10:00:00.000Z"
+      "updated_at": "2026-10-07T13:42:39.413Z"
     },
     {
       "id": "ACC-2026-013",
@@ -2317,17 +2379,17 @@
       "finance_margin": 1200,
       "start_date": "2026-07-01",
       "expected_end_date": "2026-10-09",
-      "amount_collected": 8850,
-      "remaining_amount": 1150,
-      "completed_days": 88,
-      "remaining_days": 12,
-      "collection_percentage": 88.5,
+      "amount_collected": 8950,
+      "remaining_amount": 1050,
+      "completed_days": 89,
+      "remaining_days": 11,
+      "collection_percentage": 89.5,
       "assigned_collector_id": "COL103",
       "assigned_collector_name": "Saravanan P.",
       "collection_area": "Car Street",
       "status": "ACTIVE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-09-30T10:00:00.000Z"
+      "updated_at": "2026-10-07T13:42:42.939Z"
     },
     {
       "id": "ACC-2026-014",
@@ -2354,7 +2416,7 @@
       "collection_area": "Market Gate",
       "status": "ACTIVE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-10-04T12:16:24.097Z"
+      "updated_at": "2026-10-07T13:42:45.674Z"
     },
     {
       "id": "ACC-2026-015",
@@ -2371,17 +2433,17 @@
       "finance_margin": 1200,
       "start_date": "2026-07-01",
       "expected_end_date": "2026-10-09",
-      "amount_collected": 8750,
-      "remaining_amount": 1250,
-      "completed_days": 87,
-      "remaining_days": 13,
-      "collection_percentage": 87.5,
+      "amount_collected": 8850,
+      "remaining_amount": 1150,
+      "completed_days": 88,
+      "remaining_days": 12,
+      "collection_percentage": 88.5,
       "assigned_collector_id": "COL102",
       "assigned_collector_name": "Karthik Raja",
       "collection_area": "New Bus Stand Area",
       "status": "ACTIVE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-09-30T10:00:00.000Z"
+      "updated_at": "2026-10-07T13:42:48.280Z"
     },
     {
       "id": "ACC-2026-016",
@@ -2408,7 +2470,7 @@
       "collection_area": "Bazaar Main Road",
       "status": "ACTIVE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-10-04T12:55:21.823Z"
+      "updated_at": "2026-10-07T13:42:50.982Z"
     },
     {
       "id": "ACC-2026-017",
@@ -2425,17 +2487,17 @@
       "finance_margin": 1200,
       "start_date": "2026-07-01",
       "expected_end_date": "2026-10-09",
-      "amount_collected": 8750,
-      "remaining_amount": 1250,
-      "completed_days": 87,
-      "remaining_days": 13,
-      "collection_percentage": 87.5,
+      "amount_collected": 8850,
+      "remaining_amount": 1150,
+      "completed_days": 88,
+      "remaining_days": 12,
+      "collection_percentage": 88.5,
       "assigned_collector_id": "COL102",
       "assigned_collector_name": "Karthik Raja",
       "collection_area": "Town Hall Road",
       "status": "ACTIVE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-09-30T10:00:00.000Z"
+      "updated_at": "2026-10-07T13:42:53.838Z"
     },
     {
       "id": "ACC-2026-018",
@@ -2452,17 +2514,17 @@
       "finance_margin": 6000,
       "start_date": "2026-07-01",
       "expected_end_date": "2026-10-09",
-      "amount_collected": 43750,
-      "remaining_amount": 6250,
-      "completed_days": 87,
-      "remaining_days": 13,
-      "collection_percentage": 87.5,
+      "amount_collected": 44250,
+      "remaining_amount": 5750,
+      "completed_days": 88,
+      "remaining_days": 12,
+      "collection_percentage": 88.5,
       "assigned_collector_id": "COL103",
       "assigned_collector_name": "Saravanan P.",
       "collection_area": "Car Street",
       "status": "ACTIVE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-09-30T10:00:00.000Z"
+      "updated_at": "2026-10-07T13:42:56.452Z"
     },
     {
       "id": "ACC-2026-019",
@@ -2489,7 +2551,7 @@
       "collection_area": "Market Gate",
       "status": "ACTIVE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-10-04T12:16:31.490Z"
+      "updated_at": "2026-10-07T13:42:58.950Z"
     },
     {
       "id": "ACC-2026-020",
@@ -2506,17 +2568,17 @@
       "finance_margin": 1200,
       "start_date": "2026-07-01",
       "expected_end_date": "2026-10-09",
-      "amount_collected": 8650,
-      "remaining_amount": 1350,
-      "completed_days": 86,
-      "remaining_days": 14,
-      "collection_percentage": 86.5,
+      "amount_collected": 8750,
+      "remaining_amount": 1250,
+      "completed_days": 87,
+      "remaining_days": 13,
+      "collection_percentage": 87.5,
       "assigned_collector_id": "COL102",
       "assigned_collector_name": "Karthik Raja",
       "collection_area": "New Bus Stand Area",
       "status": "ACTIVE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-09-30T10:00:00.000Z"
+      "updated_at": "2026-10-07T13:43:01.572Z"
     },
     {
       "id": "ACC-2026-021",
@@ -2543,7 +2605,7 @@
       "collection_area": "Bazaar Main Road",
       "status": "ACTIVE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-10-04T12:56:37.908Z"
+      "updated_at": "2026-10-07T13:43:06.109Z"
     },
     {
       "id": "ACC-2026-022",
@@ -2560,17 +2622,17 @@
       "finance_margin": 1200,
       "start_date": "2026-07-01",
       "expected_end_date": "2026-10-09",
-      "amount_collected": 8650,
-      "remaining_amount": 1350,
-      "completed_days": 86,
-      "remaining_days": 14,
-      "collection_percentage": 86.5,
+      "amount_collected": 8750,
+      "remaining_amount": 1250,
+      "completed_days": 87,
+      "remaining_days": 13,
+      "collection_percentage": 87.5,
       "assigned_collector_id": "COL102",
       "assigned_collector_name": "Karthik Raja",
       "collection_area": "Town Hall Road",
       "status": "ACTIVE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-09-30T10:00:00.000Z"
+      "updated_at": "2026-10-07T13:43:08.639Z"
     },
     {
       "id": "ACC-2026-023",
@@ -2587,17 +2649,17 @@
       "finance_margin": 1200,
       "start_date": "2026-07-01",
       "expected_end_date": "2026-10-09",
-      "amount_collected": 8650,
-      "remaining_amount": 1350,
-      "completed_days": 86,
-      "remaining_days": 14,
-      "collection_percentage": 86.5,
+      "amount_collected": 8750,
+      "remaining_amount": 1250,
+      "completed_days": 87,
+      "remaining_days": 13,
+      "collection_percentage": 87.5,
       "assigned_collector_id": "COL103",
       "assigned_collector_name": "Saravanan P.",
       "collection_area": "Car Street",
       "status": "ACTIVE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-09-30T10:00:00.000Z"
+      "updated_at": "2026-10-07T13:43:11.137Z"
     },
     {
       "id": "ACC-2026-024",
@@ -2624,7 +2686,7 @@
       "collection_area": "Market Gate",
       "status": "ACTIVE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-10-04T12:56:56.084Z"
+      "updated_at": "2026-10-07T13:43:13.840Z"
     },
     {
       "id": "ACC-2026-025",
@@ -2641,17 +2703,17 @@
       "finance_margin": 2400,
       "start_date": "2026-07-01",
       "expected_end_date": "2026-10-09",
-      "amount_collected": 17300,
-      "remaining_amount": 2700,
-      "completed_days": 86,
-      "remaining_days": 14,
-      "collection_percentage": 86.5,
+      "amount_collected": 17500,
+      "remaining_amount": 2500,
+      "completed_days": 87,
+      "remaining_days": 13,
+      "collection_percentage": 87.5,
       "assigned_collector_id": "COL102",
       "assigned_collector_name": "Karthik Raja",
       "collection_area": "New Bus Stand Area",
       "status": "ACTIVE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-09-30T10:00:00.000Z"
+      "updated_at": "2026-10-07T13:43:16.433Z"
     },
     {
       "id": "ACC-2026-026",
@@ -2678,7 +2740,7 @@
       "collection_area": "Bazaar Main Road",
       "status": "ACTIVE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-10-04T12:57:04.565Z"
+      "updated_at": "2026-10-07T13:43:19.058Z"
     },
     {
       "id": "ACC-2026-027",
@@ -2695,17 +2757,17 @@
       "finance_margin": 1200,
       "start_date": "2026-07-01",
       "expected_end_date": "2026-10-09",
-      "amount_collected": 8650,
-      "remaining_amount": 1350,
-      "completed_days": 86,
-      "remaining_days": 14,
-      "collection_percentage": 86.5,
+      "amount_collected": 8750,
+      "remaining_amount": 1250,
+      "completed_days": 87,
+      "remaining_days": 13,
+      "collection_percentage": 87.5,
       "assigned_collector_id": "COL102",
       "assigned_collector_name": "Karthik Raja",
       "collection_area": "Town Hall Road",
       "status": "ACTIVE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-09-30T10:00:00.000Z"
+      "updated_at": "2026-10-07T13:43:21.646Z"
     },
     {
       "id": "ACC-2026-028",
@@ -2722,17 +2784,17 @@
       "finance_margin": 1200,
       "start_date": "2026-07-01",
       "expected_end_date": "2026-10-09",
-      "amount_collected": 8650,
-      "remaining_amount": 1350,
-      "completed_days": 86,
-      "remaining_days": 14,
-      "collection_percentage": 86.5,
+      "amount_collected": 8750,
+      "remaining_amount": 1250,
+      "completed_days": 87,
+      "remaining_days": 13,
+      "collection_percentage": 87.5,
       "assigned_collector_id": "COL103",
       "assigned_collector_name": "Saravanan P.",
       "collection_area": "Car Street",
       "status": "ACTIVE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-09-30T10:00:00.000Z"
+      "updated_at": "2026-10-07T13:43:24.093Z"
     },
     {
       "id": "ACC-2026-029",
@@ -2759,7 +2821,7 @@
       "collection_area": "Market Gate",
       "status": "ACTIVE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-10-04T12:56:58.697Z"
+      "updated_at": "2026-10-07T13:43:26.567Z"
     },
     {
       "id": "ACC-2026-030",
@@ -2776,17 +2838,17 @@
       "finance_margin": 1200,
       "start_date": "2026-07-01",
       "expected_end_date": "2026-10-09",
-      "amount_collected": 8650,
-      "remaining_amount": 1350,
-      "completed_days": 86,
-      "remaining_days": 14,
-      "collection_percentage": 86.5,
+      "amount_collected": 8750,
+      "remaining_amount": 1250,
+      "completed_days": 87,
+      "remaining_days": 13,
+      "collection_percentage": 87.5,
       "assigned_collector_id": "COL102",
       "assigned_collector_name": "Karthik Raja",
       "collection_area": "New Bus Stand Area",
       "status": "ACTIVE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-09-30T10:00:00.000Z"
+      "updated_at": "2026-10-07T13:43:29.192Z"
     },
     {
       "id": "ACC-2026-031",
@@ -2815,7 +2877,7 @@
       "collection_area": "Bazaar Main Road",
       "status": "ACTIVE",
       "created_at": "2026-09-30T09:21:17.614Z",
-      "updated_at": "2026-10-04T12:57:01.838Z"
+      "updated_at": "2026-10-07T13:43:31.751Z"
     }
   ],
   "daily_collections": [
@@ -28614,19 +28676,19 @@
       "mobile_number": "9876543210",
       "date": "2026-08-10",
       "daily_due": 100,
-      "paid_amount": 100,
+      "paid_amount": 300,
       "pending_amount": 0,
-      "advance_amount": 0,
-      "status": "PAID",
+      "advance_amount": 200,
+      "status": "ADVANCE",
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
       "collection_area": "Bazaar Main Road",
       "reason": "Aadi festival advance collection",
-      "remarks": "Scheduled collection day",
+      "remarks": "Aadi festival advance collection",
       "receipt_id": "REC-2026-08-10-KRS10001",
       "receipt_number": "DC-REC-2026-02174",
-      "balance_remaining": 5900
+      "balance_remaining": 5700
     },
     {
       "id": "DC-2026-08-10-ACC-2026-002",
@@ -29287,7 +29349,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-08-11-KRS10001",
       "receipt_number": "DC-REC-2026-02204",
-      "balance_remaining": 5800
+      "balance_remaining": 5600
     },
     {
       "id": "DC-2026-08-11-ACC-2026-002",
@@ -29948,7 +30010,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-08-12-KRS10001",
       "receipt_number": "DC-REC-2026-02234",
-      "balance_remaining": 5700
+      "balance_remaining": 5500
     },
     {
       "id": "DC-2026-08-12-ACC-2026-002",
@@ -30607,7 +30669,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-08-13-KRS10001",
       "receipt_number": "DC-REC-2026-02264",
-      "balance_remaining": 5600
+      "balance_remaining": 5400
     },
     {
       "id": "DC-2026-08-13-ACC-2026-002",
@@ -31268,7 +31330,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-08-14-KRS10001",
       "receipt_number": "DC-REC-2026-02294",
-      "balance_remaining": 5500
+      "balance_remaining": 5300
     },
     {
       "id": "DC-2026-08-14-ACC-2026-002",
@@ -31927,7 +31989,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-08-15-KRS10001",
       "receipt_number": "DC-REC-2026-02324",
-      "balance_remaining": 5400
+      "balance_remaining": 5200
     },
     {
       "id": "DC-2026-08-15-ACC-2026-002",
@@ -32584,7 +32646,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-08-16-KRS10001",
       "receipt_number": "DC-REC-2026-02354",
-      "balance_remaining": 5300
+      "balance_remaining": 5100
     },
     {
       "id": "DC-2026-08-16-ACC-2026-002",
@@ -33243,7 +33305,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-08-17-KRS10001",
       "receipt_number": "DC-REC-2026-02384",
-      "balance_remaining": 5200
+      "balance_remaining": 5000
     },
     {
       "id": "DC-2026-08-17-ACC-2026-002",
@@ -33902,7 +33964,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-08-18-KRS10001",
       "receipt_number": "DC-REC-2026-02414",
-      "balance_remaining": 5100
+      "balance_remaining": 4900
     },
     {
       "id": "DC-2026-08-18-ACC-2026-002",
@@ -34561,7 +34623,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-08-19-KRS10001",
       "receipt_number": "DC-REC-2026-02444",
-      "balance_remaining": 5000
+      "balance_remaining": 4800
     },
     {
       "id": "DC-2026-08-19-ACC-2026-002",
@@ -35220,7 +35282,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-08-20-KRS10001",
       "receipt_number": "DC-REC-2026-02474",
-      "balance_remaining": 4900
+      "balance_remaining": 4700
     },
     {
       "id": "DC-2026-08-20-ACC-2026-002",
@@ -35879,7 +35941,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-08-21-KRS10001",
       "receipt_number": "DC-REC-2026-02504",
-      "balance_remaining": 4800
+      "balance_remaining": 4600
     },
     {
       "id": "DC-2026-08-21-ACC-2026-002",
@@ -36538,7 +36600,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-08-22-KRS10001",
       "receipt_number": "DC-REC-2026-02534",
-      "balance_remaining": 4700
+      "balance_remaining": 4500
     },
     {
       "id": "DC-2026-08-22-ACC-2026-002",
@@ -37195,7 +37257,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-08-23-KRS10001",
       "receipt_number": "DC-REC-2026-02564",
-      "balance_remaining": 4600
+      "balance_remaining": 4400
     },
     {
       "id": "DC-2026-08-23-ACC-2026-002",
@@ -37854,7 +37916,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-08-24-KRS10001",
       "receipt_number": "DC-REC-2026-02594",
-      "balance_remaining": 4500
+      "balance_remaining": 4300
     },
     {
       "id": "DC-2026-08-24-ACC-2026-002",
@@ -38513,7 +38575,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-08-25-KRS10001",
       "receipt_number": "DC-REC-2026-02624",
-      "balance_remaining": 4400
+      "balance_remaining": 4200
     },
     {
       "id": "DC-2026-08-25-ACC-2026-002",
@@ -39173,7 +39235,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-08-26-KRS10001",
       "receipt_number": "DC-REC-2026-02654",
-      "balance_remaining": 4300
+      "balance_remaining": 4100
     },
     {
       "id": "DC-2026-08-26-ACC-2026-002",
@@ -39832,7 +39894,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-08-27-KRS10001",
       "receipt_number": "DC-REC-2026-02684",
-      "balance_remaining": 4200
+      "balance_remaining": 4000
     },
     {
       "id": "DC-2026-08-27-ACC-2026-002",
@@ -40491,7 +40553,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-08-28-KRS10001",
       "receipt_number": "DC-REC-2026-02714",
-      "balance_remaining": 4100
+      "balance_remaining": 3900
     },
     {
       "id": "DC-2026-08-28-ACC-2026-002",
@@ -41150,7 +41212,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-08-29-KRS10001",
       "receipt_number": "DC-REC-2026-02744",
-      "balance_remaining": 4000
+      "balance_remaining": 3800
     },
     {
       "id": "DC-2026-08-29-ACC-2026-002",
@@ -41809,7 +41871,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-08-30-KRS10001",
       "receipt_number": "DC-REC-2026-02774",
-      "balance_remaining": 3900
+      "balance_remaining": 3700
     },
     {
       "id": "DC-2026-08-30-ACC-2026-002",
@@ -42468,7 +42530,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-08-31-KRS10001",
       "receipt_number": "DC-REC-2026-02804",
-      "balance_remaining": 3800
+      "balance_remaining": 3600
     },
     {
       "id": "DC-2026-08-31-ACC-2026-002",
@@ -43127,7 +43189,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-09-01-KRS10001",
       "receipt_number": "DC-REC-2026-02834",
-      "balance_remaining": 3700
+      "balance_remaining": 3500
     },
     {
       "id": "DC-2026-09-01-ACC-2026-002",
@@ -43787,7 +43849,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-09-02-KRS10001",
       "receipt_number": "DC-REC-2026-02864",
-      "balance_remaining": 3600
+      "balance_remaining": 3400
     },
     {
       "id": "DC-2026-09-02-ACC-2026-002",
@@ -44447,7 +44509,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-09-03-KRS10001",
       "receipt_number": "DC-REC-2026-02894",
-      "balance_remaining": 3500
+      "balance_remaining": 3300
     },
     {
       "id": "DC-2026-09-03-ACC-2026-002",
@@ -45085,7 +45147,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-09-04-KRS10001",
       "receipt_number": "DC-REC-2026-02923",
-      "balance_remaining": 3400
+      "balance_remaining": 3200
     },
     {
       "id": "DC-2026-09-04-ACC-2026-002",
@@ -45723,7 +45785,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-09-05-KRS10001",
       "receipt_number": "DC-REC-2026-02952",
-      "balance_remaining": 3300
+      "balance_remaining": 3100
     },
     {
       "id": "DC-2026-09-05-ACC-2026-002",
@@ -46359,7 +46421,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-09-06-KRS10001",
       "receipt_number": "DC-REC-2026-02981",
-      "balance_remaining": 3200
+      "balance_remaining": 3000
     },
     {
       "id": "DC-2026-09-06-ACC-2026-002",
@@ -46997,7 +47059,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-09-07-KRS10001",
       "receipt_number": "DC-REC-2026-03010",
-      "balance_remaining": 3100
+      "balance_remaining": 2900
     },
     {
       "id": "DC-2026-09-07-ACC-2026-002",
@@ -47635,7 +47697,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-09-08-KRS10001",
       "receipt_number": "DC-REC-2026-03039",
-      "balance_remaining": 3000
+      "balance_remaining": 2800
     },
     {
       "id": "DC-2026-09-08-ACC-2026-002",
@@ -48274,7 +48336,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-09-09-KRS10001",
       "receipt_number": "DC-REC-2026-03068",
-      "balance_remaining": 2900
+      "balance_remaining": 2700
     },
     {
       "id": "DC-2026-09-09-ACC-2026-002",
@@ -48913,7 +48975,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-09-10-KRS10001",
       "receipt_number": "DC-REC-2026-03097",
-      "balance_remaining": 2800
+      "balance_remaining": 2600
     },
     {
       "id": "DC-2026-09-10-ACC-2026-002",
@@ -49552,7 +49614,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-09-11-KRS10001",
       "receipt_number": "DC-REC-2026-03126",
-      "balance_remaining": 2700
+      "balance_remaining": 2500
     },
     {
       "id": "DC-2026-09-11-ACC-2026-002",
@@ -50191,7 +50253,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-09-12-KRS10001",
       "receipt_number": "DC-REC-2026-03155",
-      "balance_remaining": 2600
+      "balance_remaining": 2400
     },
     {
       "id": "DC-2026-09-12-ACC-2026-002",
@@ -50828,7 +50890,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-09-13-KRS10001",
       "receipt_number": "DC-REC-2026-03184",
-      "balance_remaining": 2500
+      "balance_remaining": 2300
     },
     {
       "id": "DC-2026-09-13-ACC-2026-002",
@@ -51467,7 +51529,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-09-14-KRS10001",
       "receipt_number": "DC-REC-2026-03213",
-      "balance_remaining": 2400
+      "balance_remaining": 2200
     },
     {
       "id": "DC-2026-09-14-ACC-2026-002",
@@ -52104,7 +52166,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-09-15-KRS10001",
       "receipt_number": "DC-REC-2026-03242",
-      "balance_remaining": 2300
+      "balance_remaining": 2100
     },
     {
       "id": "DC-2026-09-15-ACC-2026-002",
@@ -52739,7 +52801,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-09-16-KRS10001",
       "receipt_number": "DC-REC-2026-03271",
-      "balance_remaining": 2200
+      "balance_remaining": 2000
     },
     {
       "id": "DC-2026-09-16-ACC-2026-002",
@@ -53376,7 +53438,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-09-17-KRS10001",
       "receipt_number": "DC-REC-2026-03300",
-      "balance_remaining": 2100
+      "balance_remaining": 1900
     },
     {
       "id": "DC-2026-09-17-ACC-2026-002",
@@ -54013,7 +54075,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-09-18-KRS10001",
       "receipt_number": "DC-REC-2026-03329",
-      "balance_remaining": 2000
+      "balance_remaining": 1800
     },
     {
       "id": "DC-2026-09-18-ACC-2026-002",
@@ -54650,7 +54712,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-09-19-KRS10001",
       "receipt_number": "DC-REC-2026-03358",
-      "balance_remaining": 1900
+      "balance_remaining": 1700
     },
     {
       "id": "DC-2026-09-19-ACC-2026-002",
@@ -55287,7 +55349,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-09-20-KRS10001",
       "receipt_number": "DC-REC-2026-03387",
-      "balance_remaining": 1800
+      "balance_remaining": 1600
     },
     {
       "id": "DC-2026-09-20-ACC-2026-002",
@@ -55924,7 +55986,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-09-21-KRS10001",
       "receipt_number": "DC-REC-2026-03416",
-      "balance_remaining": 1700
+      "balance_remaining": 1500
     },
     {
       "id": "DC-2026-09-21-ACC-2026-002",
@@ -56561,7 +56623,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-09-22-KRS10001",
       "receipt_number": "DC-REC-2026-03445",
-      "balance_remaining": 1600
+      "balance_remaining": 1400
     },
     {
       "id": "DC-2026-09-22-ACC-2026-002",
@@ -57196,7 +57258,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-09-23-KRS10001",
       "receipt_number": "DC-REC-2026-03474",
-      "balance_remaining": 1500
+      "balance_remaining": 1300
     },
     {
       "id": "DC-2026-09-23-ACC-2026-002",
@@ -57833,7 +57895,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-09-24-KRS10001",
       "receipt_number": "DC-REC-2026-03503",
-      "balance_remaining": 1400
+      "balance_remaining": 1200
     },
     {
       "id": "DC-2026-09-24-ACC-2026-002",
@@ -58470,7 +58532,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-09-25-KRS10001",
       "receipt_number": "DC-REC-2026-03532",
-      "balance_remaining": 1300
+      "balance_remaining": 1100
     },
     {
       "id": "DC-2026-09-25-ACC-2026-002",
@@ -59107,7 +59169,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-09-26-KRS10001",
       "receipt_number": "DC-REC-2026-03561",
-      "balance_remaining": 1200
+      "balance_remaining": 1000
     },
     {
       "id": "DC-2026-09-26-ACC-2026-002",
@@ -59744,7 +59806,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-09-27-KRS10001",
       "receipt_number": "DC-REC-2026-03590",
-      "balance_remaining": 1100
+      "balance_remaining": 900
     },
     {
       "id": "DC-2026-09-27-ACC-2026-002",
@@ -60381,7 +60443,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-09-28-KRS10001",
       "receipt_number": "DC-REC-2026-03619",
-      "balance_remaining": 1000
+      "balance_remaining": 800
     },
     {
       "id": "DC-2026-09-28-ACC-2026-002",
@@ -61018,7 +61080,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-09-29-KRS10001",
       "receipt_number": "DC-REC-2026-03648",
-      "balance_remaining": 900
+      "balance_remaining": 700
     },
     {
       "id": "DC-2026-09-29-ACC-2026-002",
@@ -61655,7 +61717,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-09-30-KRS10001",
       "receipt_number": "DC-REC-2026-03677",
-      "balance_remaining": 800,
+      "balance_remaining": 600,
       "route_order": 1,
       "missed_days_count": 0,
       "missed_amount": 0
@@ -61730,10 +61792,10 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-09-30-KRS10004",
       "receipt_number": "DC-REC-2026-03680",
-      "balance_remaining": 1600,
+      "balance_remaining": 1700,
       "route_order": 4,
-      "missed_days_count": 23,
-      "missed_amount": 2300
+      "missed_days_count": 24,
+      "missed_amount": 2400
     },
     {
       "id": "DC-2026-09-30-ACC-2026-006",
@@ -61755,7 +61817,7 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-09-30-KRS10006",
       "receipt_number": "DC-REC-2026-03681",
-      "balance_remaining": 700,
+      "balance_remaining": 800,
       "route_order": 5,
       "missed_days_count": 0,
       "missed_amount": 0
@@ -61881,10 +61943,10 @@
       "remarks": "Collected on field",
       "receipt_id": "REC-2026-09-30-KRS10011",
       "receipt_number": "DC-REC-2026-03686",
-      "balance_remaining": 1700,
+      "balance_remaining": 1900,
       "route_order": 10,
-      "missed_days_count": 0,
-      "missed_amount": 0
+      "missed_days_count": 1,
+      "missed_amount": 200
     },
     {
       "id": "DC-2026-09-30-ACC-2026-012",
@@ -61954,10 +62016,10 @@
       "collection_area": "Market Gate",
       "reason": "Shop owner away at wholesale market",
       "remarks": "Shop owner away at wholesale market",
-      "balance_remaining": 1450,
+      "balance_remaining": 1550,
       "route_order": 13,
-      "missed_days_count": 6,
-      "missed_amount": 600
+      "missed_days_count": 7,
+      "missed_amount": 700
     },
     {
       "id": "DC-2026-09-30-ACC-2026-015",
@@ -62076,10 +62138,10 @@
       "collector_name": "Murugan S.",
       "collection_area": "Market Gate",
       "remarks": "Pending collector round",
-      "balance_remaining": 1250,
+      "balance_remaining": 1350,
       "route_order": 18,
-      "missed_days_count": 4,
-      "missed_amount": 400
+      "missed_days_count": 5,
+      "missed_amount": 500
     },
     {
       "id": "DC-2026-09-30-ACC-2026-020",
@@ -62343,10 +62405,7 @@
       "collector_name": "Murugan S.",
       "collection_area": "Bazaar Main Road",
       "remarks": "Scheduled collection day",
-      "balance_remaining": 10000,
-      "route_order": 30,
-      "missed_days_count": 0,
-      "missed_amount": 0
+      "balance_remaining": 10000
     },
     {
       "id": "DC-2026-10-01-ACC-2026-031",
@@ -62426,20 +62485,15 @@
       "date": "2026-10-04",
       "daily_due": 100,
       "due_amount": 100,
-      "paid_amount": 100,
-      "pending_amount": 0,
+      "paid_amount": 0,
+      "pending_amount": 100,
       "advance_amount": 0,
-      "status": "PAID",
+      "status": "PENDING",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
       "collection_area": "Bazaar Main Road",
-      "balance_remaining": 9900,
-      "route_order": 30,
-      "missed_days_count": 3,
-      "missed_amount": 300,
-      "payment_mode": "Cash",
-      "receipt_id": "REC-1791118621839",
-      "receipt_number": "DC-REC-2026-03705"
+      "remarks": "Scheduled collection day",
+      "balance_remaining": 10000
     },
     {
       "id": "DC-2026-10-05-ACC-2026-031",
@@ -62497,15 +62551,20 @@
       "date": "2026-10-07",
       "daily_due": 100,
       "due_amount": 100,
-      "paid_amount": 0,
-      "pending_amount": 100,
+      "paid_amount": 100,
+      "pending_amount": 0,
       "advance_amount": 0,
-      "status": "PENDING",
+      "status": "PAID",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
       "collection_area": "Bazaar Main Road",
-      "remarks": "Scheduled collection day",
-      "balance_remaining": 10000
+      "balance_remaining": 9900,
+      "route_order": 30,
+      "missed_days_count": 6,
+      "missed_amount": 600,
+      "payment_mode": "Cash",
+      "receipt_id": "REC-1791380611752",
+      "receipt_number": "DC-REC-2026-03723"
     },
     {
       "id": "DC-2026-10-08-ACC-2026-031",
@@ -64532,13 +64591,13 @@
       "balance_remaining": 10000
     },
     {
-      "id": "DC-2026-10-04-ACC-2026-001",
+      "id": "DC-2026-10-07-ACC-2026-001",
       "collection_account_id": "ACC-2026-001",
       "customer_id": "KRS10001",
       "customer_name": "Ramesh Kumar",
       "shop_name": "Sri Krishna Supermarket & Provisions",
       "mobile_number": "9876543210",
-      "date": "2026-10-04",
+      "date": "2026-10-07",
       "daily_due": 100,
       "paid_amount": 100,
       "pending_amount": 0,
@@ -64547,64 +64606,70 @@
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
       "collection_area": "Bazaar Main Road",
-      "balance_remaining": 700,
+      "balance_remaining": 500,
       "route_order": 1,
-      "missed_days_count": 0,
-      "missed_amount": 0,
+      "missed_days_count": 3,
+      "missed_amount": 300,
       "payment_mode": "Cash",
-      "receipt_id": "REC-1791116137701",
+      "receipt_id": "REC-1791380527498",
       "receipt_number": "DC-REC-2026-03694"
     },
     {
-      "id": "DC-2026-10-04-ACC-2026-002",
+      "id": "DC-2026-10-07-ACC-2026-002",
       "collection_account_id": "ACC-2026-002",
       "customer_id": "KRS10002",
       "customer_name": "Sundar Rajan",
       "shop_name": "Annapoorna Sweets, Bakery & Snacks",
       "mobile_number": "9842211990",
-      "date": "2026-10-04",
+      "date": "2026-10-07",
       "daily_due": 200,
-      "paid_amount": 0,
-      "pending_amount": 200,
+      "paid_amount": 200,
+      "pending_amount": 0,
       "advance_amount": 0,
-      "status": "PENDING",
+      "status": "PAID",
       "collector_id": "COL102",
       "collector_name": "Karthik Raja",
       "collection_area": "Town Hall Road",
-      "balance_remaining": 1400,
+      "balance_remaining": 1200,
       "route_order": 2,
-      "missed_days_count": 2,
-      "missed_amount": 400
+      "missed_days_count": 4,
+      "missed_amount": 800,
+      "payment_mode": "Cash",
+      "receipt_id": "REC-1791380536516",
+      "receipt_number": "DC-REC-2026-03696"
     },
     {
-      "id": "DC-2026-10-04-ACC-2026-003",
+      "id": "DC-2026-10-07-ACC-2026-003",
       "collection_account_id": "ACC-2026-003",
       "customer_id": "KRS10003",
       "customer_name": "Meenakshi Ammal",
       "shop_name": "Murugan Textiles, Sarees & Readymade",
       "mobile_number": "9842377881",
-      "date": "2026-10-04",
+      "date": "2026-10-07",
       "daily_due": 500,
-      "paid_amount": 0,
-      "pending_amount": 500,
+      "paid_amount": 500,
+      "pending_amount": 0,
       "advance_amount": 0,
-      "status": "PENDING",
+      "status": "PAID",
       "collector_id": "COL103",
       "collector_name": "Saravanan P.",
       "collection_area": "Car Street",
-      "balance_remaining": 4000,
+      "balance_remaining": 3500,
       "route_order": 3,
-      "missed_days_count": 3,
-      "missed_amount": 1500
+      "missed_days_count": 5,
+      "missed_amount": 2500,
+      "payment_mode": "Cash",
+      "receipt_id": "REC-1791380531884",
+      "receipt_number": "DC-REC-2026-03695"
     },
     {
-      "id": "DC-2026-10-04-ACC-2026-004",
+      "id": "DC-2026-10-07-ACC-2026-004",
       "collection_account_id": "ACC-2026-004",
       "customer_id": "KRS10004",
       "customer_name": "Vijay Anand",
       "shop_name": "Anand Hardware, Paints & Electricals",
       "mobile_number": "9842499001",
-      "date": "2026-10-04",
+      "date": "2026-10-07",
       "daily_due": 100,
       "paid_amount": 100,
       "pending_amount": 0,
@@ -64615,20 +64680,20 @@
       "collection_area": "Market Gate",
       "balance_remaining": 1600,
       "route_order": 4,
-      "missed_days_count": 27,
-      "missed_amount": 2700,
+      "missed_days_count": 30,
+      "missed_amount": 3000,
       "payment_mode": "Cash",
-      "receipt_id": "REC-1791116181567",
+      "receipt_id": "REC-1791380539454",
       "receipt_number": "DC-REC-2026-03697"
     },
     {
-      "id": "DC-2026-10-04-ACC-2026-006",
+      "id": "DC-2026-10-07-ACC-2026-006",
       "collection_account_id": "ACC-2026-006",
       "customer_id": "KRS10006",
       "customer_name": "Kavitha Selvam",
       "shop_name": "Selvam Fancy Store, Toys & Stationeries",
       "mobile_number": "9842666778",
-      "date": "2026-10-04",
+      "date": "2026-10-07",
       "daily_due": 100,
       "paid_amount": 100,
       "pending_amount": 0,
@@ -64639,105 +64704,116 @@
       "collection_area": "Bazaar Main Road",
       "balance_remaining": 700,
       "route_order": 5,
-      "missed_days_count": 2,
-      "missed_amount": 200,
+      "missed_days_count": 5,
+      "missed_amount": 500,
       "payment_mode": "Cash",
-      "receipt_id": "REC-1791116140458",
-      "receipt_number": "DC-REC-2026-03695"
+      "receipt_id": "REC-1791380542344",
+      "receipt_number": "DC-REC-2026-03698"
     },
     {
-      "id": "DC-2026-10-04-ACC-2026-007",
+      "id": "DC-2026-10-07-ACC-2026-007",
       "collection_account_id": "ACC-2026-007",
       "customer_id": "KRS10007",
       "customer_name": "Muthuraman K.",
       "shop_name": "Sri Lakshmi Medicals & Health Care",
       "mobile_number": "9842711223",
-      "date": "2026-10-04",
+      "date": "2026-10-07",
       "daily_due": 200,
-      "paid_amount": 0,
-      "pending_amount": 200,
+      "paid_amount": 200,
+      "pending_amount": 0,
       "advance_amount": 0,
-      "status": "PENDING",
+      "status": "PAID",
       "collector_id": "COL102",
       "collector_name": "Karthik Raja",
       "collection_area": "Town Hall Road",
-      "balance_remaining": 1800,
+      "balance_remaining": 1600,
       "route_order": 6,
-      "missed_days_count": 4,
-      "missed_amount": 800
+      "missed_days_count": 6,
+      "missed_amount": 1200,
+      "payment_mode": "Cash",
+      "receipt_id": "REC-1791380545030",
+      "receipt_number": "DC-REC-2026-03699"
     },
     {
-      "id": "DC-2026-10-04-ACC-2026-008",
+      "id": "DC-2026-10-07-ACC-2026-008",
       "collection_account_id": "ACC-2026-008",
       "customer_id": "KRS10008",
       "customer_name": "Annamalai C.",
       "shop_name": "Balaji Automobiles & Two-Wheeler Spares",
       "mobile_number": "9842833445",
-      "date": "2026-10-04",
+      "date": "2026-10-07",
       "daily_due": 100,
-      "paid_amount": 0,
-      "pending_amount": 100,
+      "paid_amount": 100,
+      "pending_amount": 0,
       "advance_amount": 0,
-      "status": "PENDING",
+      "status": "PAID",
       "collector_id": "COL103",
       "collector_name": "Saravanan P.",
       "collection_area": "Car Street",
-      "balance_remaining": 950,
+      "balance_remaining": 850,
       "route_order": 7,
-      "missed_days_count": 5,
-      "missed_amount": 500
+      "missed_days_count": 7,
+      "missed_amount": 700,
+      "payment_mode": "Cash",
+      "receipt_id": "REC-1791380547902",
+      "receipt_number": "DC-REC-2026-03700"
     },
     {
-      "id": "DC-2026-10-04-ACC-2026-009",
+      "id": "DC-2026-10-07-ACC-2026-009",
       "collection_account_id": "ACC-2026-009",
       "customer_id": "KRS10009",
       "customer_name": "Priya Dharshini",
       "shop_name": "Priya Bridal Studio & Tailoring",
       "mobile_number": "9842955667",
-      "date": "2026-10-04",
+      "date": "2026-10-07",
       "daily_due": 100,
-      "paid_amount": 0,
-      "pending_amount": 100,
+      "paid_amount": 100,
+      "pending_amount": 0,
       "advance_amount": 0,
-      "status": "MISSED",
+      "status": "PAID",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
       "collection_area": "Market Gate",
-      "balance_remaining": 1850,
+      "balance_remaining": 1750,
       "route_order": 8,
-      "missed_days_count": 5,
-      "missed_amount": 500,
-      "reason": "No money today"
+      "missed_days_count": 7,
+      "missed_amount": 700,
+      "payment_mode": "Cash",
+      "receipt_id": "REC-1791380551672",
+      "receipt_number": "DC-REC-2026-03701"
     },
     {
-      "id": "DC-2026-10-04-ACC-2026-010",
+      "id": "DC-2026-10-07-ACC-2026-010",
       "collection_account_id": "ACC-2026-010",
       "customer_id": "KRS10010",
       "customer_name": "Selva Ganesh",
       "shop_name": "Ganesh Electricals & Home Appliances",
       "mobile_number": "9843011224",
-      "date": "2026-10-04",
+      "date": "2026-10-07",
       "daily_due": 200,
-      "paid_amount": 0,
-      "pending_amount": 200,
+      "paid_amount": 200,
+      "pending_amount": 0,
       "advance_amount": 0,
-      "status": "PENDING",
+      "status": "PAID",
       "collector_id": "COL102",
       "collector_name": "Karthik Raja",
       "collection_area": "New Bus Stand Area",
-      "balance_remaining": 1900,
+      "balance_remaining": 1700,
       "route_order": 9,
-      "missed_days_count": 5,
-      "missed_amount": 1000
+      "missed_days_count": 7,
+      "missed_amount": 1400,
+      "payment_mode": "Cash",
+      "receipt_id": "REC-1791380554248",
+      "receipt_number": "DC-REC-2026-03702"
     },
     {
-      "id": "DC-2026-10-04-ACC-2026-011",
+      "id": "DC-2026-10-07-ACC-2026-011",
       "collection_account_id": "ACC-2026-011",
       "customer_id": "KRS10011",
       "customer_name": "Saravanan V.",
       "shop_name": "Thirumalai Maligai & Provisions",
       "mobile_number": "9843122335",
-      "date": "2026-10-04",
+      "date": "2026-10-07",
       "daily_due": 200,
       "paid_amount": 200,
       "pending_amount": 0,
@@ -64748,62 +64824,68 @@
       "collection_area": "Bazaar Main Road",
       "balance_remaining": 1700,
       "route_order": 10,
-      "missed_days_count": 4,
-      "missed_amount": 800,
+      "missed_days_count": 7,
+      "missed_amount": 1400,
       "payment_mode": "Cash",
-      "receipt_id": "REC-1791116187095",
-      "receipt_number": "DC-REC-2026-03699"
+      "receipt_id": "REC-1791380556893",
+      "receipt_number": "DC-REC-2026-03703"
     },
     {
-      "id": "DC-2026-10-04-ACC-2026-012",
+      "id": "DC-2026-10-07-ACC-2026-012",
       "collection_account_id": "ACC-2026-012",
       "customer_id": "KRS10012",
       "customer_name": "Lakshmi Narayanan",
       "shop_name": "Royal Footwear & Bag World",
       "mobile_number": "9843233446",
-      "date": "2026-10-04",
+      "date": "2026-10-07",
       "daily_due": 100,
-      "paid_amount": 0,
-      "pending_amount": 100,
+      "paid_amount": 100,
+      "pending_amount": 0,
       "advance_amount": 0,
-      "status": "PENDING",
+      "status": "PAID",
       "collector_id": "COL102",
       "collector_name": "Karthik Raja",
       "collection_area": "Town Hall Road",
-      "balance_remaining": 1350,
+      "balance_remaining": 1250,
       "route_order": 11,
-      "missed_days_count": 5,
-      "missed_amount": 500
+      "missed_days_count": 7,
+      "missed_amount": 700,
+      "payment_mode": "Cash",
+      "receipt_id": "REC-1791380559414",
+      "receipt_number": "DC-REC-2026-03704"
     },
     {
-      "id": "DC-2026-10-04-ACC-2026-013",
+      "id": "DC-2026-10-07-ACC-2026-013",
       "collection_account_id": "ACC-2026-013",
       "customer_id": "KRS10013",
       "customer_name": "Deepa Venkatesh",
       "shop_name": "Deepa Xerox, DTP & Online Services",
       "mobile_number": "9843344557",
-      "date": "2026-10-04",
+      "date": "2026-10-07",
       "daily_due": 100,
-      "paid_amount": 0,
-      "pending_amount": 100,
+      "paid_amount": 100,
+      "pending_amount": 0,
       "advance_amount": 0,
-      "status": "PENDING",
+      "status": "PAID",
       "collector_id": "COL103",
       "collector_name": "Saravanan P.",
       "collection_area": "Car Street",
-      "balance_remaining": 1150,
+      "balance_remaining": 1050,
       "route_order": 12,
-      "missed_days_count": 7,
-      "missed_amount": 700
+      "missed_days_count": 9,
+      "missed_amount": 900,
+      "payment_mode": "Cash",
+      "receipt_id": "REC-1791380562940",
+      "receipt_number": "DC-REC-2026-03705"
     },
     {
-      "id": "DC-2026-10-04-ACC-2026-014",
+      "id": "DC-2026-10-07-ACC-2026-014",
       "collection_account_id": "ACC-2026-014",
       "customer_id": "KRS10014",
       "customer_name": "Manikandan R.",
       "shop_name": "Murugan Fruit Stall & Fresh Juice Corner",
       "mobile_number": "9843455668",
-      "date": "2026-10-04",
+      "date": "2026-10-07",
       "daily_due": 100,
       "paid_amount": 100,
       "pending_amount": 0,
@@ -64814,41 +64896,44 @@
       "collection_area": "Market Gate",
       "balance_remaining": 1450,
       "route_order": 13,
-      "missed_days_count": 10,
-      "missed_amount": 1000,
+      "missed_days_count": 13,
+      "missed_amount": 1300,
       "payment_mode": "Cash",
-      "receipt_id": "REC-1791116184098",
-      "receipt_number": "DC-REC-2026-03698"
+      "receipt_id": "REC-1791380565675",
+      "receipt_number": "DC-REC-2026-03706"
     },
     {
-      "id": "DC-2026-10-04-ACC-2026-015",
+      "id": "DC-2026-10-07-ACC-2026-015",
       "collection_account_id": "ACC-2026-015",
       "customer_id": "KRS10015",
       "customer_name": "Rajasekaran P.",
       "shop_name": "Raja Cafe & Hot Chips Centre",
       "mobile_number": "9843566779",
-      "date": "2026-10-04",
+      "date": "2026-10-07",
       "daily_due": 100,
-      "paid_amount": 0,
-      "pending_amount": 100,
+      "paid_amount": 100,
+      "pending_amount": 0,
       "advance_amount": 0,
-      "status": "PENDING",
+      "status": "PAID",
       "collector_id": "COL102",
       "collector_name": "Karthik Raja",
       "collection_area": "New Bus Stand Area",
-      "balance_remaining": 1250,
+      "balance_remaining": 1150,
       "route_order": 14,
-      "missed_days_count": 8,
-      "missed_amount": 800
+      "missed_days_count": 10,
+      "missed_amount": 1000,
+      "payment_mode": "Cash",
+      "receipt_id": "REC-1791380568281",
+      "receipt_number": "DC-REC-2026-03707"
     },
     {
-      "id": "DC-2026-10-04-ACC-2026-016",
+      "id": "DC-2026-10-07-ACC-2026-016",
       "collection_account_id": "ACC-2026-016",
       "customer_id": "KRS10016",
       "customer_name": "Thangavel M.",
       "shop_name": "Sri Murugan Iron Hardware & Pipes",
       "mobile_number": "9843677880",
-      "date": "2026-10-04",
+      "date": "2026-10-07",
       "daily_due": 500,
       "paid_amount": 500,
       "pending_amount": 0,
@@ -64859,62 +64944,68 @@
       "collection_area": "Bazaar Main Road",
       "balance_remaining": 5750,
       "route_order": 15,
-      "missed_days_count": 7,
-      "missed_amount": 3500,
-      "payment_mode": "UPI",
-      "receipt_id": "REC-1791118521824",
-      "receipt_number": "DC-REC-2026-03701"
+      "missed_days_count": 10,
+      "missed_amount": 5000,
+      "payment_mode": "Cash",
+      "receipt_id": "REC-1791380570983",
+      "receipt_number": "DC-REC-2026-03708"
     },
     {
-      "id": "DC-2026-10-04-ACC-2026-017",
+      "id": "DC-2026-10-07-ACC-2026-017",
       "collection_account_id": "ACC-2026-017",
       "customer_id": "KRS10017",
       "customer_name": "Balamurugan S.",
       "shop_name": "Bala Mobile Store & Quick Service",
       "mobile_number": "9843788991",
-      "date": "2026-10-04",
+      "date": "2026-10-07",
       "daily_due": 100,
-      "paid_amount": 0,
-      "pending_amount": 100,
+      "paid_amount": 100,
+      "pending_amount": 0,
       "advance_amount": 0,
-      "status": "PENDING",
+      "status": "PAID",
       "collector_id": "COL102",
       "collector_name": "Karthik Raja",
       "collection_area": "Town Hall Road",
-      "balance_remaining": 1250,
+      "balance_remaining": 1150,
       "route_order": 16,
-      "missed_days_count": 8,
-      "missed_amount": 800
+      "missed_days_count": 10,
+      "missed_amount": 1000,
+      "payment_mode": "Cash",
+      "receipt_id": "REC-1791380573839",
+      "receipt_number": "DC-REC-2026-03709"
     },
     {
-      "id": "DC-2026-10-04-ACC-2026-018",
+      "id": "DC-2026-10-07-ACC-2026-018",
       "collection_account_id": "ACC-2026-018",
       "customer_id": "KRS10018",
       "customer_name": "Shanmuga Sundaram",
       "shop_name": "Sundaram Timber & Plywood Depot",
       "mobile_number": "9843899002",
-      "date": "2026-10-04",
+      "date": "2026-10-07",
       "daily_due": 500,
-      "paid_amount": 0,
-      "pending_amount": 500,
+      "paid_amount": 500,
+      "pending_amount": 0,
       "advance_amount": 0,
-      "status": "PENDING",
+      "status": "PAID",
       "collector_id": "COL103",
       "collector_name": "Saravanan P.",
       "collection_area": "Car Street",
-      "balance_remaining": 6250,
+      "balance_remaining": 5750,
       "route_order": 17,
-      "missed_days_count": 8,
-      "missed_amount": 4000
+      "missed_days_count": 10,
+      "missed_amount": 5000,
+      "payment_mode": "Cash",
+      "receipt_id": "REC-1791380576453",
+      "receipt_number": "DC-REC-2026-03710"
     },
     {
-      "id": "DC-2026-10-04-ACC-2026-019",
+      "id": "DC-2026-10-07-ACC-2026-019",
       "collection_account_id": "ACC-2026-019",
       "customer_id": "KRS10019",
       "customer_name": "Radha Krishnan",
       "shop_name": "Sri Radha Krishna Flower Market",
       "mobile_number": "9843900113",
-      "date": "2026-10-04",
+      "date": "2026-10-07",
       "daily_due": 100,
       "paid_amount": 100,
       "pending_amount": 0,
@@ -64925,41 +65016,44 @@
       "collection_area": "Market Gate",
       "balance_remaining": 1250,
       "route_order": 18,
-      "missed_days_count": 8,
-      "missed_amount": 800,
+      "missed_days_count": 11,
+      "missed_amount": 1100,
       "payment_mode": "Cash",
-      "receipt_id": "REC-1791116191491",
-      "receipt_number": "DC-REC-2026-03700"
+      "receipt_id": "REC-1791380578951",
+      "receipt_number": "DC-REC-2026-03711"
     },
     {
-      "id": "DC-2026-10-04-ACC-2026-020",
+      "id": "DC-2026-10-07-ACC-2026-020",
       "collection_account_id": "ACC-2026-020",
       "customer_id": "KRS10020",
       "customer_name": "Geetha Rani",
       "shop_name": "Saraswathi Book Center & Stationers",
       "mobile_number": "9844011224",
-      "date": "2026-10-04",
+      "date": "2026-10-07",
       "daily_due": 100,
-      "paid_amount": 0,
-      "pending_amount": 100,
+      "paid_amount": 100,
+      "pending_amount": 0,
       "advance_amount": 0,
-      "status": "PENDING",
+      "status": "PAID",
       "collector_id": "COL102",
       "collector_name": "Karthik Raja",
       "collection_area": "New Bus Stand Area",
-      "balance_remaining": 1350,
+      "balance_remaining": 1250,
       "route_order": 19,
-      "missed_days_count": 9,
-      "missed_amount": 900
+      "missed_days_count": 11,
+      "missed_amount": 1100,
+      "payment_mode": "Cash",
+      "receipt_id": "REC-1791380581573",
+      "receipt_number": "DC-REC-2026-03712"
     },
     {
-      "id": "DC-2026-10-04-ACC-2026-021",
+      "id": "DC-2026-10-07-ACC-2026-021",
       "collection_account_id": "ACC-2026-021",
       "customer_id": "KRS10021",
       "customer_name": "Karthikeyan S.",
       "shop_name": "Shiva Sakthi Rice Mundy & Wholesale",
       "mobile_number": "9844122335",
-      "date": "2026-10-04",
+      "date": "2026-10-07",
       "daily_due": 200,
       "paid_amount": 200,
       "pending_amount": 0,
@@ -64970,62 +65064,68 @@
       "collection_area": "Bazaar Main Road",
       "balance_remaining": 2500,
       "route_order": 20,
-      "missed_days_count": 8,
-      "missed_amount": 1600,
+      "missed_days_count": 11,
+      "missed_amount": 2200,
       "payment_mode": "Cash",
-      "receipt_id": "REC-1791118597909",
-      "receipt_number": "DC-REC-2026-03702"
+      "receipt_id": "REC-1791380586110",
+      "receipt_number": "DC-REC-2026-03713"
     },
     {
-      "id": "DC-2026-10-04-ACC-2026-022",
+      "id": "DC-2026-10-07-ACC-2026-022",
       "collection_account_id": "ACC-2026-022",
       "customer_id": "KRS10022",
       "customer_name": "Sivakumar M.",
       "shop_name": "Maruthi Cycle Works & Fitness Gears",
       "mobile_number": "9844233446",
-      "date": "2026-10-04",
+      "date": "2026-10-07",
       "daily_due": 100,
-      "paid_amount": 0,
-      "pending_amount": 100,
+      "paid_amount": 100,
+      "pending_amount": 0,
       "advance_amount": 0,
-      "status": "PENDING",
+      "status": "PAID",
       "collector_id": "COL102",
       "collector_name": "Karthik Raja",
       "collection_area": "Town Hall Road",
-      "balance_remaining": 1350,
+      "balance_remaining": 1250,
       "route_order": 21,
-      "missed_days_count": 9,
-      "missed_amount": 900
+      "missed_days_count": 11,
+      "missed_amount": 1100,
+      "payment_mode": "Cash",
+      "receipt_id": "REC-1791380588641",
+      "receipt_number": "DC-REC-2026-03714"
     },
     {
-      "id": "DC-2026-10-04-ACC-2026-023",
+      "id": "DC-2026-10-07-ACC-2026-023",
       "collection_account_id": "ACC-2026-023",
       "customer_id": "KRS10023",
       "customer_name": "Govindaraj K.",
       "shop_name": "Om Muruga Optical & Eye Care",
       "mobile_number": "9844344557",
-      "date": "2026-10-04",
+      "date": "2026-10-07",
       "daily_due": 100,
-      "paid_amount": 0,
-      "pending_amount": 100,
+      "paid_amount": 100,
+      "pending_amount": 0,
       "advance_amount": 0,
-      "status": "PENDING",
+      "status": "PAID",
       "collector_id": "COL103",
       "collector_name": "Saravanan P.",
       "collection_area": "Car Street",
-      "balance_remaining": 1350,
+      "balance_remaining": 1250,
       "route_order": 22,
-      "missed_days_count": 9,
-      "missed_amount": 900
+      "missed_days_count": 11,
+      "missed_amount": 1100,
+      "payment_mode": "Cash",
+      "receipt_id": "REC-1791380591138",
+      "receipt_number": "DC-REC-2026-03715"
     },
     {
-      "id": "DC-2026-10-04-ACC-2026-024",
+      "id": "DC-2026-10-07-ACC-2026-024",
       "collection_account_id": "ACC-2026-024",
       "customer_id": "KRS10024",
       "customer_name": "Revathi Mohan",
       "shop_name": "Mohan Tailors & Readymade Garments",
       "mobile_number": "9844455668",
-      "date": "2026-10-04",
+      "date": "2026-10-07",
       "daily_due": 100,
       "paid_amount": 100,
       "pending_amount": 0,
@@ -65036,41 +65136,44 @@
       "collection_area": "Market Gate",
       "balance_remaining": 1250,
       "route_order": 23,
-      "missed_days_count": 8,
-      "missed_amount": 800,
+      "missed_days_count": 11,
+      "missed_amount": 1100,
       "payment_mode": "Cash",
-      "receipt_id": "REC-1791118616085",
-      "receipt_number": "DC-REC-2026-03703"
+      "receipt_id": "REC-1791380593841",
+      "receipt_number": "DC-REC-2026-03716"
     },
     {
-      "id": "DC-2026-10-04-ACC-2026-025",
+      "id": "DC-2026-10-07-ACC-2026-025",
       "collection_account_id": "ACC-2026-025",
       "customer_id": "KRS10025",
       "customer_name": "Arumugam P.",
       "shop_name": "Vasantham Pure Veg Tiffin Center",
       "mobile_number": "9844566779",
-      "date": "2026-10-04",
+      "date": "2026-10-07",
       "daily_due": 200,
-      "paid_amount": 0,
-      "pending_amount": 200,
+      "paid_amount": 200,
+      "pending_amount": 0,
       "advance_amount": 0,
-      "status": "PENDING",
+      "status": "PAID",
       "collector_id": "COL102",
       "collector_name": "Karthik Raja",
       "collection_area": "New Bus Stand Area",
-      "balance_remaining": 2700,
+      "balance_remaining": 2500,
       "route_order": 24,
-      "missed_days_count": 9,
-      "missed_amount": 1800
+      "missed_days_count": 11,
+      "missed_amount": 2200,
+      "payment_mode": "Cash",
+      "receipt_id": "REC-1791380596434",
+      "receipt_number": "DC-REC-2026-03717"
     },
     {
-      "id": "DC-2026-10-04-ACC-2026-026",
+      "id": "DC-2026-10-07-ACC-2026-026",
       "collection_account_id": "ACC-2026-026",
       "customer_id": "KRS10026",
       "customer_name": "Vijayalakshmi N.",
       "shop_name": "Lakshmi Gold Covering & Fashion Jewels",
       "mobile_number": "9844677880",
-      "date": "2026-10-04",
+      "date": "2026-10-07",
       "daily_due": 200,
       "paid_amount": 200,
       "pending_amount": 0,
@@ -65081,62 +65184,68 @@
       "collection_area": "Bazaar Main Road",
       "balance_remaining": 2500,
       "route_order": 25,
-      "missed_days_count": 9,
-      "missed_amount": 1800,
+      "missed_days_count": 11,
+      "missed_amount": 2200,
       "payment_mode": "Cash",
-      "receipt_id": "REC-1791118624566",
-      "receipt_number": "DC-REC-2026-03706"
+      "receipt_id": "REC-1791380599059",
+      "receipt_number": "DC-REC-2026-03718"
     },
     {
-      "id": "DC-2026-10-04-ACC-2026-027",
+      "id": "DC-2026-10-07-ACC-2026-027",
       "collection_account_id": "ACC-2026-027",
       "customer_id": "KRS10027",
       "customer_name": "Dinesh Kumar",
       "shop_name": "Smart Computers & CCTV Security Solutions",
       "mobile_number": "9844788991",
-      "date": "2026-10-04",
+      "date": "2026-10-07",
       "daily_due": 100,
-      "paid_amount": 0,
-      "pending_amount": 100,
+      "paid_amount": 100,
+      "pending_amount": 0,
       "advance_amount": 0,
-      "status": "PENDING",
+      "status": "PAID",
       "collector_id": "COL102",
       "collector_name": "Karthik Raja",
       "collection_area": "Town Hall Road",
-      "balance_remaining": 1350,
+      "balance_remaining": 1250,
       "route_order": 26,
-      "missed_days_count": 9,
-      "missed_amount": 900
+      "missed_days_count": 11,
+      "missed_amount": 1100,
+      "payment_mode": "Cash",
+      "receipt_id": "REC-1791380601647",
+      "receipt_number": "DC-REC-2026-03719"
     },
     {
-      "id": "DC-2026-10-04-ACC-2026-028",
+      "id": "DC-2026-10-07-ACC-2026-028",
       "collection_account_id": "ACC-2026-028",
       "customer_id": "KRS10028",
       "customer_name": "Padmavathi R.",
       "shop_name": "Padmavathi Fancy & Plastic Home Goods",
       "mobile_number": "9844899002",
-      "date": "2026-10-04",
+      "date": "2026-10-07",
       "daily_due": 100,
-      "paid_amount": 0,
-      "pending_amount": 100,
+      "paid_amount": 100,
+      "pending_amount": 0,
       "advance_amount": 0,
-      "status": "PENDING",
+      "status": "PAID",
       "collector_id": "COL103",
       "collector_name": "Saravanan P.",
       "collection_area": "Car Street",
-      "balance_remaining": 1350,
+      "balance_remaining": 1250,
       "route_order": 27,
-      "missed_days_count": 9,
-      "missed_amount": 900
+      "missed_days_count": 11,
+      "missed_amount": 1100,
+      "payment_mode": "Cash",
+      "receipt_id": "REC-1791380604093",
+      "receipt_number": "DC-REC-2026-03720"
     },
     {
-      "id": "DC-2026-10-04-ACC-2026-029",
+      "id": "DC-2026-10-07-ACC-2026-029",
       "collection_account_id": "ACC-2026-029",
       "customer_id": "KRS10029",
       "customer_name": "Kalaiselvan S.",
       "shop_name": "Sri Kumaran Bakery, Milk & Dairy",
       "mobile_number": "9845011223",
-      "date": "2026-10-04",
+      "date": "2026-10-07",
       "daily_due": 200,
       "paid_amount": 200,
       "pending_amount": 0,
@@ -65147,32 +65256,35 @@
       "collection_area": "Market Gate",
       "balance_remaining": 2500,
       "route_order": 28,
-      "missed_days_count": 8,
-      "missed_amount": 1600,
+      "missed_days_count": 11,
+      "missed_amount": 2200,
       "payment_mode": "Cash",
-      "receipt_id": "REC-1791118618697",
-      "receipt_number": "DC-REC-2026-03704"
+      "receipt_id": "REC-1791380606568",
+      "receipt_number": "DC-REC-2026-03721"
     },
     {
-      "id": "DC-2026-10-04-ACC-2026-030",
+      "id": "DC-2026-10-07-ACC-2026-030",
       "collection_account_id": "ACC-2026-030",
       "customer_id": "KRS10030",
       "customer_name": "Subhashini V.",
       "shop_name": "Krishna Organic Provisions & Millets",
       "mobile_number": "9845122334",
-      "date": "2026-10-04",
+      "date": "2026-10-07",
       "daily_due": 100,
-      "paid_amount": 0,
-      "pending_amount": 100,
+      "paid_amount": 100,
+      "pending_amount": 0,
       "advance_amount": 0,
-      "status": "PENDING",
+      "status": "PAID",
       "collector_id": "COL102",
       "collector_name": "Karthik Raja",
       "collection_area": "New Bus Stand Area",
-      "balance_remaining": 1350,
+      "balance_remaining": 1250,
       "route_order": 29,
-      "missed_days_count": 9,
-      "missed_amount": 900
+      "missed_days_count": 11,
+      "missed_amount": 1100,
+      "payment_mode": "Cash",
+      "receipt_id": "REC-1791380609193",
+      "receipt_number": "DC-REC-2026-03722"
     }
   ],
   "payments": [
@@ -88767,15 +88879,15 @@
       "shop_name": "Sri Krishna Supermarket & Provisions",
       "collection_date": "2026-08-10",
       "daily_due": 100,
-      "amount_paid": 100,
-      "advance_amount": 0,
+      "amount_paid": 300,
+      "advance_amount": 200,
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
       "previous_balance": 6000,
-      "remaining_balance": 5900,
-      "status": "SUCCESS",
-      "remarks": "Daily collection installment",
+      "remaining_balance": 5700,
+      "status": "ADVANCE",
+      "remarks": "Aadi festival advance collection",
       "created_at": "2026-08-10T11:00:00.000Z"
     },
     {
@@ -89387,8 +89499,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 5900,
-      "remaining_balance": 5800,
+      "previous_balance": 5700,
+      "remaining_balance": 5600,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-08-11T11:00:00.000Z"
@@ -90002,8 +90114,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 5800,
-      "remaining_balance": 5700,
+      "previous_balance": 5600,
+      "remaining_balance": 5500,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-08-12T11:00:00.000Z"
@@ -90596,8 +90708,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 5700,
-      "remaining_balance": 5600,
+      "previous_balance": 5500,
+      "remaining_balance": 5400,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-08-13T11:00:00.000Z"
@@ -91211,8 +91323,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 5600,
-      "remaining_balance": 5500,
+      "previous_balance": 5400,
+      "remaining_balance": 5300,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-08-14T11:00:00.000Z"
@@ -91805,8 +91917,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 5500,
-      "remaining_balance": 5400,
+      "previous_balance": 5300,
+      "remaining_balance": 5200,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-08-15T11:00:00.000Z"
@@ -92379,8 +92491,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 5400,
-      "remaining_balance": 5300,
+      "previous_balance": 5200,
+      "remaining_balance": 5100,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-08-16T11:00:00.000Z"
@@ -92973,8 +93085,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 5300,
-      "remaining_balance": 5200,
+      "previous_balance": 5100,
+      "remaining_balance": 5000,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-08-17T11:00:00.000Z"
@@ -93568,8 +93680,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 5200,
-      "remaining_balance": 5100,
+      "previous_balance": 5000,
+      "remaining_balance": 4900,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-08-18T11:00:00.000Z"
@@ -94162,8 +94274,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 5100,
-      "remaining_balance": 5000,
+      "previous_balance": 4900,
+      "remaining_balance": 4800,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-08-19T11:00:00.000Z"
@@ -94757,8 +94869,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 5000,
-      "remaining_balance": 4900,
+      "previous_balance": 4800,
+      "remaining_balance": 4700,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-08-20T11:00:00.000Z"
@@ -95351,8 +95463,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 4900,
-      "remaining_balance": 4800,
+      "previous_balance": 4700,
+      "remaining_balance": 4600,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-08-21T11:00:00.000Z"
@@ -95946,8 +96058,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 4800,
-      "remaining_balance": 4700,
+      "previous_balance": 4600,
+      "remaining_balance": 4500,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-08-22T11:00:00.000Z"
@@ -96519,8 +96631,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 4700,
-      "remaining_balance": 4600,
+      "previous_balance": 4500,
+      "remaining_balance": 4400,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-08-23T11:00:00.000Z"
@@ -97114,8 +97226,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 4600,
-      "remaining_balance": 4500,
+      "previous_balance": 4400,
+      "remaining_balance": 4300,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-08-24T11:00:00.000Z"
@@ -97708,8 +97820,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 4500,
-      "remaining_balance": 4400,
+      "previous_balance": 4300,
+      "remaining_balance": 4200,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-08-25T11:00:00.000Z"
@@ -98303,8 +98415,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 4400,
-      "remaining_balance": 4300,
+      "previous_balance": 4200,
+      "remaining_balance": 4100,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-08-26T11:00:00.000Z"
@@ -98897,8 +99009,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 4300,
-      "remaining_balance": 4200,
+      "previous_balance": 4100,
+      "remaining_balance": 4000,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-08-27T11:00:00.000Z"
@@ -99492,8 +99604,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 4200,
-      "remaining_balance": 4100,
+      "previous_balance": 4000,
+      "remaining_balance": 3900,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-08-28T11:00:00.000Z"
@@ -100086,8 +100198,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 4100,
-      "remaining_balance": 4000,
+      "previous_balance": 3900,
+      "remaining_balance": 3800,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-08-29T11:00:00.000Z"
@@ -100681,8 +100793,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 4000,
-      "remaining_balance": 3900,
+      "previous_balance": 3800,
+      "remaining_balance": 3700,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-08-30T11:00:00.000Z"
@@ -101275,8 +101387,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 3900,
-      "remaining_balance": 3800,
+      "previous_balance": 3700,
+      "remaining_balance": 3600,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-08-31T11:00:00.000Z"
@@ -101870,8 +101982,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 3800,
-      "remaining_balance": 3700,
+      "previous_balance": 3600,
+      "remaining_balance": 3500,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-09-01T11:00:00.000Z"
@@ -102485,8 +102597,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 3700,
-      "remaining_balance": 3600,
+      "previous_balance": 3500,
+      "remaining_balance": 3400,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-09-02T11:00:00.000Z"
@@ -103100,8 +103212,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 3600,
-      "remaining_balance": 3500,
+      "previous_balance": 3400,
+      "remaining_balance": 3300,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-09-03T11:00:00.000Z"
@@ -103695,8 +103807,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 3500,
-      "remaining_balance": 3400,
+      "previous_balance": 3300,
+      "remaining_balance": 3200,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-09-04T11:00:00.000Z"
@@ -104290,8 +104402,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 3400,
-      "remaining_balance": 3300,
+      "previous_balance": 3200,
+      "remaining_balance": 3100,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-09-05T11:00:00.000Z"
@@ -104864,8 +104976,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 3300,
-      "remaining_balance": 3200,
+      "previous_balance": 3100,
+      "remaining_balance": 3000,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-09-06T11:00:00.000Z"
@@ -105459,8 +105571,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 3200,
-      "remaining_balance": 3100,
+      "previous_balance": 3000,
+      "remaining_balance": 2900,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-09-07T11:00:00.000Z"
@@ -106054,8 +106166,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 3100,
-      "remaining_balance": 3000,
+      "previous_balance": 2900,
+      "remaining_balance": 2800,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-09-08T11:00:00.000Z"
@@ -106649,8 +106761,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 3000,
-      "remaining_balance": 2900,
+      "previous_balance": 2800,
+      "remaining_balance": 2700,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-09-09T11:00:00.000Z"
@@ -107244,8 +107356,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 2900,
-      "remaining_balance": 2800,
+      "previous_balance": 2700,
+      "remaining_balance": 2600,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-09-10T11:00:00.000Z"
@@ -107839,8 +107951,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 2800,
-      "remaining_balance": 2700,
+      "previous_balance": 2600,
+      "remaining_balance": 2500,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-09-11T11:00:00.000Z"
@@ -108434,8 +108546,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 2700,
-      "remaining_balance": 2600,
+      "previous_balance": 2500,
+      "remaining_balance": 2400,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-09-12T11:00:00.000Z"
@@ -109008,8 +109120,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 2600,
-      "remaining_balance": 2500,
+      "previous_balance": 2400,
+      "remaining_balance": 2300,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-09-13T11:00:00.000Z"
@@ -109603,8 +109715,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 2500,
-      "remaining_balance": 2400,
+      "previous_balance": 2300,
+      "remaining_balance": 2200,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-09-14T11:00:00.000Z"
@@ -110177,8 +110289,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 2400,
-      "remaining_balance": 2300,
+      "previous_balance": 2200,
+      "remaining_balance": 2100,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-09-15T11:00:00.000Z"
@@ -110731,8 +110843,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 2300,
-      "remaining_balance": 2200,
+      "previous_balance": 2100,
+      "remaining_balance": 2000,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-09-16T11:00:00.000Z"
@@ -111305,8 +111417,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 2200,
-      "remaining_balance": 2100,
+      "previous_balance": 2000,
+      "remaining_balance": 1900,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-09-17T11:00:00.000Z"
@@ -111880,8 +111992,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 2100,
-      "remaining_balance": 2000,
+      "previous_balance": 1900,
+      "remaining_balance": 1800,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-09-18T11:00:00.000Z"
@@ -112454,8 +112566,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 2000,
-      "remaining_balance": 1900,
+      "previous_balance": 1800,
+      "remaining_balance": 1700,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-09-19T11:00:00.000Z"
@@ -113029,8 +113141,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 1900,
-      "remaining_balance": 1800,
+      "previous_balance": 1700,
+      "remaining_balance": 1600,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-09-20T11:00:00.000Z"
@@ -113603,8 +113715,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 1800,
-      "remaining_balance": 1700,
+      "previous_balance": 1600,
+      "remaining_balance": 1500,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-09-21T11:00:00.000Z"
@@ -114178,8 +114290,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 1700,
-      "remaining_balance": 1600,
+      "previous_balance": 1500,
+      "remaining_balance": 1400,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-09-22T11:00:00.000Z"
@@ -114731,8 +114843,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 1600,
-      "remaining_balance": 1500,
+      "previous_balance": 1400,
+      "remaining_balance": 1300,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-09-23T11:00:00.000Z"
@@ -115306,8 +115418,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 1500,
-      "remaining_balance": 1400,
+      "previous_balance": 1300,
+      "remaining_balance": 1200,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-09-24T11:00:00.000Z"
@@ -115880,8 +115992,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 1400,
-      "remaining_balance": 1300,
+      "previous_balance": 1200,
+      "remaining_balance": 1100,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-09-25T11:00:00.000Z"
@@ -116455,8 +116567,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 1300,
-      "remaining_balance": 1200,
+      "previous_balance": 1100,
+      "remaining_balance": 1000,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-09-26T11:00:00.000Z"
@@ -117029,8 +117141,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 1200,
-      "remaining_balance": 1100,
+      "previous_balance": 1000,
+      "remaining_balance": 900,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-09-27T11:00:00.000Z"
@@ -117604,8 +117716,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 1100,
-      "remaining_balance": 1000,
+      "previous_balance": 900,
+      "remaining_balance": 800,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-09-28T11:00:00.000Z"
@@ -118178,8 +118290,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 1000,
-      "remaining_balance": 900,
+      "previous_balance": 800,
+      "remaining_balance": 700,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-09-29T11:00:00.000Z"
@@ -118753,8 +118865,8 @@
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 900,
-      "remaining_balance": 800,
+      "previous_balance": 700,
+      "remaining_balance": 600,
       "status": "SUCCESS",
       "remarks": "Daily collection installment",
       "created_at": "2026-09-30T11:00:00.000Z"
@@ -119068,51 +119180,70 @@
       "created_at": "2026-09-30T11:34:00.000Z"
     },
     {
-      "id": "PAY-1791116137701",
+      "id": "PAY-1791380527498",
       "receipt_number": "DC-REC-2026-03694",
       "collection_account_id": "ACC-2026-001",
       "customer_id": "KRS10001",
       "customer_name": "Ramesh Kumar",
       "shop_name": "Sri Krishna Supermarket & Provisions",
-      "collection_date": "2026-10-04",
+      "collection_date": "2026-10-07",
       "daily_due": 100,
       "amount_paid": 100,
       "advance_amount": 0,
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 800,
-      "remaining_balance": 700,
+      "previous_balance": 600,
+      "remaining_balance": 500,
       "status": "SUCCESS",
-      "created_at": "2026-10-04T12:15:37.701Z"
+      "created_at": "2026-10-07T13:42:07.498Z"
     },
     {
-      "id": "PAY-1791116140458",
+      "id": "PAY-1791380531884",
       "receipt_number": "DC-REC-2026-03695",
-      "collection_account_id": "ACC-2026-006",
-      "customer_id": "KRS10006",
-      "customer_name": "Kavitha Selvam",
-      "shop_name": "Selvam Fancy Store, Toys & Stationeries",
-      "collection_date": "2026-10-04",
-      "daily_due": 100,
-      "amount_paid": 100,
+      "collection_account_id": "ACC-2026-003",
+      "customer_id": "KRS10003",
+      "customer_name": "Meenakshi Ammal",
+      "shop_name": "Murugan Textiles, Sarees & Readymade",
+      "collection_date": "2026-10-07",
+      "daily_due": 500,
+      "amount_paid": 500,
       "advance_amount": 0,
       "payment_mode": "Cash",
-      "collector_id": "COL101",
-      "collector_name": "Murugan S.",
-      "previous_balance": 800,
-      "remaining_balance": 700,
+      "collector_id": "COL103",
+      "collector_name": "Saravanan P.",
+      "previous_balance": 4000,
+      "remaining_balance": 3500,
       "status": "SUCCESS",
-      "created_at": "2026-10-04T12:15:40.458Z"
+      "created_at": "2026-10-07T13:42:11.884Z"
     },
     {
-      "id": "PAY-1791116181567",
+      "id": "PAY-1791380536516",
+      "receipt_number": "DC-REC-2026-03696",
+      "collection_account_id": "ACC-2026-002",
+      "customer_id": "KRS10002",
+      "customer_name": "Sundar Rajan",
+      "shop_name": "Annapoorna Sweets, Bakery & Snacks",
+      "collection_date": "2026-10-07",
+      "daily_due": 200,
+      "amount_paid": 200,
+      "advance_amount": 0,
+      "payment_mode": "Cash",
+      "collector_id": "COL102",
+      "collector_name": "Karthik Raja",
+      "previous_balance": 1400,
+      "remaining_balance": 1200,
+      "status": "SUCCESS",
+      "created_at": "2026-10-07T13:42:16.516Z"
+    },
+    {
+      "id": "PAY-1791380539454",
       "receipt_number": "DC-REC-2026-03697",
       "collection_account_id": "ACC-2026-004",
       "customer_id": "KRS10004",
       "customer_name": "Vijay Anand",
       "shop_name": "Anand Hardware, Paints & Electricals",
-      "collection_date": "2026-10-04",
+      "collection_date": "2026-10-07",
       "daily_due": 100,
       "amount_paid": 100,
       "advance_amount": 0,
@@ -119122,35 +119253,111 @@
       "previous_balance": 1700,
       "remaining_balance": 1600,
       "status": "SUCCESS",
-      "created_at": "2026-10-04T12:16:21.567Z"
+      "created_at": "2026-10-07T13:42:19.454Z"
     },
     {
-      "id": "PAY-1791116184098",
+      "id": "PAY-1791380542344",
       "receipt_number": "DC-REC-2026-03698",
-      "collection_account_id": "ACC-2026-014",
-      "customer_id": "KRS10014",
-      "customer_name": "Manikandan R.",
-      "shop_name": "Murugan Fruit Stall & Fresh Juice Corner",
-      "collection_date": "2026-10-04",
+      "collection_account_id": "ACC-2026-006",
+      "customer_id": "KRS10006",
+      "customer_name": "Kavitha Selvam",
+      "shop_name": "Selvam Fancy Store, Toys & Stationeries",
+      "collection_date": "2026-10-07",
       "daily_due": 100,
       "amount_paid": 100,
       "advance_amount": 0,
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 1550,
-      "remaining_balance": 1450,
+      "previous_balance": 800,
+      "remaining_balance": 700,
       "status": "SUCCESS",
-      "created_at": "2026-10-04T12:16:24.098Z"
+      "created_at": "2026-10-07T13:42:22.344Z"
     },
     {
-      "id": "PAY-1791116187095",
+      "id": "PAY-1791380545030",
       "receipt_number": "DC-REC-2026-03699",
+      "collection_account_id": "ACC-2026-007",
+      "customer_id": "KRS10007",
+      "customer_name": "Muthuraman K.",
+      "shop_name": "Sri Lakshmi Medicals & Health Care",
+      "collection_date": "2026-10-07",
+      "daily_due": 200,
+      "amount_paid": 200,
+      "advance_amount": 0,
+      "payment_mode": "Cash",
+      "collector_id": "COL102",
+      "collector_name": "Karthik Raja",
+      "previous_balance": 1800,
+      "remaining_balance": 1600,
+      "status": "SUCCESS",
+      "created_at": "2026-10-07T13:42:25.030Z"
+    },
+    {
+      "id": "PAY-1791380547902",
+      "receipt_number": "DC-REC-2026-03700",
+      "collection_account_id": "ACC-2026-008",
+      "customer_id": "KRS10008",
+      "customer_name": "Annamalai C.",
+      "shop_name": "Balaji Automobiles & Two-Wheeler Spares",
+      "collection_date": "2026-10-07",
+      "daily_due": 100,
+      "amount_paid": 100,
+      "advance_amount": 0,
+      "payment_mode": "Cash",
+      "collector_id": "COL103",
+      "collector_name": "Saravanan P.",
+      "previous_balance": 950,
+      "remaining_balance": 850,
+      "status": "SUCCESS",
+      "created_at": "2026-10-07T13:42:27.902Z"
+    },
+    {
+      "id": "PAY-1791380551672",
+      "receipt_number": "DC-REC-2026-03701",
+      "collection_account_id": "ACC-2026-009",
+      "customer_id": "KRS10009",
+      "customer_name": "Priya Dharshini",
+      "shop_name": "Priya Bridal Studio & Tailoring",
+      "collection_date": "2026-10-07",
+      "daily_due": 100,
+      "amount_paid": 100,
+      "advance_amount": 0,
+      "payment_mode": "Cash",
+      "collector_id": "COL101",
+      "collector_name": "Murugan S.",
+      "previous_balance": 1850,
+      "remaining_balance": 1750,
+      "status": "SUCCESS",
+      "created_at": "2026-10-07T13:42:31.672Z"
+    },
+    {
+      "id": "PAY-1791380554248",
+      "receipt_number": "DC-REC-2026-03702",
+      "collection_account_id": "ACC-2026-010",
+      "customer_id": "KRS10010",
+      "customer_name": "Selva Ganesh",
+      "shop_name": "Ganesh Electricals & Home Appliances",
+      "collection_date": "2026-10-07",
+      "daily_due": 200,
+      "amount_paid": 200,
+      "advance_amount": 0,
+      "payment_mode": "Cash",
+      "collector_id": "COL102",
+      "collector_name": "Karthik Raja",
+      "previous_balance": 1900,
+      "remaining_balance": 1700,
+      "status": "SUCCESS",
+      "created_at": "2026-10-07T13:42:34.248Z"
+    },
+    {
+      "id": "PAY-1791380556893",
+      "receipt_number": "DC-REC-2026-03703",
       "collection_account_id": "ACC-2026-011",
       "customer_id": "KRS10011",
       "customer_name": "Saravanan V.",
       "shop_name": "Thirumalai Maligai & Provisions",
-      "collection_date": "2026-10-04",
+      "collection_date": "2026-10-07",
       "daily_due": 200,
       "amount_paid": 200,
       "advance_amount": 0,
@@ -119160,73 +119367,149 @@
       "previous_balance": 1900,
       "remaining_balance": 1700,
       "status": "SUCCESS",
-      "created_at": "2026-10-04T12:16:27.095Z"
+      "created_at": "2026-10-07T13:42:36.893Z"
     },
     {
-      "id": "PAY-1791116191491",
-      "receipt_number": "DC-REC-2026-03700",
-      "collection_account_id": "ACC-2026-019",
-      "customer_id": "KRS10019",
-      "customer_name": "Radha Krishnan",
-      "shop_name": "Sri Radha Krishna Flower Market",
-      "collection_date": "2026-10-04",
+      "id": "PAY-1791380559414",
+      "receipt_number": "DC-REC-2026-03704",
+      "collection_account_id": "ACC-2026-012",
+      "customer_id": "KRS10012",
+      "customer_name": "Lakshmi Narayanan",
+      "shop_name": "Royal Footwear & Bag World",
+      "collection_date": "2026-10-07",
+      "daily_due": 100,
+      "amount_paid": 100,
+      "advance_amount": 0,
+      "payment_mode": "Cash",
+      "collector_id": "COL102",
+      "collector_name": "Karthik Raja",
+      "previous_balance": 1350,
+      "remaining_balance": 1250,
+      "status": "SUCCESS",
+      "created_at": "2026-10-07T13:42:39.414Z"
+    },
+    {
+      "id": "PAY-1791380562940",
+      "receipt_number": "DC-REC-2026-03705",
+      "collection_account_id": "ACC-2026-013",
+      "customer_id": "KRS10013",
+      "customer_name": "Deepa Venkatesh",
+      "shop_name": "Deepa Xerox, DTP & Online Services",
+      "collection_date": "2026-10-07",
+      "daily_due": 100,
+      "amount_paid": 100,
+      "advance_amount": 0,
+      "payment_mode": "Cash",
+      "collector_id": "COL103",
+      "collector_name": "Saravanan P.",
+      "previous_balance": 1150,
+      "remaining_balance": 1050,
+      "status": "SUCCESS",
+      "created_at": "2026-10-07T13:42:42.940Z"
+    },
+    {
+      "id": "PAY-1791380565675",
+      "receipt_number": "DC-REC-2026-03706",
+      "collection_account_id": "ACC-2026-014",
+      "customer_id": "KRS10014",
+      "customer_name": "Manikandan R.",
+      "shop_name": "Murugan Fruit Stall & Fresh Juice Corner",
+      "collection_date": "2026-10-07",
       "daily_due": 100,
       "amount_paid": 100,
       "advance_amount": 0,
       "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
-      "previous_balance": 1350,
-      "remaining_balance": 1250,
+      "previous_balance": 1550,
+      "remaining_balance": 1450,
       "status": "SUCCESS",
-      "created_at": "2026-10-04T12:16:31.491Z"
+      "created_at": "2026-10-07T13:42:45.675Z"
     },
     {
-      "id": "PAY-1791118521824",
-      "receipt_number": "DC-REC-2026-03701",
+      "id": "PAY-1791380568281",
+      "receipt_number": "DC-REC-2026-03707",
+      "collection_account_id": "ACC-2026-015",
+      "customer_id": "KRS10015",
+      "customer_name": "Rajasekaran P.",
+      "shop_name": "Raja Cafe & Hot Chips Centre",
+      "collection_date": "2026-10-07",
+      "daily_due": 100,
+      "amount_paid": 100,
+      "advance_amount": 0,
+      "payment_mode": "Cash",
+      "collector_id": "COL102",
+      "collector_name": "Karthik Raja",
+      "previous_balance": 1250,
+      "remaining_balance": 1150,
+      "status": "SUCCESS",
+      "created_at": "2026-10-07T13:42:48.281Z"
+    },
+    {
+      "id": "PAY-1791380570983",
+      "receipt_number": "DC-REC-2026-03708",
       "collection_account_id": "ACC-2026-016",
       "customer_id": "KRS10016",
       "customer_name": "Thangavel M.",
       "shop_name": "Sri Murugan Iron Hardware & Pipes",
-      "collection_date": "2026-10-04",
+      "collection_date": "2026-10-07",
       "daily_due": 500,
       "amount_paid": 500,
       "advance_amount": 0,
-      "payment_mode": "UPI",
+      "payment_mode": "Cash",
       "collector_id": "COL101",
       "collector_name": "Murugan S.",
       "previous_balance": 6250,
       "remaining_balance": 5750,
       "status": "SUCCESS",
-      "created_at": "2026-10-04T12:55:21.824Z"
+      "created_at": "2026-10-07T13:42:50.983Z"
     },
     {
-      "id": "PAY-1791118597909",
-      "receipt_number": "DC-REC-2026-03702",
-      "collection_account_id": "ACC-2026-021",
-      "customer_id": "KRS10021",
-      "customer_name": "Karthikeyan S.",
-      "shop_name": "Shiva Sakthi Rice Mundy & Wholesale",
-      "collection_date": "2026-10-04",
-      "daily_due": 200,
-      "amount_paid": 200,
+      "id": "PAY-1791380573839",
+      "receipt_number": "DC-REC-2026-03709",
+      "collection_account_id": "ACC-2026-017",
+      "customer_id": "KRS10017",
+      "customer_name": "Balamurugan S.",
+      "shop_name": "Bala Mobile Store & Quick Service",
+      "collection_date": "2026-10-07",
+      "daily_due": 100,
+      "amount_paid": 100,
       "advance_amount": 0,
       "payment_mode": "Cash",
-      "collector_id": "COL101",
-      "collector_name": "Murugan S.",
-      "previous_balance": 2700,
-      "remaining_balance": 2500,
+      "collector_id": "COL102",
+      "collector_name": "Karthik Raja",
+      "previous_balance": 1250,
+      "remaining_balance": 1150,
       "status": "SUCCESS",
-      "created_at": "2026-10-04T12:56:37.909Z"
+      "created_at": "2026-10-07T13:42:53.839Z"
     },
     {
-      "id": "PAY-1791118616085",
-      "receipt_number": "DC-REC-2026-03703",
-      "collection_account_id": "ACC-2026-024",
-      "customer_id": "KRS10024",
-      "customer_name": "Revathi Mohan",
-      "shop_name": "Mohan Tailors & Readymade Garments",
-      "collection_date": "2026-10-04",
+      "id": "PAY-1791380576453",
+      "receipt_number": "DC-REC-2026-03710",
+      "collection_account_id": "ACC-2026-018",
+      "customer_id": "KRS10018",
+      "customer_name": "Shanmuga Sundaram",
+      "shop_name": "Sundaram Timber & Plywood Depot",
+      "collection_date": "2026-10-07",
+      "daily_due": 500,
+      "amount_paid": 500,
+      "advance_amount": 0,
+      "payment_mode": "Cash",
+      "collector_id": "COL103",
+      "collector_name": "Saravanan P.",
+      "previous_balance": 6250,
+      "remaining_balance": 5750,
+      "status": "SUCCESS",
+      "created_at": "2026-10-07T13:42:56.453Z"
+    },
+    {
+      "id": "PAY-1791380578951",
+      "receipt_number": "DC-REC-2026-03711",
+      "collection_account_id": "ACC-2026-019",
+      "customer_id": "KRS10019",
+      "customer_name": "Radha Krishnan",
+      "shop_name": "Sri Radha Krishna Flower Market",
+      "collection_date": "2026-10-07",
       "daily_due": 100,
       "amount_paid": 100,
       "advance_amount": 0,
@@ -119236,16 +119519,35 @@
       "previous_balance": 1350,
       "remaining_balance": 1250,
       "status": "SUCCESS",
-      "created_at": "2026-10-04T12:56:56.085Z"
+      "created_at": "2026-10-07T13:42:58.951Z"
     },
     {
-      "id": "PAY-1791118618697",
-      "receipt_number": "DC-REC-2026-03704",
-      "collection_account_id": "ACC-2026-029",
-      "customer_id": "KRS10029",
-      "customer_name": "Kalaiselvan S.",
-      "shop_name": "Sri Kumaran Bakery, Milk & Dairy",
-      "collection_date": "2026-10-04",
+      "id": "PAY-1791380581573",
+      "receipt_number": "DC-REC-2026-03712",
+      "collection_account_id": "ACC-2026-020",
+      "customer_id": "KRS10020",
+      "customer_name": "Geetha Rani",
+      "shop_name": "Saraswathi Book Center & Stationers",
+      "collection_date": "2026-10-07",
+      "daily_due": 100,
+      "amount_paid": 100,
+      "advance_amount": 0,
+      "payment_mode": "Cash",
+      "collector_id": "COL102",
+      "collector_name": "Karthik Raja",
+      "previous_balance": 1350,
+      "remaining_balance": 1250,
+      "status": "SUCCESS",
+      "created_at": "2026-10-07T13:43:01.573Z"
+    },
+    {
+      "id": "PAY-1791380586110",
+      "receipt_number": "DC-REC-2026-03713",
+      "collection_account_id": "ACC-2026-021",
+      "customer_id": "KRS10021",
+      "customer_name": "Karthikeyan S.",
+      "shop_name": "Shiva Sakthi Rice Mundy & Wholesale",
+      "collection_date": "2026-10-07",
       "daily_due": 200,
       "amount_paid": 200,
       "advance_amount": 0,
@@ -119255,16 +119557,187 @@
       "previous_balance": 2700,
       "remaining_balance": 2500,
       "status": "SUCCESS",
-      "created_at": "2026-10-04T12:56:58.697Z"
+      "created_at": "2026-10-07T13:43:06.110Z"
     },
     {
-      "id": "PAY-1791118621839",
-      "receipt_number": "DC-REC-2026-03705",
+      "id": "PAY-1791380588641",
+      "receipt_number": "DC-REC-2026-03714",
+      "collection_account_id": "ACC-2026-022",
+      "customer_id": "KRS10022",
+      "customer_name": "Sivakumar M.",
+      "shop_name": "Maruthi Cycle Works & Fitness Gears",
+      "collection_date": "2026-10-07",
+      "daily_due": 100,
+      "amount_paid": 100,
+      "advance_amount": 0,
+      "payment_mode": "Cash",
+      "collector_id": "COL102",
+      "collector_name": "Karthik Raja",
+      "previous_balance": 1350,
+      "remaining_balance": 1250,
+      "status": "SUCCESS",
+      "created_at": "2026-10-07T13:43:08.641Z"
+    },
+    {
+      "id": "PAY-1791380591138",
+      "receipt_number": "DC-REC-2026-03715",
+      "collection_account_id": "ACC-2026-023",
+      "customer_id": "KRS10023",
+      "customer_name": "Govindaraj K.",
+      "shop_name": "Om Muruga Optical & Eye Care",
+      "collection_date": "2026-10-07",
+      "daily_due": 100,
+      "amount_paid": 100,
+      "advance_amount": 0,
+      "payment_mode": "Cash",
+      "collector_id": "COL103",
+      "collector_name": "Saravanan P.",
+      "previous_balance": 1350,
+      "remaining_balance": 1250,
+      "status": "SUCCESS",
+      "created_at": "2026-10-07T13:43:11.138Z"
+    },
+    {
+      "id": "PAY-1791380593841",
+      "receipt_number": "DC-REC-2026-03716",
+      "collection_account_id": "ACC-2026-024",
+      "customer_id": "KRS10024",
+      "customer_name": "Revathi Mohan",
+      "shop_name": "Mohan Tailors & Readymade Garments",
+      "collection_date": "2026-10-07",
+      "daily_due": 100,
+      "amount_paid": 100,
+      "advance_amount": 0,
+      "payment_mode": "Cash",
+      "collector_id": "COL101",
+      "collector_name": "Murugan S.",
+      "previous_balance": 1350,
+      "remaining_balance": 1250,
+      "status": "SUCCESS",
+      "created_at": "2026-10-07T13:43:13.841Z"
+    },
+    {
+      "id": "PAY-1791380596434",
+      "receipt_number": "DC-REC-2026-03717",
+      "collection_account_id": "ACC-2026-025",
+      "customer_id": "KRS10025",
+      "customer_name": "Arumugam P.",
+      "shop_name": "Vasantham Pure Veg Tiffin Center",
+      "collection_date": "2026-10-07",
+      "daily_due": 200,
+      "amount_paid": 200,
+      "advance_amount": 0,
+      "payment_mode": "Cash",
+      "collector_id": "COL102",
+      "collector_name": "Karthik Raja",
+      "previous_balance": 2700,
+      "remaining_balance": 2500,
+      "status": "SUCCESS",
+      "created_at": "2026-10-07T13:43:16.434Z"
+    },
+    {
+      "id": "PAY-1791380599059",
+      "receipt_number": "DC-REC-2026-03718",
+      "collection_account_id": "ACC-2026-026",
+      "customer_id": "KRS10026",
+      "customer_name": "Vijayalakshmi N.",
+      "shop_name": "Lakshmi Gold Covering & Fashion Jewels",
+      "collection_date": "2026-10-07",
+      "daily_due": 200,
+      "amount_paid": 200,
+      "advance_amount": 0,
+      "payment_mode": "Cash",
+      "collector_id": "COL101",
+      "collector_name": "Murugan S.",
+      "previous_balance": 2700,
+      "remaining_balance": 2500,
+      "status": "SUCCESS",
+      "created_at": "2026-10-07T13:43:19.059Z"
+    },
+    {
+      "id": "PAY-1791380601647",
+      "receipt_number": "DC-REC-2026-03719",
+      "collection_account_id": "ACC-2026-027",
+      "customer_id": "KRS10027",
+      "customer_name": "Dinesh Kumar",
+      "shop_name": "Smart Computers & CCTV Security Solutions",
+      "collection_date": "2026-10-07",
+      "daily_due": 100,
+      "amount_paid": 100,
+      "advance_amount": 0,
+      "payment_mode": "Cash",
+      "collector_id": "COL102",
+      "collector_name": "Karthik Raja",
+      "previous_balance": 1350,
+      "remaining_balance": 1250,
+      "status": "SUCCESS",
+      "created_at": "2026-10-07T13:43:21.647Z"
+    },
+    {
+      "id": "PAY-1791380604093",
+      "receipt_number": "DC-REC-2026-03720",
+      "collection_account_id": "ACC-2026-028",
+      "customer_id": "KRS10028",
+      "customer_name": "Padmavathi R.",
+      "shop_name": "Padmavathi Fancy & Plastic Home Goods",
+      "collection_date": "2026-10-07",
+      "daily_due": 100,
+      "amount_paid": 100,
+      "advance_amount": 0,
+      "payment_mode": "Cash",
+      "collector_id": "COL103",
+      "collector_name": "Saravanan P.",
+      "previous_balance": 1350,
+      "remaining_balance": 1250,
+      "status": "SUCCESS",
+      "created_at": "2026-10-07T13:43:24.093Z"
+    },
+    {
+      "id": "PAY-1791380606568",
+      "receipt_number": "DC-REC-2026-03721",
+      "collection_account_id": "ACC-2026-029",
+      "customer_id": "KRS10029",
+      "customer_name": "Kalaiselvan S.",
+      "shop_name": "Sri Kumaran Bakery, Milk & Dairy",
+      "collection_date": "2026-10-07",
+      "daily_due": 200,
+      "amount_paid": 200,
+      "advance_amount": 0,
+      "payment_mode": "Cash",
+      "collector_id": "COL101",
+      "collector_name": "Murugan S.",
+      "previous_balance": 2700,
+      "remaining_balance": 2500,
+      "status": "SUCCESS",
+      "created_at": "2026-10-07T13:43:26.568Z"
+    },
+    {
+      "id": "PAY-1791380609193",
+      "receipt_number": "DC-REC-2026-03722",
+      "collection_account_id": "ACC-2026-030",
+      "customer_id": "KRS10030",
+      "customer_name": "Subhashini V.",
+      "shop_name": "Krishna Organic Provisions & Millets",
+      "collection_date": "2026-10-07",
+      "daily_due": 100,
+      "amount_paid": 100,
+      "advance_amount": 0,
+      "payment_mode": "Cash",
+      "collector_id": "COL102",
+      "collector_name": "Karthik Raja",
+      "previous_balance": 1350,
+      "remaining_balance": 1250,
+      "status": "SUCCESS",
+      "created_at": "2026-10-07T13:43:29.193Z"
+    },
+    {
+      "id": "PAY-1791380611752",
+      "receipt_number": "DC-REC-2026-03723",
       "collection_account_id": "ACC-2026-031",
       "customer_id": "DC10031",
       "customer_name": "siva kumar s",
       "shop_name": "siva kumar s's Store",
-      "collection_date": "2026-10-04",
+      "collection_date": "2026-10-07",
       "daily_due": 100,
       "amount_paid": 100,
       "advance_amount": 0,
@@ -119274,26 +119747,7 @@
       "previous_balance": 10000,
       "remaining_balance": 9900,
       "status": "SUCCESS",
-      "created_at": "2026-10-04T12:57:01.839Z"
-    },
-    {
-      "id": "PAY-1791118624566",
-      "receipt_number": "DC-REC-2026-03706",
-      "collection_account_id": "ACC-2026-026",
-      "customer_id": "KRS10026",
-      "customer_name": "Vijayalakshmi N.",
-      "shop_name": "Lakshmi Gold Covering & Fashion Jewels",
-      "collection_date": "2026-10-04",
-      "daily_due": 200,
-      "amount_paid": 200,
-      "advance_amount": 0,
-      "payment_mode": "Cash",
-      "collector_id": "COL101",
-      "collector_name": "Murugan S.",
-      "previous_balance": 2700,
-      "remaining_balance": 2500,
-      "status": "SUCCESS",
-      "created_at": "2026-10-04T12:57:04.566Z"
+      "created_at": "2026-10-07T13:43:31.752Z"
     }
   ],
   "receipts": [
@@ -140006,10 +140460,10 @@
       "customer_name": "Ramesh Kumar",
       "shop_name": "Sri Krishna Supermarket & Provisions",
       "daily_due": 100,
-      "amount_paid": 100,
+      "amount_paid": 300,
       "payment_mode": "Cash",
       "previous_balance": 6000,
-      "remaining_balance": 5900,
+      "remaining_balance": 5700,
       "collector_name": "Murugan S.",
       "date": "2026-08-10",
       "created_at": "2026-08-10T11:00:00.000Z",
@@ -140548,8 +141002,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 5900,
-      "remaining_balance": 5800,
+      "previous_balance": 5700,
+      "remaining_balance": 5600,
       "collector_name": "Murugan S.",
       "date": "2026-08-11",
       "created_at": "2026-08-11T11:00:00.000Z",
@@ -141088,8 +141542,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 5800,
-      "remaining_balance": 5700,
+      "previous_balance": 5600,
+      "remaining_balance": 5500,
       "collector_name": "Murugan S.",
       "date": "2026-08-12",
       "created_at": "2026-08-12T11:00:00.000Z",
@@ -141610,8 +142064,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 5700,
-      "remaining_balance": 5600,
+      "previous_balance": 5500,
+      "remaining_balance": 5400,
       "collector_name": "Murugan S.",
       "date": "2026-08-13",
       "created_at": "2026-08-13T11:00:00.000Z",
@@ -142150,8 +142604,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 5600,
-      "remaining_balance": 5500,
+      "previous_balance": 5400,
+      "remaining_balance": 5300,
       "collector_name": "Murugan S.",
       "date": "2026-08-14",
       "created_at": "2026-08-14T11:00:00.000Z",
@@ -142672,8 +143126,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 5500,
-      "remaining_balance": 5400,
+      "previous_balance": 5300,
+      "remaining_balance": 5200,
       "collector_name": "Murugan S.",
       "date": "2026-08-15",
       "created_at": "2026-08-15T11:00:00.000Z",
@@ -143176,8 +143630,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 5400,
-      "remaining_balance": 5300,
+      "previous_balance": 5200,
+      "remaining_balance": 5100,
       "collector_name": "Murugan S.",
       "date": "2026-08-16",
       "created_at": "2026-08-16T11:00:00.000Z",
@@ -143698,8 +144152,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 5300,
-      "remaining_balance": 5200,
+      "previous_balance": 5100,
+      "remaining_balance": 5000,
       "collector_name": "Murugan S.",
       "date": "2026-08-17",
       "created_at": "2026-08-17T11:00:00.000Z",
@@ -144220,8 +144674,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 5200,
-      "remaining_balance": 5100,
+      "previous_balance": 5000,
+      "remaining_balance": 4900,
       "collector_name": "Murugan S.",
       "date": "2026-08-18",
       "created_at": "2026-08-18T11:00:00.000Z",
@@ -144742,8 +145196,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 5100,
-      "remaining_balance": 5000,
+      "previous_balance": 4900,
+      "remaining_balance": 4800,
       "collector_name": "Murugan S.",
       "date": "2026-08-19",
       "created_at": "2026-08-19T11:00:00.000Z",
@@ -145264,8 +145718,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 5000,
-      "remaining_balance": 4900,
+      "previous_balance": 4800,
+      "remaining_balance": 4700,
       "collector_name": "Murugan S.",
       "date": "2026-08-20",
       "created_at": "2026-08-20T11:00:00.000Z",
@@ -145786,8 +146240,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 4900,
-      "remaining_balance": 4800,
+      "previous_balance": 4700,
+      "remaining_balance": 4600,
       "collector_name": "Murugan S.",
       "date": "2026-08-21",
       "created_at": "2026-08-21T11:00:00.000Z",
@@ -146308,8 +146762,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 4800,
-      "remaining_balance": 4700,
+      "previous_balance": 4600,
+      "remaining_balance": 4500,
       "collector_name": "Murugan S.",
       "date": "2026-08-22",
       "created_at": "2026-08-22T11:00:00.000Z",
@@ -146812,8 +147266,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 4700,
-      "remaining_balance": 4600,
+      "previous_balance": 4500,
+      "remaining_balance": 4400,
       "collector_name": "Murugan S.",
       "date": "2026-08-23",
       "created_at": "2026-08-23T11:00:00.000Z",
@@ -147334,8 +147788,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 4600,
-      "remaining_balance": 4500,
+      "previous_balance": 4400,
+      "remaining_balance": 4300,
       "collector_name": "Murugan S.",
       "date": "2026-08-24",
       "created_at": "2026-08-24T11:00:00.000Z",
@@ -147856,8 +148310,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 4500,
-      "remaining_balance": 4400,
+      "previous_balance": 4300,
+      "remaining_balance": 4200,
       "collector_name": "Murugan S.",
       "date": "2026-08-25",
       "created_at": "2026-08-25T11:00:00.000Z",
@@ -148378,8 +148832,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 4400,
-      "remaining_balance": 4300,
+      "previous_balance": 4200,
+      "remaining_balance": 4100,
       "collector_name": "Murugan S.",
       "date": "2026-08-26",
       "created_at": "2026-08-26T11:00:00.000Z",
@@ -148900,8 +149354,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 4300,
-      "remaining_balance": 4200,
+      "previous_balance": 4100,
+      "remaining_balance": 4000,
       "collector_name": "Murugan S.",
       "date": "2026-08-27",
       "created_at": "2026-08-27T11:00:00.000Z",
@@ -149422,8 +149876,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 4200,
-      "remaining_balance": 4100,
+      "previous_balance": 4000,
+      "remaining_balance": 3900,
       "collector_name": "Murugan S.",
       "date": "2026-08-28",
       "created_at": "2026-08-28T11:00:00.000Z",
@@ -149944,8 +150398,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 4100,
-      "remaining_balance": 4000,
+      "previous_balance": 3900,
+      "remaining_balance": 3800,
       "collector_name": "Murugan S.",
       "date": "2026-08-29",
       "created_at": "2026-08-29T11:00:00.000Z",
@@ -150466,8 +150920,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 4000,
-      "remaining_balance": 3900,
+      "previous_balance": 3800,
+      "remaining_balance": 3700,
       "collector_name": "Murugan S.",
       "date": "2026-08-30",
       "created_at": "2026-08-30T11:00:00.000Z",
@@ -150988,8 +151442,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 3900,
-      "remaining_balance": 3800,
+      "previous_balance": 3700,
+      "remaining_balance": 3600,
       "collector_name": "Murugan S.",
       "date": "2026-08-31",
       "created_at": "2026-08-31T11:00:00.000Z",
@@ -151510,8 +151964,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 3800,
-      "remaining_balance": 3700,
+      "previous_balance": 3600,
+      "remaining_balance": 3500,
       "collector_name": "Murugan S.",
       "date": "2026-09-01",
       "created_at": "2026-09-01T11:00:00.000Z",
@@ -152050,8 +152504,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 3700,
-      "remaining_balance": 3600,
+      "previous_balance": 3500,
+      "remaining_balance": 3400,
       "collector_name": "Murugan S.",
       "date": "2026-09-02",
       "created_at": "2026-09-02T11:00:00.000Z",
@@ -152590,8 +153044,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 3600,
-      "remaining_balance": 3500,
+      "previous_balance": 3400,
+      "remaining_balance": 3300,
       "collector_name": "Murugan S.",
       "date": "2026-09-03",
       "created_at": "2026-09-03T11:00:00.000Z",
@@ -153112,8 +153566,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 3500,
-      "remaining_balance": 3400,
+      "previous_balance": 3300,
+      "remaining_balance": 3200,
       "collector_name": "Murugan S.",
       "date": "2026-09-04",
       "created_at": "2026-09-04T11:00:00.000Z",
@@ -153634,8 +154088,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 3400,
-      "remaining_balance": 3300,
+      "previous_balance": 3200,
+      "remaining_balance": 3100,
       "collector_name": "Murugan S.",
       "date": "2026-09-05",
       "created_at": "2026-09-05T11:00:00.000Z",
@@ -154138,8 +154592,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 3300,
-      "remaining_balance": 3200,
+      "previous_balance": 3100,
+      "remaining_balance": 3000,
       "collector_name": "Murugan S.",
       "date": "2026-09-06",
       "created_at": "2026-09-06T11:00:00.000Z",
@@ -154660,8 +155114,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 3200,
-      "remaining_balance": 3100,
+      "previous_balance": 3000,
+      "remaining_balance": 2900,
       "collector_name": "Murugan S.",
       "date": "2026-09-07",
       "created_at": "2026-09-07T11:00:00.000Z",
@@ -155182,8 +155636,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 3100,
-      "remaining_balance": 3000,
+      "previous_balance": 2900,
+      "remaining_balance": 2800,
       "collector_name": "Murugan S.",
       "date": "2026-09-08",
       "created_at": "2026-09-08T11:00:00.000Z",
@@ -155704,8 +156158,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 3000,
-      "remaining_balance": 2900,
+      "previous_balance": 2800,
+      "remaining_balance": 2700,
       "collector_name": "Murugan S.",
       "date": "2026-09-09",
       "created_at": "2026-09-09T11:00:00.000Z",
@@ -156226,8 +156680,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 2900,
-      "remaining_balance": 2800,
+      "previous_balance": 2700,
+      "remaining_balance": 2600,
       "collector_name": "Murugan S.",
       "date": "2026-09-10",
       "created_at": "2026-09-10T11:00:00.000Z",
@@ -156748,8 +157202,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 2800,
-      "remaining_balance": 2700,
+      "previous_balance": 2600,
+      "remaining_balance": 2500,
       "collector_name": "Murugan S.",
       "date": "2026-09-11",
       "created_at": "2026-09-11T11:00:00.000Z",
@@ -157270,8 +157724,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 2700,
-      "remaining_balance": 2600,
+      "previous_balance": 2500,
+      "remaining_balance": 2400,
       "collector_name": "Murugan S.",
       "date": "2026-09-12",
       "created_at": "2026-09-12T11:00:00.000Z",
@@ -157774,8 +158228,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 2600,
-      "remaining_balance": 2500,
+      "previous_balance": 2400,
+      "remaining_balance": 2300,
       "collector_name": "Murugan S.",
       "date": "2026-09-13",
       "created_at": "2026-09-13T11:00:00.000Z",
@@ -158296,8 +158750,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 2500,
-      "remaining_balance": 2400,
+      "previous_balance": 2300,
+      "remaining_balance": 2200,
       "collector_name": "Murugan S.",
       "date": "2026-09-14",
       "created_at": "2026-09-14T11:00:00.000Z",
@@ -158800,8 +159254,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 2400,
-      "remaining_balance": 2300,
+      "previous_balance": 2200,
+      "remaining_balance": 2100,
       "collector_name": "Murugan S.",
       "date": "2026-09-15",
       "created_at": "2026-09-15T11:00:00.000Z",
@@ -159286,8 +159740,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 2300,
-      "remaining_balance": 2200,
+      "previous_balance": 2100,
+      "remaining_balance": 2000,
       "collector_name": "Murugan S.",
       "date": "2026-09-16",
       "created_at": "2026-09-16T11:00:00.000Z",
@@ -159790,8 +160244,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 2200,
-      "remaining_balance": 2100,
+      "previous_balance": 2000,
+      "remaining_balance": 1900,
       "collector_name": "Murugan S.",
       "date": "2026-09-17",
       "created_at": "2026-09-17T11:00:00.000Z",
@@ -160294,8 +160748,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 2100,
-      "remaining_balance": 2000,
+      "previous_balance": 1900,
+      "remaining_balance": 1800,
       "collector_name": "Murugan S.",
       "date": "2026-09-18",
       "created_at": "2026-09-18T11:00:00.000Z",
@@ -160798,8 +161252,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 2000,
-      "remaining_balance": 1900,
+      "previous_balance": 1800,
+      "remaining_balance": 1700,
       "collector_name": "Murugan S.",
       "date": "2026-09-19",
       "created_at": "2026-09-19T11:00:00.000Z",
@@ -161302,8 +161756,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 1900,
-      "remaining_balance": 1800,
+      "previous_balance": 1700,
+      "remaining_balance": 1600,
       "collector_name": "Murugan S.",
       "date": "2026-09-20",
       "created_at": "2026-09-20T11:00:00.000Z",
@@ -161806,8 +162260,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 1800,
-      "remaining_balance": 1700,
+      "previous_balance": 1600,
+      "remaining_balance": 1500,
       "collector_name": "Murugan S.",
       "date": "2026-09-21",
       "created_at": "2026-09-21T11:00:00.000Z",
@@ -162310,8 +162764,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 1700,
-      "remaining_balance": 1600,
+      "previous_balance": 1500,
+      "remaining_balance": 1400,
       "collector_name": "Murugan S.",
       "date": "2026-09-22",
       "created_at": "2026-09-22T11:00:00.000Z",
@@ -162796,8 +163250,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 1600,
-      "remaining_balance": 1500,
+      "previous_balance": 1400,
+      "remaining_balance": 1300,
       "collector_name": "Murugan S.",
       "date": "2026-09-23",
       "created_at": "2026-09-23T11:00:00.000Z",
@@ -163300,8 +163754,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 1500,
-      "remaining_balance": 1400,
+      "previous_balance": 1300,
+      "remaining_balance": 1200,
       "collector_name": "Murugan S.",
       "date": "2026-09-24",
       "created_at": "2026-09-24T11:00:00.000Z",
@@ -163804,8 +164258,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 1400,
-      "remaining_balance": 1300,
+      "previous_balance": 1200,
+      "remaining_balance": 1100,
       "collector_name": "Murugan S.",
       "date": "2026-09-25",
       "created_at": "2026-09-25T11:00:00.000Z",
@@ -164308,8 +164762,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 1300,
-      "remaining_balance": 1200,
+      "previous_balance": 1100,
+      "remaining_balance": 1000,
       "collector_name": "Murugan S.",
       "date": "2026-09-26",
       "created_at": "2026-09-26T11:00:00.000Z",
@@ -164812,8 +165266,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 1200,
-      "remaining_balance": 1100,
+      "previous_balance": 1000,
+      "remaining_balance": 900,
       "collector_name": "Murugan S.",
       "date": "2026-09-27",
       "created_at": "2026-09-27T11:00:00.000Z",
@@ -165316,8 +165770,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 1100,
-      "remaining_balance": 1000,
+      "previous_balance": 900,
+      "remaining_balance": 800,
       "collector_name": "Murugan S.",
       "date": "2026-09-28",
       "created_at": "2026-09-28T11:00:00.000Z",
@@ -165820,8 +166274,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 1000,
-      "remaining_balance": 900,
+      "previous_balance": 800,
+      "remaining_balance": 700,
       "collector_name": "Murugan S.",
       "date": "2026-09-29",
       "created_at": "2026-09-29T11:00:00.000Z",
@@ -166324,8 +166778,8 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 900,
-      "remaining_balance": 800,
+      "previous_balance": 700,
+      "remaining_balance": 600,
       "collector_name": "Murugan S.",
       "date": "2026-09-30",
       "created_at": "2026-09-30T11:00:00.000Z",
@@ -166602,9 +167056,9 @@
       "remarks": "Thank you for your timely payment."
     },
     {
-      "id": "REC-1791116137701",
+      "id": "REC-1791380527498",
       "receipt_number": "DC-REC-2026-03694",
-      "payment_id": "PAY-1791116137701",
+      "payment_id": "PAY-1791380527498",
       "collection_account_id": "ACC-2026-001",
       "customer_id": "KRS10001",
       "customer_name": "Ramesh Kumar",
@@ -166612,35 +167066,53 @@
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 800,
-      "remaining_balance": 700,
+      "previous_balance": 600,
+      "remaining_balance": 500,
       "collector_name": "Murugan S.",
-      "date": "2026-10-04",
-      "created_at": "2026-10-04T12:15:37.701Z",
+      "date": "2026-10-07",
+      "created_at": "2026-10-07T13:42:07.498Z",
       "remarks": "Thank you for your prompt payment."
     },
     {
-      "id": "REC-1791116140458",
+      "id": "REC-1791380531884",
       "receipt_number": "DC-REC-2026-03695",
-      "payment_id": "PAY-1791116140458",
-      "collection_account_id": "ACC-2026-006",
-      "customer_id": "KRS10006",
-      "customer_name": "Kavitha Selvam",
-      "shop_name": "Selvam Fancy Store, Toys & Stationeries",
-      "daily_due": 100,
-      "amount_paid": 100,
+      "payment_id": "PAY-1791380531884",
+      "collection_account_id": "ACC-2026-003",
+      "customer_id": "KRS10003",
+      "customer_name": "Meenakshi Ammal",
+      "shop_name": "Murugan Textiles, Sarees & Readymade",
+      "daily_due": 500,
+      "amount_paid": 500,
       "payment_mode": "Cash",
-      "previous_balance": 800,
-      "remaining_balance": 700,
-      "collector_name": "Murugan S.",
-      "date": "2026-10-04",
-      "created_at": "2026-10-04T12:15:40.458Z",
+      "previous_balance": 4000,
+      "remaining_balance": 3500,
+      "collector_name": "Saravanan P.",
+      "date": "2026-10-07",
+      "created_at": "2026-10-07T13:42:11.884Z",
       "remarks": "Thank you for your prompt payment."
     },
     {
-      "id": "REC-1791116181567",
+      "id": "REC-1791380536516",
+      "receipt_number": "DC-REC-2026-03696",
+      "payment_id": "PAY-1791380536516",
+      "collection_account_id": "ACC-2026-002",
+      "customer_id": "KRS10002",
+      "customer_name": "Sundar Rajan",
+      "shop_name": "Annapoorna Sweets, Bakery & Snacks",
+      "daily_due": 200,
+      "amount_paid": 200,
+      "payment_mode": "Cash",
+      "previous_balance": 1400,
+      "remaining_balance": 1200,
+      "collector_name": "Karthik Raja",
+      "date": "2026-10-07",
+      "created_at": "2026-10-07T13:42:16.516Z",
+      "remarks": "Thank you for your prompt payment."
+    },
+    {
+      "id": "REC-1791380539454",
       "receipt_number": "DC-REC-2026-03697",
-      "payment_id": "PAY-1791116181567",
+      "payment_id": "PAY-1791380539454",
       "collection_account_id": "ACC-2026-004",
       "customer_id": "KRS10004",
       "customer_name": "Vijay Anand",
@@ -166651,32 +167123,104 @@
       "previous_balance": 1700,
       "remaining_balance": 1600,
       "collector_name": "Murugan S.",
-      "date": "2026-10-04",
-      "created_at": "2026-10-04T12:16:21.567Z",
+      "date": "2026-10-07",
+      "created_at": "2026-10-07T13:42:19.454Z",
       "remarks": "Thank you for your prompt payment."
     },
     {
-      "id": "REC-1791116184098",
+      "id": "REC-1791380542344",
       "receipt_number": "DC-REC-2026-03698",
-      "payment_id": "PAY-1791116184098",
-      "collection_account_id": "ACC-2026-014",
-      "customer_id": "KRS10014",
-      "customer_name": "Manikandan R.",
-      "shop_name": "Murugan Fruit Stall & Fresh Juice Corner",
+      "payment_id": "PAY-1791380542344",
+      "collection_account_id": "ACC-2026-006",
+      "customer_id": "KRS10006",
+      "customer_name": "Kavitha Selvam",
+      "shop_name": "Selvam Fancy Store, Toys & Stationeries",
       "daily_due": 100,
       "amount_paid": 100,
       "payment_mode": "Cash",
-      "previous_balance": 1550,
-      "remaining_balance": 1450,
+      "previous_balance": 800,
+      "remaining_balance": 700,
       "collector_name": "Murugan S.",
-      "date": "2026-10-04",
-      "created_at": "2026-10-04T12:16:24.098Z",
+      "date": "2026-10-07",
+      "created_at": "2026-10-07T13:42:22.344Z",
       "remarks": "Thank you for your prompt payment."
     },
     {
-      "id": "REC-1791116187095",
+      "id": "REC-1791380545030",
       "receipt_number": "DC-REC-2026-03699",
-      "payment_id": "PAY-1791116187095",
+      "payment_id": "PAY-1791380545030",
+      "collection_account_id": "ACC-2026-007",
+      "customer_id": "KRS10007",
+      "customer_name": "Muthuraman K.",
+      "shop_name": "Sri Lakshmi Medicals & Health Care",
+      "daily_due": 200,
+      "amount_paid": 200,
+      "payment_mode": "Cash",
+      "previous_balance": 1800,
+      "remaining_balance": 1600,
+      "collector_name": "Karthik Raja",
+      "date": "2026-10-07",
+      "created_at": "2026-10-07T13:42:25.030Z",
+      "remarks": "Thank you for your prompt payment."
+    },
+    {
+      "id": "REC-1791380547902",
+      "receipt_number": "DC-REC-2026-03700",
+      "payment_id": "PAY-1791380547902",
+      "collection_account_id": "ACC-2026-008",
+      "customer_id": "KRS10008",
+      "customer_name": "Annamalai C.",
+      "shop_name": "Balaji Automobiles & Two-Wheeler Spares",
+      "daily_due": 100,
+      "amount_paid": 100,
+      "payment_mode": "Cash",
+      "previous_balance": 950,
+      "remaining_balance": 850,
+      "collector_name": "Saravanan P.",
+      "date": "2026-10-07",
+      "created_at": "2026-10-07T13:42:27.902Z",
+      "remarks": "Thank you for your prompt payment."
+    },
+    {
+      "id": "REC-1791380551672",
+      "receipt_number": "DC-REC-2026-03701",
+      "payment_id": "PAY-1791380551672",
+      "collection_account_id": "ACC-2026-009",
+      "customer_id": "KRS10009",
+      "customer_name": "Priya Dharshini",
+      "shop_name": "Priya Bridal Studio & Tailoring",
+      "daily_due": 100,
+      "amount_paid": 100,
+      "payment_mode": "Cash",
+      "previous_balance": 1850,
+      "remaining_balance": 1750,
+      "collector_name": "Murugan S.",
+      "date": "2026-10-07",
+      "created_at": "2026-10-07T13:42:31.672Z",
+      "remarks": "Thank you for your prompt payment."
+    },
+    {
+      "id": "REC-1791380554248",
+      "receipt_number": "DC-REC-2026-03702",
+      "payment_id": "PAY-1791380554248",
+      "collection_account_id": "ACC-2026-010",
+      "customer_id": "KRS10010",
+      "customer_name": "Selva Ganesh",
+      "shop_name": "Ganesh Electricals & Home Appliances",
+      "daily_due": 200,
+      "amount_paid": 200,
+      "payment_mode": "Cash",
+      "previous_balance": 1900,
+      "remaining_balance": 1700,
+      "collector_name": "Karthik Raja",
+      "date": "2026-10-07",
+      "created_at": "2026-10-07T13:42:34.248Z",
+      "remarks": "Thank you for your prompt payment."
+    },
+    {
+      "id": "REC-1791380556893",
+      "receipt_number": "DC-REC-2026-03703",
+      "payment_id": "PAY-1791380556893",
       "collection_account_id": "ACC-2026-011",
       "customer_id": "KRS10011",
       "customer_name": "Saravanan V.",
@@ -166687,14 +167231,140 @@
       "previous_balance": 1900,
       "remaining_balance": 1700,
       "collector_name": "Murugan S.",
-      "date": "2026-10-04",
-      "created_at": "2026-10-04T12:16:27.095Z",
+      "date": "2026-10-07",
+      "created_at": "2026-10-07T13:42:36.893Z",
       "remarks": "Thank you for your prompt payment."
     },
     {
-      "id": "REC-1791116191491",
-      "receipt_number": "DC-REC-2026-03700",
-      "payment_id": "PAY-1791116191491",
+      "id": "REC-1791380559414",
+      "receipt_number": "DC-REC-2026-03704",
+      "payment_id": "PAY-1791380559414",
+      "collection_account_id": "ACC-2026-012",
+      "customer_id": "KRS10012",
+      "customer_name": "Lakshmi Narayanan",
+      "shop_name": "Royal Footwear & Bag World",
+      "daily_due": 100,
+      "amount_paid": 100,
+      "payment_mode": "Cash",
+      "previous_balance": 1350,
+      "remaining_balance": 1250,
+      "collector_name": "Karthik Raja",
+      "date": "2026-10-07",
+      "created_at": "2026-10-07T13:42:39.414Z",
+      "remarks": "Thank you for your prompt payment."
+    },
+    {
+      "id": "REC-1791380562940",
+      "receipt_number": "DC-REC-2026-03705",
+      "payment_id": "PAY-1791380562940",
+      "collection_account_id": "ACC-2026-013",
+      "customer_id": "KRS10013",
+      "customer_name": "Deepa Venkatesh",
+      "shop_name": "Deepa Xerox, DTP & Online Services",
+      "daily_due": 100,
+      "amount_paid": 100,
+      "payment_mode": "Cash",
+      "previous_balance": 1150,
+      "remaining_balance": 1050,
+      "collector_name": "Saravanan P.",
+      "date": "2026-10-07",
+      "created_at": "2026-10-07T13:42:42.940Z",
+      "remarks": "Thank you for your prompt payment."
+    },
+    {
+      "id": "REC-1791380565675",
+      "receipt_number": "DC-REC-2026-03706",
+      "payment_id": "PAY-1791380565675",
+      "collection_account_id": "ACC-2026-014",
+      "customer_id": "KRS10014",
+      "customer_name": "Manikandan R.",
+      "shop_name": "Murugan Fruit Stall & Fresh Juice Corner",
+      "daily_due": 100,
+      "amount_paid": 100,
+      "payment_mode": "Cash",
+      "previous_balance": 1550,
+      "remaining_balance": 1450,
+      "collector_name": "Murugan S.",
+      "date": "2026-10-07",
+      "created_at": "2026-10-07T13:42:45.675Z",
+      "remarks": "Thank you for your prompt payment."
+    },
+    {
+      "id": "REC-1791380568281",
+      "receipt_number": "DC-REC-2026-03707",
+      "payment_id": "PAY-1791380568281",
+      "collection_account_id": "ACC-2026-015",
+      "customer_id": "KRS10015",
+      "customer_name": "Rajasekaran P.",
+      "shop_name": "Raja Cafe & Hot Chips Centre",
+      "daily_due": 100,
+      "amount_paid": 100,
+      "payment_mode": "Cash",
+      "previous_balance": 1250,
+      "remaining_balance": 1150,
+      "collector_name": "Karthik Raja",
+      "date": "2026-10-07",
+      "created_at": "2026-10-07T13:42:48.281Z",
+      "remarks": "Thank you for your prompt payment."
+    },
+    {
+      "id": "REC-1791380570983",
+      "receipt_number": "DC-REC-2026-03708",
+      "payment_id": "PAY-1791380570983",
+      "collection_account_id": "ACC-2026-016",
+      "customer_id": "KRS10016",
+      "customer_name": "Thangavel M.",
+      "shop_name": "Sri Murugan Iron Hardware & Pipes",
+      "daily_due": 500,
+      "amount_paid": 500,
+      "payment_mode": "Cash",
+      "previous_balance": 6250,
+      "remaining_balance": 5750,
+      "collector_name": "Murugan S.",
+      "date": "2026-10-07",
+      "created_at": "2026-10-07T13:42:50.983Z",
+      "remarks": "Thank you for your prompt payment."
+    },
+    {
+      "id": "REC-1791380573839",
+      "receipt_number": "DC-REC-2026-03709",
+      "payment_id": "PAY-1791380573839",
+      "collection_account_id": "ACC-2026-017",
+      "customer_id": "KRS10017",
+      "customer_name": "Balamurugan S.",
+      "shop_name": "Bala Mobile Store & Quick Service",
+      "daily_due": 100,
+      "amount_paid": 100,
+      "payment_mode": "Cash",
+      "previous_balance": 1250,
+      "remaining_balance": 1150,
+      "collector_name": "Karthik Raja",
+      "date": "2026-10-07",
+      "created_at": "2026-10-07T13:42:53.839Z",
+      "remarks": "Thank you for your prompt payment."
+    },
+    {
+      "id": "REC-1791380576453",
+      "receipt_number": "DC-REC-2026-03710",
+      "payment_id": "PAY-1791380576453",
+      "collection_account_id": "ACC-2026-018",
+      "customer_id": "KRS10018",
+      "customer_name": "Shanmuga Sundaram",
+      "shop_name": "Sundaram Timber & Plywood Depot",
+      "daily_due": 500,
+      "amount_paid": 500,
+      "payment_mode": "Cash",
+      "previous_balance": 6250,
+      "remaining_balance": 5750,
+      "collector_name": "Saravanan P.",
+      "date": "2026-10-07",
+      "created_at": "2026-10-07T13:42:56.453Z",
+      "remarks": "Thank you for your prompt payment."
+    },
+    {
+      "id": "REC-1791380578951",
+      "receipt_number": "DC-REC-2026-03711",
+      "payment_id": "PAY-1791380578951",
       "collection_account_id": "ACC-2026-019",
       "customer_id": "KRS10019",
       "customer_name": "Radha Krishnan",
@@ -166705,32 +167375,32 @@
       "previous_balance": 1350,
       "remaining_balance": 1250,
       "collector_name": "Murugan S.",
-      "date": "2026-10-04",
-      "created_at": "2026-10-04T12:16:31.491Z",
+      "date": "2026-10-07",
+      "created_at": "2026-10-07T13:42:58.951Z",
       "remarks": "Thank you for your prompt payment."
     },
     {
-      "id": "REC-1791118521824",
-      "receipt_number": "DC-REC-2026-03701",
-      "payment_id": "PAY-1791118521824",
-      "collection_account_id": "ACC-2026-016",
-      "customer_id": "KRS10016",
-      "customer_name": "Thangavel M.",
-      "shop_name": "Sri Murugan Iron Hardware & Pipes",
-      "daily_due": 500,
-      "amount_paid": 500,
-      "payment_mode": "UPI",
-      "previous_balance": 6250,
-      "remaining_balance": 5750,
-      "collector_name": "Murugan S.",
-      "date": "2026-10-04",
-      "created_at": "2026-10-04T12:55:21.824Z",
+      "id": "REC-1791380581573",
+      "receipt_number": "DC-REC-2026-03712",
+      "payment_id": "PAY-1791380581573",
+      "collection_account_id": "ACC-2026-020",
+      "customer_id": "KRS10020",
+      "customer_name": "Geetha Rani",
+      "shop_name": "Saraswathi Book Center & Stationers",
+      "daily_due": 100,
+      "amount_paid": 100,
+      "payment_mode": "Cash",
+      "previous_balance": 1350,
+      "remaining_balance": 1250,
+      "collector_name": "Karthik Raja",
+      "date": "2026-10-07",
+      "created_at": "2026-10-07T13:43:01.573Z",
       "remarks": "Thank you for your prompt payment."
     },
     {
-      "id": "REC-1791118597909",
-      "receipt_number": "DC-REC-2026-03702",
-      "payment_id": "PAY-1791118597909",
+      "id": "REC-1791380586110",
+      "receipt_number": "DC-REC-2026-03713",
+      "payment_id": "PAY-1791380586110",
       "collection_account_id": "ACC-2026-021",
       "customer_id": "KRS10021",
       "customer_name": "Karthikeyan S.",
@@ -166741,14 +167411,50 @@
       "previous_balance": 2700,
       "remaining_balance": 2500,
       "collector_name": "Murugan S.",
-      "date": "2026-10-04",
-      "created_at": "2026-10-04T12:56:37.909Z",
+      "date": "2026-10-07",
+      "created_at": "2026-10-07T13:43:06.110Z",
       "remarks": "Thank you for your prompt payment."
     },
     {
-      "id": "REC-1791118616085",
-      "receipt_number": "DC-REC-2026-03703",
-      "payment_id": "PAY-1791118616085",
+      "id": "REC-1791380588641",
+      "receipt_number": "DC-REC-2026-03714",
+      "payment_id": "PAY-1791380588641",
+      "collection_account_id": "ACC-2026-022",
+      "customer_id": "KRS10022",
+      "customer_name": "Sivakumar M.",
+      "shop_name": "Maruthi Cycle Works & Fitness Gears",
+      "daily_due": 100,
+      "amount_paid": 100,
+      "payment_mode": "Cash",
+      "previous_balance": 1350,
+      "remaining_balance": 1250,
+      "collector_name": "Karthik Raja",
+      "date": "2026-10-07",
+      "created_at": "2026-10-07T13:43:08.641Z",
+      "remarks": "Thank you for your prompt payment."
+    },
+    {
+      "id": "REC-1791380591138",
+      "receipt_number": "DC-REC-2026-03715",
+      "payment_id": "PAY-1791380591138",
+      "collection_account_id": "ACC-2026-023",
+      "customer_id": "KRS10023",
+      "customer_name": "Govindaraj K.",
+      "shop_name": "Om Muruga Optical & Eye Care",
+      "daily_due": 100,
+      "amount_paid": 100,
+      "payment_mode": "Cash",
+      "previous_balance": 1350,
+      "remaining_balance": 1250,
+      "collector_name": "Saravanan P.",
+      "date": "2026-10-07",
+      "created_at": "2026-10-07T13:43:11.138Z",
+      "remarks": "Thank you for your prompt payment."
+    },
+    {
+      "id": "REC-1791380593841",
+      "receipt_number": "DC-REC-2026-03716",
+      "payment_id": "PAY-1791380593841",
       "collection_account_id": "ACC-2026-024",
       "customer_id": "KRS10024",
       "customer_name": "Revathi Mohan",
@@ -166759,50 +167465,32 @@
       "previous_balance": 1350,
       "remaining_balance": 1250,
       "collector_name": "Murugan S.",
-      "date": "2026-10-04",
-      "created_at": "2026-10-04T12:56:56.085Z",
+      "date": "2026-10-07",
+      "created_at": "2026-10-07T13:43:13.841Z",
       "remarks": "Thank you for your prompt payment."
     },
     {
-      "id": "REC-1791118618697",
-      "receipt_number": "DC-REC-2026-03704",
-      "payment_id": "PAY-1791118618697",
-      "collection_account_id": "ACC-2026-029",
-      "customer_id": "KRS10029",
-      "customer_name": "Kalaiselvan S.",
-      "shop_name": "Sri Kumaran Bakery, Milk & Dairy",
+      "id": "REC-1791380596434",
+      "receipt_number": "DC-REC-2026-03717",
+      "payment_id": "PAY-1791380596434",
+      "collection_account_id": "ACC-2026-025",
+      "customer_id": "KRS10025",
+      "customer_name": "Arumugam P.",
+      "shop_name": "Vasantham Pure Veg Tiffin Center",
       "daily_due": 200,
       "amount_paid": 200,
       "payment_mode": "Cash",
       "previous_balance": 2700,
       "remaining_balance": 2500,
-      "collector_name": "Murugan S.",
-      "date": "2026-10-04",
-      "created_at": "2026-10-04T12:56:58.697Z",
+      "collector_name": "Karthik Raja",
+      "date": "2026-10-07",
+      "created_at": "2026-10-07T13:43:16.434Z",
       "remarks": "Thank you for your prompt payment."
     },
     {
-      "id": "REC-1791118621839",
-      "receipt_number": "DC-REC-2026-03705",
-      "payment_id": "PAY-1791118621839",
-      "collection_account_id": "ACC-2026-031",
-      "customer_id": "DC10031",
-      "customer_name": "siva kumar s",
-      "shop_name": "siva kumar s's Store",
-      "daily_due": 100,
-      "amount_paid": 100,
-      "payment_mode": "Cash",
-      "previous_balance": 10000,
-      "remaining_balance": 9900,
-      "collector_name": "Murugan S.",
-      "date": "2026-10-04",
-      "created_at": "2026-10-04T12:57:01.839Z",
-      "remarks": "Thank you for your prompt payment."
-    },
-    {
-      "id": "REC-1791118624566",
-      "receipt_number": "DC-REC-2026-03706",
-      "payment_id": "PAY-1791118624566",
+      "id": "REC-1791380599059",
+      "receipt_number": "DC-REC-2026-03718",
+      "payment_id": "PAY-1791380599059",
       "collection_account_id": "ACC-2026-026",
       "customer_id": "KRS10026",
       "customer_name": "Vijayalakshmi N.",
@@ -166813,8 +167501,98 @@
       "previous_balance": 2700,
       "remaining_balance": 2500,
       "collector_name": "Murugan S.",
-      "date": "2026-10-04",
-      "created_at": "2026-10-04T12:57:04.566Z",
+      "date": "2026-10-07",
+      "created_at": "2026-10-07T13:43:19.059Z",
+      "remarks": "Thank you for your prompt payment."
+    },
+    {
+      "id": "REC-1791380601647",
+      "receipt_number": "DC-REC-2026-03719",
+      "payment_id": "PAY-1791380601647",
+      "collection_account_id": "ACC-2026-027",
+      "customer_id": "KRS10027",
+      "customer_name": "Dinesh Kumar",
+      "shop_name": "Smart Computers & CCTV Security Solutions",
+      "daily_due": 100,
+      "amount_paid": 100,
+      "payment_mode": "Cash",
+      "previous_balance": 1350,
+      "remaining_balance": 1250,
+      "collector_name": "Karthik Raja",
+      "date": "2026-10-07",
+      "created_at": "2026-10-07T13:43:21.647Z",
+      "remarks": "Thank you for your prompt payment."
+    },
+    {
+      "id": "REC-1791380604093",
+      "receipt_number": "DC-REC-2026-03720",
+      "payment_id": "PAY-1791380604093",
+      "collection_account_id": "ACC-2026-028",
+      "customer_id": "KRS10028",
+      "customer_name": "Padmavathi R.",
+      "shop_name": "Padmavathi Fancy & Plastic Home Goods",
+      "daily_due": 100,
+      "amount_paid": 100,
+      "payment_mode": "Cash",
+      "previous_balance": 1350,
+      "remaining_balance": 1250,
+      "collector_name": "Saravanan P.",
+      "date": "2026-10-07",
+      "created_at": "2026-10-07T13:43:24.093Z",
+      "remarks": "Thank you for your prompt payment."
+    },
+    {
+      "id": "REC-1791380606568",
+      "receipt_number": "DC-REC-2026-03721",
+      "payment_id": "PAY-1791380606568",
+      "collection_account_id": "ACC-2026-029",
+      "customer_id": "KRS10029",
+      "customer_name": "Kalaiselvan S.",
+      "shop_name": "Sri Kumaran Bakery, Milk & Dairy",
+      "daily_due": 200,
+      "amount_paid": 200,
+      "payment_mode": "Cash",
+      "previous_balance": 2700,
+      "remaining_balance": 2500,
+      "collector_name": "Murugan S.",
+      "date": "2026-10-07",
+      "created_at": "2026-10-07T13:43:26.568Z",
+      "remarks": "Thank you for your prompt payment."
+    },
+    {
+      "id": "REC-1791380609193",
+      "receipt_number": "DC-REC-2026-03722",
+      "payment_id": "PAY-1791380609193",
+      "collection_account_id": "ACC-2026-030",
+      "customer_id": "KRS10030",
+      "customer_name": "Subhashini V.",
+      "shop_name": "Krishna Organic Provisions & Millets",
+      "daily_due": 100,
+      "amount_paid": 100,
+      "payment_mode": "Cash",
+      "previous_balance": 1350,
+      "remaining_balance": 1250,
+      "collector_name": "Karthik Raja",
+      "date": "2026-10-07",
+      "created_at": "2026-10-07T13:43:29.193Z",
+      "remarks": "Thank you for your prompt payment."
+    },
+    {
+      "id": "REC-1791380611752",
+      "receipt_number": "DC-REC-2026-03723",
+      "payment_id": "PAY-1791380611752",
+      "collection_account_id": "ACC-2026-031",
+      "customer_id": "DC10031",
+      "customer_name": "siva kumar s",
+      "shop_name": "siva kumar s's Store",
+      "daily_due": 100,
+      "amount_paid": 100,
+      "payment_mode": "Cash",
+      "previous_balance": 10000,
+      "remaining_balance": 9900,
+      "collector_name": "Murugan S.",
+      "date": "2026-10-07",
+      "created_at": "2026-10-07T13:43:31.752Z",
       "remarks": "Thank you for your prompt payment."
     }
   ],
@@ -167722,154 +168500,314 @@
   ],
   "notifications": [
     {
-      "id": "NOTIF-1791118624566-30",
-      "recipient_role": "CUSTOMER",
-      "customer_id": "KRS10026",
-      "title": "Payment Received: ₹200",
-      "message": "Received ₹200 for account ACC-2026-026. Balance remaining: ₹2500. Receipt #DC-REC-2026-03706",
-      "type": "PAYMENT",
-      "is_read": false,
-      "created_at": "2026-10-04T12:57:04.566Z"
-    },
-    {
-      "id": "NOTIF-1791118621839-743",
+      "id": "NOTIF-1791380611752-356",
       "recipient_role": "CUSTOMER",
       "customer_id": "DC10031",
       "title": "Payment Received: ₹100",
-      "message": "Received ₹100 for account ACC-2026-031. Balance remaining: ₹9900. Receipt #DC-REC-2026-03705",
+      "message": "Received ₹100 for account ACC-2026-031. Balance remaining: ₹9900. Receipt #DC-REC-2026-03723",
       "type": "PAYMENT",
-      "is_read": false,
-      "created_at": "2026-10-04T12:57:01.839Z"
+      "is_read": true,
+      "created_at": "2026-10-07T13:43:31.752Z"
     },
     {
-      "id": "NOTIF-1791118618697-180",
+      "id": "NOTIF-1791380609193-729",
+      "recipient_role": "CUSTOMER",
+      "customer_id": "KRS10030",
+      "title": "Payment Received: ₹100",
+      "message": "Received ₹100 for account ACC-2026-030. Balance remaining: ₹1250. Receipt #DC-REC-2026-03722",
+      "type": "PAYMENT",
+      "is_read": true,
+      "created_at": "2026-10-07T13:43:29.193Z"
+    },
+    {
+      "id": "NOTIF-1791380606568-926",
       "recipient_role": "CUSTOMER",
       "customer_id": "KRS10029",
       "title": "Payment Received: ₹200",
-      "message": "Received ₹200 for account ACC-2026-029. Balance remaining: ₹2500. Receipt #DC-REC-2026-03704",
+      "message": "Received ₹200 for account ACC-2026-029. Balance remaining: ₹2500. Receipt #DC-REC-2026-03721",
       "type": "PAYMENT",
-      "is_read": false,
-      "created_at": "2026-10-04T12:56:58.697Z"
+      "is_read": true,
+      "created_at": "2026-10-07T13:43:26.568Z"
     },
     {
-      "id": "NOTIF-1791118616085-438",
+      "id": "NOTIF-1791380604093-482",
+      "recipient_role": "CUSTOMER",
+      "customer_id": "KRS10028",
+      "title": "Payment Received: ₹100",
+      "message": "Received ₹100 for account ACC-2026-028. Balance remaining: ₹1250. Receipt #DC-REC-2026-03720",
+      "type": "PAYMENT",
+      "is_read": true,
+      "created_at": "2026-10-07T13:43:24.093Z"
+    },
+    {
+      "id": "NOTIF-1791380601647-839",
+      "recipient_role": "CUSTOMER",
+      "customer_id": "KRS10027",
+      "title": "Payment Received: ₹100",
+      "message": "Received ₹100 for account ACC-2026-027. Balance remaining: ₹1250. Receipt #DC-REC-2026-03719",
+      "type": "PAYMENT",
+      "is_read": true,
+      "created_at": "2026-10-07T13:43:21.647Z"
+    },
+    {
+      "id": "NOTIF-1791380599059-519",
+      "recipient_role": "CUSTOMER",
+      "customer_id": "KRS10026",
+      "title": "Payment Received: ₹200",
+      "message": "Received ₹200 for account ACC-2026-026. Balance remaining: ₹2500. Receipt #DC-REC-2026-03718",
+      "type": "PAYMENT",
+      "is_read": true,
+      "created_at": "2026-10-07T13:43:19.059Z"
+    },
+    {
+      "id": "NOTIF-1791380596434-752",
+      "recipient_role": "CUSTOMER",
+      "customer_id": "KRS10025",
+      "title": "Payment Received: ₹200",
+      "message": "Received ₹200 for account ACC-2026-025. Balance remaining: ₹2500. Receipt #DC-REC-2026-03717",
+      "type": "PAYMENT",
+      "is_read": true,
+      "created_at": "2026-10-07T13:43:16.434Z"
+    },
+    {
+      "id": "NOTIF-1791380593841-427",
       "recipient_role": "CUSTOMER",
       "customer_id": "KRS10024",
       "title": "Payment Received: ₹100",
-      "message": "Received ₹100 for account ACC-2026-024. Balance remaining: ₹1250. Receipt #DC-REC-2026-03703",
+      "message": "Received ₹100 for account ACC-2026-024. Balance remaining: ₹1250. Receipt #DC-REC-2026-03716",
       "type": "PAYMENT",
-      "is_read": false,
-      "created_at": "2026-10-04T12:56:56.085Z"
+      "is_read": true,
+      "created_at": "2026-10-07T13:43:13.841Z"
     },
     {
-      "id": "NOTIF-1791118597909-214",
+      "id": "NOTIF-1791380591138-26",
+      "recipient_role": "CUSTOMER",
+      "customer_id": "KRS10023",
+      "title": "Payment Received: ₹100",
+      "message": "Received ₹100 for account ACC-2026-023. Balance remaining: ₹1250. Receipt #DC-REC-2026-03715",
+      "type": "PAYMENT",
+      "is_read": true,
+      "created_at": "2026-10-07T13:43:11.138Z"
+    },
+    {
+      "id": "NOTIF-1791380588641-713",
+      "recipient_role": "CUSTOMER",
+      "customer_id": "KRS10022",
+      "title": "Payment Received: ₹100",
+      "message": "Received ₹100 for account ACC-2026-022. Balance remaining: ₹1250. Receipt #DC-REC-2026-03714",
+      "type": "PAYMENT",
+      "is_read": true,
+      "created_at": "2026-10-07T13:43:08.641Z"
+    },
+    {
+      "id": "NOTIF-1791380586110-955",
       "recipient_role": "CUSTOMER",
       "customer_id": "KRS10021",
       "title": "Payment Received: ₹200",
-      "message": "Received ₹200 for account ACC-2026-021. Balance remaining: ₹2500. Receipt #DC-REC-2026-03702",
+      "message": "Received ₹200 for account ACC-2026-021. Balance remaining: ₹2500. Receipt #DC-REC-2026-03713",
       "type": "PAYMENT",
-      "is_read": false,
-      "created_at": "2026-10-04T12:56:37.909Z"
+      "is_read": true,
+      "created_at": "2026-10-07T13:43:06.110Z"
     },
     {
-      "id": "NOTIF-1791118521824-395",
+      "id": "NOTIF-1791380581573-776",
       "recipient_role": "CUSTOMER",
-      "customer_id": "KRS10016",
-      "title": "Payment Received: ₹500",
-      "message": "Received ₹500 for account ACC-2026-016. Balance remaining: ₹5750. Receipt #DC-REC-2026-03701",
+      "customer_id": "KRS10020",
+      "title": "Payment Received: ₹100",
+      "message": "Received ₹100 for account ACC-2026-020. Balance remaining: ₹1250. Receipt #DC-REC-2026-03712",
       "type": "PAYMENT",
-      "is_read": false,
-      "created_at": "2026-10-04T12:55:21.824Z"
+      "is_read": true,
+      "created_at": "2026-10-07T13:43:01.573Z"
     },
     {
-      "id": "NOTIF-1791118212816-C",
-      "recipient_role": "CUSTOMER",
-      "type": "LOAN_REQUEST",
-      "title": "Loan Renewal Request Received",
-      "message": "Your request for ₹1,50,000 has been submitted successfully (Ref: LR-212789). The office team will contact you.",
-      "created_at": "2026-10-04T12:50:12.789Z",
-      "is_read": false,
-      "customer_id": "KRS10001"
-    },
-    {
-      "id": "NOTIF-1791118212789-A",
-      "recipient_role": "ADMIN",
-      "type": "LOAN_REQUEST",
-      "title": "New Loan Renewal Request",
-      "message": "Ramesh Kumar (Sri Krishna Supermarket & Provisions) has requested a new loan of ₹1,50,000 for 100 days. Purpose: Shop Renovation / Equipment",
-      "created_at": "2026-10-04T12:50:12.789Z",
-      "is_read": false,
-      "customer_id": "KRS10001"
-    },
-    {
-      "id": "NOTIF-1791116191491-326",
+      "id": "NOTIF-1791380578951-411",
       "recipient_role": "CUSTOMER",
       "customer_id": "KRS10019",
       "title": "Payment Received: ₹100",
-      "message": "Received ₹100 for account ACC-2026-019. Balance remaining: ₹1250. Receipt #DC-REC-2026-03700",
+      "message": "Received ₹100 for account ACC-2026-019. Balance remaining: ₹1250. Receipt #DC-REC-2026-03711",
       "type": "PAYMENT",
-      "is_read": false,
-      "created_at": "2026-10-04T12:16:31.491Z"
+      "is_read": true,
+      "created_at": "2026-10-07T13:42:58.951Z"
     },
     {
-      "id": "NOTIF-1791116187095-231",
+      "id": "NOTIF-1791380576453-258",
       "recipient_role": "CUSTOMER",
-      "customer_id": "KRS10011",
-      "title": "Payment Received: ₹200",
-      "message": "Received ₹200 for account ACC-2026-011. Balance remaining: ₹1700. Receipt #DC-REC-2026-03699",
+      "customer_id": "KRS10018",
+      "title": "Payment Received: ₹500",
+      "message": "Received ₹500 for account ACC-2026-018. Balance remaining: ₹5750. Receipt #DC-REC-2026-03710",
       "type": "PAYMENT",
-      "is_read": false,
-      "created_at": "2026-10-04T12:16:27.095Z"
+      "is_read": true,
+      "created_at": "2026-10-07T13:42:56.453Z"
     },
     {
-      "id": "NOTIF-1791116184098-518",
+      "id": "NOTIF-1791380573839-172",
+      "recipient_role": "CUSTOMER",
+      "customer_id": "KRS10017",
+      "title": "Payment Received: ₹100",
+      "message": "Received ₹100 for account ACC-2026-017. Balance remaining: ₹1150. Receipt #DC-REC-2026-03709",
+      "type": "PAYMENT",
+      "is_read": true,
+      "created_at": "2026-10-07T13:42:53.839Z"
+    },
+    {
+      "id": "NOTIF-1791380570983-843",
+      "recipient_role": "CUSTOMER",
+      "customer_id": "KRS10016",
+      "title": "Payment Received: ₹500",
+      "message": "Received ₹500 for account ACC-2026-016. Balance remaining: ₹5750. Receipt #DC-REC-2026-03708",
+      "type": "PAYMENT",
+      "is_read": true,
+      "created_at": "2026-10-07T13:42:50.983Z"
+    },
+    {
+      "id": "NOTIF-1791380568281-81",
+      "recipient_role": "CUSTOMER",
+      "customer_id": "KRS10015",
+      "title": "Payment Received: ₹100",
+      "message": "Received ₹100 for account ACC-2026-015. Balance remaining: ₹1150. Receipt #DC-REC-2026-03707",
+      "type": "PAYMENT",
+      "is_read": true,
+      "created_at": "2026-10-07T13:42:48.281Z"
+    },
+    {
+      "id": "NOTIF-1791380565675-925",
       "recipient_role": "CUSTOMER",
       "customer_id": "KRS10014",
       "title": "Payment Received: ₹100",
-      "message": "Received ₹100 for account ACC-2026-014. Balance remaining: ₹1450. Receipt #DC-REC-2026-03698",
+      "message": "Received ₹100 for account ACC-2026-014. Balance remaining: ₹1450. Receipt #DC-REC-2026-03706",
       "type": "PAYMENT",
-      "is_read": false,
-      "created_at": "2026-10-04T12:16:24.098Z"
+      "is_read": true,
+      "created_at": "2026-10-07T13:42:45.675Z"
     },
     {
-      "id": "NOTIF-1791116181567-253",
+      "id": "NOTIF-1791380562940-9",
+      "recipient_role": "CUSTOMER",
+      "customer_id": "KRS10013",
+      "title": "Payment Received: ₹100",
+      "message": "Received ₹100 for account ACC-2026-013. Balance remaining: ₹1050. Receipt #DC-REC-2026-03705",
+      "type": "PAYMENT",
+      "is_read": true,
+      "created_at": "2026-10-07T13:42:42.940Z"
+    },
+    {
+      "id": "NOTIF-1791380559414-398",
+      "recipient_role": "CUSTOMER",
+      "customer_id": "KRS10012",
+      "title": "Payment Received: ₹100",
+      "message": "Received ₹100 for account ACC-2026-012. Balance remaining: ₹1250. Receipt #DC-REC-2026-03704",
+      "type": "PAYMENT",
+      "is_read": true,
+      "created_at": "2026-10-07T13:42:39.414Z"
+    },
+    {
+      "id": "NOTIF-1791380556893-409",
+      "recipient_role": "CUSTOMER",
+      "customer_id": "KRS10011",
+      "title": "Payment Received: ₹200",
+      "message": "Received ₹200 for account ACC-2026-011. Balance remaining: ₹1700. Receipt #DC-REC-2026-03703",
+      "type": "PAYMENT",
+      "is_read": true,
+      "created_at": "2026-10-07T13:42:36.893Z"
+    },
+    {
+      "id": "NOTIF-1791380554248-672",
+      "recipient_role": "CUSTOMER",
+      "customer_id": "KRS10010",
+      "title": "Payment Received: ₹200",
+      "message": "Received ₹200 for account ACC-2026-010. Balance remaining: ₹1700. Receipt #DC-REC-2026-03702",
+      "type": "PAYMENT",
+      "is_read": true,
+      "created_at": "2026-10-07T13:42:34.248Z"
+    },
+    {
+      "id": "NOTIF-1791380551672-67",
+      "recipient_role": "CUSTOMER",
+      "customer_id": "KRS10009",
+      "title": "Payment Received: ₹100",
+      "message": "Received ₹100 for account ACC-2026-009. Balance remaining: ₹1750. Receipt #DC-REC-2026-03701",
+      "type": "PAYMENT",
+      "is_read": true,
+      "created_at": "2026-10-07T13:42:31.672Z"
+    },
+    {
+      "id": "NOTIF-1791380547902-729",
+      "recipient_role": "CUSTOMER",
+      "customer_id": "KRS10008",
+      "title": "Payment Received: ₹100",
+      "message": "Received ₹100 for account ACC-2026-008. Balance remaining: ₹850. Receipt #DC-REC-2026-03700",
+      "type": "PAYMENT",
+      "is_read": true,
+      "created_at": "2026-10-07T13:42:27.902Z"
+    },
+    {
+      "id": "NOTIF-1791380545030-907",
+      "recipient_role": "CUSTOMER",
+      "customer_id": "KRS10007",
+      "title": "Payment Received: ₹200",
+      "message": "Received ₹200 for account ACC-2026-007. Balance remaining: ₹1600. Receipt #DC-REC-2026-03699",
+      "type": "PAYMENT",
+      "is_read": true,
+      "created_at": "2026-10-07T13:42:25.030Z"
+    },
+    {
+      "id": "NOTIF-1791380542344-654",
+      "recipient_role": "CUSTOMER",
+      "customer_id": "KRS10006",
+      "title": "Payment Received: ₹100",
+      "message": "Received ₹100 for account ACC-2026-006. Balance remaining: ₹700. Receipt #DC-REC-2026-03698",
+      "type": "PAYMENT",
+      "is_read": true,
+      "created_at": "2026-10-07T13:42:22.344Z"
+    },
+    {
+      "id": "NOTIF-1791380539454-243",
       "recipient_role": "CUSTOMER",
       "customer_id": "KRS10004",
       "title": "Payment Received: ₹100",
       "message": "Received ₹100 for account ACC-2026-004. Balance remaining: ₹1600. Receipt #DC-REC-2026-03697",
       "type": "PAYMENT",
-      "is_read": false,
-      "created_at": "2026-10-04T12:16:21.567Z"
+      "is_read": true,
+      "created_at": "2026-10-07T13:42:19.454Z"
     },
     {
-      "id": "NOTIF-1791116157460-471",
-      "recipient_role": "ADMIN",
-      "customer_id": "KRS10009",
-      "title": "Missed Collection: Priya Dharshini",
-      "message": "Collection missed for account ACC-2026-009 on 2026-10-04. Reason: No money today.",
-      "type": "MISSED",
-      "is_read": false,
-      "created_at": "2026-10-04T12:15:57.460Z"
-    },
-    {
-      "id": "NOTIF-1791116140458-991",
+      "id": "NOTIF-1791380536516-569",
       "recipient_role": "CUSTOMER",
-      "customer_id": "KRS10006",
-      "title": "Payment Received: ₹100",
-      "message": "Received ₹100 for account ACC-2026-006. Balance remaining: ₹700. Receipt #DC-REC-2026-03695",
+      "customer_id": "KRS10002",
+      "title": "Payment Received: ₹200",
+      "message": "Received ₹200 for account ACC-2026-002. Balance remaining: ₹1200. Receipt #DC-REC-2026-03696",
       "type": "PAYMENT",
-      "is_read": false,
-      "created_at": "2026-10-04T12:15:40.458Z"
+      "is_read": true,
+      "created_at": "2026-10-07T13:42:16.516Z"
     },
     {
-      "id": "NOTIF-1791116137701-445",
+      "id": "NOTIF-1791380531884-874",
+      "recipient_role": "CUSTOMER",
+      "customer_id": "KRS10003",
+      "title": "Payment Received: ₹500",
+      "message": "Received ₹500 for account ACC-2026-003. Balance remaining: ₹3500. Receipt #DC-REC-2026-03695",
+      "type": "PAYMENT",
+      "is_read": true,
+      "created_at": "2026-10-07T13:42:11.884Z"
+    },
+    {
+      "id": "NOTIF-1791380527498-510",
       "recipient_role": "CUSTOMER",
       "customer_id": "KRS10001",
       "title": "Payment Received: ₹100",
       "message": "Received ₹100 for account ACC-2026-001. Balance remaining: ₹500. Receipt #DC-REC-2026-03694",
       "type": "PAYMENT",
-      "is_read": false,
-      "created_at": "2026-10-04T12:15:37.701Z"
+      "is_read": true,
+      "created_at": "2026-10-07T13:42:07.498Z"
+    },
+    {
+      "id": "NOTIF-1791380509631-941",
+      "recipient_role": "ADMIN",
+      "customer_id": "DC10032",
+      "title": "New Customer Added",
+      "message": "Customer Test Borrower (DC10032) registered successfully.",
+      "type": "SYSTEM",
+      "is_read": true,
+      "created_at": "2026-10-07T13:41:49.631Z"
     },
     {
       "id": "NOTIF-1790760882412-783",
@@ -167878,7 +168816,7 @@
       "title": "New Customer Added",
       "message": "Customer Murugan Test Shop (DC10032) registered successfully.",
       "type": "SYSTEM",
-      "is_read": false,
+      "is_read": true,
       "created_at": "2026-09-30T09:34:42.412Z"
     },
     {
@@ -167888,7 +168826,7 @@
       "title": "New Collection Account Disbursed",
       "message": "Account ACC-2026-032 disbursed to Murugan Test Shop: ₹18000 disbursed for ₹20000 requested at 10% margin.",
       "type": "ACCOUNT",
-      "is_read": false,
+      "is_read": true,
       "created_at": "2026-09-30T09:34:42.324Z"
     },
     {
@@ -167898,7 +168836,7 @@
       "title": "Loan Account Activated",
       "message": "Your collection account ACC-2026-031 is active! ₹8800 disbursed. Daily collection: ₹100 for 100 days.",
       "type": "ACCOUNT",
-      "is_read": false,
+      "is_read": true,
       "created_at": "2026-09-30T09:21:17.714Z"
     },
     {
@@ -167908,7 +168846,7 @@
       "title": "New Collection Account Disbursed",
       "message": "Account ACC-2026-031 disbursed to siva kumar s: ₹8800 disbursed for ₹10000 requested at 12% margin.",
       "type": "ACCOUNT",
-      "is_read": false,
+      "is_read": true,
       "created_at": "2026-09-30T09:21:17.667Z"
     },
     {
@@ -167918,7 +168856,7 @@
       "title": "New Customer Added",
       "message": "Customer siva kumar s (DC10031) registered successfully.",
       "type": "SYSTEM",
-      "is_read": false,
+      "is_read": true,
       "created_at": "2026-09-30T09:08:40.879Z"
     },
     {
@@ -167927,7 +168865,7 @@
       "title": "Daily Collections Active",
       "message": "30 accounts active across 5 areas for September 30, 2026.",
       "type": "SYSTEM",
-      "is_read": false,
+      "is_read": true,
       "created_at": "2026-09-30T09:00:00.000Z"
     },
     {
@@ -167936,7 +168874,7 @@
       "title": "Monthly Collection Target Surpassed",
       "message": "Quarterly collection cycle for July, August, September has reached over ₹8.5 Lakhs.",
       "type": "PAYMENT",
-      "is_read": false,
+      "is_read": true,
       "created_at": "2026-09-30T08:30:00.000Z"
     }
   ],
@@ -168154,24 +169092,59 @@
   ],
   "audit_logs": [
     {
-      "id": "AUDIT-1791118624623-268",
-      "user": "Murugan S.",
-      "role": "COLLECTOR",
-      "action": "COLLECT_PAYMENT",
-      "record_id": "ACC-2026-026",
-      "record_type": "payments",
+      "id": "AUDIT-1791383056684-969",
+      "user": "admin",
+      "role": "ADMIN",
+      "action": "UPDATE_CONFIG",
+      "record_id": "masters",
+      "record_type": "config",
       "previous_value": {
-        "balance": 2700
+        "payment_modes": [
+          "Cash",
+          "UPI"
+        ],
+        "default_payment_mode": "Cash",
+        "not_paid_reasons": [
+          "Shop closed",
+          "No money today",
+          "Asked to come later",
+          "Customer not there"
+        ],
+        "not_paying_after_days": 3,
+        "default_location": {
+          "area": "Bazaar Main Road",
+          "city": "Salem",
+          "district": "Salem",
+          "state": "Tamil Nadu",
+          "pincode": "636002"
+        }
       },
       "new_value": {
-        "paid": 200,
-        "newBalance": 2500,
-        "receiptNum": "DC-REC-2026-03706"
+        "payment_modes": [
+          "Cash",
+          "UPI",
+          "net banking"
+        ],
+        "default_payment_mode": "Cash",
+        "not_paid_reasons": [
+          "Shop closed",
+          "No money today",
+          "Asked to come later",
+          "Customer not there"
+        ],
+        "not_paying_after_days": 3,
+        "default_location": {
+          "area": "Bazaar Main Road",
+          "city": "Salem",
+          "district": "Salem",
+          "state": "Tamil Nadu",
+          "pincode": "636002"
+        }
       },
-      "timestamp": "2026-10-04T12:57:04.623Z"
+      "timestamp": "2026-10-07T14:24:16.684Z"
     },
     {
-      "id": "AUDIT-1791118621882-637",
+      "id": "AUDIT-1791380611814-766",
       "user": "Murugan S.",
       "role": "COLLECTOR",
       "action": "COLLECT_PAYMENT",
@@ -168183,12 +169156,29 @@
       "new_value": {
         "paid": 100,
         "newBalance": 9900,
-        "receiptNum": "DC-REC-2026-03705"
+        "receiptNum": "DC-REC-2026-03723"
       },
-      "timestamp": "2026-10-04T12:57:01.882Z"
+      "timestamp": "2026-10-07T13:43:31.814Z"
     },
     {
-      "id": "AUDIT-1791118618763-187",
+      "id": "AUDIT-1791380609258-610",
+      "user": "Karthik Raja",
+      "role": "COLLECTOR",
+      "action": "COLLECT_PAYMENT",
+      "record_id": "ACC-2026-030",
+      "record_type": "payments",
+      "previous_value": {
+        "balance": 1350
+      },
+      "new_value": {
+        "paid": 100,
+        "newBalance": 1250,
+        "receiptNum": "DC-REC-2026-03722"
+      },
+      "timestamp": "2026-10-07T13:43:29.258Z"
+    },
+    {
+      "id": "AUDIT-1791380606628-638",
       "user": "Murugan S.",
       "role": "COLLECTOR",
       "action": "COLLECT_PAYMENT",
@@ -168200,12 +169190,80 @@
       "new_value": {
         "paid": 200,
         "newBalance": 2500,
-        "receiptNum": "DC-REC-2026-03704"
+        "receiptNum": "DC-REC-2026-03721"
       },
-      "timestamp": "2026-10-04T12:56:58.763Z"
+      "timestamp": "2026-10-07T13:43:26.628Z"
     },
     {
-      "id": "AUDIT-1791118616145-257",
+      "id": "AUDIT-1791380604155-245",
+      "user": "Saravanan P.",
+      "role": "COLLECTOR",
+      "action": "COLLECT_PAYMENT",
+      "record_id": "ACC-2026-028",
+      "record_type": "payments",
+      "previous_value": {
+        "balance": 1350
+      },
+      "new_value": {
+        "paid": 100,
+        "newBalance": 1250,
+        "receiptNum": "DC-REC-2026-03720"
+      },
+      "timestamp": "2026-10-07T13:43:24.155Z"
+    },
+    {
+      "id": "AUDIT-1791380601707-814",
+      "user": "Karthik Raja",
+      "role": "COLLECTOR",
+      "action": "COLLECT_PAYMENT",
+      "record_id": "ACC-2026-027",
+      "record_type": "payments",
+      "previous_value": {
+        "balance": 1350
+      },
+      "new_value": {
+        "paid": 100,
+        "newBalance": 1250,
+        "receiptNum": "DC-REC-2026-03719"
+      },
+      "timestamp": "2026-10-07T13:43:21.707Z"
+    },
+    {
+      "id": "AUDIT-1791380599118-104",
+      "user": "Murugan S.",
+      "role": "COLLECTOR",
+      "action": "COLLECT_PAYMENT",
+      "record_id": "ACC-2026-026",
+      "record_type": "payments",
+      "previous_value": {
+        "balance": 2700
+      },
+      "new_value": {
+        "paid": 200,
+        "newBalance": 2500,
+        "receiptNum": "DC-REC-2026-03718"
+      },
+      "timestamp": "2026-10-07T13:43:19.118Z"
+    },
+    {
+      "id": "AUDIT-1791380596494-470",
+      "user": "Karthik Raja",
+      "role": "COLLECTOR",
+      "action": "COLLECT_PAYMENT",
+      "record_id": "ACC-2026-025",
+      "record_type": "payments",
+      "previous_value": {
+        "balance": 2700
+      },
+      "new_value": {
+        "paid": 200,
+        "newBalance": 2500,
+        "receiptNum": "DC-REC-2026-03717"
+      },
+      "timestamp": "2026-10-07T13:43:16.494Z"
+    },
+    {
+      "id": "AUDIT-1791380593896-563",
       "user": "Murugan S.",
       "role": "COLLECTOR",
       "action": "COLLECT_PAYMENT",
@@ -168217,12 +169275,46 @@
       "new_value": {
         "paid": 100,
         "newBalance": 1250,
-        "receiptNum": "DC-REC-2026-03703"
+        "receiptNum": "DC-REC-2026-03716"
       },
-      "timestamp": "2026-10-04T12:56:56.145Z"
+      "timestamp": "2026-10-07T13:43:13.896Z"
     },
     {
-      "id": "AUDIT-1791118597982-818",
+      "id": "AUDIT-1791380591195-652",
+      "user": "Saravanan P.",
+      "role": "COLLECTOR",
+      "action": "COLLECT_PAYMENT",
+      "record_id": "ACC-2026-023",
+      "record_type": "payments",
+      "previous_value": {
+        "balance": 1350
+      },
+      "new_value": {
+        "paid": 100,
+        "newBalance": 1250,
+        "receiptNum": "DC-REC-2026-03715"
+      },
+      "timestamp": "2026-10-07T13:43:11.195Z"
+    },
+    {
+      "id": "AUDIT-1791380588710-853",
+      "user": "Karthik Raja",
+      "role": "COLLECTOR",
+      "action": "COLLECT_PAYMENT",
+      "record_id": "ACC-2026-022",
+      "record_type": "payments",
+      "previous_value": {
+        "balance": 1350
+      },
+      "new_value": {
+        "paid": 100,
+        "newBalance": 1250,
+        "receiptNum": "DC-REC-2026-03714"
+      },
+      "timestamp": "2026-10-07T13:43:08.710Z"
+    },
+    {
+      "id": "AUDIT-1791380586158-156",
       "user": "Murugan S.",
       "role": "COLLECTOR",
       "action": "COLLECT_PAYMENT",
@@ -168234,29 +169326,29 @@
       "new_value": {
         "paid": 200,
         "newBalance": 2500,
-        "receiptNum": "DC-REC-2026-03702"
+        "receiptNum": "DC-REC-2026-03713"
       },
-      "timestamp": "2026-10-04T12:56:37.982Z"
+      "timestamp": "2026-10-07T13:43:06.158Z"
     },
     {
-      "id": "AUDIT-1791118521907-829",
-      "user": "Murugan S.",
+      "id": "AUDIT-1791380581644-611",
+      "user": "Karthik Raja",
       "role": "COLLECTOR",
       "action": "COLLECT_PAYMENT",
-      "record_id": "ACC-2026-016",
+      "record_id": "ACC-2026-020",
       "record_type": "payments",
       "previous_value": {
-        "balance": 6250
+        "balance": 1350
       },
       "new_value": {
-        "paid": 500,
-        "newBalance": 5750,
-        "receiptNum": "DC-REC-2026-03701"
+        "paid": 100,
+        "newBalance": 1250,
+        "receiptNum": "DC-REC-2026-03712"
       },
-      "timestamp": "2026-10-04T12:55:21.907Z"
+      "timestamp": "2026-10-07T13:43:01.644Z"
     },
     {
-      "id": "AUDIT-1791116191536-778",
+      "id": "AUDIT-1791380579011-220",
       "user": "Murugan S.",
       "role": "COLLECTOR",
       "action": "COLLECT_PAYMENT",
@@ -168268,29 +169360,80 @@
       "new_value": {
         "paid": 100,
         "newBalance": 1250,
-        "receiptNum": "DC-REC-2026-03700"
+        "receiptNum": "DC-REC-2026-03711"
       },
-      "timestamp": "2026-10-04T12:16:31.536Z"
+      "timestamp": "2026-10-07T13:42:59.011Z"
     },
     {
-      "id": "AUDIT-1791116187144-369",
+      "id": "AUDIT-1791380576528-541",
+      "user": "Saravanan P.",
+      "role": "COLLECTOR",
+      "action": "COLLECT_PAYMENT",
+      "record_id": "ACC-2026-018",
+      "record_type": "payments",
+      "previous_value": {
+        "balance": 6250
+      },
+      "new_value": {
+        "paid": 500,
+        "newBalance": 5750,
+        "receiptNum": "DC-REC-2026-03710"
+      },
+      "timestamp": "2026-10-07T13:42:56.528Z"
+    },
+    {
+      "id": "AUDIT-1791380573899-911",
+      "user": "Karthik Raja",
+      "role": "COLLECTOR",
+      "action": "COLLECT_PAYMENT",
+      "record_id": "ACC-2026-017",
+      "record_type": "payments",
+      "previous_value": {
+        "balance": 1250
+      },
+      "new_value": {
+        "paid": 100,
+        "newBalance": 1150,
+        "receiptNum": "DC-REC-2026-03709"
+      },
+      "timestamp": "2026-10-07T13:42:53.899Z"
+    },
+    {
+      "id": "AUDIT-1791380571053-127",
       "user": "Murugan S.",
       "role": "COLLECTOR",
       "action": "COLLECT_PAYMENT",
-      "record_id": "ACC-2026-011",
+      "record_id": "ACC-2026-016",
       "record_type": "payments",
       "previous_value": {
-        "balance": 1900
+        "balance": 6250
       },
       "new_value": {
-        "paid": 200,
-        "newBalance": 1700,
-        "receiptNum": "DC-REC-2026-03699"
+        "paid": 500,
+        "newBalance": 5750,
+        "receiptNum": "DC-REC-2026-03708"
       },
-      "timestamp": "2026-10-04T12:16:27.144Z"
+      "timestamp": "2026-10-07T13:42:51.053Z"
     },
     {
-      "id": "AUDIT-1791116184137-977",
+      "id": "AUDIT-1791380568340-450",
+      "user": "Karthik Raja",
+      "role": "COLLECTOR",
+      "action": "COLLECT_PAYMENT",
+      "record_id": "ACC-2026-015",
+      "record_type": "payments",
+      "previous_value": {
+        "balance": 1250
+      },
+      "new_value": {
+        "paid": 100,
+        "newBalance": 1150,
+        "receiptNum": "DC-REC-2026-03707"
+      },
+      "timestamp": "2026-10-07T13:42:48.340Z"
+    },
+    {
+      "id": "AUDIT-1791380565732-933",
       "user": "Murugan S.",
       "role": "COLLECTOR",
       "action": "COLLECT_PAYMENT",
@@ -168302,12 +169445,148 @@
       "new_value": {
         "paid": 100,
         "newBalance": 1450,
-        "receiptNum": "DC-REC-2026-03698"
+        "receiptNum": "DC-REC-2026-03706"
       },
-      "timestamp": "2026-10-04T12:16:24.137Z"
+      "timestamp": "2026-10-07T13:42:45.732Z"
     },
     {
-      "id": "AUDIT-1791116181607-94",
+      "id": "AUDIT-1791380563020-122",
+      "user": "Saravanan P.",
+      "role": "COLLECTOR",
+      "action": "COLLECT_PAYMENT",
+      "record_id": "ACC-2026-013",
+      "record_type": "payments",
+      "previous_value": {
+        "balance": 1150
+      },
+      "new_value": {
+        "paid": 100,
+        "newBalance": 1050,
+        "receiptNum": "DC-REC-2026-03705"
+      },
+      "timestamp": "2026-10-07T13:42:43.020Z"
+    },
+    {
+      "id": "AUDIT-1791380559477-138",
+      "user": "Karthik Raja",
+      "role": "COLLECTOR",
+      "action": "COLLECT_PAYMENT",
+      "record_id": "ACC-2026-012",
+      "record_type": "payments",
+      "previous_value": {
+        "balance": 1350
+      },
+      "new_value": {
+        "paid": 100,
+        "newBalance": 1250,
+        "receiptNum": "DC-REC-2026-03704"
+      },
+      "timestamp": "2026-10-07T13:42:39.477Z"
+    },
+    {
+      "id": "AUDIT-1791380556956-128",
+      "user": "Murugan S.",
+      "role": "COLLECTOR",
+      "action": "COLLECT_PAYMENT",
+      "record_id": "ACC-2026-011",
+      "record_type": "payments",
+      "previous_value": {
+        "balance": 1900
+      },
+      "new_value": {
+        "paid": 200,
+        "newBalance": 1700,
+        "receiptNum": "DC-REC-2026-03703"
+      },
+      "timestamp": "2026-10-07T13:42:36.956Z"
+    },
+    {
+      "id": "AUDIT-1791380554325-308",
+      "user": "Karthik Raja",
+      "role": "COLLECTOR",
+      "action": "COLLECT_PAYMENT",
+      "record_id": "ACC-2026-010",
+      "record_type": "payments",
+      "previous_value": {
+        "balance": 1900
+      },
+      "new_value": {
+        "paid": 200,
+        "newBalance": 1700,
+        "receiptNum": "DC-REC-2026-03702"
+      },
+      "timestamp": "2026-10-07T13:42:34.325Z"
+    },
+    {
+      "id": "AUDIT-1791380551720-349",
+      "user": "Murugan S.",
+      "role": "COLLECTOR",
+      "action": "COLLECT_PAYMENT",
+      "record_id": "ACC-2026-009",
+      "record_type": "payments",
+      "previous_value": {
+        "balance": 1850
+      },
+      "new_value": {
+        "paid": 100,
+        "newBalance": 1750,
+        "receiptNum": "DC-REC-2026-03701"
+      },
+      "timestamp": "2026-10-07T13:42:31.720Z"
+    },
+    {
+      "id": "AUDIT-1791380547962-32",
+      "user": "Saravanan P.",
+      "role": "COLLECTOR",
+      "action": "COLLECT_PAYMENT",
+      "record_id": "ACC-2026-008",
+      "record_type": "payments",
+      "previous_value": {
+        "balance": 950
+      },
+      "new_value": {
+        "paid": 100,
+        "newBalance": 850,
+        "receiptNum": "DC-REC-2026-03700"
+      },
+      "timestamp": "2026-10-07T13:42:27.962Z"
+    },
+    {
+      "id": "AUDIT-1791380545100-996",
+      "user": "Karthik Raja",
+      "role": "COLLECTOR",
+      "action": "COLLECT_PAYMENT",
+      "record_id": "ACC-2026-007",
+      "record_type": "payments",
+      "previous_value": {
+        "balance": 1800
+      },
+      "new_value": {
+        "paid": 200,
+        "newBalance": 1600,
+        "receiptNum": "DC-REC-2026-03699"
+      },
+      "timestamp": "2026-10-07T13:42:25.100Z"
+    },
+    {
+      "id": "AUDIT-1791380542409-671",
+      "user": "Murugan S.",
+      "role": "COLLECTOR",
+      "action": "COLLECT_PAYMENT",
+      "record_id": "ACC-2026-006",
+      "record_type": "payments",
+      "previous_value": {
+        "balance": 800
+      },
+      "new_value": {
+        "paid": 100,
+        "newBalance": 700,
+        "receiptNum": "DC-REC-2026-03698"
+      },
+      "timestamp": "2026-10-07T13:42:22.409Z"
+    },
+    {
+      "id": "AUDIT-1791380539515-318",
       "user": "Murugan S.",
       "role": "COLLECTOR",
       "action": "COLLECT_PAYMENT",
@@ -168321,41 +169600,44 @@
         "newBalance": 1600,
         "receiptNum": "DC-REC-2026-03697"
       },
-      "timestamp": "2026-10-04T12:16:21.607Z"
+      "timestamp": "2026-10-07T13:42:19.515Z"
     },
     {
-      "id": "AUDIT-1791116157509-232",
-      "user": "Murugan S.",
-      "role": "COLLECTOR",
-      "action": "MISSED_COLLECTION",
-      "record_id": "ACC-2026-009",
-      "record_type": "daily_collections",
-      "previous_value": null,
-      "new_value": {
-        "date": "2026-10-04",
-        "reason": "No money today"
-      },
-      "timestamp": "2026-10-04T12:15:57.509Z"
-    },
-    {
-      "id": "AUDIT-1791116140494-710",
-      "user": "Murugan S.",
+      "id": "AUDIT-1791380536599-7",
+      "user": "Karthik Raja",
       "role": "COLLECTOR",
       "action": "COLLECT_PAYMENT",
-      "record_id": "ACC-2026-006",
+      "record_id": "ACC-2026-002",
       "record_type": "payments",
       "previous_value": {
-        "balance": 800
+        "balance": 1400
       },
       "new_value": {
-        "paid": 100,
-        "newBalance": 700,
-        "receiptNum": "DC-REC-2026-03695"
+        "paid": 200,
+        "newBalance": 1200,
+        "receiptNum": "DC-REC-2026-03696"
       },
-      "timestamp": "2026-10-04T12:15:40.494Z"
+      "timestamp": "2026-10-07T13:42:16.600Z"
     },
     {
-      "id": "AUDIT-1791116137747-972",
+      "id": "AUDIT-1791380531950-775",
+      "user": "Saravanan P.",
+      "role": "COLLECTOR",
+      "action": "COLLECT_PAYMENT",
+      "record_id": "ACC-2026-003",
+      "record_type": "payments",
+      "previous_value": {
+        "balance": 4000
+      },
+      "new_value": {
+        "paid": 500,
+        "newBalance": 3500,
+        "receiptNum": "DC-REC-2026-03695"
+      },
+      "timestamp": "2026-10-07T13:42:11.950Z"
+    },
+    {
+      "id": "AUDIT-1791380527572-967",
       "user": "Murugan S.",
       "role": "COLLECTOR",
       "action": "COLLECT_PAYMENT",
@@ -168369,7 +169651,84 @@
         "newBalance": 500,
         "receiptNum": "DC-REC-2026-03694"
       },
-      "timestamp": "2026-10-04T12:15:37.747Z"
+      "timestamp": "2026-10-07T13:42:07.572Z"
+    },
+    {
+      "id": "AUDIT-1791380509724-934",
+      "user": "admin",
+      "role": "ADMIN",
+      "action": "DEACTIVATE_CUSTOMER",
+      "record_id": "DC10032",
+      "record_type": "customers",
+      "previous_value": {
+        "status": "ACTIVE"
+      },
+      "new_value": {
+        "status": "INACTIVE"
+      },
+      "timestamp": "2026-10-07T13:41:49.724Z"
+    },
+    {
+      "id": "AUDIT-1791380509586-916",
+      "user": "admin",
+      "role": "ADMIN",
+      "action": "CREATE_CUSTOMER",
+      "record_id": "DC10032",
+      "record_type": "customers",
+      "previous_value": null,
+      "new_value": {
+        "id": "DC10032",
+        "full_name": "Test Borrower",
+        "profile_photo": "",
+        "gender": "Other",
+        "dob": "",
+        "father_or_husband_name": "",
+        "mother_name": "",
+        "marital_status": "Other",
+        "mobile_number": "9112233445",
+        "alternate_number": "",
+        "whatsapp_number": "9112233445",
+        "email": "",
+        "status": "INACTIVE",
+        "created_at": "2026-10-07T13:41:49.586Z",
+        "updated_at": "2026-10-07T13:41:49.724Z"
+      },
+      "timestamp": "2026-10-07T13:41:49.586Z"
+    },
+    {
+      "id": "AUDIT-1791380421666-343",
+      "user": "admin",
+      "role": "ADMIN",
+      "action": "DELETE_USER",
+      "record_id": "USR-MUY5NFK7",
+      "record_type": "users",
+      "previous_value": {
+        "id": "USR-MUY5NFK7",
+        "username": "agent_kumar",
+        "email": "agent_kumar@dailycollection.com",
+        "password": "secret_agent_pin",
+        "role": "COLLECTOR",
+        "name": "Kumar S.",
+        "phone": "9842099999",
+        "is_active": true,
+        "created_at": "2026-10-07T13:40:21.511Z"
+      },
+      "new_value": null,
+      "timestamp": "2026-10-07T13:40:21.666Z"
+    },
+    {
+      "id": "AUDIT-1791380421511-681",
+      "user": "admin",
+      "role": "ADMIN",
+      "action": "CREATE_USER",
+      "record_id": "USR-MUY5NFK7",
+      "record_type": "users",
+      "previous_value": null,
+      "new_value": {
+        "username": "agent_kumar",
+        "role": "COLLECTOR"
+      },
+      "timestamp": "2026-10-07T13:40:21.511Z"
     },
     {
       "id": "AUDIT-1790760894268-4",
@@ -168620,20 +169979,6 @@
       "timestamp": "2026-09-30T05:27:23.931Z"
     }
   ],
-  "loan_requests": [
-    {
-      "id": "LR-212789",
-      "customer_id": "KRS10001",
-      "customer_name": "Ramesh Kumar",
-      "shop_name": "Sri Krishna Supermarket & Provisions",
-      "requested_amount": 150000,
-      "collection_days": 100,
-      "purpose": "Shop Renovation / Equipment",
-      "remarks": "",
-      "status": "PENDING",
-      "created_at": "2026-10-04T12:50:12.789Z"
-    }
-  ],
   "config": {
     "company": {
       "company_name": "DAILY COLLECTION",
@@ -168648,7 +169993,8 @@
     "masters": {
       "payment_modes": [
         "Cash",
-        "UPI"
+        "UPI",
+        "net banking"
       ],
       "default_payment_mode": "Cash",
       "not_paid_reasons": [
@@ -168753,7 +170099,7 @@
         "prefix": "DC",
         "include_year": false,
         "pad": 5,
-        "next": 10032
+        "next": 10033
       },
       "account": {
         "prefix": "ACC-",
@@ -168765,7 +170111,7 @@
         "prefix": "DC-REC-",
         "include_year": true,
         "pad": 5,
-        "next": 3707
+        "next": 3724
       },
       "collector": {
         "prefix": "COL",

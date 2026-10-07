@@ -6,10 +6,9 @@ import { useConfig } from '../../context/ConfigContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { BigButton, PageTitle, PillTabs } from '../common/ui';
 import { ListEditor, Notice, inputClass, useSaveNotice } from './ConfigShared';
-import { LoanProductsView } from './LoanProductsView';
-import { DataManagementView } from './DataManagementView';
+import { UserManagementView } from './UserManagementView';
 
-type SettingsTab = 'business' | 'loan-types' | 'payments' | 'testing';
+type SettingsTab = 'business' | 'users' | 'payments';
 
 /** Everything the office can set, in one place. Technical settings (ID numbering) stay automatic. */
 export const SettingsView: React.FC = () => {
@@ -23,15 +22,13 @@ export const SettingsView: React.FC = () => {
         onChange={setTab}
         tabs={[
           { id: 'business', label: t('businessDetails', 'Business') },
-          { id: 'loan-types', label: t('loanTypes', 'Loan types') },
+          { id: 'users', label: t('userAccounts', 'Users & Logins') },
           { id: 'payments', label: t('paymentsAndReasons', 'Payments') },
-          { id: 'testing', label: t('testing', 'Testing') },
         ]}
       />
       {tab === 'business' && <BusinessDetails />}
-      {tab === 'loan-types' && <LoanProductsView />}
+      {tab === 'users' && <UserManagementView />}
       {tab === 'payments' && <PaymentSettings />}
-      {tab === 'testing' && <DataManagementView />}
     </div>
   );
 };
@@ -46,7 +43,17 @@ const BusinessDetails: React.FC = () => {
   const field = (key: keyof CompanyProfile, label: string, type = 'text') => (
     <div>
       <label className="block text-sm font-bold text-slate-300 mb-1.5">{label}</label>
-      <input type={type} className={inputClass} value={String(company[key] ?? '')} onChange={e => setCompany({ ...company, [key]: e.target.value })} />
+      <input
+        type={type}
+        className={inputClass}
+        value={company[key] !== undefined && company[key] !== null ? String(company[key]) : ''}
+        onChange={e =>
+          setCompany({
+            ...company,
+            [key]: type === 'number' ? (e.target.value === '' ? '' : Number(e.target.value)) : e.target.value,
+          })
+        }
+      />
     </div>
   );
 
@@ -57,6 +64,7 @@ const BusinessDetails: React.FC = () => {
       {field('company_address', t('address', 'Address'))}
       {field('company_phone', t('phone', 'Phone'), 'tel')}
       {field('company_email', t('emailOptional', 'Email (optional)'), 'email')}
+      {field('opening_balance', t('openingBalance', 'Opening Cash Capital (₹)'), 'number')}
       <Notice notice={notice} />
       <BigButton tone="gold" icon={Check} label={saving ? t('saving', 'Saving...') : t('save', 'Save')} disabled={saving}
         onClick={() => run(() => updateSection('company', company), t('saved', 'Saved'))} />

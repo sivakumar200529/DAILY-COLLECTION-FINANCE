@@ -52,6 +52,8 @@ export const CustomerForm: React.FC<CustomerFormProps> = ({ initial, onSaved, on
   const [collectors, setCollectors] = useState<Collector[]>([]);
   const [giveLoan, setGiveLoan] = useState(!isEdit);
   const [loan, setLoan] = useState<LoanFormState | null>(null);
+  const [customUsername, setCustomUsername] = useState(initial?.personal.id ?? '');
+  const [customPassword, setCustomPassword] = useState('1234');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -107,7 +109,13 @@ export const CustomerForm: React.FC<CustomerFormProps> = ({ initial, onSaved, on
     setSaving(true);
     try {
       if (isEdit) {
-        await api.updateCustomer(initial!.personal.id, { personal, address: { area }, business });
+        await api.updateCustomer(initial!.personal.id, {
+          personal,
+          address: { area },
+          business,
+          ...(customUsername.trim() ? { username: customUsername.trim() } : {}),
+          ...(customPassword.trim() ? { password: customPassword.trim() } : {}),
+        });
         onSaved(initial!.personal.id);
       } else {
         const created = await api.createCustomer({
@@ -115,6 +123,8 @@ export const CustomerForm: React.FC<CustomerFormProps> = ({ initial, onSaved, on
           address: { street: address.trim(), area, landmark: landmark.trim() },
           business,
           ...(giveLoan && loan ? { loan: toIssueLoanPayload(loan) } : {}),
+          ...(customUsername.trim() ? { username: customUsername.trim() } : {}),
+          ...(customPassword.trim() ? { password: customPassword.trim() } : {}),
         });
         onSaved(created.id);
       }
@@ -181,6 +191,34 @@ export const CustomerForm: React.FC<CustomerFormProps> = ({ initial, onSaved, on
             </div>
           </div>
         )}
+
+        {/* Customer Portal Login Credentials */}
+        <div className="p-4 rounded-2xl bg-navy-950/80 border border-slate-800 space-y-3">
+          <div className="text-sm font-bold text-gold-400 flex items-center justify-between">
+            <span>{t('portalLogin', 'Portal Login (Customer User ID & Password)')}</span>
+            <span className="text-xs text-slate-400 font-normal">{t('defaultCredentialsHint', 'Default PIN: 1234')}</span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-bold text-slate-300 mb-1">{t('userId', 'User ID / Username')}</label>
+              <input
+                className={inputClass}
+                placeholder={isEdit ? initial.personal.id : t('autoCustomerId', 'Auto Customer ID (e.g. KRS10005)')}
+                value={customUsername}
+                onChange={e => setCustomUsername(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-300 mb-1">{t('password', 'Password / PIN')}</label>
+              <input
+                className={inputClass}
+                placeholder="1234"
+                value={customPassword}
+                onChange={e => setCustomPassword(e.target.value)}
+              />
+            </div>
+          </div>
+        </div>
 
         {!isEdit && (
           <div className="rounded-2xl border border-gold-500/30 p-4 space-y-4">

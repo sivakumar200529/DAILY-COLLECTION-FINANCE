@@ -197,7 +197,7 @@ export function exportMonthlyReportToExcel(reportData: MonthlyReportData) {
     <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Area</Data></Cell>
     <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Collector</Data></Cell>
     <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Account ID</Data></Cell>
-    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Requested (₹)</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Amount (₹)</Data></Cell>
     <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Margin %</Data></Cell>
     <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Margin (₹)</Data></Cell>
     <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Disbursed (₹)</Data></Cell>

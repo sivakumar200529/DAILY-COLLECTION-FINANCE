@@ -188,7 +188,7 @@ export const MonthlyExcelReportView: React.FC = () => {
                 <th className="py-2.5 px-3">{t('shop / business', 'Shop / Business')}</th>
                 <th className="py-2.5 px-3">{t('area', 'Area')}</th>
                 <th className="py-2.5 px-3">{t('collector', 'Collector')}</th>
-                <th className="py-2.5 px-3 text-right">{t('req', 'Req')} (₹)</th>
+                <th className="py-2.5 px-3 text-right">{t('amount', 'Amount')} (₹)</th>
                 <th className="py-2.5 px-3 text-right">{t('disb', 'Disb')} (₹)</th>
                 <th className="py-2.5 px-3 text-right">{t('daily', 'Daily')} (₹)</th>
                 <th className="py-2.5 px-3 text-right">{t('margin', 'Margin')} (₹)</th>

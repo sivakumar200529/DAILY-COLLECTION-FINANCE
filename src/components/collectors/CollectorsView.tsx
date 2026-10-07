@@ -10,13 +10,18 @@ import { BigButton, CallButton, ConfirmSheet, EmptyState, Sheet, Spinner } from 
 
 const inputClass = 'w-full px-4 py-3 bg-navy-950 border border-slate-700 rounded-2xl text-base text-white focus:border-gold-500 focus:outline-none';
 
+interface CollectorEditState extends Partial<Collector> {
+  username?: string;
+  password?: string;
+}
+
 /** Field collectors: who they are, their area, and how much they collected today. */
 export const CollectorsView: React.FC = () => {
   const { t } = useLanguage();
   const defaultArea = useConfig().config.masters.default_location.area;
   const [collectors, setCollectors] = useState<Collector[] | null>(null);
   const [areas, setAreas] = useState<Area[]>([]);
-  const [editing, setEditing] = useState<Partial<Collector> | null>(null);
+  const [editing, setEditing] = useState<CollectorEditState | null>(null);
   const [deleting, setDeleting] = useState<Collector | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -37,12 +42,14 @@ export const CollectorsView: React.FC = () => {
     const mobile = (editing.mobile || '').replace(/\D/g, '');
     if (!editing.name?.trim()) return setError(t('needName', 'Enter the name.'));
     if (mobile.length !== 10) return setError(t('needMobile', 'Enter a 10-digit mobile number.'));
-    const body: Partial<Collector> = {
+    const body: Partial<Collector> & { username?: string; password?: string } = {
       name: editing.name.trim(),
       mobile,
       assigned_area: editing.assigned_area || defaultArea,
       target_amount: Number(editing.target_amount) || 0,
       ...(editing.id ? { status: editing.status } : {}),
+      ...(editing.username?.trim() ? { username: editing.username.trim() } : {}),
+      ...(editing.password?.trim() ? { password: editing.password.trim() } : {}),
     };
     setBusy(true);
     try {
@@ -78,7 +85,7 @@ export const CollectorsView: React.FC = () => {
   return (
     <div className="space-y-3">
       <BigButton tone="gold" icon={UserPlus} label={t('addCollector', 'Add collector')}
-        onClick={() => { setError(null); setEditing({ assigned_area: defaultArea, status: 'ACTIVE' }); }} />
+        onClick={() => { setError(null); setEditing({ assigned_area: defaultArea, status: 'ACTIVE', password: '1234' }); }} />
 
       {error && !editing && <div className="px-4 py-3 rounded-2xl text-sm font-semibold border bg-rose-500/10 border-rose-500/30 text-rose-300">{error}</div>}
 
@@ -98,7 +105,7 @@ export const CollectorsView: React.FC = () => {
                 </div>
               </div>
               <CallButton phone={c.mobile} label={t('call', 'Call')} />
-              <button type="button" onClick={() => { setError(null); setEditing(c); }} aria-label={t('edit', 'Edit')}
+              <button type="button" onClick={() => { setError(null); setEditing({ ...c, username: c.id, password: '1234' }); }} aria-label={t('edit', 'Edit')}
                 className="p-3 rounded-xl bg-navy-950 border border-slate-700 text-slate-200 hover:border-gold-500/60">
                 <Edit3 className="w-5 h-5" />
               </button>
@@ -128,6 +135,35 @@ export const CollectorsView: React.FC = () => {
               <label className="block text-sm font-bold text-slate-300 mb-1.5">{t('dailyTargetOptional', 'Daily target (optional)')}</label>
               <input className={inputClass} type="number" min={0} value={editing.target_amount || ''} onChange={e => setEditing({ ...editing, target_amount: Number(e.target.value) })} />
             </div>
+
+            {/* Agent / Collector Portal Login Credentials */}
+            <div className="p-3.5 rounded-2xl bg-navy-950/80 border border-slate-800 space-y-3">
+              <div className="text-sm font-bold text-cyan-400 flex items-center justify-between">
+                <span>{t('portalLogin', 'Agent Login Credentials')}</span>
+                <span className="text-xs text-slate-400 font-normal">{t('defaultCredentialsHint', 'Default PIN: 1234')}</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">{t('userId', 'User ID / Username')}</label>
+                  <input
+                    className={inputClass}
+                    placeholder={editing.id ? editing.id : t('autoCollectorId', 'e.g. COL102 or agent_name')}
+                    value={editing.username ?? ''}
+                    onChange={e => setEditing({ ...editing, username: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">{t('password', 'Password / PIN')}</label>
+                  <input
+                    className={inputClass}
+                    placeholder="1234"
+                    value={editing.password ?? ''}
+                    onChange={e => setEditing({ ...editing, password: e.target.value })}
+                  />
+                </div>
+              </div>
+            </div>
+
             {editing.id && (
               <label className="flex items-center justify-between gap-3 text-base font-bold text-white">
                 {t('working', 'Working')}

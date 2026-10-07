@@ -9,6 +9,7 @@ import {
   Wallet,
   ClipboardList,
   Bell,
+  KeyRound,
 } from 'lucide-react';
 import { Role } from '../types';
 
@@ -18,7 +19,7 @@ import { Role } from '../types';
  * App.tsx maps each view to its component; the Record types there make a missing screen a
  * compile error.
  */
-export type AdminView = 'home' | 'collect' | 'customers' | 'customer-page' | 'reports' | 'staff' | 'settings' | 'notifications';
+export type AdminView = 'home' | 'collect' | 'customers' | 'customer-page' | 'reports' | 'staff' | 'users' | 'settings' | 'notifications';
 export type CollectorView = 'collect' | 'my-day' | 'notifications';
 export type CustomerView = 'passbook' | 'notifications';
 export type AppView = AdminView | CollectorView | CustomerView;
@@ -36,6 +37,7 @@ const ADMIN_MENU: MenuItem[] = [
   { id: 'customers', labelKey: 'customers', label: 'Customers', icon: Users },
   { id: 'reports', labelKey: 'reports', label: 'Reports', icon: FileText },
   { id: 'staff', labelKey: 'navStaffAreas', label: 'Staff & areas', icon: UserCheck },
+  { id: 'users', labelKey: 'userManagement', label: 'User Logins', icon: KeyRound },
   { id: 'settings', labelKey: 'settings', label: 'Settings', icon: Settings },
 ];
 

@@ -13,6 +13,7 @@ import { MyDayView } from './components/collect/MyDayView';
 import { ReportsView } from './components/reports/ReportsView';
 import { StaffAndAreasView } from './components/field/StaffAndAreasView';
 import { SettingsView } from './components/configuration/SettingsView';
+import { UserManagementView } from './components/configuration/UserManagementView';
 import { NotificationsView } from './components/notifications/NotificationsView';
 import { Passbook } from './components/customer-portal/Passbook';
 import { AdminView, AppView, CollectorView, CustomerView, HOME_VIEW } from './navigation/menus';
@@ -140,6 +141,7 @@ export function App() {
     ) : adminScreens['customers'](),
     'reports': () => <ReportsView onOpenCustomer={openCustomer} />,
     'staff': () => <StaffAndAreasView />,
+    'users': () => <UserManagementView />,
     'settings': () => <SettingsView />,
     'notifications': notificationsScreen,
   };

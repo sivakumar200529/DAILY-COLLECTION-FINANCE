@@ -55,6 +55,7 @@ export interface CompanyProfile {
   company_logo?: string;
   currency: string;
   notifications_enabled: boolean;
+  opening_balance?: number;
 }
 
 export interface AppConfig {

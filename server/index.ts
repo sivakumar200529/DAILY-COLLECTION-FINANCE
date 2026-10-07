@@ -245,6 +245,166 @@ app.get('/api/auth/me', (req: Request, res: Response) => {
 });
 
 // -------------------------------------------------------------
+// 1.1 USER CREDENTIALS & MANAGEMENT (Admin)
+// -------------------------------------------------------------
+app.get('/api/users', (req: Request, res: Response) => {
+  const db = repository.getDb();
+  const role = req.query.role as string | undefined;
+
+  // Ensure collectors are synced into db.users if missing
+  for (const col of db.collectors) {
+    const existing = db.users.find(u => u.collector_id === col.id || u.username.toLowerCase() === col.id.toLowerCase());
+    if (!existing) {
+      db.users.push({
+        id: `USR-${col.id}`,
+        username: col.id,
+        email: col.email || `${col.id.toLowerCase()}@dailycollection.com`,
+        password: '1234',
+        role: 'COLLECTOR',
+        collector_id: col.id,
+        name: col.name,
+        phone: col.mobile,
+        is_active: col.status === 'ACTIVE',
+        created_at: col.joining_date || todayIso(),
+      });
+    }
+  }
+
+  // Ensure active customers are synced into db.users if missing
+  for (const cust of db.customers) {
+    const existing = db.users.find(u => u.customer_id === cust.id || u.username.toLowerCase() === cust.id.toLowerCase());
+    if (!existing) {
+      db.users.push({
+        id: `USR-${cust.id}`,
+        username: cust.id,
+        email: cust.email || `${cust.id.toLowerCase()}@dailycollection.com`,
+        password: '1234',
+        role: 'CUSTOMER',
+        customer_id: cust.id,
+        name: cust.full_name,
+        phone: cust.mobile_number,
+        is_active: cust.status === 'ACTIVE',
+        created_at: cust.created_at || todayIso(),
+      });
+    }
+  }
+
+  let list = db.users;
+  if (role) {
+    list = list.filter(u => u.role === role);
+  }
+
+  res.json(list);
+});
+
+app.post('/api/users', (req: Request, res: Response) => {
+  const db = repository.getDb();
+  const { username, password, role, name, phone, email, customer_id, collector_id } = req.body;
+
+  if (!username || !String(username).trim()) {
+    return res.status(400).json({ error: 'Username / User ID is required.' });
+  }
+  if (!role || !['ADMIN', 'COLLECTOR', 'CUSTOMER'].includes(role)) {
+    return res.status(400).json({ error: 'Valid role (ADMIN, COLLECTOR, or CUSTOMER) is required.' });
+  }
+
+  const cleanUser = String(username).trim();
+  if (db.users.some(u => u.username.toLowerCase() === cleanUser.toLowerCase())) {
+    return res.status(400).json({ error: `User ID "${cleanUser}" already exists. Please choose a different one.` });
+  }
+
+  const cleanPass = String(password || '').trim() || (role === 'ADMIN' ? 'admin123' : '1234');
+  const userId = `USR-${Date.now().toString(36).toUpperCase()}`;
+
+  const newUser: User = {
+    id: userId,
+    username: cleanUser,
+    email: (email || '').trim() || `${cleanUser.toLowerCase()}@dailycollection.com`,
+    password: cleanPass,
+    role,
+    name: (name || cleanUser).trim(),
+    phone: (phone || '').trim(),
+    customer_id: customer_id?.trim() || undefined,
+    collector_id: collector_id?.trim() || undefined,
+    is_active: true,
+    created_at: new Date().toISOString(),
+  };
+
+  db.users.push(newUser);
+  logAudit('admin', 'ADMIN', 'CREATE_USER', userId, 'users', null, { username: newUser.username, role: newUser.role });
+  repository.save();
+  res.status(201).json(newUser);
+});
+
+app.put('/api/users/:id', (req: Request, res: Response) => {
+  const id = getParam(req, 'id');
+  const db = repository.getDb();
+  const user = db.users.find(u => u.id === id);
+  if (!user) return res.status(404).json({ error: 'User not found' });
+
+  const { username, password, name, phone, email, is_active, role } = req.body;
+
+  if (username && String(username).trim().toLowerCase() !== user.username.toLowerCase()) {
+    const cleanUser = String(username).trim();
+    const duplicate = db.users.find(u => u.id !== id && u.username.toLowerCase() === cleanUser.toLowerCase());
+    if (duplicate) {
+      return res.status(400).json({ error: `Username "${cleanUser}" is already taken.` });
+    }
+    user.username = cleanUser;
+  }
+
+  if (password !== undefined && String(password).trim() !== '') {
+    user.password = String(password).trim();
+  }
+
+  if (name !== undefined) user.name = String(name).trim();
+  if (phone !== undefined) user.phone = String(phone).trim();
+  if (email !== undefined) user.email = String(email).trim();
+  if (is_active !== undefined) user.is_active = Boolean(is_active);
+  if (role !== undefined && ['ADMIN', 'COLLECTOR', 'CUSTOMER'].includes(role)) {
+    user.role = role;
+  }
+
+  // Synchronize changes if linked to collector
+  if (user.collector_id) {
+    const col = db.collectors.find(c => c.id === user.collector_id);
+    if (col) {
+      if (name) col.name = String(name).trim();
+      if (phone) col.mobile = String(phone).trim();
+      if (is_active !== undefined) col.status = user.is_active ? 'ACTIVE' : 'INACTIVE';
+    }
+  }
+
+  // Synchronize changes if linked to customer
+  if (user.customer_id) {
+    const cust = db.customers.find(c => c.id === user.customer_id);
+    if (cust) {
+      if (name) cust.full_name = String(name).trim();
+      if (phone) cust.mobile_number = String(phone).trim();
+    }
+  }
+
+  logAudit('admin', 'ADMIN', 'UPDATE_USER_CREDENTIALS', id, 'users', null, { username: user.username, role: user.role });
+  repository.save();
+  res.json(user);
+});
+
+app.delete('/api/users/:id', (req: Request, res: Response) => {
+  const id = getParam(req, 'id');
+  const db = repository.getDb();
+  if (id === 'USR001') {
+    return res.status(400).json({ error: 'Cannot delete the primary Administrator account.' });
+  }
+  const idx = db.users.findIndex(u => u.id === id);
+  if (idx === -1) return res.status(404).json({ error: 'User not found' });
+
+  const deleted = db.users.splice(idx, 1)[0];
+  logAudit('admin', 'ADMIN', 'DELETE_USER', id, 'users', deleted, null);
+  repository.save();
+  res.json({ success: true, message: 'User deleted successfully' });
+});
+
+// -------------------------------------------------------------
 // 2. DASHBOARD STATS & CHARTS
 // -------------------------------------------------------------
 app.get('/api/dashboard/stats', (req: Request, res: Response) => {
@@ -272,10 +432,17 @@ app.get('/api/dashboard/stats', (req: Request, res: Response) => {
   // Financial aggregates (cancelled loans never happened; only running loans still owe money)
   const liveAccounts = db.collection_accounts.filter(a => a.status !== 'CANCELLED');
   const totalOutstanding = activeAccounts.reduce((sum, a) => sum + a.remaining_amount, 0);
+  const totalCollected = liveAccounts.reduce((sum, a) => sum + a.amount_collected, 0);
   const totalFinanceMargin = liveAccounts.reduce((sum, a) => sum + a.finance_margin, 0);
   const totalDisbursed = liveAccounts.reduce((sum, a) => sum + a.disbursed_amount, 0);
   const totalRepayment = liveAccounts.reduce((sum, a) => sum + a.total_repayment, 0);
   const overdueCustomersCount = db.collection_accounts.filter(a => a.status === 'OVERDUE').length;
+
+  const openingBalance = db.config.company.opening_balance !== undefined
+    ? Number(db.config.company.opening_balance)
+    : 500000;
+  // Total Balance = Opening Capital + Total Collected - Total Disbursed (new customer loans deduct from this balance!)
+  const totalBalance = safeRound(openingBalance + totalCollected - totalDisbursed, 2);
 
   res.json({
     totalCustomers: db.customers.length,
@@ -286,11 +453,14 @@ app.get('/api/dashboard/stats', (req: Request, res: Response) => {
     todayCollectionRate,
     monthlyCollection,
     totalOutstanding,
+    totalCollected,
     totalFinanceMargin,
     totalDisbursed,
     totalRepayment,
     overdueCustomersCount,
     notPayingCount,
+    totalBalance,
+    openingBalance,
   });
 });
 
@@ -435,12 +605,14 @@ app.post('/api/customers', (req: Request, res: Response) => {
     db.business_details.push(newBiz);
   }
 
-  // Customer portal login (default PIN until authentication is reworked).
+  // Customer portal login
+  const custUsername = String(req.body.username || customerId).trim();
+  const custPassword = String(req.body.password || '1234').trim();
   const custUser: User = {
     id: `USR-${customerId}`,
-    username: customerId,
+    username: custUsername,
     email: newCustomer.email || '',
-    password: '1234',
+    password: custPassword,
     role: 'CUSTOMER',
     customer_id: customerId,
     name: newCustomer.full_name,
@@ -469,7 +641,7 @@ app.put('/api/customers/:id', (req: Request, res: Response) => {
   const cust = db.customers.find(c => c.id === id);
   if (!cust) return res.status(404).json({ error: 'Customer not found' });
 
-  const { personal, address, business } = req.body;
+  const { personal, address, business, username, password } = req.body;
   const oldVal = { ...cust };
 
   if (personal) {
@@ -498,6 +670,30 @@ app.put('/api/customers/:id', (req: Request, res: Response) => {
         id: `SHP-${id}`,
         customer_id: id,
         ...business,
+      });
+    }
+  }
+
+  // Update or create user credentials
+  if (username || password || personal?.full_name || personal?.mobile_number) {
+    let custUser = db.users.find(u => u.customer_id === id);
+    if (custUser) {
+      if (username) custUser.username = String(username).trim();
+      if (password) custUser.password = String(password).trim();
+      if (personal?.full_name) custUser.name = personal.full_name;
+      if (personal?.mobile_number) custUser.phone = personal.mobile_number;
+    } else if (username || password) {
+      db.users.push({
+        id: `USR-${id}`,
+        username: String(username || id).trim(),
+        email: cust.email || '',
+        password: String(password || '1234').trim(),
+        role: 'CUSTOMER',
+        customer_id: id,
+        name: cust.full_name,
+        phone: cust.mobile_number,
+        is_active: cust.status === 'ACTIVE',
+        created_at: cust.created_at || new Date().toISOString(),
       });
     }
   }
@@ -1493,6 +1689,24 @@ app.post('/api/collectors', (req: Request, res: Response) => {
   };
 
   db.collectors.push(newCol);
+
+  // Sync login credentials in db.users
+  const colUsername = String(req.body.username || colId).trim();
+  const colPassword = String(req.body.password || '1234').trim();
+  const colUser: User = {
+    id: `USR-${colId}`,
+    username: colUsername,
+    email: newCol.email || `${colId.toLowerCase()}@dailycollection.com`,
+    password: colPassword,
+    role: 'COLLECTOR',
+    collector_id: colId,
+    name: newCol.name,
+    phone: newCol.mobile,
+    is_active: true,
+    created_at: newCol.joining_date,
+  };
+  db.users.push(colUser);
+
   logAudit('admin', 'ADMIN', 'ADD_COLLECTOR', colId, 'collectors', null, newCol);
   repository.save();
   res.status(201).json(newCol);
@@ -1505,6 +1719,30 @@ app.put('/api/collectors/:id', (req: Request, res: Response) => {
   if (!col) return res.status(404).json({ error: 'Collector not found' });
   const oldCol = { ...col };
   Object.assign(col, req.body);
+
+  // Sync login credentials in db.users
+  const colUser = db.users.find(u => u.collector_id === id);
+  if (colUser) {
+    if (req.body.username) colUser.username = String(req.body.username).trim();
+    if (req.body.password) colUser.password = String(req.body.password).trim();
+    if (req.body.name) colUser.name = String(req.body.name).trim();
+    if (req.body.mobile) colUser.phone = String(req.body.mobile).trim();
+    if (req.body.status) colUser.is_active = req.body.status === 'ACTIVE';
+  } else if (req.body.username || req.body.password) {
+    db.users.push({
+      id: `USR-${id}`,
+      username: String(req.body.username || id).trim(),
+      email: col.email || `${id.toLowerCase()}@dailycollection.com`,
+      password: String(req.body.password || '1234').trim(),
+      role: 'COLLECTOR',
+      collector_id: id,
+      name: col.name,
+      phone: col.mobile,
+      is_active: col.status === 'ACTIVE',
+      created_at: col.joining_date || todayIso(),
+    });
+  }
+
   logAudit('admin', 'ADMIN', 'UPDATE_COLLECTOR', id, 'collectors', oldCol, col);
   repository.save();
   res.json(col);
