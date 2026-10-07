@@ -24,7 +24,7 @@ import {
   User,
 } from './db.ts';
 import { createLoanAccount, planLoan, commitLoan, LoanValidationError, IssueLoanInput, LoanParty, PlannedLoan } from './loans.ts';
-import { todayIso, roundMoney, addDaysIso } from '../shared/finance.ts';
+import { todayIso, roundMoney, addDaysIso, scheduleDates } from '../shared/finance.ts';
 import { CONFIG_SECTIONS, ConfigSection, LoanProduct as ConfigLoanProduct, MasterLists, Numbering, NumberingKind } from '../shared/config.ts';
 
 const app = express();
@@ -990,6 +990,209 @@ app.put('/api/collection-accounts/:id', (req: Request, res: Response) => {
     { collector: acc.assigned_collector_id, area: acc.collection_area });
   repository.save();
   res.json(withDaysBehind(acc));
+});
+
+/**
+ * BULK HAND-NOTE ENTRY / FAST UPLOAD FOR EXISTING CUSTOMERS (STRICTLY ADMIN ONLY)
+ * Allows office admin to easily upload past collections from physical hand notebooks ("hand note" - கை நோட்டு).
+ */
+app.post('/api/collection-accounts/:id/bulk-hand-note', (req: Request, res: Response) => {
+  const id = getParam(req, 'id');
+  const db = repository.getDb();
+  const acc = db.collection_accounts.find(a => a.id === id);
+  if (!acc) return res.status(404).json({ error: 'Collection account not found' });
+
+  const role = String(req.body?.role || 'ADMIN').toUpperCase();
+  const by = String(req.body?.by || 'admin');
+
+  // STRICT ACCESS: Only office administrators can record bulk hand-note entries!
+  if (role !== 'ADMIN') {
+    return res.status(403).json({ error: 'Access denied: Only office administrators can upload hand note collections.' });
+  }
+
+  const {
+    up_to_day,
+    day_numbers,
+    daily_amount,
+    payment_mode,
+    collector_id,
+    remarks,
+    overwrite_existing,
+  } = req.body;
+
+  const allDates = scheduleDates(acc.start_date, acc.collection_days);
+  const targetDays: number[] = [];
+
+  if (typeof up_to_day === 'number' && up_to_day >= 1) {
+    const maxDay = Math.min(up_to_day, acc.collection_days);
+    for (let d = 1; d <= maxDay; d++) targetDays.push(d);
+  } else if (Array.isArray(day_numbers)) {
+    day_numbers.forEach(d => {
+      const n = Number(d);
+      if (Number.isInteger(n) && n >= 1 && n <= acc.collection_days && !targetDays.includes(n)) {
+        targetDays.push(n);
+      }
+    });
+    targetDays.sort((a, b) => a - b);
+  }
+
+  if (targetDays.length === 0) {
+    return res.status(400).json({ error: 'No valid collection days specified to record.' });
+  }
+
+  const collector = collector_id ? (db.collectors.find(c => c.id === collector_id) || {
+    id: acc.assigned_collector_id,
+    name: acc.assigned_collector_name,
+  }) : {
+    id: acc.assigned_collector_id,
+    name: acc.assigned_collector_name,
+  };
+
+  const perDayAmount = (daily_amount && Number(daily_amount) > 0) ? Number(daily_amount) : acc.daily_collection;
+  const payMode = payment_mode || 'CASH';
+  const handRemarks = remarks || 'Recorded from physical hand notebook (கை நோட்டு)';
+
+  let recordedCount = 0;
+  let totalRecordedAmount = 0;
+
+  for (const dayNum of targetDays) {
+    const dateStr = allDates[dayNum - 1];
+    if (!dateStr) continue;
+
+    // Check if payment already exists for this date
+    const existingPayment = db.payments.find(p => p.collection_account_id === acc.id && p.collection_date === dateStr && isActivePayment(p));
+    if (existingPayment && !overwrite_existing) {
+      // Already recorded and not overwriting, leave as is
+      continue;
+    }
+
+    if (existingPayment && overwrite_existing) {
+      existingPayment.status = 'CANCELLED';
+      existingPayment.cancelled_at = new Date().toISOString();
+      existingPayment.remarks = 'Replaced by bulk hand note upload';
+    }
+
+    const receiptNum = nextId(db, 'receipt', db.receipts.map(r => r.receipt_number));
+    const paymentId = `PAY-${Date.now()}-${dayNum}-${Math.floor(Math.random() * 1000)}`;
+    const receiptId = `REC-${Date.now()}-${dayNum}-${Math.floor(Math.random() * 1000)}`;
+
+    const prevBalance = acc.remaining_amount;
+
+    const paymentTx: PaymentTransaction = {
+      id: paymentId,
+      receipt_number: receiptNum,
+      collection_account_id: acc.id,
+      customer_id: acc.customer_id,
+      customer_name: acc.customer_name,
+      shop_name: acc.shop_name || '',
+      collection_date: dateStr,
+      daily_due: acc.daily_collection,
+      amount_paid: perDayAmount,
+      advance_amount: 0,
+      payment_mode: payMode,
+      collector_id: collector.id,
+      collector_name: collector.name,
+      previous_balance: prevBalance,
+      remaining_balance: Math.max(0, safeRound(prevBalance - perDayAmount, 2)),
+      status: 'SUCCESS',
+      remarks: handRemarks,
+      created_at: new Date().toISOString(),
+    };
+    db.payments.push(paymentTx);
+
+    const newReceipt: Receipt = {
+      id: receiptId,
+      receipt_number: receiptNum,
+      payment_id: paymentId,
+      collection_account_id: acc.id,
+      customer_id: acc.customer_id,
+      customer_name: acc.customer_name,
+      shop_name: acc.shop_name || '',
+      daily_due: acc.daily_collection,
+      amount_paid: perDayAmount,
+      payment_mode: payMode,
+      previous_balance: prevBalance,
+      remaining_balance: Math.max(0, safeRound(prevBalance - perDayAmount, 2)),
+      collector_name: collector.name,
+      date: dateStr,
+      created_at: new Date().toISOString(),
+      remarks: handRemarks,
+    };
+    db.receipts.push(newReceipt);
+
+    let dailyRecord = db.daily_collections.find(d => d.collection_account_id === acc.id && d.date === dateStr);
+    if (!dailyRecord) {
+      dailyRecord = {
+        id: `DC-${dateStr}-${acc.id}`,
+        collection_account_id: acc.id,
+        customer_id: acc.customer_id,
+        customer_name: acc.customer_name,
+        shop_name: acc.shop_name || '',
+        mobile_number: db.customers.find(c => c.id === acc.customer_id)?.mobile_number || '',
+        collection_day_number: dayNum,
+        calendar_date: dateStr,
+        date: dateStr,
+        daily_due: acc.daily_collection,
+        paid_amount: perDayAmount,
+        pending_amount: 0,
+        advance_amount: 0,
+        status: 'PAID',
+        payment_mode: payMode,
+        collector_id: collector.id,
+        collector_name: collector.name,
+        collection_area: acc.collection_area,
+        receipt_id: receiptId,
+        receipt_number: receiptNum,
+        balance_remaining: Math.max(0, safeRound(prevBalance - perDayAmount, 2)),
+        remarks: handRemarks,
+      };
+      db.daily_collections.push(dailyRecord);
+    } else {
+      dailyRecord.paid_amount = perDayAmount;
+      dailyRecord.pending_amount = 0;
+      dailyRecord.status = 'PAID';
+      dailyRecord.payment_mode = payMode;
+      dailyRecord.collector_id = collector.id;
+      dailyRecord.collector_name = collector.name;
+      dailyRecord.collection_area = acc.collection_area;
+      dailyRecord.receipt_id = receiptId;
+      dailyRecord.receipt_number = receiptNum;
+      dailyRecord.balance_remaining = Math.max(0, safeRound(prevBalance - perDayAmount, 2));
+      dailyRecord.remarks = handRemarks;
+    }
+
+    recordedCount++;
+    totalRecordedAmount = safeRound(totalRecordedAmount + perDayAmount, 2);
+  }
+
+  // Recalculate account totals from all active payments to ensure absolute accuracy
+  const allActiveAccountPayments = db.payments.filter(p => p.collection_account_id === acc.id && isActivePayment(p));
+  acc.amount_collected = safeRound(allActiveAccountPayments.reduce((sum, p) => sum + p.amount_paid, 0), 2);
+  refreshAccountTotals(acc);
+
+  if (acc.remaining_amount === 0) {
+    acc.status = 'COMPLETED';
+    acc.actual_completion_date = allDates[targetDays[targetDays.length - 1] - 1] || todayIso();
+  } else if (acc.status === 'COMPLETED') {
+    acc.status = 'ACTIVE';
+    acc.actual_completion_date = undefined;
+  }
+
+  logAudit(by, role, 'BULK_HAND_NOTE_UPLOAD', acc.id, 'collection_accounts', null, {
+    recorded_days: recordedCount,
+    total_amount: totalRecordedAmount,
+    new_collected: acc.amount_collected,
+    new_balance: acc.remaining_amount,
+  });
+
+  repository.save();
+
+  res.json({
+    success: true,
+    count: recordedCount,
+    totalAmountRecorded: totalRecordedAmount,
+    account: withDaysBehind(acc),
+  });
 });
 
 // Cancel a loan issued by mistake. Only allowed before any payment has been taken.

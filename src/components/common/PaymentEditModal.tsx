@@ -116,6 +116,36 @@ export const PaymentEditModal: React.FC<PaymentEditModalProps> = ({
   const isPastMonth = selectedMonthPrefix < currentMonthPrefix;
   const isFutureMonth = selectedMonthPrefix > currentMonthPrefix;
 
+  const shiftDateMonths = (deltaMonths: number) => {
+    try {
+      const base = collectionDate || todayStr;
+      const parts = base.split('-');
+      const year = parseInt(parts[0], 10);
+      const month = parseInt(parts[1], 10) - 1;
+      const day = parseInt(parts[2], 10);
+      const d = new Date(year, month + deltaMonths, day);
+      const yStr = d.getFullYear();
+      const mStr = String(d.getMonth() + 1).padStart(2, '0');
+      const dStr = String(d.getDate()).padStart(2, '0');
+      setCollectionDate(`${yStr}-${mStr}-${dStr}`);
+    } catch {}
+  };
+
+  const shiftDateDays = (deltaDays: number) => {
+    try {
+      const base = collectionDate || todayStr;
+      const parts = base.split('-');
+      const year = parseInt(parts[0], 10);
+      const month = parseInt(parts[1], 10) - 1;
+      const day = parseInt(parts[2], 10);
+      const d = new Date(year, month, day + deltaDays);
+      const yStr = d.getFullYear();
+      const mStr = String(d.getMonth() + 1).padStart(2, '0');
+      const dStr = String(d.getDate()).padStart(2, '0');
+      setCollectionDate(`${yStr}-${mStr}-${dStr}`);
+    } catch {}
+  };
+
   // Projected balance calculation
   const oldAmount = payment ? payment.amount_paid : 0;
   const projectedRemaining = Math.max(
@@ -244,6 +274,63 @@ export const PaymentEditModal: React.FC<PaymentEditModalProps> = ({
               className="w-full px-3.5 py-2.5 rounded-xl bg-navy-950 border border-slate-700 text-white font-mono text-sm focus:outline-none focus:border-gold-500 transition-colors"
               required
             />
+
+            {/* Quick Month & Day Jumpers */}
+            <div className="flex flex-wrap items-center gap-1.5 mt-2">
+              <span className="text-[10px] text-slate-400 font-bold uppercase mr-1">
+                {t('quickDateJump', 'Jump Month / Date')}:
+              </span>
+              <button
+                type="button"
+                onClick={() => shiftDateMonths(-1)}
+                className="py-1 px-2.5 rounded-lg bg-navy-900 border border-slate-800 hover:border-gold-500/50 text-[11px] font-bold text-slate-200 cursor-pointer flex items-center gap-1 active:scale-95 transition-all"
+                title="Go back 1 month (முந்தைய மாதம்)"
+              >
+                <span>⏮️ -1 Month</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => shiftDateDays(-7)}
+                className="py-1 px-2.5 rounded-lg bg-navy-900 border border-slate-800 hover:border-gold-500/50 text-[11px] font-bold text-slate-200 cursor-pointer flex items-center gap-1 active:scale-95 transition-all"
+                title="Go back 7 days"
+              >
+                <span>◀️ -7 Days</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setCollectionDate(todayStr)}
+                className="py-1 px-2.5 rounded-lg bg-gold-500/20 border border-gold-500/40 text-gold-300 text-[11px] font-black cursor-pointer active:scale-95 transition-all"
+                title="Today's date"
+              >
+                <span>🔘 Today</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => shiftDateDays(7)}
+                className="py-1 px-2.5 rounded-lg bg-navy-900 border border-slate-800 hover:border-gold-500/50 text-[11px] font-bold text-slate-200 cursor-pointer flex items-center gap-1 active:scale-95 transition-all"
+                title="Forward 7 days"
+              >
+                <span>▶️ +7 Days</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => shiftDateMonths(1)}
+                className="py-1 px-2.5 rounded-lg bg-navy-900 border border-slate-800 hover:border-gold-500/50 text-[11px] font-bold text-slate-200 cursor-pointer flex items-center gap-1 active:scale-95 transition-all"
+                title="Forward 1 month (அடுத்த மாதம்)"
+              >
+                <span>⏭️ +1 Month</span>
+              </button>
+              {account.start_date && (
+                <button
+                  type="button"
+                  onClick={() => setCollectionDate(account.start_date)}
+                  className="py-1 px-2.5 rounded-lg bg-navy-900 border border-slate-800 hover:border-emerald-500/50 text-[11px] font-bold text-emerald-300 cursor-pointer active:scale-95 transition-all"
+                  title="Loan start date"
+                >
+                  <span>Start ({account.start_date})</span>
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Amount Paid Input & Quick Presets */}

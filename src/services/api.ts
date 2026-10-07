@@ -311,6 +311,29 @@ export const api = {
     return handleResponse(res);
   },
 
+  /** Bulk upload/record past collections from physical hand notebook (Admin only). */
+  async bulkHandNoteEntry(
+    accountId: string,
+    data: {
+      role?: string;
+      by?: string;
+      up_to_day?: number;
+      day_numbers?: number[];
+      daily_amount?: number;
+      payment_mode?: string;
+      collector_id?: string;
+      remarks?: string;
+      overwrite_existing?: boolean;
+    }
+  ): Promise<{ success: boolean; count: number; totalAmountRecorded: number; account: CollectionAccount }> {
+    const res = await fetch(`${API_BASE}/collection-accounts/${encodeURIComponent(accountId)}/bulk-hand-note`, {
+      method: 'POST',
+      headers: getAuthHeader(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(res);
+  },
+
   /** Saves a photo (data URL, already shrunk in the browser) and returns where it is served from. */
   async uploadPhoto(dataUrl: string): Promise<{ url: string }> {
     const res = await fetch(`${API_BASE}/uploads`, {

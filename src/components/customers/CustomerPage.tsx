@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
-  AlertTriangle, ArrowLeft, BookOpen, CalendarCheck, Camera, Check, ChevronDown, ChevronUp, Edit3, FileText,
+  AlertTriangle, ArrowLeft, BookOpen, Calendar, CalendarCheck, Camera, Check, ChevronDown, ChevronUp, Edit3, FileText,
   MapPin, PlusCircle, Receipt as ReceiptIcon, RotateCcw, Send, Trash2, UserX, Wallet,
 } from 'lucide-react';
 import {
@@ -18,8 +18,10 @@ import { IssueLoanModal } from '../loans/IssueLoanModal';
 import { CustomerForm } from './CustomerForm';
 import { PaymentEditModal } from '../common/PaymentEditModal';
 import { PremiumPassbookBook } from '../customer-portal/PremiumPassbookBook';
+import { CustomerScheduleCalendar } from '../customer-portal/CustomerScheduleCalendar';
+import { HandNoteBulkModal } from './HandNoteBulkModal';
 
-type PageTab = 'loan' | 'payments' | 'details';
+type PageTab = 'loan' | 'schedule' | 'payments' | 'details';
 
 interface CustomerPageProps {
   customerId: string;
@@ -69,6 +71,7 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ customerId, currentU
   const [editingPayment, setEditingPayment] = useState<PaymentTransaction | null>(null);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showPassbookBook, setShowPassbookBook] = useState(false);
+  const [showHandNoteModal, setShowHandNoteModal] = useState(false);
   const [busy, setBusy] = useState(false);
 
   const load = async () => {
@@ -173,6 +176,7 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ customerId, currentU
         onChange={setTab}
         tabs={[
           { id: 'loan', label: t('tabLoan', 'Loan') },
+          { id: 'schedule', label: t('dailySchedule', '📅 Daily Days Grid'), count: loan?.collection_days },
           { id: 'payments', label: t('tabPayments', 'Payments'), count: activePayments.length },
           { id: 'details', label: t('tabDetails', 'Details') },
         ]}
@@ -225,6 +229,29 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ customerId, currentU
                 {t('given', 'Given')}: {formatCurrency(loan.disbursed_amount)} • {t('collector', 'Collector')}: {loan.assigned_collector_name} • {loan.plan_name}
               </div>
               <BigButton tone="green" icon={CalendarCheck} label={t('navCollect', 'Collect')} onClick={() => onCollect(loan.id)} className="w-full py-4 text-base" />
+              
+              {/* Fast Grid & Hand Note Access */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setTab('schedule')}
+                  className="py-2.5 px-3 rounded-xl bg-navy-900 hover:bg-slate-800 border border-gold-500/30 text-gold-300 font-bold text-xs flex items-center justify-center gap-2 cursor-pointer shadow-sm transition-all"
+                >
+                  <Calendar className="w-4 h-4 text-gold-400" />
+                  <span>{t('viewDaysGrid', '📅 View Daily Days Grid')} ({loan.completed_days}/{loan.collection_days})</span>
+                </button>
+                {isOffice && (
+                  <button
+                    type="button"
+                    onClick={() => setShowHandNoteModal(true)}
+                    className="py-2.5 px-3 rounded-xl bg-gradient-to-r from-gold-500 via-amber-500 to-gold-600 hover:from-gold-400 hover:to-amber-500 text-navy-950 font-black text-xs flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-gold-500/20 active:scale-95 transition-all"
+                  >
+                    <BookOpen className="w-4 h-4" />
+                    <span>{t('handNoteUpload', '📓 Upload from Hand Note')}</span>
+                  </button>
+                )}
+              </div>
+
               {isOffice && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <BigButton small icon={MapPin} label={t('changeCollectorArea', 'Change collector or area')} onClick={() => setPlaceSheet(true)} />
@@ -283,6 +310,27 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ customerId, currentU
         </div>
       )}
 
+      {tab === 'schedule' && (
+        <div className="space-y-4">
+          {loan ? (
+            <CustomerScheduleCalendar
+              account={loan}
+              isAdmin={isOffice}
+              onRefresh={load}
+              onSelectReceipt={(receiptNum) => {
+                const r = profile.receipts.find(rc => rc.receipt_number === receiptNum);
+                if (r) setReceiptView(r);
+              }}
+            />
+          ) : (
+            <div className="glass-card rounded-2xl p-6 text-center space-y-3">
+              <Wallet className="w-10 h-10 text-gold-400 mx-auto" />
+              <p className="text-base font-bold text-white">{t('noRunningLoan', 'No running loan')}</p>
+            </div>
+          )}
+        </div>
+      )}
+
       {tab === 'payments' && (
         <div className="space-y-3">
           {/* Top Passbook & Action Buttons */}
@@ -300,6 +348,17 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ customerId, currentU
                 >
                   <BookOpen className="w-3.5 h-3.5 text-gold-400" />
                   <span>{t('viewPassbookBook', 'Open Passbook Book')}</span>
+                </button>
+              )}
+              {loan && isOffice && (
+                <button
+                  type="button"
+                  onClick={() => setShowHandNoteModal(true)}
+                  className="py-1.5 px-3 rounded-xl bg-navy-900 hover:bg-slate-800 border border-gold-500/40 text-gold-300 font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-sm"
+                  title="Admin: Fast bulk upload from physical notebook"
+                >
+                  <BookOpen className="w-3.5 h-3.5 text-gold-400" />
+                  <span>{t('handNoteUpload', '📓 Hand Note Upload')}</span>
                 </button>
               )}
               {loan && isOffice && (
@@ -493,6 +552,19 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ customerId, currentU
           currentUser={currentUser}
           onSuccess={() => {
             setNotice({ kind: 'ok', text: t('paymentUpdated', 'Payment successfully updated') });
+            load();
+          }}
+        />
+      )}
+      {showHandNoteModal && loan && (
+        <HandNoteBulkModal
+          isOpen={showHandNoteModal}
+          onClose={() => setShowHandNoteModal(false)}
+          account={loan}
+          customerName={personal.full_name}
+          currentUser={{ name: currentUser.name, role: currentUser.role }}
+          onSuccess={() => {
+            setNotice({ kind: 'ok', text: t('bulkSuccess', 'Hand note collections recorded successfully!') });
             load();
           }}
         />

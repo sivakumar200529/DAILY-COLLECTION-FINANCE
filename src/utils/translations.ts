@@ -2080,6 +2080,78 @@ export const translations: Record<string, { en: string; ta: string }> = {
     en: 'Open Passbook Book',
     ta: 'கணக்குப் புத்தகத்தைத் திறக்க',
   },
+  handNote: {
+    en: 'Hand Note',
+    ta: 'கை நோட்டு',
+  },
+  handNoteUpload: {
+    en: 'Upload from Hand Note',
+    ta: 'கை நோட்டு பதிவு',
+  },
+  handNoteSubtitle: {
+    en: 'Quickly upload past paid days from your physical paper notebook for existing customer',
+    ta: 'ஏற்கனவே உள்ள வாடிக்கையாளரின் கை நோட்டு தவணைகளை விரைவாக பதிவேற்றவும்',
+  },
+  handNoteFastMode: {
+    en: 'Hand Note Fast Mode',
+    ta: 'கை நோட்டு விரைவு முறை',
+  },
+  fastTapMode: {
+    en: '⚡ Fast Tap Mode',
+    ta: '⚡ விரைவு தொடுதல் முறை',
+  },
+  fastTapActive: {
+    en: '⚡ Tap Mode Active',
+    ta: '⚡ தொடுதல் முறை ஆன்',
+  },
+  fastModeNotice: {
+    en: 'Tap any unpaid day to instantly mark Paid. Tap any paid day to undo.',
+    ta: 'ஏதேனும் நிலுவை தேதியைத் தொட்டு உடனடியாக வரவு வைக்கலாம். செலுத்தியதை தொட ரத்து செய்யலாம்.',
+  },
+  paidUpToDay: {
+    en: 'Paid up to Day',
+    ta: 'தவணை எண் வரை வரவு',
+  },
+  quickRangeMode: {
+    en: '1. Fast Range (Paid up to Day N)',
+    ta: '1. விரைவு வரம்பு (தவணை எண் வரை)',
+  },
+  checklistMode: {
+    en: '2. Specific Days Checklist',
+    ta: '2. குறிப்பிட்ட நாட்கள் தேர்வு',
+  },
+  saveHandNote: {
+    en: 'Save Hand Note Entries',
+    ta: 'கை நோட்டு வரவுகளைப் பதிவு செய்',
+  },
+  dailySchedule: {
+    en: 'Daily Days Grid',
+    ta: 'தினசரி தவணை கட்டம்',
+  },
+  viewDaysGrid: {
+    en: 'View Daily Days Grid',
+    ta: 'தினசரி தவணை கட்டம் பார்க்க',
+  },
+  bulkSuccess: {
+    en: 'Hand note collections recorded successfully!',
+    ta: 'கை நோட்டு வரவுகள் வெற்றிகரமாகப் பதிவு செய்யப்பட்டன!',
+  },
+  quickMarkPaid: {
+    en: '⚡ Quick Mark Paid',
+    ta: '⚡ உடனே வரவு வைக்க',
+  },
+  customPayDetails: {
+    en: '✏️ Custom Amount / Edit Details',
+    ta: '✏️ தொகை / விவரங்கள் திருத்த',
+  },
+  recordAnyDateMonth: {
+    en: '+ Record Any Date / Month',
+    ta: '+ எந்த தேதியும் / மாதமும் பதிவு',
+  },
+  quickDateJump: {
+    en: 'Jump Month / Date',
+    ta: 'மாதம் / தேதி தேர்வு',
+  },
 };
 
 // Global direct fallback lookup table (case-insensitive) for any English text in the entire app
