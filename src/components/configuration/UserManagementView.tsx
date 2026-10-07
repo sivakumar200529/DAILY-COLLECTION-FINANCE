@@ -396,7 +396,7 @@ export const UserManagementView: React.FC = () => {
                   </div>
 
                   {/* User Name & Details */}
-                  <div className="text-lg font-black text-white truncate">{u.name}</div>
+                  <div className="text-lg font-black text-white truncate">{t(u.name, u.name)}</div>
                   <div className="text-xs text-slate-400 flex items-center gap-2 mt-0.5 mb-3">
                     {u.phone ? (
                       <span className="flex items-center gap-1 font-mono text-slate-300">

@@ -110,9 +110,9 @@ export const CustomerManagement: React.FC<CustomerManagementProps> = ({ onOpenCu
                 <div className="flex items-center gap-3">
                   <Avatar src={c.profile_photo} name={c.full_name} className="w-12 h-12 rounded-2xl text-base" />
                   <div className="min-w-0 flex-1">
-                    <div className="text-lg font-black text-white truncate">{c.full_name}</div>
-                    <div className="text-sm text-slate-400 truncate">{c.business?.shop_name || '—'}</div>
-                    <div className="text-xs text-slate-500 truncate">{c.business?.shop_area || c.address?.area}</div>
+                    <div className="text-lg font-black text-white truncate">{t(c.full_name, c.full_name)}</div>
+                    <div className="text-sm text-slate-400 truncate">{t(c.business?.shop_name || '', c.business?.shop_name || '—')}</div>
+                    <div className="text-xs text-slate-500 truncate">{t(c.business?.shop_area || c.address?.area || '', c.business?.shop_area || c.address?.area || '')}</div>
                   </div>
                   {inactive && (
                     <span className="px-2 py-1 rounded-lg text-xs font-bold bg-slate-700 text-slate-200">{t('inactive', 'Inactive')}</span>

@@ -232,11 +232,11 @@ export const MonthlyExcelReportView: React.FC = () => {
                       {r.customerId}
                     </td>
                     <td className="py-2 px-3 font-bold text-white bg-navy-950/90 sticky left-[80px] z-10 shadow-sm">
-                      {r.customerName}
+                      {t(r.customerName, r.customerName)}
                     </td>
-                    <td className="py-2 px-3 text-slate-300">{r.shopName}</td>
-                    <td className="py-2 px-3 text-slate-400">{r.area}</td>
-                    <td className="py-2 px-3 text-slate-400">{r.collector}</td>
+                    <td className="py-2 px-3 text-slate-300">{t(r.shopName, r.shopName)}</td>
+                    <td className="py-2 px-3 text-slate-400">{t(r.area, r.area)}</td>
+                    <td className="py-2 px-3 text-slate-400">{t(r.collector, r.collector)}</td>
                     <td className="py-2 px-3 text-right font-mono text-slate-300">{r.requestedAmount}</td>
                     <td className="py-2 px-3 text-right font-mono text-gold-400 font-semibold">{r.disbursedAmount}</td>
                     <td className="py-2 px-3 text-right font-mono text-slate-200">{r.dailyCollection}</td>

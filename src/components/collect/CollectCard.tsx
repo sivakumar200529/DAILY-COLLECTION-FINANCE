@@ -98,11 +98,11 @@ export const CollectCard: React.FC<CollectCardProps> = ({
           <span className="px-2 py-0.5 rounded-lg bg-gold-500/10 text-gold-400 font-black border border-gold-500/30 flex-shrink-0">
             #{record.route_order || stopNumber || 1}
           </span>
-          <span className="truncate text-slate-300 font-bold">{record.street || record.collection_area}</span>
+          <span className="truncate text-slate-300 font-bold">{t(record.street || record.collection_area, record.street || record.collection_area)}</span>
         </div>
         {record.landmark && (
           <span className="text-[10px] text-slate-500 truncate flex-shrink-0 max-w-[130px]" title={record.landmark}>
-            {record.landmark}
+            {t(record.landmark, record.landmark)}
           </span>
         )}
       </div>
@@ -111,9 +111,9 @@ export const CollectCard: React.FC<CollectCardProps> = ({
       <div className="flex items-start justify-between gap-2">
         <button type="button" onClick={onOpenCustomer} className="text-left min-w-0 flex-1 group">
           <div className="text-lg font-black text-white leading-tight truncate group-hover:text-gold-300 transition-colors">
-            {record.customer_name}
+            {t(record.customer_name, record.customer_name)}
           </div>
-          <div className="text-xs text-slate-400 truncate mt-0.5">{record.shop_name}</div>
+          <div className="text-xs text-slate-400 truncate mt-0.5">{t(record.shop_name, record.shop_name)}</div>
         </button>
 
         {/* 3 Quick Action Buttons: Call, WhatsApp, Google Maps Navigation */}

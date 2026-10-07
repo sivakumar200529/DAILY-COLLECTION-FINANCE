@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
-  AlertTriangle, ArrowLeft, CalendarCheck, Check, ChevronDown, ChevronUp, Edit3, FileText,
+  AlertTriangle, ArrowLeft, CalendarCheck, Camera, Check, ChevronDown, ChevronUp, Edit3, FileText,
   MapPin, Receipt as ReceiptIcon, RotateCcw, Send, Trash2, UserX, Wallet,
 } from 'lucide-react';
 import {
@@ -135,13 +135,26 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ customerId, currentU
       <BigButton small icon={ArrowLeft} label={t('customers', 'Customers')} onClick={onBack} />
 
       <div className="glass-card rounded-2xl p-4 flex items-center gap-4">
-        <Avatar src={personal.profile_photo} name={personal.full_name} className="w-16 h-16 rounded-2xl text-xl" />
+        <div className="relative group flex-shrink-0">
+          <Avatar src={personal.profile_photo} name={personal.full_name} className="w-16 h-16 rounded-2xl text-xl" />
+          {isOffice && (
+            <button
+              type="button"
+              onClick={() => setShowEdit(true)}
+              title={t('changePhoto', 'Upload / Change photo')}
+              aria-label={t('changePhoto', 'Upload / Change photo')}
+              className="absolute -bottom-1 -right-1 p-1.5 rounded-full bg-gold-500 text-navy-950 hover:bg-gold-400 shadow-md border-2 border-navy-900 cursor-pointer active:scale-95 transition-transform"
+            >
+              <Camera className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
         <div className="min-w-0 flex-1">
-          <h1 className="text-2xl font-black text-white truncate">{personal.full_name}</h1>
-          <div className="text-sm text-slate-300 truncate">{business?.shop_name || '—'}</div>
+          <h1 className="text-2xl font-black text-white truncate">{t(personal.full_name, personal.full_name)}</h1>
+          <div className="text-sm text-slate-300 truncate">{t(business?.shop_name || '', business?.shop_name || '—')}</div>
           <div className="text-xs text-slate-400 flex items-center gap-1 truncate">
             <MapPin className="w-3.5 h-3.5" />
-            {business?.shop_area || address?.area || '—'}
+            {t(business?.shop_area || address?.area || '', business?.shop_area || address?.area || '—')}
           </div>
           {personal.status !== 'ACTIVE' && (
             <span className="inline-block mt-1 px-2 py-0.5 rounded-lg text-xs font-bold bg-slate-700 text-slate-200">{t('inactive', 'Inactive')}</span>

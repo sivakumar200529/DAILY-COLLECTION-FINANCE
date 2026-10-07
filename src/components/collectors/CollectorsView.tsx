@@ -7,6 +7,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { useConfig } from '../../context/ConfigContext';
 import { Avatar } from '../common/Avatar';
 import { BigButton, CallButton, ConfirmSheet, EmptyState, Sheet, Spinner } from '../common/ui';
+import { PhotoPicker } from '../common/PhotoPicker';
 
 const inputClass = 'w-full px-4 py-3 bg-navy-950 border border-slate-700 rounded-2xl text-base text-white focus:border-gold-500 focus:outline-none';
 
@@ -45,6 +46,7 @@ export const CollectorsView: React.FC = () => {
     const body: Partial<Collector> & { username?: string; password?: string } = {
       name: editing.name.trim(),
       mobile,
+      photo: editing.photo || '',
       assigned_area: editing.assigned_area || defaultArea,
       target_amount: Number(editing.target_amount) || 0,
       ...(editing.id ? { status: editing.status } : {}),
@@ -97,8 +99,8 @@ export const CollectorsView: React.FC = () => {
             <div key={c.id} className="glass-card rounded-2xl p-4 flex items-center gap-3">
               <Avatar src={c.photo} name={c.name} className="w-12 h-12 rounded-2xl text-base" />
               <div className="min-w-0 flex-1">
-                <div className="text-lg font-black text-white truncate">{c.name}</div>
-                <div className="text-sm text-slate-400 truncate">{c.assigned_area}</div>
+                <div className="text-lg font-black text-white truncate">{t(c.name, c.name)}</div>
+                <div className="text-sm text-slate-400 truncate">{t(c.assigned_area, c.assigned_area)}</div>
                 <div className="text-xs text-slate-400">
                   {t('today', 'Today')}: <strong className="text-emerald-400">{formatCurrency(c.today_collected_amount ?? 0)}</strong>
                   {c.status !== 'ACTIVE' && <span className="ml-2 text-rose-300 font-bold">{t('stopped', 'Stopped')}</span>}
@@ -117,6 +119,13 @@ export const CollectorsView: React.FC = () => {
       {editing && (
         <Sheet title={editing.id ? t('editCollector', 'Edit collector') : t('addCollector', 'Add collector')} onClose={() => setEditing(null)}>
           <div className="space-y-4">
+            <div className="flex justify-center pb-1">
+              <PhotoPicker
+                label={t('collectorPhoto', 'Agent / Collector Photo')}
+                value={editing.photo}
+                onChange={photo => setEditing({ ...editing, photo })}
+              />
+            </div>
             <div>
               <label className="block text-sm font-bold text-slate-300 mb-1.5">{t('name', 'Name')} *</label>
               <input className={inputClass} value={editing.name ?? ''} onChange={e => setEditing({ ...editing, name: e.target.value })} />

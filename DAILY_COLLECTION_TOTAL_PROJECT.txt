@@ -1,6 +1,6 @@
 ================================================================================
  DAILY COLLECTION - COMPLETE PROJECT CODEBASE EXPORT
- Generated on: 2026-10-07T15:14:13.197Z
+ Generated on: 2026-10-07T16:05:34.118Z
  Total Source Files: 77
 ================================================================================
 
@@ -7173,11 +7173,11 @@ export const CollectCard: React.FC<CollectCardProps> = ({
           <span className="px-2 py-0.5 rounded-lg bg-gold-500/10 text-gold-400 font-black border border-gold-500/30 flex-shrink-0">
             #{record.route_order || stopNumber || 1}
           </span>
-          <span className="truncate text-slate-300 font-bold">{record.street || record.collection_area}</span>
+          <span className="truncate text-slate-300 font-bold">{t(record.street || record.collection_area, record.street || record.collection_area)}</span>
         </div>
         {record.landmark && (
           <span className="text-[10px] text-slate-500 truncate flex-shrink-0 max-w-[130px]" title={record.landmark}>
-            {record.landmark}
+            {t(record.landmark, record.landmark)}
           </span>
         )}
       </div>
@@ -7186,9 +7186,9 @@ export const CollectCard: React.FC<CollectCardProps> = ({
       <div className="flex items-start justify-between gap-2">
         <button type="button" onClick={onOpenCustomer} className="text-left min-w-0 flex-1 group">
           <div className="text-lg font-black text-white leading-tight truncate group-hover:text-gold-300 transition-colors">
-            {record.customer_name}
+            {t(record.customer_name, record.customer_name)}
           </div>
-          <div className="text-xs text-slate-400 truncate mt-0.5">{record.shop_name}</div>
+          <div className="text-xs text-slate-400 truncate mt-0.5">{t(record.shop_name, record.shop_name)}</div>
         </button>
 
         {/* 3 Quick Action Buttons: Call, WhatsApp, Google Maps Navigation */}
@@ -9322,7 +9322,7 @@ export const ReceiptsMasterView: React.FC = () => {
 };
 
 ================================================================================
-FILE [31/77]: src/components/collectors/CollectorsView.tsx (203 lines)
+FILE [31/77]: src/components/collectors/CollectorsView.tsx (212 lines)
 ================================================================================
 import React, { useEffect, useState } from 'react';
 import { Check, Edit3, Trash2, UserPlus, UserCheck } from 'lucide-react';
@@ -9333,6 +9333,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { useConfig } from '../../context/ConfigContext';
 import { Avatar } from '../common/Avatar';
 import { BigButton, CallButton, ConfirmSheet, EmptyState, Sheet, Spinner } from '../common/ui';
+import { PhotoPicker } from '../common/PhotoPicker';
 
 const inputClass = 'w-full px-4 py-3 bg-navy-950 border border-slate-700 rounded-2xl text-base text-white focus:border-gold-500 focus:outline-none';
 
@@ -9371,6 +9372,7 @@ export const CollectorsView: React.FC = () => {
     const body: Partial<Collector> & { username?: string; password?: string } = {
       name: editing.name.trim(),
       mobile,
+      photo: editing.photo || '',
       assigned_area: editing.assigned_area || defaultArea,
       target_amount: Number(editing.target_amount) || 0,
       ...(editing.id ? { status: editing.status } : {}),
@@ -9423,8 +9425,8 @@ export const CollectorsView: React.FC = () => {
             <div key={c.id} className="glass-card rounded-2xl p-4 flex items-center gap-3">
               <Avatar src={c.photo} name={c.name} className="w-12 h-12 rounded-2xl text-base" />
               <div className="min-w-0 flex-1">
-                <div className="text-lg font-black text-white truncate">{c.name}</div>
-                <div className="text-sm text-slate-400 truncate">{c.assigned_area}</div>
+                <div className="text-lg font-black text-white truncate">{t(c.name, c.name)}</div>
+                <div className="text-sm text-slate-400 truncate">{t(c.assigned_area, c.assigned_area)}</div>
                 <div className="text-xs text-slate-400">
                   {t('today', 'Today')}: <strong className="text-emerald-400">{formatCurrency(c.today_collected_amount ?? 0)}</strong>
                   {c.status !== 'ACTIVE' && <span className="ml-2 text-rose-300 font-bold">{t('stopped', 'Stopped')}</span>}
@@ -9443,6 +9445,13 @@ export const CollectorsView: React.FC = () => {
       {editing && (
         <Sheet title={editing.id ? t('editCollector', 'Edit collector') : t('addCollector', 'Add collector')} onClose={() => setEditing(null)}>
           <div className="space-y-4">
+            <div className="flex justify-center pb-1">
+              <PhotoPicker
+                label={t('collectorPhoto', 'Agent / Collector Photo')}
+                value={editing.photo}
+                onChange={photo => setEditing({ ...editing, photo })}
+              />
+            </div>
             <div>
               <label className="block text-sm font-bold text-slate-300 mb-1.5">{t('name', 'Name')} *</label>
               <input className={inputClass} value={editing.name ?? ''} onChange={e => setEditing({ ...editing, name: e.target.value })} />
@@ -11018,7 +11027,7 @@ export const UserManagementView: React.FC = () => {
                   </div>
 
                   {/* User Name & Details */}
-                  <div className="text-lg font-black text-white truncate">{u.name}</div>
+                  <div className="text-lg font-black text-white truncate">{t(u.name, u.name)}</div>
                   <div className="text-xs text-slate-400 flex items-center gap-2 mt-0.5 mb-3">
                     {u.phone ? (
                       <span className="flex items-center gap-1 font-mono text-slate-300">
@@ -13265,7 +13274,7 @@ export const RazorpayCheckoutModal: React.FC<RazorpayCheckoutModalProps> = ({
 };
 
 ================================================================================
-FILE [47/77]: src/components/customers/CustomerForm.tsx (254 lines)
+FILE [47/77]: src/components/customers/CustomerForm.tsx (256 lines)
 ================================================================================
 import React, { useEffect, useState } from 'react';
 import { Check, ChevronDown, ChevronUp, Wallet } from 'lucide-react';
@@ -13436,6 +13445,12 @@ export const CustomerForm: React.FC<CustomerFormProps> = ({ initial, onSaved, on
           <input className={inputClass} value={landmark} onChange={e => setLandmark(e.target.value)} placeholder={t('e.g. Near Temple', 'e.g. Near Temple')} />
         </div>
 
+        {/* Customer Profile Photo & Shop Photo (Prominent Admin Upload) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-2xl bg-navy-950/80 border border-slate-800">
+          <PhotoPicker label={t('customerPhoto', 'Customer Profile Photo')} value={photo} onChange={setPhoto} />
+          <PhotoPicker label={t('shopPhoto', 'Shop / Business Photo')} value={shopPhoto} onChange={setShopPhoto} />
+        </div>
+
         <button type="button" onClick={() => setShowMore(!showMore)} className="flex items-center gap-1.5 text-sm font-bold text-gold-400">
           {showMore ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
           {t('moreDetails', 'More details')}
@@ -13449,10 +13464,6 @@ export const CustomerForm: React.FC<CustomerFormProps> = ({ initial, onSaved, on
             <div>
               <label className="block text-sm font-bold text-slate-300 mb-1.5">{t('otherPhone', 'Other phone')}</label>
               <input className={inputClass} value={otherPhone} onChange={e => setOtherPhone(e.target.value)} inputMode="tel" maxLength={14} />
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <PhotoPicker label={t('customerPhoto', 'Customer photo')} value={photo} onChange={setPhoto} />
-              <PhotoPicker label={t('shopPhoto', 'Shop photo')} value={shopPhoto} onChange={setShopPhoto} />
             </div>
             <div>
               <label className="block text-sm font-bold text-slate-300 mb-1.5">{t('usualInterest', 'Usual interest % for this shop')}</label>
@@ -13636,9 +13647,9 @@ export const CustomerManagement: React.FC<CustomerManagementProps> = ({ onOpenCu
                 <div className="flex items-center gap-3">
                   <Avatar src={c.profile_photo} name={c.full_name} className="w-12 h-12 rounded-2xl text-base" />
                   <div className="min-w-0 flex-1">
-                    <div className="text-lg font-black text-white truncate">{c.full_name}</div>
-                    <div className="text-sm text-slate-400 truncate">{c.business?.shop_name || '—'}</div>
-                    <div className="text-xs text-slate-500 truncate">{c.business?.shop_area || c.address?.area}</div>
+                    <div className="text-lg font-black text-white truncate">{t(c.full_name, c.full_name)}</div>
+                    <div className="text-sm text-slate-400 truncate">{t(c.business?.shop_name || '', c.business?.shop_name || '—')}</div>
+                    <div className="text-xs text-slate-500 truncate">{t(c.business?.shop_area || c.address?.area || '', c.business?.shop_area || c.address?.area || '')}</div>
                   </div>
                   {inactive && (
                     <span className="px-2 py-1 rounded-lg text-xs font-bold bg-slate-700 text-slate-200">{t('inactive', 'Inactive')}</span>
@@ -13697,11 +13708,11 @@ export const CustomerManagement: React.FC<CustomerManagementProps> = ({ onOpenCu
 };
 
 ================================================================================
-FILE [49/77]: src/components/customers/CustomerPage.tsx (593 lines)
+FILE [49/77]: src/components/customers/CustomerPage.tsx (606 lines)
 ================================================================================
 import React, { useEffect, useState } from 'react';
 import {
-  AlertTriangle, ArrowLeft, CalendarCheck, Check, ChevronDown, ChevronUp, Edit3, FileText,
+  AlertTriangle, ArrowLeft, CalendarCheck, Camera, Check, ChevronDown, ChevronUp, Edit3, FileText,
   MapPin, Receipt as ReceiptIcon, RotateCcw, Send, Trash2, UserX, Wallet,
 } from 'lucide-react';
 import {
@@ -13836,13 +13847,26 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ customerId, currentU
       <BigButton small icon={ArrowLeft} label={t('customers', 'Customers')} onClick={onBack} />
 
       <div className="glass-card rounded-2xl p-4 flex items-center gap-4">
-        <Avatar src={personal.profile_photo} name={personal.full_name} className="w-16 h-16 rounded-2xl text-xl" />
+        <div className="relative group flex-shrink-0">
+          <Avatar src={personal.profile_photo} name={personal.full_name} className="w-16 h-16 rounded-2xl text-xl" />
+          {isOffice && (
+            <button
+              type="button"
+              onClick={() => setShowEdit(true)}
+              title={t('changePhoto', 'Upload / Change photo')}
+              aria-label={t('changePhoto', 'Upload / Change photo')}
+              className="absolute -bottom-1 -right-1 p-1.5 rounded-full bg-gold-500 text-navy-950 hover:bg-gold-400 shadow-md border-2 border-navy-900 cursor-pointer active:scale-95 transition-transform"
+            >
+              <Camera className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
         <div className="min-w-0 flex-1">
-          <h1 className="text-2xl font-black text-white truncate">{personal.full_name}</h1>
-          <div className="text-sm text-slate-300 truncate">{business?.shop_name || '—'}</div>
+          <h1 className="text-2xl font-black text-white truncate">{t(personal.full_name, personal.full_name)}</h1>
+          <div className="text-sm text-slate-300 truncate">{t(business?.shop_name || '', business?.shop_name || '—')}</div>
           <div className="text-xs text-slate-400 flex items-center gap-1 truncate">
             <MapPin className="w-3.5 h-3.5" />
-            {business?.shop_area || address?.area || '—'}
+            {t(business?.shop_area || address?.area || '', business?.shop_area || address?.area || '—')}
           </div>
           {personal.status !== 'ACTIVE' && (
             <span className="inline-block mt-1 px-2 py-0.5 rounded-lg text-xs font-bold bg-slate-700 text-slate-200">{t('inactive', 'Inactive')}</span>
@@ -15700,11 +15724,11 @@ export const MonthlyExcelReportView: React.FC = () => {
                       {r.customerId}
                     </td>
                     <td className="py-2 px-3 font-bold text-white bg-navy-950/90 sticky left-[80px] z-10 shadow-sm">
-                      {r.customerName}
+                      {t(r.customerName, r.customerName)}
                     </td>
-                    <td className="py-2 px-3 text-slate-300">{r.shopName}</td>
-                    <td className="py-2 px-3 text-slate-400">{r.area}</td>
-                    <td className="py-2 px-3 text-slate-400">{r.collector}</td>
+                    <td className="py-2 px-3 text-slate-300">{t(r.shopName, r.shopName)}</td>
+                    <td className="py-2 px-3 text-slate-400">{t(r.area, r.area)}</td>
+                    <td className="py-2 px-3 text-slate-400">{t(r.collector, r.collector)}</td>
                     <td className="py-2 px-3 text-right font-mono text-slate-300">{r.requestedAmount}</td>
                     <td className="py-2 px-3 text-right font-mono text-gold-400 font-semibold">{r.disbursedAmount}</td>
                     <td className="py-2 px-3 text-right font-mono text-slate-200">{r.dailyCollection}</td>
@@ -18790,7 +18814,7 @@ export function shareOnWhatsApp(phone: string | undefined, text: string) {
 }
 
 ================================================================================
-FILE [73/77]: src/utils/translations.ts (2744 lines)
+FILE [73/77]: src/utils/translations.ts (2996 lines)
 ================================================================================
 export type Language = 'en' | 'ta';
 
@@ -21495,6 +21519,246 @@ const englishToTamilMap: Record<string, string> = {
   'official upi vpa': 'அதிகாரப்பூர்வ UPI VPA',
   'direct deposit to krs finance bank account': 'KRS Finance வங்கி கணக்கில் நேரடியாக வரவு வைக்கப்படும்',
   '7-day total': '7 நாள் மொத்த வசூல்',
+
+  // Customer & Person Names (Tamil)
+  'ramesh kumar': 'ரமேஷ் குமார்',
+  'sundar rajan': 'சுந்தர் ராஜன்',
+  'meenakshi ammal': 'மீனாட்சி அம்மாள்',
+  'vijay anand': 'விஜய் ஆனந்த்',
+  'senthil nathan': 'செந்தில் நாதன்',
+  'kavitha selvam': 'கவிதா செல்வம்',
+  'muthuraman k.': 'முத்துராமன் கே.',
+  'muthuraman k': 'முத்துராமன் கே.',
+  'annamalai c.': 'அண்ணாமலை சி.',
+  'annamalai c': 'அண்ணாமலை சி.',
+  'priya dharshini': 'பிரியா தர்ஷினி',
+  'selva ganesh': 'செல்வ கணேஷ்',
+  'saravanan v.': 'சரவணன் வி.',
+  'saravanan v': 'சரவணன் வி.',
+  'lakshmi narayanan': 'லட்சுமி நாராயணன்',
+  'deepa venkatesh': 'தீபா வெங்கடேஷ்',
+  'manikandan r.': 'மணிகண்டன் ஆர்.',
+  'manikandan r': 'மணிகண்டன் ஆர்.',
+  'rajasekaran p.': 'ராஜசேகரன் பி.',
+  'rajasekaran p': 'ராஜசேகரன் பி.',
+  'thangavel m.': 'தங்கவேல் எம்.',
+  'thangavel m': 'தங்கவேல் எம்.',
+  'balamurugan s.': 'பாலமுருகன் எஸ்.',
+  'balamurugan s': 'பாலமுருகன் எஸ்.',
+  'shanmuga sundaram': 'சண்முக சுந்தரம்',
+  'radha krishnan': 'ராதா கிருஷ்ணன்',
+  'geetha rani': 'கீதா ராணி',
+  'karthikeyan s.': 'கார்த்திகேயன் எஸ்.',
+  'karthikeyan s': 'கார்த்திகேயன் எஸ்.',
+  'sivakumar m.': 'சிவகுமார் எம்.',
+  'sivakumar m': 'சிவகுமார் எம்.',
+  'govindaraj k.': 'கோவிந்தராஜ் கே.',
+  'govindaraj k': 'கோவிந்தராஜ் கே.',
+  'revathi mohan': 'ரேவதி மோகன்',
+  'arumugam p.': 'ஆறுமுகம் பி.',
+  'arumugam p': 'ஆறுமுகம் பி.',
+  'vijayalakshmi n.': 'விஜயலட்சுமி என்.',
+  'vijayalakshmi n': 'விஜயலட்சுமி என்.',
+  'dinesh kumar': 'தினேஷ் குமார்',
+  'padmavathi r.': 'பத்மாவதி ஆர்.',
+  'padmavathi r': 'பத்மாவதி ஆர்.',
+  'kalaiselvan s.': 'கலைச்செல்வன் எஸ்.',
+  'kalaiselvan s': 'கலைச்செல்வன் எஸ்.',
+  'subhashini v.': 'சுபாஷினி வி.',
+  'subhashini v': 'சுபாஷினி வி.',
+  'siva kumar s': 'சிவகுமார் எஸ்.',
+  'siva kumar': 'சிவகுமார்',
+  'sivakumar': 'சிவகுமார்',
+  'operations admin': 'செயல்பாட்டு நிர்வாகி',
+  'admin': 'நிர்வாகி',
+  'agent': 'ஏஜென்ட்',
+
+  // Agents & Collectors
+  'murugan s.': 'முருகன் எஸ்.',
+  'murugan s': 'முருகன் எஸ்.',
+  'karthik raja': 'கார்த்திக் ராஜா',
+  'saravanan p.': 'சரவணன் பி.',
+  'saravanan p': 'சரவணன் பி.',
+  'prakash r.': 'பிரகாஷ் ஆர்.',
+  'suresh k.': 'சுரேஷ் கே.',
+
+  // Areas & Streets
+  'bazaar main road': 'பஜார் மெயின் ரோடு',
+  'town hall road': 'டவுன் ஹால் ரோடு',
+  'car street': 'தேர் வீதி (கார் ஸ்ட்ரீட்)',
+  'market gate': 'மார்க்கெட் கேட்',
+  'new bus stand area': 'புதிய பேருந்து நிலைய பகுதி',
+  't. nagar': 'தி. நகர்',
+  't nagar': 'தி. நகர்',
+  'anna nagar': 'அண்ணா நகர்',
+  'mylapore': 'மயிலாப்பூர்',
+  'velachery': 'வேளச்சேரி',
+  'tambaram': 'தாம்பரம்',
+  'mount road': 'மவுண்ட் ரோடு',
+  'salem': 'சேலம்',
+  'chennai': 'சென்னை',
+  'tamil nadu': 'தமிழ்நாடு',
+
+  // Shops & Businesses
+  'sri krishna supermarket & provisions': 'ஸ்ரீ கிருஷ்ணா சூப்பர் மார்க்கெட் & மளிகை',
+  'annapoorna sweets, bakery & snacks': 'அன்னபூர்ணா ஸ்வீட்ஸ் & பேக்கரி',
+  'murugan textiles, sarees & readymade': 'முருகன் டெக்ஸ்டைல்ஸ் & ரெடிமேட்ஸ்',
+  'anand hardware, paints & electricals': 'ஆனந்த் ஹார்டுவேர் & பெயிண்ட்ஸ்',
+  'nathan tea stall, tiffin & cool drinks': 'நாதன் டீ ஸ்டால் & டிபன்',
+  'selvam fancy store, toys & stationeries': 'செல்வம் ஃபேன்சி & ஸ்டேஷனரி',
+  'sri lakshmi medicals & health care': 'ஸ்ரீ லட்சுமி மெடிக்கல்ஸ்',
+  'balaji automobiles & two-wheeler spares': 'பாலாஜி ஆட்டோமொபைல்ஸ்',
+  'priya bridal studio & tailoring': 'பிரியா பிரைடல் ஸ்டுடியோ & தையல்',
+  'ganesh electricals & home appliances': 'கணேஷ் எலக்ட்ரிகல்ஸ்',
+  'thirumalai maligai & provisions': 'திருமலை மளிகை & ப்ரொவிஷன்ஸ்',
+  'royal footwear & bag world': 'ராயல் காலணிகள் & பேக் வேர்ல்ட்',
+  'deepa xerox, dtp & online services': 'தீபா ஜெராக்ஸ் & ஆன்லைன் சேவைகள்',
+  'murugan fruit stall & fresh juice corner': 'முருகன் பழக்கடை & ஜூஸ் கார்னர்',
+  'raja cafe & hot chips centre': 'ராஜா கபே & ஹாட் சிப்ஸ்',
+  'sri murugan iron hardware & pipes': 'ஸ்ரீ முருகன் இரும்பு & பைப்புகள்',
+  'bala mobile store & quick service': 'பாலா மொபைல் ஸ்டோர்',
+  'sundaram timber & plywood depot': 'சுந்தரம் டிம்பர் & பிளைவுட்',
+  'sri radha krishna flower market': 'ஸ்ரீ ராதா கிருஷ்ணா மலர் சந்தை',
+  'saraswathi book center & stationers': 'சரஸ்வதி புக் சென்டர்',
+  'shiva sakthi rice mundy & wholesale': 'சிவ சக்தி அரிசி மண்டி',
+  'maruthi cycle works & fitness gears': 'மாருதி சைக்கிள் ஒர்க்ஸ்',
+  'om muruga optical & eye care': 'ஓம் முருகா ஆப்டிகல்ஸ்',
+  'mohan tailors & readymade garments': 'மோகன் டெய்லர்ஸ் & ஆடைகள்',
+  'vasantham pure veg tiffin center': 'வசந்தம் டிபன் சென்டர்',
+  'lakshmi gold covering & fashion jewels': 'லட்சுமி கோல்ட் கவரிங் & நகைகள்',
+  'smart computers & cctv security solutions': 'ஸ்மார்ட் கம்ப்யூட்டர்ஸ் & சிசிடிவி',
+  'padmavathi fancy & plastic home goods': 'பத்மாவதி ஃபேன்சி & பிளாஸ்டிக்',
+  'sri kumaran bakery, milk & dairy': 'ஸ்ரீ குமரன் பேக்கரி & பால் பண்ணை',
+  'krishna organic provisions & millets': 'கிருஷ்ணா ஆர்கானிக் & சிறுதானியங்கள்',
+  "siva kumar s's store": 'சிவகுமார் எஸ் கடை',
+
+  // Financial details & Photos
+  'upi / gpay': 'யுபிஐ / ஜிபே',
+  'cheque': 'காசோலை',
+  'inactive': 'செயலற்றது',
+  'stopped': 'நிறுத்தப்பட்டது',
+  'cancelled': 'ரத்து செய்யப்பட்டது',
+  'success': 'வெற்றி',
+  'not paid': 'செலுத்தப்படவில்லை',
+  'other phone': 'மாற்று தொலைபேசி எண்',
+  'customer photo': 'வாடிக்கையாளர் புகைப்படம்',
+  'customer profile photo': 'வாடிக்கையாளர் சுயவிவரப் படம்',
+  'shop photo': 'கடை / வணிகப் படம்',
+  'shop / business photo': 'கடை / வணிகப் படம்',
+  'agent photo': 'ஏஜென்ட் / வசூலிப்பாளர் படம்',
+  'agent / collector photo': 'ஏஜென்ட் / வசூலிப்பாளர் படம்',
+  'collector photo': 'வசூலிப்பாளர் புகைப்படம்',
+  'change photo': 'புகைப்படம் மாற்றுக',
+  'upload / change photo': 'புகைப்படம் பதிவேற்றுக / மாற்றுக',
+  'change profile photo': 'சுயவிவரப் படம் மாற்றுக',
+};
+
+// Word-level transliteration map for Tamil fallback
+const nameWordMap: Record<string, string> = {
+  ramesh: 'ரமேஷ்',
+  kumar: 'குமார்',
+  sundar: 'சுந்தர்',
+  rajan: 'ராஜன்',
+  meenakshi: 'மீனாட்சி',
+  ammal: 'அம்மாள்',
+  vijay: 'விஜய்',
+  anand: 'ஆனந்த்',
+  senthil: 'செந்தில்',
+  nathan: 'நாதன்',
+  kavitha: 'கவிதா',
+  selvam: 'செல்வம்',
+  muthu: 'முத்து',
+  muthuraman: 'முத்துராமன்',
+  annamalai: 'அண்ணாமலை',
+  priya: 'பிரியா',
+  dharshini: 'தர்ஷினி',
+  selva: 'செல்வ',
+  ganesh: 'கணேஷ்',
+  saravanan: 'சரவணன்',
+  lakshmi: 'லட்சுமி',
+  narayanan: 'நாராயணன்',
+  deepa: 'தீபா',
+  venkatesh: 'வெங்கடேஷ்',
+  mani: 'மணி',
+  manikandan: 'மணிகண்டன்',
+  raja: 'ராஜா',
+  rajasekaran: 'ராஜசேகரன்',
+  thangam: 'தங்கம்',
+  thangavel: 'தங்கவேல்',
+  bala: 'பாலா',
+  balamurugan: 'பாலமுருகன்',
+  shanmuga: 'சண்முக',
+  sundaram: 'சுந்தரம்',
+  radha: 'ராதா',
+  krishnan: 'கிருஷ்ணன்',
+  krishna: 'கிருஷ்ணா',
+  geetha: 'கீதா',
+  rani: 'ராணி',
+  karthi: 'கார்த்தி',
+  karthik: 'கார்த்திக்',
+  karthikeyan: 'கார்த்திகேயன்',
+  siva: 'சிவா',
+  sivakumar: 'சிவகுமார்',
+  shiva: 'சிவா',
+  govind: 'கோவிந்த்',
+  govindaraj: 'கோவிந்தராஜ்',
+  revathi: 'ரேவதி',
+  mohan: 'மோகன்',
+  arumugam: 'ஆறுமுகம்',
+  viji: 'விஜி',
+  vijayalakshmi: 'விஜயலட்சுமி',
+  dinesh: 'தினேஷ்',
+  padma: 'பத்மா',
+  padmavathi: 'பத்மாவதி',
+  kalai: 'கலை',
+  kalaiselvan: 'கலைச்செல்வன்',
+  subha: 'சுபா',
+  subhashini: 'சுபாஷினி',
+  murugan: 'முருகன்',
+  muruga: 'முருகா',
+  prakash: 'பிரகாஷ்',
+  suresh: 'சுரேஷ்',
+  saraswathi: 'சரஸ்வதி',
+  maruthi: 'மாருதி',
+  sakthi: 'சக்தி',
+  vasantham: 'வசந்தம்',
+  bazaar: 'பஜார்',
+  market: 'மார்க்கெட்',
+  road: 'ரோடு',
+  street: 'தெரு',
+  store: 'ஸ்டோர்',
+  stores: 'ஸ்டோர்ஸ்',
+  sweets: 'ஸ்வீட்ஸ்',
+  bakery: 'பேக்கரி',
+  textiles: 'டெக்ஸ்டைல்ஸ்',
+  hardware: 'ஹார்டுவேர்',
+  tea: 'டீ',
+  stall: 'ஸ்டால்',
+  fancy: 'ஃபேன்சி',
+  medicals: 'மெடிக்கல்ஸ்',
+  automobiles: 'ஆட்டோமொபைல்ஸ்',
+  electricals: 'எலக்ட்ரிகல்ஸ்',
+  provisions: 'மளிகை',
+  tailors: 'டெய்லர்ஸ்',
+  footwear: 'காலணிகள்',
+  cafe: 'கபே',
+  mobile: 'மொபைல்',
+  'k.': 'கே.',
+  'c.': 'சி.',
+  'v.': 'வி.',
+  'r.': 'ஆர்.',
+  'p.': 'பி.',
+  'm.': 'எம்.',
+  's.': 'எஸ்.',
+  'n.': 'என்.',
+  k: 'கே.',
+  c: 'சி.',
+  v: 'வி.',
+  r: 'ஆர்.',
+  p: 'பி.',
+  m: 'எம்.',
+  s: 'எஸ்.',
+  n: 'என்.',
 };
 
 export function getTranslation(key: string, lang: Language, fallback?: string): string {
@@ -21521,6 +21785,18 @@ export function getTranslation(key: string, lang: Language, fallback?: string): 
     if (englishToTamilMap[normalizedFallback]) {
       return englishToTamilMap[normalizedFallback];
     }
+  }
+
+  // Word-by-word name/phrase translation fallback in Tamil
+  const words = normalizedKey.split(/\s+/);
+  if (words.length > 1) {
+    const translatedWords = words.map(w => englishToTamilMap[w] || nameWordMap[w] || w);
+    const hasAnyTranslated = words.some(w => !!englishToTamilMap[w] || !!nameWordMap[w]);
+    if (hasAnyTranslated) {
+      return translatedWords.join(' ');
+    }
+  } else if (nameWordMap[normalizedKey]) {
+    return nameWordMap[normalizedKey];
   }
 
   reportMissingTamil(key, fallback);
@@ -21670,5 +21946,5 @@ export default defineConfig({
 });
 
 ================================================================================
-END OF PROJECT CODEBASE EXPORT - Total Lines of Code: 21353
+END OF PROJECT CODEBASE EXPORT - Total Lines of Code: 21629
 ================================================================================

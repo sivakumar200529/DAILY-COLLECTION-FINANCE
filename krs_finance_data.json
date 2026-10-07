@@ -167702,19 +167702,6 @@
       "remarks": "Original verified against UIDAI portal"
     },
     {
-      "id": "DOC-1002",
-      "customer_id": "KRS10001",
-      "document_type": "Trade License",
-      "document_number": "SLM/CORP/SHP/2022/1000",
-      "file_url": "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=600",
-      "file_name": "krs10001_trade_proof.pdf",
-      "file_size": 620000,
-      "mime_type": "application/pdf",
-      "upload_date": "2026-07-01",
-      "uploaded_by": "Murugan S. (COL101)",
-      "verification_status": "Verified"
-    },
-    {
       "id": "DOC-1003",
       "customer_id": "KRS10002",
       "document_type": "Aadhaar Card",
@@ -169091,6 +169078,29 @@
     }
   ],
   "audit_logs": [
+    {
+      "id": "AUDIT-1791389261293-645",
+      "user": "admin",
+      "role": "ADMIN",
+      "action": "DELETE_DOCUMENT",
+      "record_id": "DOC-1002",
+      "record_type": "documents",
+      "previous_value": {
+        "id": "DOC-1002",
+        "customer_id": "KRS10001",
+        "document_type": "Trade License",
+        "document_number": "SLM/CORP/SHP/2022/1000",
+        "file_url": "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=600",
+        "file_name": "krs10001_trade_proof.pdf",
+        "file_size": 620000,
+        "mime_type": "application/pdf",
+        "upload_date": "2026-07-01",
+        "uploaded_by": "Murugan S. (COL101)",
+        "verification_status": "Verified"
+      },
+      "new_value": null,
+      "timestamp": "2026-10-07T16:07:41.293Z"
+    },
     {
       "id": "AUDIT-1791383056684-969",
       "user": "admin",

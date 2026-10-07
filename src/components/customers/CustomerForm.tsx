@@ -167,6 +167,12 @@ export const CustomerForm: React.FC<CustomerFormProps> = ({ initial, onSaved, on
           <input className={inputClass} value={landmark} onChange={e => setLandmark(e.target.value)} placeholder={t('e.g. Near Temple', 'e.g. Near Temple')} />
         </div>
 
+        {/* Customer Profile Photo & Shop Photo (Prominent Admin Upload) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-2xl bg-navy-950/80 border border-slate-800">
+          <PhotoPicker label={t('customerPhoto', 'Customer Profile Photo')} value={photo} onChange={setPhoto} />
+          <PhotoPicker label={t('shopPhoto', 'Shop / Business Photo')} value={shopPhoto} onChange={setShopPhoto} />
+        </div>
+
         <button type="button" onClick={() => setShowMore(!showMore)} className="flex items-center gap-1.5 text-sm font-bold text-gold-400">
           {showMore ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
           {t('moreDetails', 'More details')}
@@ -180,10 +186,6 @@ export const CustomerForm: React.FC<CustomerFormProps> = ({ initial, onSaved, on
             <div>
               <label className="block text-sm font-bold text-slate-300 mb-1.5">{t('otherPhone', 'Other phone')}</label>
               <input className={inputClass} value={otherPhone} onChange={e => setOtherPhone(e.target.value)} inputMode="tel" maxLength={14} />
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <PhotoPicker label={t('customerPhoto', 'Customer photo')} value={photo} onChange={setPhoto} />
-              <PhotoPicker label={t('shopPhoto', 'Shop photo')} value={shopPhoto} onChange={setShopPhoto} />
             </div>
             <div>
               <label className="block text-sm font-bold text-slate-300 mb-1.5">{t('usualInterest', 'Usual interest % for this shop')}</label>
