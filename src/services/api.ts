@@ -193,6 +193,13 @@ export const api = {
     return handleResponse(res);
   },
 
+  async getCollectionAccount(id: string): Promise<CollectionAccount> {
+    const res = await fetch(`${API_BASE}/collection-accounts/${encodeURIComponent(id)}`, {
+      headers: getAuthHeader(),
+    });
+    return handleResponse(res);
+  },
+
   async createCollectionAccount(data: IssueLoanPayload & { customer_id: string }): Promise<CollectionAccount> {
     const res = await fetch(`${API_BASE}/collection-accounts`, {
       method: 'POST',
@@ -272,12 +279,34 @@ export const api = {
     return handleResponse(res);
   },
 
-  /** Undoes one of today's payments (by payment ID or receipt number). */
+  /** Undoes a payment (by payment ID or receipt number). Admin can undo across any month. */
   async undoPayment(paymentOrReceiptId: string, by: { name: string; role: string }): Promise<{ success: boolean; account: CollectionAccount; dailyRecord?: DailyCollectionRecord }> {
     const res = await fetch(`${API_BASE}/payments/${encodeURIComponent(paymentOrReceiptId)}/undo`, {
       method: 'POST',
       headers: getAuthHeader(),
       body: JSON.stringify({ by: by.name, role: by.role }),
+    });
+    return handleResponse(res);
+  },
+
+  /** Modifies/edits a payment transaction (Admin only). Can adjust amount, date (before/after month), mode, collector, remarks. */
+  async updatePayment(
+    paymentId: string,
+    data: {
+      amount_paid?: number;
+      collection_date?: string;
+      payment_mode?: string;
+      collector_id?: string;
+      collector_name?: string;
+      remarks?: string;
+      by?: string;
+      role?: string;
+    }
+  ): Promise<{ success: boolean; payment: PaymentTransaction; account: CollectionAccount }> {
+    const res = await fetch(`${API_BASE}/payments/${encodeURIComponent(paymentId)}`, {
+      method: 'PUT',
+      headers: getAuthHeader(),
+      body: JSON.stringify(data),
     });
     return handleResponse(res);
   },

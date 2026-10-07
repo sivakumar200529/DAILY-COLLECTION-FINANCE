@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { MonthlyReportData, Collector, Area } from '../../types';
+import { MonthlyReportData, Collector, Area, PaymentTransaction, CollectionAccount, MonthlyReportRow } from '../../types';
 import { api } from '../../services/api';
 import { formatCurrency, formatPercent } from '../../utils/formatters';
 import { exportMonthlyReportToExcel } from '../../utils/excelExport';
@@ -15,8 +15,11 @@ import {
   TrendingUp, 
   ShieldCheck,
   CheckCircle2,
-  Clock
+  Clock,
+  Sparkles,
+  Edit3
 } from 'lucide-react';
+import { PaymentEditModal } from '../common/PaymentEditModal';
 
 export const MonthlyExcelReportView: React.FC = () => {
   const { t } = useLanguage();
@@ -30,6 +33,78 @@ export const MonthlyExcelReportView: React.FC = () => {
   const [collectors, setCollectors] = useState<Collector[]>([]);
   const [areas, setAreas] = useState<Area[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+
+  const currentUser = (() => {
+    try {
+      const cached = localStorage.getItem('krs_user');
+      return cached ? JSON.parse(cached) : { name: 'admin', role: 'ADMIN' };
+    } catch {
+      return { name: 'admin', role: 'ADMIN' };
+    }
+  })();
+  const isAdmin = currentUser.role?.toUpperCase() === 'ADMIN';
+
+  const [editModalData, setEditModalData] = useState<{
+    account: CollectionAccount;
+    customerName: string;
+    shopName?: string;
+    defaultDate: string;
+    payment: PaymentTransaction | null;
+  } | null>(null);
+
+  const handleCellClick = async (r: MonthlyReportRow, d: number) => {
+    if (!isAdmin) return;
+    const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    try {
+      const [payments, account] = await Promise.all([
+        api.getPayments({ customer_id: r.customerId }),
+        api.getCollectionAccount(r.collectionAccountId).catch(() => null),
+      ]);
+      const payment = payments.find(
+        p => p.collection_account_id === r.collectionAccountId && p.collection_date === dateStr && p.status !== 'CANCELLED'
+      ) || null;
+
+      const targetAccount: CollectionAccount = account || {
+        id: r.collectionAccountId,
+        customer_id: r.customerId,
+        customer_name: r.customerName,
+        shop_name: r.shopName,
+        collection_area: r.area,
+        assigned_collector_id: '',
+        assigned_collector_name: r.collector,
+        requested_amount: r.requestedAmount,
+        margin_percentage: r.marginPercentage,
+        margin_amount: r.marginAmount,
+        disbursed_amount: r.disbursedAmount,
+        daily_collection: r.dailyCollection,
+        collection_days: r.collectionDays,
+        total_repayment: r.totalRepayment,
+        finance_margin: r.financeMargin,
+        amount_collected: r.amountCollected,
+        remaining_amount: r.remainingAmount,
+        start_date: r.startDate,
+        expected_end_date: r.endDate,
+        collection_percentage: r.collectionPercentage,
+        plan_id: '',
+        plan_name: '100-Day Collection',
+        completed_days: r.completedDays,
+        remaining_days: r.remainingDays,
+        status: (r.status as any) || 'ACTIVE',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+
+      setEditModalData({
+        account: targetAccount,
+        customerName: r.customerName,
+        shopName: r.shopName,
+        defaultDate: dateStr,
+        payment,
+      });
+    } catch (err) {
+      console.error('Failed to open payment modal:', err);
+    }
+  };
 
   const months = [
     { num: 1, name: 'January' },
@@ -245,10 +320,15 @@ export const MonthlyExcelReportView: React.FC = () => {
                     {/* Daily Columns */}
                     {daysArray.map(d => {
                       const dayPaid = r.dailyCollections[d] || 0;
+                      const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
                       return (
                         <td
                           key={d}
-                          className={`py-2 px-2 text-center font-mono border-l border-r border-slate-800/50 ${
+                          onClick={() => handleCellClick(r, d)}
+                          title={isAdmin ? `Admin: Click to edit or record payment for ${dateStr}` : undefined}
+                          className={`py-2 px-2 text-center font-mono border-l border-r border-slate-800/50 transition-all ${
+                            isAdmin ? 'cursor-pointer hover:bg-gold-500/20 hover:text-white hover:font-black' : ''
+                          } ${
                             dayPaid > 0 
                               ? 'text-emerald-400 font-bold bg-emerald-500/5' 
                               : 'text-slate-600'
@@ -319,6 +399,23 @@ export const MonthlyExcelReportView: React.FC = () => {
           </table>
         </div>
       </div>
+
+      {/* Admin Payment Edit Modal for Monthly Register */}
+      {editModalData && (
+        <PaymentEditModal
+          isOpen={!!editModalData}
+          onClose={() => setEditModalData(null)}
+          payment={editModalData.payment}
+          account={editModalData.account}
+          customerName={editModalData.customerName}
+          shopName={editModalData.shopName}
+          defaultDate={editModalData.defaultDate}
+          currentUser={currentUser}
+          onSuccess={() => {
+            loadData();
+          }}
+        />
+      )}
     </div>
   );
 };

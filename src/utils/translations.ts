@@ -2052,9 +2052,33 @@ export const translations: Record<string, { en: string; ta: string }> = {
     en: 'My payments',
     ta: 'நான் கட்டியவை',
   },
-  myDetails: {
-    en: 'My details',
-    ta: 'என் விவரங்கள்',
+  editPayment: {
+    en: 'Edit Payment',
+    ta: 'தவணைத் திருத்தம்',
+  },
+  modifyCustomerPayment: {
+    en: 'Modify Customer Payment (Admin Only)',
+    ta: 'வாடிக்கையாளர் தவணை திருத்துதல் (நிர்வாகி மட்டும்)',
+  },
+  recordPaymentAnyDate: {
+    en: '+ Record Payment (Any Date)',
+    ta: '+ தவணை பதிவு (எந்த தேதியும்)',
+  },
+  onlyAdminCanModify: {
+    en: 'Payment history can be modified only by office administrators',
+    ta: 'கட்டண வரலாற்றை அலுவலக நிர்வாகி மட்டுமே திருத்த முடியும்',
+  },
+  premiumPassbook: {
+    en: 'Official Passbook Book',
+    ta: 'அசல் கணக்குப் புத்தகம்',
+  },
+  passbookBooklet: {
+    en: 'Passbook Booklet',
+    ta: 'பாஸ்புக் புத்தகம்',
+  },
+  viewPassbookBook: {
+    en: 'Open Passbook Book',
+    ta: 'கணக்குப் புத்தகத்தைத் திறக்க',
   },
 };
 

@@ -12,8 +12,10 @@ import {
   ShieldCheck,
   Building,
   User as UserIcon,
+  BookOpen,
+  Edit3,
 } from 'lucide-react';
-import { Collector, Customer360Profile, Receipt, User, LoanRequest } from '../../types';
+import { Collector, Customer360Profile, Receipt, User, LoanRequest, PaymentTransaction } from '../../types';
 import { api } from '../../services/api';
 import { formatCurrency, formatDate } from '../../utils/formatters';
 import { todayIso } from '../../../shared/finance';
@@ -25,24 +27,29 @@ import { RazorpayCheckoutModal } from './RazorpayCheckoutModal';
 import { CustomerScheduleCalendar } from './CustomerScheduleCalendar';
 import { PassbookStatementPrint } from './PassbookStatementPrint';
 import { LoanRenewalRequestModal } from './LoanRenewalRequestModal';
+import { PremiumPassbookBook } from './PremiumPassbookBook';
+import { PaymentEditModal } from '../common/PaymentEditModal';
 import { receiptMessage, shareOnWhatsApp } from '../../utils/receiptShare';
 
 export const Passbook: React.FC<{ currentUser: User }> = ({ currentUser }) => {
   const { t } = useLanguage();
   const { config } = useConfig();
+  const isAdmin = currentUser.role?.toUpperCase() === 'ADMIN';
   const [profile, setProfile] = useState<Customer360Profile | null>(null);
   const [collectors, setCollectors] = useState<Collector[]>([]);
   const [failed, setFailed] = useState(false);
   const [receipt, setReceipt] = useState<Receipt | null>(null);
 
-  // Tab switch: 'passbook' (Passbook & Dues) vs 'schedule' (100-Day Calendar Schedule)
-  const [activeTab, setActiveTab] = useState<'passbook' | 'schedule'>('passbook');
+  // Tab switch: 'book' (Authentic Passbook Book) vs 'passbook' (Passbook Cards & Dues) vs 'schedule' (100-Day Calendar Schedule)
+  const [activeTab, setActiveTab] = useState<'book' | 'passbook' | 'schedule'>('book');
 
-  // Modals for the 4 core customer capabilities
+  // Modals for the customer & admin capabilities
   const [showPayModal, setShowPayModal] = useState<boolean>(false);
   const [showStatementPrint, setShowStatementPrint] = useState<boolean>(false);
   const [showRenewalModal, setShowRenewalModal] = useState<boolean>(false);
   const [recentRenewalRequest, setRecentRenewalRequest] = useState<LoanRequest | null>(null);
+  const [editingPayment, setEditingPayment] = useState<PaymentTransaction | null>(null);
+  const [showPaymentEditModal, setShowPaymentEditModal] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
@@ -150,9 +157,22 @@ export const Passbook: React.FC<{ currentUser: User }> = ({ currentUser }) => {
         </div>
       </div>
 
-      {/* View Switcher: Passbook & Dues vs 100-Day Calendar Schedule */}
+      {/* View Switcher: Passbook Book vs Passbook Cards vs 100-Day Calendar Schedule */}
       {loan && (
         <div className="flex bg-navy-950 p-1 rounded-2xl border border-slate-800">
+          <button
+            type="button"
+            onClick={() => setActiveTab('book')}
+            className={`flex-1 py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer ${
+              activeTab === 'book'
+                ? 'bg-gradient-to-r from-gold-500 to-amber-500 text-navy-950 shadow-md shadow-gold-500/20'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <BookOpen className="w-4 h-4" />
+            <span>📖 {t('premiumPassbook', 'Passbook Book')}</span>
+          </button>
+
           <button
             type="button"
             onClick={() => setActiveTab('passbook')}
@@ -163,7 +183,7 @@ export const Passbook: React.FC<{ currentUser: User }> = ({ currentUser }) => {
             }`}
           >
             <ReceiptIcon className="w-4 h-4" />
-            <span>Passbook &amp; Payments</span>
+            <span>{t('tabPayments', 'Payments & Dues')}</span>
           </button>
 
           <button
@@ -176,8 +196,30 @@ export const Passbook: React.FC<{ currentUser: User }> = ({ currentUser }) => {
             }`}
           >
             <Calendar className="w-4 h-4" />
-            <span>100-Day Schedule Calendar</span>
+            <span>100-Day Calendar</span>
           </button>
+        </div>
+      )}
+
+      {/* TAB 0: AUTHENTIC PHYSICAL PASSBOOK BOOK */}
+      {activeTab === 'book' && loan && (
+        <div className="space-y-4">
+          <PremiumPassbookBook
+            profile={profile}
+            account={loan}
+            isAdmin={isAdmin}
+            onEditPayment={(p) => {
+              if (isAdmin) {
+                setEditingPayment(p);
+                setShowPaymentEditModal(true);
+              }
+            }}
+            onShowReceipt={(p) => {
+              const rec = profile.receipts.find(r => r.receipt_number === p.receipt_number);
+              if (rec) setReceipt(rec);
+            }}
+            onPrintStatement={() => setShowStatementPrint(true)}
+          />
         </div>
       )}
 
@@ -362,6 +404,19 @@ export const Passbook: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                         <span className="text-xs font-bold text-rose-400">{t('cancelled', 'Cancelled')}</span>
                       ) : (
                         <div className="flex items-center gap-1.5">
+                          {/* Admin Only: Modify Payment */}
+                          {isAdmin && (
+                            <button
+                              type="button"
+                              onClick={() => { setEditingPayment(p); setShowPaymentEditModal(true); }}
+                              className="py-1.5 px-2 rounded-xl bg-gold-500/15 hover:bg-gold-500 hover:text-navy-950 text-gold-400 font-bold text-xs flex items-center gap-1 border border-gold-500/30 cursor-pointer transition-colors"
+                              title="Admin: Modify payment amount or date"
+                            >
+                              <Edit3 className="w-3.5 h-3.5" />
+                              <span className="hidden sm:inline">{t('edit', 'Modify')}</span>
+                            </button>
+                          )}
+
                           {/* Receipt Modal Trigger */}
                           {rec && (
                             <button
@@ -482,6 +537,25 @@ export const Passbook: React.FC<{ currentUser: User }> = ({ currentUser }) => {
             setRecentRenewalRequest(newReq);
             await loadData();
             showToast('Renewal request submitted! Our office will contact you.');
+          }}
+        />
+      )}
+
+      {/* 5. ADMIN ONLY PAYMENT MODIFICATION MODAL */}
+      {showPaymentEditModal && loan && isAdmin && (
+        <PaymentEditModal
+          isOpen={showPaymentEditModal}
+          onClose={() => { setShowPaymentEditModal(false); setEditingPayment(null); }}
+          payment={editingPayment}
+          account={loan}
+          customerName={profile.personal.full_name}
+          shopName={profile.business?.shop_name}
+          currentUser={currentUser}
+          onSuccess={async () => {
+            setShowPaymentEditModal(false);
+            setEditingPayment(null);
+            await loadData();
+            showToast(t('paymentUpdated', 'Payment successfully updated'));
           }}
         />
       )}

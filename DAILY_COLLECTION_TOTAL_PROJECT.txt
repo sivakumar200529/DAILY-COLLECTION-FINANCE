@@ -1,7 +1,7 @@
 ================================================================================
  DAILY COLLECTION - COMPLETE PROJECT CODEBASE EXPORT
- Generated on: 2026-10-07T16:05:34.118Z
- Total Source Files: 77
+ Generated on: 2026-10-07T16:49:19.930Z
+ Total Source Files: 79
 ================================================================================
 
 TABLE OF CONTENTS / FILE LIST:
@@ -39,54 +39,56 @@ TABLE OF CONTENTS / FILE LIST:
 [31] src/components/collectors/CollectorsView.tsx
 [32] src/components/common/Avatar.tsx
 [33] src/components/common/KrsLogo.tsx
-[34] src/components/common/PhotoPicker.tsx
-[35] src/components/common/ThemeLanguageSwitch.tsx
-[36] src/components/common/ui.tsx
-[37] src/components/configuration/ConfigShared.tsx
-[38] src/components/configuration/DataManagementView.tsx
-[39] src/components/configuration/LoanProductsView.tsx
-[40] src/components/configuration/SettingsView.tsx
-[41] src/components/configuration/UserManagementView.tsx
-[42] src/components/customer-portal/CustomerScheduleCalendar.tsx
-[43] src/components/customer-portal/LoanRenewalRequestModal.tsx
-[44] src/components/customer-portal/Passbook.tsx
-[45] src/components/customer-portal/PassbookStatementPrint.tsx
-[46] src/components/customer-portal/RazorpayCheckoutModal.tsx
-[47] src/components/customers/CustomerForm.tsx
-[48] src/components/customers/CustomerManagement.tsx
-[49] src/components/customers/CustomerPage.tsx
-[50] src/components/dashboard/AdminDashboard.tsx
-[51] src/components/field/StaffAndAreasView.tsx
-[52] src/components/layout/MobileBottomNav.tsx
-[53] src/components/layout/Navbar.tsx
-[54] src/components/layout/Sidebar.tsx
-[55] src/components/loans/IssueLoanModal.tsx
-[56] src/components/loans/LoanTermsForm.tsx
-[57] src/components/notifications/NotificationsView.tsx
-[58] src/components/reports/MonthlyExcelReportView.tsx
-[59] src/components/reports/ReportsView.tsx
-[60] src/context/ConfigContext.tsx
-[61] src/context/LanguageContext.tsx
-[62] src/context/ThemeContext.tsx
-[63] src/index.css
-[64] src/main.tsx
-[65] src/navigation/menus.ts
-[66] src/services/api.ts
-[67] src/types/index.ts
-[68] src/utils/calendarSchedule.ts
-[69] src/utils/excelExport.ts
-[70] src/utils/formatters.ts
-[71] src/utils/printHelper.ts
-[72] src/utils/receiptShare.ts
-[73] src/utils/translations.ts
-[74] src/vite-env.d.ts
-[75] tailwind.config.js
-[76] tsconfig.json
-[77] vite.config.ts
+[34] src/components/common/PaymentEditModal.tsx
+[35] src/components/common/PhotoPicker.tsx
+[36] src/components/common/ThemeLanguageSwitch.tsx
+[37] src/components/common/ui.tsx
+[38] src/components/configuration/ConfigShared.tsx
+[39] src/components/configuration/DataManagementView.tsx
+[40] src/components/configuration/LoanProductsView.tsx
+[41] src/components/configuration/SettingsView.tsx
+[42] src/components/configuration/UserManagementView.tsx
+[43] src/components/customer-portal/CustomerScheduleCalendar.tsx
+[44] src/components/customer-portal/LoanRenewalRequestModal.tsx
+[45] src/components/customer-portal/Passbook.tsx
+[46] src/components/customer-portal/PassbookStatementPrint.tsx
+[47] src/components/customer-portal/PremiumPassbookBook.tsx
+[48] src/components/customer-portal/RazorpayCheckoutModal.tsx
+[49] src/components/customers/CustomerForm.tsx
+[50] src/components/customers/CustomerManagement.tsx
+[51] src/components/customers/CustomerPage.tsx
+[52] src/components/dashboard/AdminDashboard.tsx
+[53] src/components/field/StaffAndAreasView.tsx
+[54] src/components/layout/MobileBottomNav.tsx
+[55] src/components/layout/Navbar.tsx
+[56] src/components/layout/Sidebar.tsx
+[57] src/components/loans/IssueLoanModal.tsx
+[58] src/components/loans/LoanTermsForm.tsx
+[59] src/components/notifications/NotificationsView.tsx
+[60] src/components/reports/MonthlyExcelReportView.tsx
+[61] src/components/reports/ReportsView.tsx
+[62] src/context/ConfigContext.tsx
+[63] src/context/LanguageContext.tsx
+[64] src/context/ThemeContext.tsx
+[65] src/index.css
+[66] src/main.tsx
+[67] src/navigation/menus.ts
+[68] src/services/api.ts
+[69] src/types/index.ts
+[70] src/utils/calendarSchedule.ts
+[71] src/utils/excelExport.ts
+[72] src/utils/formatters.ts
+[73] src/utils/printHelper.ts
+[74] src/utils/receiptShare.ts
+[75] src/utils/translations.ts
+[76] src/vite-env.d.ts
+[77] tailwind.config.js
+[78] tsconfig.json
+[79] vite.config.ts
 --------------------------------------------------------------------------------
 
 ================================================================================
-FILE [1/77]: .github/workflows/ci.yml (31 lines)
+FILE [1/79]: .github/workflows/ci.yml (31 lines)
 ================================================================================
 name: Node.js CI
 
@@ -120,7 +122,7 @@ jobs:
         run: npm run build
 
 ================================================================================
-FILE [2/77]: .gitignore (41 lines)
+FILE [2/79]: .gitignore (41 lines)
 ================================================================================
 # Dependencies
 node_modules/
@@ -164,7 +166,7 @@ Thumbs.db
 uploads/
 
 ================================================================================
-FILE [3/77]: README.md (8 lines)
+FILE [3/79]: README.md (8 lines)
 ================================================================================
  Instant 1-Click Demo Credentials:
 
@@ -175,7 +177,7 @@ FILE [3/77]: README.md (8 lines)
 | **3. Customer** | `9876543210` (or `DC10001`) | `1234` | Ramesh Kumar (Sri Krishna Supermarket & Provisions) |
 
 ================================================================================
-FILE [4/77]: index.html (18 lines)
+FILE [4/79]: index.html (18 lines)
 ================================================================================
 <!doctype html>
 <html lang="en" class="dark">
@@ -196,7 +198,7 @@ FILE [4/77]: index.html (18 lines)
 </html>
 
 ================================================================================
-FILE [5/77]: package.json (41 lines)
+FILE [5/79]: package.json (41 lines)
 ================================================================================
 {
   "name": "project-monitoring-platform",
@@ -240,7 +242,7 @@ FILE [5/77]: package.json (41 lines)
 }
 
 ================================================================================
-FILE [6/77]: postcss.config.js (7 lines)
+FILE [6/79]: postcss.config.js (7 lines)
 ================================================================================
 export default {
   plugins: {
@@ -250,7 +252,7 @@ export default {
 }
 
 ================================================================================
-FILE [7/77]: scripts/auditAllAccounts.cjs (35 lines)
+FILE [7/79]: scripts/auditAllAccounts.cjs (35 lines)
 ================================================================================
 const path = require('path');
 const d = require(path.resolve(__dirname, '../krs_finance_data.json'));
@@ -288,7 +290,7 @@ if (issues === 0) {
 }
 
 ================================================================================
-FILE [8/77]: scripts/fixAccountBalance.cjs (102 lines)
+FILE [8/79]: scripts/fixAccountBalance.cjs (102 lines)
 ================================================================================
 const fs = require('fs');
 const path = require('path');
@@ -393,7 +395,7 @@ fs.writeFileSync(dbPath, JSON.stringify(db, null, 2), 'utf8');
 console.log('Successfully saved krs_finance_data.json!');
 
 ================================================================================
-FILE [9/77]: scripts/seed30CustomersAnd3Months.cjs (1785 lines)
+FILE [9/79]: scripts/seed30CustomersAnd3Months.cjs (1785 lines)
 ================================================================================
 const fs = require('fs');
 const path = require('path');
@@ -2181,7 +2183,7 @@ console.log({
 });
 
 ================================================================================
-FILE [10/77]: server/db.ts (1614 lines)
+FILE [10/79]: server/db.ts (1614 lines)
 ================================================================================
 import * as fs from 'fs';
 import * as path from 'path';
@@ -3798,7 +3800,7 @@ export function loadSampleData(): void {
 
 
 ================================================================================
-FILE [11/77]: server/index.ts (2070 lines)
+FILE [11/79]: server/index.ts (2262 lines)
 ================================================================================
 import express, { Request, Response } from 'express';
 import cors from 'cors';
@@ -4741,6 +4743,14 @@ app.post('/api/collection-accounts', (req: Request, res: Response) => {
   }
 });
 
+app.get('/api/collection-accounts/:id', (req: Request, res: Response) => {
+  const id = getParam(req, 'id');
+  const db = repository.getDb();
+  const acc = db.collection_accounts.find(a => a.id === id);
+  if (!acc) return res.status(404).json({ error: 'Collection account not found' });
+  res.json(withDaysBehind(acc));
+});
+
 app.get('/api/collection-accounts/:id/schedule', (req: Request, res: Response) => {
   const id = getParam(req, 'id');
   const db = repository.getDb();
@@ -5255,8 +5265,178 @@ app.get('/api/receipts/:id', (req: Request, res: Response) => {
 });
 
 /**
- * UNDO A PAYMENT taken today. The payment and receipt are kept but marked CANCELLED,
- * the loan balance goes back, and the day returns to "to collect".
+ * MODIFY / EDIT A CUSTOMER PAYMENT TRANSACTION (STRICTLY ADMIN ONLY)
+ * Admin can adjust amount_paid, collection_date (past or future month), payment_mode, collector, and remarks.
+ */
+app.put('/api/payments/:id', (req: Request, res: Response) => {
+  const id = getParam(req, 'id');
+  const db = repository.getDb();
+  const payment = db.payments.find(p => p.id === id || p.receipt_number === id);
+  if (!payment) return res.status(404).json({ error: 'Payment record not found' });
+  if (!isActivePayment(payment)) return res.status(400).json({ error: 'Cannot modify a cancelled payment' });
+
+  const role = String(req.body?.role || 'ADMIN').toUpperCase();
+  const by = String(req.body?.by || 'admin');
+
+  // STRICT RULE: ONLY ADMIN can modify customer payment history!
+  if (role !== 'ADMIN') {
+    return res.status(403).json({ error: 'Access denied: Only office administrators can modify payment history.' });
+  }
+
+  const account = db.collection_accounts.find(a => a.id === payment.collection_account_id);
+  if (!account) return res.status(404).json({ error: 'Collection loan account not found' });
+
+  const oldAmount = payment.amount_paid;
+  const oldDate = payment.collection_date;
+  const oldMode = payment.payment_mode;
+
+  const newAmount = req.body.amount_paid !== undefined ? safeRound(Number(req.body.amount_paid), 2) : oldAmount;
+  const newDate = (req.body.collection_date || oldDate).trim();
+  const newMode = req.body.payment_mode || oldMode;
+  const newRemarks = req.body.remarks !== undefined ? req.body.remarks : payment.remarks;
+  const collectorId = req.body.collector_id || payment.collector_id;
+  const collectorName = req.body.collector_name || (collectorId ? db.collectors.find(c => c.id === collectorId)?.name : payment.collector_name) || payment.collector_name;
+
+  if (!Number.isFinite(newAmount) || newAmount <= 0) {
+    return res.status(400).json({ error: 'Please enter a valid positive payment amount.' });
+  }
+
+  // Ensure new amount does not exceed the total repayment minus other payments
+  const otherPaymentsTotal = db.payments
+    .filter(p => p.collection_account_id === account.id && p.id !== payment.id && isActivePayment(p))
+    .reduce((s, p) => s + p.amount_paid, 0);
+
+  const maxAllowed = safeRound(account.total_repayment - otherPaymentsTotal, 2);
+  if (newAmount > maxAllowed) {
+    return res.status(400).json({ error: `Amount cannot exceed maximum remaining loan limit of ₹${maxAllowed}` });
+  }
+
+  // Update payment object
+  payment.amount_paid = newAmount;
+  payment.collection_date = newDate;
+  payment.payment_mode = newMode;
+  payment.collector_id = collectorId;
+  payment.collector_name = collectorName;
+  payment.remarks = newRemarks;
+  payment.advance_amount = Math.max(0, safeRound(newAmount - account.daily_collection, 2));
+  payment.status = newAmount > account.daily_collection ? 'ADVANCE' : (newAmount < account.daily_collection ? 'PARTIAL' : 'SUCCESS');
+  (payment as any).updated_at = new Date().toISOString();
+  (payment as any).modified_by_admin = by;
+
+  // Update corresponding receipt
+  const receipt = db.receipts.find(r => r.payment_id === payment.id || r.receipt_number === payment.receipt_number);
+  if (receipt) {
+    receipt.amount_paid = newAmount;
+    receipt.date = newDate;
+    receipt.payment_mode = newMode;
+    receipt.collector_name = collectorName;
+    receipt.remarks = newRemarks;
+    (receipt as any).updated_at = new Date().toISOString();
+  }
+
+  // Recalculate account totals strictly based on all active payments
+  const allActive = db.payments.filter(p => p.collection_account_id === account.id && isActivePayment(p));
+  account.amount_collected = safeRound(allActive.reduce((s, p) => s + p.amount_paid, 0), 2);
+  refreshAccountTotals(account);
+
+  if (account.remaining_amount === 0) {
+    account.status = 'COMPLETED';
+    account.actual_completion_date = newDate;
+  } else if (account.status === 'COMPLETED' && account.remaining_amount > 0) {
+    account.status = 'ACTIVE';
+    delete account.actual_completion_date;
+  }
+
+  payment.remaining_balance = account.remaining_amount;
+  if (receipt) {
+    receipt.remaining_balance = account.remaining_amount;
+  }
+
+  // Sync daily collection records for oldDate and newDate
+  const updateDailyRecordForDate = (targetDate: string) => {
+    const dayPayments = db.payments.filter(
+      p => p.collection_account_id === account.id && p.collection_date === targetDate && isActivePayment(p)
+    );
+    const dayPaid = safeRound(dayPayments.reduce((s, p) => s + p.amount_paid, 0), 2);
+    let dailyRec = db.daily_collections.find(
+      d => d.collection_account_id === account.id && d.date === targetDate
+    );
+
+    if (dayPaid === 0) {
+      if (dailyRec) {
+        dailyRec.paid_amount = 0;
+        dailyRec.pending_amount = dailyRec.daily_due;
+        dailyRec.advance_amount = 0;
+        dailyRec.status = 'PENDING';
+        dailyRec.payment_mode = undefined;
+        dailyRec.receipt_id = undefined;
+        dailyRec.receipt_number = undefined;
+        dailyRec.balance_remaining = account.remaining_amount;
+      }
+    } else {
+      const dailyDue = account.daily_collection;
+      const advance = Math.max(0, safeRound(dayPaid - dailyDue, 2));
+      const pending = Math.max(0, safeRound(dailyDue - dayPaid, 2));
+      const status = advance > 0 ? 'ADVANCE' : (pending > 0 ? 'PARTIAL' : 'PAID');
+      const latestPay = dayPayments[dayPayments.length - 1];
+
+      if (!dailyRec) {
+        dailyRec = {
+          id: `DC-${targetDate}-${account.id}`,
+          collection_account_id: account.id,
+          customer_id: account.customer_id,
+          customer_name: account.customer_name,
+          shop_name: account.shop_name || '',
+          mobile_number: db.customers.find(c => c.id === account.customer_id)?.mobile_number || '',
+          date: targetDate,
+          daily_due: dailyDue,
+          paid_amount: dayPaid,
+          pending_amount: pending,
+          advance_amount: advance,
+          status,
+          payment_mode: latestPay.payment_mode,
+          collector_id: latestPay.collector_id,
+          collector_name: latestPay.collector_name,
+          collection_area: account.collection_area,
+          remarks: latestPay.remarks,
+          receipt_id: latestPay.id,
+          receipt_number: latestPay.receipt_number,
+          balance_remaining: account.remaining_amount,
+        };
+        db.daily_collections.push(dailyRec);
+      } else {
+        dailyRec.paid_amount = dayPaid;
+        dailyRec.pending_amount = pending;
+        dailyRec.advance_amount = advance;
+        dailyRec.status = status;
+        dailyRec.payment_mode = latestPay.payment_mode;
+        dailyRec.collector_id = latestPay.collector_id;
+        dailyRec.collector_name = latestPay.collector_name;
+        dailyRec.remarks = latestPay.remarks;
+        dailyRec.receipt_number = latestPay.receipt_number;
+        dailyRec.balance_remaining = account.remaining_amount;
+      }
+    }
+  };
+
+  updateDailyRecordForDate(oldDate);
+  if (newDate !== oldDate) {
+    updateDailyRecordForDate(newDate);
+  }
+
+  logAudit(by, 'ADMIN', 'EDIT_PAYMENT', account.id, 'payments',
+    { amount: oldAmount, date: oldDate, mode: oldMode },
+    { amount: newAmount, date: newDate, mode: newMode }
+  );
+
+  repository.save();
+  res.json({ success: true, payment, account: withDaysBehind(account) });
+});
+
+/**
+ * UNDO A PAYMENT.
+ * Admin can undo payments from ANY date (past months before or current/future dates).
+ * Field collectors can only undo today's payment.
  */
 app.post('/api/payments/:id/undo', (req: Request, res: Response) => {
   const id = getParam(req, 'id');
@@ -5264,43 +5444,20 @@ app.post('/api/payments/:id/undo', (req: Request, res: Response) => {
   const payment = db.payments.find(p => p.id === id || p.receipt_number === id);
   if (!payment) return res.status(404).json({ error: 'Payment not found' });
   if (!isActivePayment(payment)) return res.status(400).json({ error: 'This payment was already undone.' });
-  if (payment.collection_date !== todayIso()) {
-    return res.status(400).json({ error: "Only today's payments can be undone." });
+
+  const by = String(req.body?.by || 'admin');
+  const role = String(req.body?.role || 'ADMIN').toUpperCase();
+  const isAdmin = role === 'ADMIN';
+
+  // Collectors are restricted to today; Admins can undo payments across any month!
+  if (!isAdmin && payment.collection_date !== todayIso()) {
+    return res.status(400).json({ error: "Only today's payments can be undone by collectors. Office admin can undo any date." });
   }
-  const latest = db.payments
-    .filter(p => p.collection_account_id === payment.collection_account_id && isActivePayment(p))
-    .sort((a, b) => a.created_at.localeCompare(b.created_at))
-    .pop();
-  if (latest?.id !== payment.id) {
-    return res.status(400).json({ error: 'Undo the latest payment of this loan first.' });
-  }
+
   const account = db.collection_accounts.find(a => a.id === payment.collection_account_id);
   if (!account) return res.status(404).json({ error: 'Collection account not found' });
 
   const balanceBefore = account.remaining_amount;
-  account.amount_collected = safeRound(account.amount_collected - payment.amount_paid, 2);
-  refreshAccountTotals(account);
-  if (account.status === 'COMPLETED') {
-    account.status = 'ACTIVE';
-    delete account.actual_completion_date;
-  }
-
-  const dailyRecord = db.daily_collections.find(
-    d => d.collection_account_id === account.id && d.date === payment.collection_date
-  );
-  if (dailyRecord) {
-    dailyRecord.paid_amount = 0;
-    dailyRecord.pending_amount = dailyRecord.daily_due;
-    dailyRecord.advance_amount = 0;
-    dailyRecord.status = 'PENDING';
-    dailyRecord.payment_mode = undefined;
-    dailyRecord.receipt_id = undefined;
-    dailyRecord.receipt_number = undefined;
-    dailyRecord.reason = undefined;
-    dailyRecord.remarks = 'Payment undone';
-    dailyRecord.balance_remaining = account.remaining_amount;
-  }
-
   const now = new Date().toISOString();
   payment.status = 'CANCELLED';
   payment.cancelled_at = now;
@@ -5310,8 +5467,45 @@ app.post('/api/payments/:id/undo', (req: Request, res: Response) => {
     receipt.cancelled_at = now;
   }
 
-  const by = String(req.body?.by || 'admin');
-  const role = String(req.body?.role || 'ADMIN');
+  // Recalculate account totals from remaining active payments
+  const allActive = db.payments.filter(p => p.collection_account_id === account.id && isActivePayment(p));
+  account.amount_collected = safeRound(allActive.reduce((s, p) => s + p.amount_paid, 0), 2);
+  refreshAccountTotals(account);
+  if (account.status === 'COMPLETED' && account.remaining_amount > 0) {
+    account.status = 'ACTIVE';
+    delete account.actual_completion_date;
+  }
+
+  // Sync daily collection record for that payment date
+  const dayPayments = db.payments.filter(
+    p => p.collection_account_id === account.id && p.collection_date === payment.collection_date && isActivePayment(p)
+  );
+  const dayPaid = safeRound(dayPayments.reduce((s, p) => s + p.amount_paid, 0), 2);
+  const dailyRecord = db.daily_collections.find(
+    d => d.collection_account_id === account.id && d.date === payment.collection_date
+  );
+
+  if (dailyRecord) {
+    if (dayPaid === 0) {
+      dailyRecord.paid_amount = 0;
+      dailyRecord.pending_amount = dailyRecord.daily_due;
+      dailyRecord.advance_amount = 0;
+      dailyRecord.status = 'PENDING';
+      dailyRecord.payment_mode = undefined;
+      dailyRecord.receipt_id = undefined;
+      dailyRecord.receipt_number = undefined;
+      dailyRecord.reason = undefined;
+      dailyRecord.remarks = 'Payment undone by admin';
+      dailyRecord.balance_remaining = account.remaining_amount;
+    } else {
+      dailyRecord.paid_amount = dayPaid;
+      dailyRecord.pending_amount = Math.max(0, safeRound(dailyRecord.daily_due - dayPaid, 2));
+      dailyRecord.advance_amount = Math.max(0, safeRound(dayPaid - dailyRecord.daily_due, 2));
+      dailyRecord.status = dailyRecord.advance_amount > 0 ? 'ADVANCE' : (dailyRecord.pending_amount > 0 ? 'PARTIAL' : 'PAID');
+      dailyRecord.balance_remaining = account.remaining_amount;
+    }
+  }
+
   logAudit(by, role, 'UNDO_PAYMENT', account.id, 'payments',
     { receipt: payment.receipt_number, paid: payment.amount_paid, balance: balanceBefore },
     { balance: account.remaining_amount });
@@ -5871,7 +6065,7 @@ app.listen(PORT, () => {
 });
 
 ================================================================================
-FILE [12/77]: server/loans.ts (143 lines)
+FILE [12/79]: server/loans.ts (143 lines)
 ================================================================================
 import { KRSFinanceDatabase, CollectionAccount, DailyCollectionRecord, Collector, CustomerPersonalDetails, nextId } from './db.ts';
 import { evaluateLoan, scheduleDates, todayIso, LoanCalculation, LoanOverride } from '../shared/finance.ts';
@@ -6017,7 +6211,7 @@ export function createLoanAccount(db: KRSFinanceDatabase, input: IssueLoanInput)
 }
 
 ================================================================================
-FILE [13/77]: shared/config.ts (119 lines)
+FILE [13/79]: shared/config.ts (119 lines)
 ================================================================================
 // Runtime configuration stored in the data file (db.config) and editable from the
 // admin Configuration screen. Shared by server and client so both read the same shape.
@@ -6139,7 +6333,7 @@ export function formatId(rule: NumberingRule, seq: number, date: Date = new Date
 }
 
 ================================================================================
-FILE [14/77]: shared/finance.ts (194 lines)
+FILE [14/79]: shared/finance.ts (194 lines)
 ================================================================================
 // Single source of truth for loan money calculations.
 // Imported by both the Express server and the React client, so the preview a user
@@ -6336,7 +6530,7 @@ export function evaluateLoan(product: LoanProduct | undefined, terms: LoanTerms)
 
 
 ================================================================================
-FILE [15/77]: src/App.tsx (212 lines)
+FILE [15/79]: src/App.tsx (212 lines)
 ================================================================================
 import React, { useState, useEffect } from 'react';
 import { User, Notification } from './types';
@@ -6551,7 +6745,7 @@ export function App() {
 export default App;
 
 ================================================================================
-FILE [16/77]: src/components/areas/AreasView.tsx (143 lines)
+FILE [16/79]: src/components/areas/AreasView.tsx (143 lines)
 ================================================================================
 import React, { useEffect, useState } from 'react';
 import { Check, Edit3, MapPin, PlusCircle, Trash2 } from 'lucide-react';
@@ -6697,7 +6891,7 @@ export const AreasView: React.FC = () => {
 };
 
 ================================================================================
-FILE [17/77]: src/components/auth/LoginPage.tsx (180 lines)
+FILE [17/79]: src/components/auth/LoginPage.tsx (180 lines)
 ================================================================================
 import React, { useState } from 'react';
 import { AlertCircle, ArrowRight, Building2, Eye, EyeOff, UserCheck, Wallet } from 'lucide-react';
@@ -6880,7 +7074,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
 };
 
 ================================================================================
-FILE [18/77]: src/components/collect/AgentCollectQrModal.tsx (188 lines)
+FILE [18/79]: src/components/collect/AgentCollectQrModal.tsx (188 lines)
 ================================================================================
 import React, { useState } from 'react';
 import { X, QrCode, CheckCircle2, Copy, Check, ShieldCheck, Smartphone, ExternalLink, Sparkles } from 'lucide-react';
@@ -7071,7 +7265,7 @@ export const AgentCollectQrModal: React.FC<AgentCollectQrModalProps> = ({
 };
 
 ================================================================================
-FILE [19/77]: src/components/collect/CollectCard.tsx (286 lines)
+FILE [19/79]: src/components/collect/CollectCard.tsx (286 lines)
 ================================================================================
 import React from 'react';
 import {
@@ -7360,7 +7554,7 @@ export const CollectCard: React.FC<CollectCardProps> = ({
 };
 
 ================================================================================
-FILE [20/77]: src/components/collect/CollectScreen.tsx (462 lines)
+FILE [20/79]: src/components/collect/CollectScreen.tsx (462 lines)
 ================================================================================
 import React, { useCallback, useEffect, useState } from 'react';
 import { Printer, Search, CheckCircle2, Users, MapPin, ArrowUpDown } from 'lucide-react';
@@ -7825,7 +8019,7 @@ export const CollectScreen: React.FC<CollectScreenProps> = ({ currentUser, focus
 };
 
 ================================================================================
-FILE [21/77]: src/components/collect/MyDayView.tsx (545 lines)
+FILE [21/79]: src/components/collect/MyDayView.tsx (545 lines)
 ================================================================================
 import React, { useCallback, useEffect, useState } from 'react';
 import {
@@ -8373,7 +8567,7 @@ Verified by: ${currentUser.name}`;
 };
 
 ================================================================================
-FILE [22/77]: src/components/collect/NotPaidSheet.tsx (65 lines)
+FILE [22/79]: src/components/collect/NotPaidSheet.tsx (65 lines)
 ================================================================================
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
@@ -8441,7 +8635,7 @@ export const NotPaidSheet: React.FC<NotPaidSheetProps> = ({ record, busy, onSave
 };
 
 ================================================================================
-FILE [23/77]: src/components/collect/OtherAmountSheet.tsx (109 lines)
+FILE [23/79]: src/components/collect/OtherAmountSheet.tsx (109 lines)
 ================================================================================
 import React, { useState } from 'react';
 import { Check } from 'lucide-react';
@@ -8553,14 +8747,16 @@ export const OtherAmountSheet: React.FC<OtherAmountSheetProps> = ({ record, busy
 };
 
 ================================================================================
-FILE [24/77]: src/components/collect/PassbookDrawer.tsx (71 lines)
+FILE [24/79]: src/components/collect/PassbookDrawer.tsx (176 lines)
 ================================================================================
 import React, { useEffect, useState } from 'react';
-import { PaymentTransaction } from '../../types';
+import { PaymentTransaction, CollectionAccount } from '../../types';
 import { api } from '../../services/api';
 import { formatCurrency, formatDate } from '../../utils/formatters';
 import { useLanguage } from '../../context/LanguageContext';
 import { Sheet, Spinner } from '../common/ui';
+import { BookOpen, CheckCircle2, Edit3, Award, Receipt as ReceiptIcon } from 'lucide-react';
+import { PaymentEditModal } from '../common/PaymentEditModal';
 
 interface PassbookDrawerProps {
   customerId: string;
@@ -8571,25 +8767,73 @@ interface PassbookDrawerProps {
   onClose: () => void;
 }
 
-/** A customer's payments, newest first. Opened from the collection list. */
-export const PassbookDrawer: React.FC<PassbookDrawerProps> = ({ customerId, customerName, balance, dailyDue, onShowReceipt, onClose }) => {
+/** Authentic Premium Customer Passbook Ledger Drawer */
+export const PassbookDrawer: React.FC<PassbookDrawerProps> = ({
+  customerId,
+  customerName,
+  balance,
+  dailyDue,
+  onShowReceipt,
+  onClose,
+}) => {
   const { t } = useLanguage();
   const [payments, setPayments] = useState<PaymentTransaction[] | null>(null);
+  const [account, setAccount] = useState<CollectionAccount | null>(null);
+  const [editingPayment, setEditingPayment] = useState<PaymentTransaction | null>(null);
+  const [showEditModal, setShowEditModal] = useState<boolean>(false);
+
+  const currentUser = (() => {
+    try {
+      const cached = localStorage.getItem('krs_user');
+      return cached ? JSON.parse(cached) : { name: 'admin', role: 'AGENT' };
+    } catch {
+      return { name: 'admin', role: 'AGENT' };
+    }
+  })();
+  const isAdmin = currentUser.role?.toUpperCase() === 'ADMIN';
+
+  const loadPayments = () => {
+    api.getPayments({ customer_id: customerId })
+      .then(setPayments)
+      .catch(() => setPayments([]));
+
+    api.getCustomer360(customerId)
+      .then(prof => {
+        if (prof.activeAccount) setAccount(prof.activeAccount);
+      })
+      .catch(() => {});
+  };
 
   useEffect(() => {
-    api.getPayments({ customer_id: customerId }).then(setPayments).catch(() => setPayments([]));
+    loadPayments();
   }, [customerId]);
 
   return (
-    <Sheet title={customerName} onClose={onClose}>
-      <div className="grid grid-cols-2 gap-3 mb-4">
-        <div className="glass-card rounded-2xl p-3">
-          <div className="text-xs text-slate-400 font-semibold">{t('balance', 'Balance')}</div>
-          <div className="text-xl font-black text-gold-300">{formatCurrency(balance)}</div>
+    <Sheet title={t(customerName, customerName)} onClose={onClose}>
+      
+      {/* Premium Passbook Top Header */}
+      <div className="relative rounded-2xl bg-gradient-to-r from-navy-950 via-[#0d1627] to-navy-950 p-4 border border-gold-500/30 text-center mb-4 space-y-2 shadow-lg">
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-gold-500/10 border border-gold-500/30 text-[9px] font-black uppercase tracking-wider text-gold-300">
+          <Award className="w-3 h-3 text-gold-400" />
+          <span>{t('premiumPassbook', 'Official Passbook Book')}</span>
         </div>
-        <div className="glass-card rounded-2xl p-3">
-          <div className="text-xs text-slate-400 font-semibold">{t('dailyPayment', 'Daily payment')}</div>
-          <div className="text-xl font-black text-white">{formatCurrency(dailyDue)}</div>
+        <div className="text-base font-serif font-black text-transparent bg-clip-text bg-gradient-to-r from-gold-300 via-amber-200 to-gold-400">
+          KRS FINANCE • PASSBOOK
+        </div>
+        <div className="text-[11px] text-slate-400 font-mono">
+          Customer ID: <strong className="text-slate-200">{customerId}</strong>
+        </div>
+
+        {/* Dual Financial Parameters */}
+        <div className="grid grid-cols-2 gap-2 pt-2 text-left">
+          <div className="glass-card rounded-xl p-2.5 bg-navy-900/90 border border-slate-800">
+            <div className="text-[10px] text-slate-400 font-semibold">{t('balance', 'Balance')}</div>
+            <div className="text-lg font-black text-gold-300 font-mono">{formatCurrency(balance)}</div>
+          </div>
+          <div className="glass-card rounded-xl p-2.5 bg-navy-900/90 border border-slate-800">
+            <div className="text-[10px] text-slate-400 font-semibold">{t('dailyPayment', 'Daily payment')}</div>
+            <div className="text-lg font-black text-white font-mono">{formatCurrency(dailyDue)}</div>
+          </div>
         </div>
       </div>
 
@@ -8598,36 +8842,91 @@ export const PassbookDrawer: React.FC<PassbookDrawerProps> = ({ customerId, cust
       ) : payments.length === 0 ? (
         <p className="text-sm text-slate-400 text-center py-6">{t('noPaymentsYet', 'No payments yet')}</p>
       ) : (
-        <div className="divide-y divide-slate-800/60">
-          {payments.map(p => {
+        <div className="space-y-2 max-h-[480px] overflow-y-auto pr-1">
+          {payments.map((p, idx) => {
             const cancelled = p.status === 'CANCELLED';
             return (
-              <button
+              <div
                 key={p.id}
-                type="button"
-                onClick={() => onShowReceipt(p.receipt_number)}
-                className="w-full flex items-center justify-between py-3 text-left"
+                className="w-full glass-card rounded-2xl p-3 flex items-center justify-between gap-3 text-left border border-slate-800/80 hover:border-slate-700 transition-all"
               >
-                <div>
-                  <div className={`text-base font-bold ${cancelled ? 'line-through text-slate-500' : 'text-white'}`}>
-                    {formatCurrency(p.amount_paid)}
+                <button
+                  type="button"
+                  onClick={() => onShowReceipt(p.receipt_number)}
+                  className="min-w-0 flex-1 text-left cursor-pointer"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className={`text-base font-bold font-mono ${cancelled ? 'line-through text-slate-500' : 'text-white'}`}>
+                      {formatCurrency(p.amount_paid)}
+                    </span>
+                    <span className="text-[10px] font-semibold text-slate-400 px-1.5 py-0.5 rounded bg-navy-950 border border-slate-800">
+                      {t(p.payment_mode, p.payment_mode)}
+                    </span>
                   </div>
-                  <div className="text-xs text-slate-400">
-                    {formatDate(p.collection_date)} • {t(p.payment_mode, p.payment_mode)}
+                  <div className="text-xs text-slate-400 mt-0.5 flex items-center gap-1.5 font-mono">
+                    <span>{formatDate(p.collection_date)}</span>
+                    <span>&bull;</span>
+                    <span className="text-blue-400 underline">{p.receipt_number}</span>
                   </div>
+                </button>
+
+                <div className="flex items-center gap-1.5 flex-shrink-0">
+                  {cancelled ? (
+                    <span className="text-xs font-bold text-rose-400">{t('cancelled', 'Cancelled')}</span>
+                  ) : (
+                    <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-emerald-500/30 text-emerald-300 bg-emerald-500/10 text-[9px] font-bold">
+                      <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                      <span>PAID</span>
+                    </div>
+                  )}
+
+                  {/* ONLY ADMIN CAN MODIFY PAYMENT HISTORY */}
+                  {isAdmin && !cancelled && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingPayment(p);
+                        setShowEditModal(true);
+                      }}
+                      className="p-1.5 rounded-xl bg-navy-900 hover:bg-gold-500 hover:text-navy-950 border border-slate-700 text-gold-300 font-bold text-xs transition-colors cursor-pointer"
+                      title="Admin: Modify payment amount or date"
+                    >
+                      <Edit3 className="w-3.5 h-3.5" />
+                    </button>
+                  )}
                 </div>
-                {cancelled && <span className="text-xs font-bold text-rose-400">{t('cancelled', 'Cancelled')}</span>}
-              </button>
+              </div>
             );
           })}
         </div>
       )}
+
+      {/* Admin Payment Edit Modal */}
+      {showEditModal && account && isAdmin && (
+        <PaymentEditModal
+          isOpen={showEditModal}
+          onClose={() => {
+            setShowEditModal(false);
+            setEditingPayment(null);
+          }}
+          payment={editingPayment}
+          account={account}
+          customerName={customerName}
+          currentUser={currentUser}
+          onSuccess={() => {
+            setShowEditModal(false);
+            setEditingPayment(null);
+            loadPayments();
+          }}
+        />
+      )}
+
     </Sheet>
   );
 };
 
 ================================================================================
-FILE [25/77]: src/components/collect/PaymentDoneSheet.tsx (49 lines)
+FILE [25/79]: src/components/collect/PaymentDoneSheet.tsx (49 lines)
 ================================================================================
 import React from 'react';
 import { CheckCircle2, MessageCircle, Receipt as ReceiptIcon, RotateCcw, ArrowRight } from 'lucide-react';
@@ -8679,7 +8978,7 @@ export const PaymentDoneSheet: React.FC<PaymentDoneSheetProps> = ({ receipt, cus
 };
 
 ================================================================================
-FILE [26/77]: src/components/collect/QuickHistoryModal.tsx (222 lines)
+FILE [26/79]: src/components/collect/QuickHistoryModal.tsx (222 lines)
 ================================================================================
 import React from 'react';
 import { X, CheckCircle2, AlertCircle, Clock, Calendar, Receipt as ReceiptIcon, ArrowRight, ShieldCheck, ChevronRight } from 'lucide-react';
@@ -8904,7 +9203,7 @@ export const QuickHistoryModal: React.FC<QuickHistoryModalProps> = ({
 };
 
 ================================================================================
-FILE [27/77]: src/components/collect/collectHelpers.ts (33 lines)
+FILE [27/79]: src/components/collect/collectHelpers.ts (33 lines)
 ================================================================================
 import { DailyCollectionRecord } from '../../types';
 
@@ -8940,7 +9239,7 @@ export function matchesSearch(record: DailyCollectionRecord, query: string): boo
 }
 
 ================================================================================
-FILE [28/77]: src/components/collections/DailyCollectionRegisterView.tsx (169 lines)
+FILE [28/79]: src/components/collections/DailyCollectionRegisterView.tsx (169 lines)
 ================================================================================
 import React, { useEffect, useState } from 'react';
 import { DailyCollectionRecord, Collector } from '../../types';
@@ -9112,7 +9411,7 @@ export const DailyCollectionRegisterView: React.FC<DailyCollectionRegisterViewPr
 };
 
 ================================================================================
-FILE [29/77]: src/components/collections/ReceiptModal.tsx (106 lines)
+FILE [29/79]: src/components/collections/ReceiptModal.tsx (106 lines)
 ================================================================================
 import React from 'react';
 import { MessageCircle, Printer, X } from 'lucide-react';
@@ -9221,7 +9520,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ receipt, customerMob
 };
 
 ================================================================================
-FILE [30/77]: src/components/collections/ReceiptsMasterView.tsx (98 lines)
+FILE [30/79]: src/components/collections/ReceiptsMasterView.tsx (98 lines)
 ================================================================================
 import React, { useEffect, useState } from 'react';
 import { Download, Receipt as ReceiptIcon, Search } from 'lucide-react';
@@ -9322,7 +9621,7 @@ export const ReceiptsMasterView: React.FC = () => {
 };
 
 ================================================================================
-FILE [31/77]: src/components/collectors/CollectorsView.tsx (212 lines)
+FILE [31/79]: src/components/collectors/CollectorsView.tsx (212 lines)
 ================================================================================
 import React, { useEffect, useState } from 'react';
 import { Check, Edit3, Trash2, UserPlus, UserCheck } from 'lucide-react';
@@ -9537,7 +9836,7 @@ export const CollectorsView: React.FC = () => {
 };
 
 ================================================================================
-FILE [32/77]: src/components/common/Avatar.tsx (18 lines)
+FILE [32/79]: src/components/common/Avatar.tsx (18 lines)
 ================================================================================
 import React from 'react';
 
@@ -9558,7 +9857,7 @@ export const Avatar: React.FC<{ src?: string; name: string; className: string }>
 };
 
 ================================================================================
-FILE [33/77]: src/components/common/KrsLogo.tsx (146 lines)
+FILE [33/79]: src/components/common/KrsLogo.tsx (146 lines)
 ================================================================================
 import React from 'react';
 
@@ -9707,7 +10006,417 @@ export const KrsLogo: React.FC<KrsLogoProps> = ({
 };
 
 ================================================================================
-FILE [34/77]: src/components/common/PhotoPicker.tsx (98 lines)
+FILE [34/79]: src/components/common/PaymentEditModal.tsx (407 lines)
+================================================================================
+import React, { useState, useEffect } from 'react';
+import { PaymentTransaction, CollectionAccount, Collector } from '../../types';
+import { api } from '../../services/api';
+import { formatCurrency, formatDate } from '../../utils/formatters';
+import { useLanguage } from '../../context/LanguageContext';
+import { 
+  ShieldAlert, 
+  Calendar, 
+  DollarSign, 
+  Check, 
+  X, 
+  UserCheck, 
+  CreditCard, 
+  FileText, 
+  Sparkles,
+  AlertCircle,
+  Clock
+} from 'lucide-react';
+
+interface PaymentEditModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  payment?: PaymentTransaction | null;
+  account: CollectionAccount;
+  customerName: string;
+  shopName?: string;
+  defaultDate?: string;
+  currentUser: { name: string; role: string };
+  onSuccess: () => void;
+}
+
+export const PaymentEditModal: React.FC<PaymentEditModalProps> = ({
+  isOpen,
+  onClose,
+  payment,
+  account,
+  customerName,
+  shopName,
+  defaultDate,
+  currentUser,
+  onSuccess,
+}) => {
+  const { t } = useLanguage();
+  const isAdmin = currentUser.role?.toUpperCase() === 'ADMIN';
+
+  const [amountPaid, setAmountPaid] = useState<number>(
+    payment ? payment.amount_paid : (account.daily_collection || 0)
+  );
+  const [collectionDate, setCollectionDate] = useState<string>(
+    payment ? payment.collection_date : (defaultDate || new Date().toISOString().slice(0, 10))
+  );
+  const [paymentMode, setPaymentMode] = useState<string>(
+    payment ? payment.payment_mode : 'Cash'
+  );
+  const [collectorId, setCollectorId] = useState<string>(
+    payment?.collector_id || account.assigned_collector_id || ''
+  );
+  const [remarks, setRemarks] = useState<string>(
+    payment?.remarks || ''
+  );
+
+  const [collectors, setCollectors] = useState<Collector[]>([]);
+  const [busy, setBusy] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      api.getCollectors().then(setCollectors).catch(() => {});
+      if (payment) {
+        setAmountPaid(payment.amount_paid);
+        setCollectionDate(payment.collection_date);
+        setPaymentMode(payment.payment_mode);
+        setCollectorId(payment.collector_id || account.assigned_collector_id || '');
+        setRemarks(payment.remarks || '');
+      } else {
+        setAmountPaid(account.daily_collection || 0);
+        setCollectionDate(defaultDate || new Date().toISOString().slice(0, 10));
+        setPaymentMode('Cash');
+        setCollectorId(account.assigned_collector_id || '');
+        setRemarks('');
+      }
+      setError(null);
+    }
+  }, [isOpen, payment, account, defaultDate]);
+
+  if (!isOpen) return null;
+
+  // Strict Security: ONLY ADMIN can modify customer payment history!
+  if (!isAdmin) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/80 backdrop-blur-md">
+        <div className="glass-card rounded-3xl p-6 max-w-md w-full border border-rose-500/40 text-center space-y-4 shadow-2xl">
+          <div className="w-14 h-14 rounded-2xl bg-rose-500/20 text-rose-400 flex items-center justify-center mx-auto">
+            <ShieldAlert className="w-8 h-8" />
+          </div>
+          <h3 className="text-lg font-black text-white">{t('accessDenied', 'Access Denied')}</h3>
+          <p className="text-xs text-slate-300">
+            {t('onlyAdminCanModify', 'Payment history can be modified only by office administrators.')}
+          </p>
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs cursor-pointer"
+          >
+            {t('close', 'Close')}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Month indicator calculation
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const currentMonthPrefix = todayStr.slice(0, 7);
+  const selectedMonthPrefix = collectionDate.slice(0, 7);
+  const isPastMonth = selectedMonthPrefix < currentMonthPrefix;
+  const isFutureMonth = selectedMonthPrefix > currentMonthPrefix;
+
+  // Projected balance calculation
+  const oldAmount = payment ? payment.amount_paid : 0;
+  const projectedRemaining = Math.max(
+    0,
+    Math.round((account.remaining_amount + oldAmount - (amountPaid || 0)) * 100) / 100
+  );
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!amountPaid || amountPaid <= 0) {
+      setError(t('enterValidAmount', 'Please enter a valid positive amount.'));
+      return;
+    }
+
+    const selectedCollector = collectors.find(c => c.id === collectorId);
+    setBusy(true);
+    setError(null);
+
+    try {
+      if (payment) {
+        // Edit existing payment
+        await api.updatePayment(payment.id, {
+          amount_paid: Number(amountPaid),
+          collection_date: collectionDate,
+          payment_mode: paymentMode,
+          collector_id: collectorId,
+          collector_name: selectedCollector ? selectedCollector.name : payment.collector_name,
+          remarks,
+          by: currentUser.name,
+          role: currentUser.role,
+        });
+      } else {
+        // Record new backdated or future payment
+        await api.collectPayment({
+          collection_account_id: account.id,
+          amount_paid: Number(amountPaid),
+          collection_date: collectionDate,
+          payment_mode: paymentMode,
+          collector_id: collectorId,
+          remarks,
+        });
+      }
+      onSuccess();
+      onClose();
+    } catch (err: any) {
+      setError(err?.message || 'Failed to save payment changes');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-navy-950/80 backdrop-blur-md overflow-y-auto">
+      <div className="glass-card rounded-3xl p-5 sm:p-6 max-w-lg w-full border border-gold-500/30 text-left space-y-4 shadow-2xl my-auto animate-in fade-in zoom-in-95">
+        
+        {/* Header */}
+        <div className="flex items-start justify-between gap-3 border-b border-slate-800/80 pb-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-gold-500/20 text-gold-300 border border-gold-500/30">
+                ADMIN ONLY
+              </span>
+              <h2 className="text-base sm:text-lg font-black text-white">
+                {payment 
+                  ? t('modifyCustomerPayment', 'Modify Customer Payment') 
+                  : t('recordPaymentAnyDate', 'Record Payment (Any Date)')}
+              </h2>
+            </div>
+            <p className="text-xs text-slate-400 mt-1">
+              <strong className="text-white">{t(customerName, customerName)}</strong>
+              {shopName && <span> &bull; {t(shopName, shopName)}</span>}
+              <span className="text-slate-500"> ({account.id})</span>
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Error Notice */}
+        {error && (
+          <div className="p-3 rounded-2xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 flex-shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
+
+        {/* Month Indicator Banner */}
+        <div className={`p-3 rounded-2xl text-xs font-semibold flex items-center justify-between gap-2 border ${
+          isPastMonth
+            ? 'bg-amber-500/10 border-amber-500/30 text-amber-300'
+            : isFutureMonth
+            ? 'bg-blue-500/10 border-blue-500/30 text-blue-300'
+            : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
+        }`}>
+          <div className="flex items-center gap-2">
+            <Clock className="w-4 h-4 flex-shrink-0" />
+            <span>
+              {isPastMonth && t('pastMonthNote', 'Past month collection record (before current month)')}
+              {isFutureMonth && t('futureMonthNote', 'Future date collection record (after current month)')}
+              {!isPastMonth && !isFutureMonth && t('currentMonthNote', 'Current month collection')}
+            </span>
+          </div>
+          <span className="font-mono font-bold text-[11px] px-2 py-0.5 rounded bg-black/30">
+            {collectionDate}
+          </span>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          
+          {/* Payment Date Input */}
+          <div>
+            <label className="block text-xs font-bold text-slate-300 mb-1.5 flex items-center gap-1.5">
+              <Calendar className="w-3.5 h-3.5 text-gold-400" />
+              <span>{t('paymentDate', 'Payment Date')}</span>
+              <span className="text-[10px] text-slate-400 font-normal">({t('anyMonthPastFuture', 'Select any past or future date')})</span>
+            </label>
+            <input
+              type="date"
+              value={collectionDate}
+              onChange={(e) => setCollectionDate(e.target.value)}
+              className="w-full px-3.5 py-2.5 rounded-xl bg-navy-950 border border-slate-700 text-white font-mono text-sm focus:outline-none focus:border-gold-500 transition-colors"
+              required
+            />
+          </div>
+
+          {/* Amount Paid Input & Quick Presets */}
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                <DollarSign className="w-3.5 h-3.5 text-gold-400" />
+                <span>{t('amountPaid', 'Amount Paid (₹)')}</span>
+              </label>
+              <span className="text-[11px] text-slate-400 font-mono">
+                {t('dailyDue', 'Daily due')}: <strong className="text-white">{formatCurrency(account.daily_collection)}</strong>
+              </span>
+            </div>
+            <input
+              type="number"
+              step="any"
+              min="1"
+              value={amountPaid || ''}
+              onChange={(e) => setAmountPaid(Number(e.target.value))}
+              placeholder="0"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-navy-950 border border-slate-700 text-gold-300 font-mono font-black text-lg focus:outline-none focus:border-gold-500 transition-colors"
+              required
+            />
+
+            {/* Quick Amount Presets */}
+            <div className="flex flex-wrap gap-1.5 mt-2">
+              <button
+                type="button"
+                onClick={() => setAmountPaid(account.daily_collection)}
+                className="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-[11px] font-bold text-slate-200 cursor-pointer"
+              >
+                1 Day ({account.daily_collection})
+              </button>
+              <button
+                type="button"
+                onClick={() => setAmountPaid(account.daily_collection * 2)}
+                className="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-[11px] font-bold text-slate-200 cursor-pointer"
+              >
+                2 Days ({account.daily_collection * 2})
+              </button>
+              <button
+                type="button"
+                onClick={() => setAmountPaid(account.daily_collection * 5)}
+                className="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-[11px] font-bold text-slate-200 cursor-pointer"
+              >
+                5 Days ({account.daily_collection * 5})
+              </button>
+              <button
+                type="button"
+                onClick={() => setAmountPaid(account.remaining_amount + oldAmount)}
+                className="px-2 py-1 rounded-lg bg-emerald-950 hover:bg-emerald-900 text-emerald-300 border border-emerald-800/60 text-[11px] font-bold cursor-pointer"
+              >
+                Full Loan ({account.remaining_amount + oldAmount})
+              </button>
+            </div>
+          </div>
+
+          {/* Real-Time Balance Impact Card */}
+          <div className="p-3.5 rounded-2xl bg-navy-950/90 border border-slate-800 text-xs space-y-1.5">
+            <div className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+              {t('liveBalanceImpact', 'Live Loan Balance Impact')}
+            </div>
+            <div className="flex items-center justify-between text-slate-300">
+              <span>{t('currentBalance', 'Current remaining balance')}:</span>
+              <span className="font-mono font-bold text-white">{formatCurrency(account.remaining_amount)}</span>
+            </div>
+            <div className="flex items-center justify-between pt-1 border-t border-slate-800 text-white font-bold">
+              <span className="text-gold-400">{t('newBalanceAfterEdit', 'Balance after this edit')}:</span>
+              <span className="font-mono text-sm text-gold-300 font-black">{formatCurrency(projectedRemaining)}</span>
+            </div>
+          </div>
+
+          {/* Payment Mode Selector */}
+          <div>
+            <label className="block text-xs font-bold text-slate-300 mb-1.5 flex items-center gap-1.5">
+              <CreditCard className="w-3.5 h-3.5 text-gold-400" />
+              <span>{t('paymentMode', 'Payment Mode')}</span>
+            </label>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {[
+                { id: 'Cash', label: t('Cash', 'Cash') },
+                { id: 'UPI', label: t('UPI', 'UPI / GPay') },
+                { id: 'Bank Transfer', label: t('Bank Transfer', 'Bank Transfer') },
+                { id: 'Cheque', label: t('Cheque', 'Cheque') },
+              ].map(m => (
+                <button
+                  key={m.id}
+                  type="button"
+                  onClick={() => setPaymentMode(m.id)}
+                  className={`py-2 px-2.5 rounded-xl text-xs font-bold transition-all text-center cursor-pointer border ${
+                    paymentMode === m.id
+                      ? 'bg-gold-500 text-navy-950 border-gold-400 shadow-md shadow-gold-500/20'
+                      : 'bg-navy-950 text-slate-300 border-slate-800 hover:border-slate-700'
+                  }`}
+                >
+                  {m.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Collector / Officer Dropdown */}
+          <div>
+            <label className="block text-xs font-bold text-slate-300 mb-1.5 flex items-center gap-1.5">
+              <UserCheck className="w-3.5 h-3.5 text-gold-400" />
+              <span>{t('collector', 'Collector / Agent')}</span>
+            </label>
+            <select
+              value={collectorId}
+              onChange={(e) => setCollectorId(e.target.value)}
+              className="w-full px-3.5 py-2.5 rounded-xl bg-navy-950 border border-slate-700 text-white text-xs focus:outline-none focus:border-gold-500 cursor-pointer"
+            >
+              {collectors.map(c => (
+                <option key={c.id} value={c.id}>
+                  {t(c.name, c.name)} ({c.mobile})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Remarks / Reason */}
+          <div>
+            <label className="block text-xs font-bold text-slate-300 mb-1.5 flex items-center gap-1.5">
+              <FileText className="w-3.5 h-3.5 text-gold-400" />
+              <span>{t('remarks', 'Admin Remarks / Correction Reason')}</span>
+            </label>
+            <input
+              type="text"
+              value={remarks}
+              onChange={(e) => setRemarks(e.target.value)}
+              placeholder={t('correctionReasonPlaceholder', 'e.g. Backdated cash collected at shop, corrected amount')}
+              className="w-full px-3.5 py-2 rounded-xl bg-navy-950 border border-slate-700 text-white text-xs focus:outline-none focus:border-gold-500 transition-colors"
+            />
+          </div>
+
+          {/* Modal Action Buttons */}
+          <div className="flex items-center gap-2 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={busy}
+              className="flex-1 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition-colors cursor-pointer"
+            >
+              {t('cancel', 'Cancel')}
+            </button>
+            <button
+              type="submit"
+              disabled={busy}
+              className="flex-1 py-3 rounded-2xl bg-gradient-to-r from-gold-500 via-amber-500 to-gold-600 hover:from-gold-400 hover:to-amber-500 text-navy-950 font-black text-xs flex items-center justify-center gap-2 shadow-lg shadow-gold-500/25 transition-all cursor-pointer"
+            >
+              <Check className="w-4 h-4" />
+              <span>{busy ? t('saving...', 'Saving...') : t('saveChanges', 'Save Changes')}</span>
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  );
+};
+
+================================================================================
+FILE [35/79]: src/components/common/PhotoPicker.tsx (98 lines)
 ================================================================================
 import React, { useRef, useState } from 'react';
 import { Camera, X } from 'lucide-react';
@@ -9808,7 +10517,7 @@ export const PhotoPicker: React.FC<PhotoPickerProps> = ({ label, value, onChange
 };
 
 ================================================================================
-FILE [35/77]: src/components/common/ThemeLanguageSwitch.tsx (69 lines)
+FILE [36/79]: src/components/common/ThemeLanguageSwitch.tsx (69 lines)
 ================================================================================
 import React from 'react';
 import { Globe, Moon, Sun } from 'lucide-react';
@@ -9880,7 +10589,7 @@ export const ThemeToggle: React.FC = () => {
 };
 
 ================================================================================
-FILE [36/77]: src/components/common/ui.tsx (229 lines)
+FILE [37/79]: src/components/common/ui.tsx (229 lines)
 ================================================================================
 import React from 'react';
 import { Phone, X } from 'lucide-react';
@@ -10112,7 +10821,7 @@ export const CallButton: React.FC<{ phone?: string; label: string }> = ({ phone,
 };
 
 ================================================================================
-FILE [37/77]: src/components/configuration/ConfigShared.tsx (102 lines)
+FILE [38/79]: src/components/configuration/ConfigShared.tsx (102 lines)
 ================================================================================
 import React, { useState } from 'react';
 import { AlertCircle, CheckCircle2, Plus, X } from 'lucide-react';
@@ -10217,7 +10926,7 @@ export function ListEditor<T extends string | number>({
 }
 
 ================================================================================
-FILE [38/77]: src/components/configuration/DataManagementView.tsx (57 lines)
+FILE [39/79]: src/components/configuration/DataManagementView.tsx (57 lines)
 ================================================================================
 import React, { useState } from 'react';
 import { AlertTriangle, Download } from 'lucide-react';
@@ -10277,7 +10986,7 @@ export const DataManagementView: React.FC = () => {
 };
 
 ================================================================================
-FILE [39/77]: src/components/configuration/LoanProductsView.tsx (213 lines)
+FILE [40/79]: src/components/configuration/LoanProductsView.tsx (213 lines)
 ================================================================================
 import React, { useState } from 'react';
 import { Edit3, Package, PlusCircle, Save, Trash2, X } from 'lucide-react';
@@ -10493,7 +11202,7 @@ export const LoanProductsView: React.FC = () => {
 };
 
 ================================================================================
-FILE [40/77]: src/components/configuration/SettingsView.tsx (131 lines)
+FILE [41/79]: src/components/configuration/SettingsView.tsx (131 lines)
 ================================================================================
 import React, { useEffect, useState } from 'react';
 import { Check } from 'lucide-react';
@@ -10627,7 +11336,7 @@ const PaymentSettings: React.FC = () => {
 };
 
 ================================================================================
-FILE [41/77]: src/components/configuration/UserManagementView.tsx (725 lines)
+FILE [42/79]: src/components/configuration/UserManagementView.tsx (725 lines)
 ================================================================================
 import React, { useEffect, useState } from 'react';
 import {
@@ -11355,7 +12064,7 @@ export const UserManagementView: React.FC = () => {
 };
 
 ================================================================================
-FILE [42/77]: src/components/customer-portal/CustomerScheduleCalendar.tsx (270 lines)
+FILE [43/79]: src/components/customer-portal/CustomerScheduleCalendar.tsx (270 lines)
 ================================================================================
 import React, { useEffect, useState, useMemo } from 'react';
 import { CollectionAccount, DailyCollectionRecord } from '../../types';
@@ -11628,7 +12337,7 @@ export const CustomerScheduleCalendar: React.FC<CustomerScheduleCalendarProps> =
 };
 
 ================================================================================
-FILE [43/77]: src/components/customer-portal/LoanRenewalRequestModal.tsx (272 lines)
+FILE [44/79]: src/components/customer-portal/LoanRenewalRequestModal.tsx (272 lines)
 ================================================================================
 import React, { useState } from 'react';
 import { CollectionAccount, Customer360Profile, LoanRequest } from '../../types';
@@ -11903,7 +12612,7 @@ export const LoanRenewalRequestModal: React.FC<LoanRenewalRequestModalProps> = (
 };
 
 ================================================================================
-FILE [44/77]: src/components/customer-portal/Passbook.tsx (495 lines)
+FILE [45/79]: src/components/customer-portal/Passbook.tsx (569 lines)
 ================================================================================
 import React, { useEffect, useState, useCallback } from 'react';
 import {
@@ -11919,8 +12628,10 @@ import {
   ShieldCheck,
   Building,
   User as UserIcon,
+  BookOpen,
+  Edit3,
 } from 'lucide-react';
-import { Collector, Customer360Profile, Receipt, User, LoanRequest } from '../../types';
+import { Collector, Customer360Profile, Receipt, User, LoanRequest, PaymentTransaction } from '../../types';
 import { api } from '../../services/api';
 import { formatCurrency, formatDate } from '../../utils/formatters';
 import { todayIso } from '../../../shared/finance';
@@ -11932,24 +12643,29 @@ import { RazorpayCheckoutModal } from './RazorpayCheckoutModal';
 import { CustomerScheduleCalendar } from './CustomerScheduleCalendar';
 import { PassbookStatementPrint } from './PassbookStatementPrint';
 import { LoanRenewalRequestModal } from './LoanRenewalRequestModal';
+import { PremiumPassbookBook } from './PremiumPassbookBook';
+import { PaymentEditModal } from '../common/PaymentEditModal';
 import { receiptMessage, shareOnWhatsApp } from '../../utils/receiptShare';
 
 export const Passbook: React.FC<{ currentUser: User }> = ({ currentUser }) => {
   const { t } = useLanguage();
   const { config } = useConfig();
+  const isAdmin = currentUser.role?.toUpperCase() === 'ADMIN';
   const [profile, setProfile] = useState<Customer360Profile | null>(null);
   const [collectors, setCollectors] = useState<Collector[]>([]);
   const [failed, setFailed] = useState(false);
   const [receipt, setReceipt] = useState<Receipt | null>(null);
 
-  // Tab switch: 'passbook' (Passbook & Dues) vs 'schedule' (100-Day Calendar Schedule)
-  const [activeTab, setActiveTab] = useState<'passbook' | 'schedule'>('passbook');
+  // Tab switch: 'book' (Authentic Passbook Book) vs 'passbook' (Passbook Cards & Dues) vs 'schedule' (100-Day Calendar Schedule)
+  const [activeTab, setActiveTab] = useState<'book' | 'passbook' | 'schedule'>('book');
 
-  // Modals for the 4 core customer capabilities
+  // Modals for the customer & admin capabilities
   const [showPayModal, setShowPayModal] = useState<boolean>(false);
   const [showStatementPrint, setShowStatementPrint] = useState<boolean>(false);
   const [showRenewalModal, setShowRenewalModal] = useState<boolean>(false);
   const [recentRenewalRequest, setRecentRenewalRequest] = useState<LoanRequest | null>(null);
+  const [editingPayment, setEditingPayment] = useState<PaymentTransaction | null>(null);
+  const [showPaymentEditModal, setShowPaymentEditModal] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
@@ -12057,9 +12773,22 @@ export const Passbook: React.FC<{ currentUser: User }> = ({ currentUser }) => {
         </div>
       </div>
 
-      {/* View Switcher: Passbook & Dues vs 100-Day Calendar Schedule */}
+      {/* View Switcher: Passbook Book vs Passbook Cards vs 100-Day Calendar Schedule */}
       {loan && (
         <div className="flex bg-navy-950 p-1 rounded-2xl border border-slate-800">
+          <button
+            type="button"
+            onClick={() => setActiveTab('book')}
+            className={`flex-1 py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer ${
+              activeTab === 'book'
+                ? 'bg-gradient-to-r from-gold-500 to-amber-500 text-navy-950 shadow-md shadow-gold-500/20'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <BookOpen className="w-4 h-4" />
+            <span>📖 {t('premiumPassbook', 'Passbook Book')}</span>
+          </button>
+
           <button
             type="button"
             onClick={() => setActiveTab('passbook')}
@@ -12070,7 +12799,7 @@ export const Passbook: React.FC<{ currentUser: User }> = ({ currentUser }) => {
             }`}
           >
             <ReceiptIcon className="w-4 h-4" />
-            <span>Passbook &amp; Payments</span>
+            <span>{t('tabPayments', 'Payments & Dues')}</span>
           </button>
 
           <button
@@ -12083,8 +12812,30 @@ export const Passbook: React.FC<{ currentUser: User }> = ({ currentUser }) => {
             }`}
           >
             <Calendar className="w-4 h-4" />
-            <span>100-Day Schedule Calendar</span>
+            <span>100-Day Calendar</span>
           </button>
+        </div>
+      )}
+
+      {/* TAB 0: AUTHENTIC PHYSICAL PASSBOOK BOOK */}
+      {activeTab === 'book' && loan && (
+        <div className="space-y-4">
+          <PremiumPassbookBook
+            profile={profile}
+            account={loan}
+            isAdmin={isAdmin}
+            onEditPayment={(p) => {
+              if (isAdmin) {
+                setEditingPayment(p);
+                setShowPaymentEditModal(true);
+              }
+            }}
+            onShowReceipt={(p) => {
+              const rec = profile.receipts.find(r => r.receipt_number === p.receipt_number);
+              if (rec) setReceipt(rec);
+            }}
+            onPrintStatement={() => setShowStatementPrint(true)}
+          />
         </div>
       )}
 
@@ -12269,6 +13020,19 @@ export const Passbook: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                         <span className="text-xs font-bold text-rose-400">{t('cancelled', 'Cancelled')}</span>
                       ) : (
                         <div className="flex items-center gap-1.5">
+                          {/* Admin Only: Modify Payment */}
+                          {isAdmin && (
+                            <button
+                              type="button"
+                              onClick={() => { setEditingPayment(p); setShowPaymentEditModal(true); }}
+                              className="py-1.5 px-2 rounded-xl bg-gold-500/15 hover:bg-gold-500 hover:text-navy-950 text-gold-400 font-bold text-xs flex items-center gap-1 border border-gold-500/30 cursor-pointer transition-colors"
+                              title="Admin: Modify payment amount or date"
+                            >
+                              <Edit3 className="w-3.5 h-3.5" />
+                              <span className="hidden sm:inline">{t('edit', 'Modify')}</span>
+                            </button>
+                          )}
+
                           {/* Receipt Modal Trigger */}
                           {rec && (
                             <button
@@ -12392,6 +13156,25 @@ export const Passbook: React.FC<{ currentUser: User }> = ({ currentUser }) => {
           }}
         />
       )}
+
+      {/* 5. ADMIN ONLY PAYMENT MODIFICATION MODAL */}
+      {showPaymentEditModal && loan && isAdmin && (
+        <PaymentEditModal
+          isOpen={showPaymentEditModal}
+          onClose={() => { setShowPaymentEditModal(false); setEditingPayment(null); }}
+          payment={editingPayment}
+          account={loan}
+          customerName={profile.personal.full_name}
+          shopName={profile.business?.shop_name}
+          currentUser={currentUser}
+          onSuccess={async () => {
+            setShowPaymentEditModal(false);
+            setEditingPayment(null);
+            await loadData();
+            showToast(t('paymentUpdated', 'Payment successfully updated'));
+          }}
+        />
+      )}
     </div>
   );
 };
@@ -12401,7 +13184,7 @@ function accountArea(loan: any): string {
 }
 
 ================================================================================
-FILE [45/77]: src/components/customer-portal/PassbookStatementPrint.tsx (211 lines)
+FILE [46/79]: src/components/customer-portal/PassbookStatementPrint.tsx (211 lines)
 ================================================================================
 import React from 'react';
 import { Customer360Profile, CollectionAccount, CompanyProfile } from '../../types';
@@ -12615,7 +13398,355 @@ export const PassbookStatementPrint: React.FC<PassbookStatementPrintProps> = ({
 };
 
 ================================================================================
-FILE [46/77]: src/components/customer-portal/RazorpayCheckoutModal.tsx (656 lines)
+FILE [47/79]: src/components/customer-portal/PremiumPassbookBook.tsx (345 lines)
+================================================================================
+import React, { useState } from 'react';
+import { Customer360Profile, CollectionAccount, PaymentTransaction } from '../../types';
+import { formatCurrency, formatDate } from '../../utils/formatters';
+import { useLanguage } from '../../context/LanguageContext';
+import { 
+  BookOpen, 
+  ChevronLeft, 
+  ChevronRight, 
+  Printer, 
+  ShieldCheck, 
+  CheckCircle2, 
+  Clock, 
+  Edit3, 
+  Receipt as ReceiptIcon,
+  Sparkles,
+  Award,
+  Stamp
+} from 'lucide-react';
+
+interface PremiumPassbookBookProps {
+  profile: Customer360Profile;
+  account: CollectionAccount;
+  isAdmin: boolean;
+  onEditPayment?: (payment: PaymentTransaction) => void;
+  onShowReceipt: (payment: PaymentTransaction) => void;
+  onPrintStatement?: () => void;
+}
+
+export const PremiumPassbookBook: React.FC<PremiumPassbookBookProps> = ({
+  profile,
+  account,
+  isAdmin,
+  onEditPayment,
+  onShowReceipt,
+  onPrintStatement,
+}) => {
+  const { t } = useLanguage();
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const entriesPerPage = 10;
+
+  const { personal, business, address } = profile;
+  
+  // Sort payments chronologically from first payment to latest for passbook ledger flow
+  const allPayments = [...profile.recentPayments]
+    .filter(p => p.collection_account_id === account.id)
+    .sort((a, b) => a.collection_date.localeCompare(b.collection_date) || a.created_at.localeCompare(b.created_at));
+
+  const totalPages = Math.max(1, Math.ceil(allPayments.length / entriesPerPage));
+  const currentEntries = allPayments.slice(
+    (currentPage - 1) * entriesPerPage,
+    currentPage * entriesPerPage
+  );
+
+  return (
+    <div className="space-y-4 max-w-4xl mx-auto font-sans select-none">
+      
+      {/* PASSBOOK COVER & BINDING WRAPPER */}
+      <div className="relative rounded-3xl bg-gradient-to-b from-[#0d1627] via-[#09101d] to-[#040810] p-3 sm:p-6 border-2 border-gold-500/40 shadow-[0_20px_50px_rgba(0,0,0,0.8)] overflow-hidden">
+        
+        {/* Gold ornamental corner flourishes */}
+        <div className="absolute top-2 left-2 text-gold-500/30 text-xs font-serif select-none pointer-events-none">⚜</div>
+        <div className="absolute top-2 right-2 text-gold-500/30 text-xs font-serif select-none pointer-events-none">⚜</div>
+        <div className="absolute bottom-2 left-2 text-gold-500/30 text-xs font-serif select-none pointer-events-none">⚜</div>
+        <div className="absolute bottom-2 right-2 text-gold-500/30 text-xs font-serif select-none pointer-events-none">⚜</div>
+
+        {/* Outer Stitched Border */}
+        <div className="rounded-2xl border border-gold-500/30 p-4 sm:p-6 bg-gradient-to-b from-[#131f37]/90 to-[#0b1324]/90 backdrop-blur-sm relative space-y-5">
+          
+          {/* PASSBOOK COVER EMBOSSED HEADER */}
+          <div className="text-center border-b-2 border-gold-500/40 pb-4 relative">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold-500/10 border border-gold-500/30 text-[10px] font-black uppercase tracking-widest text-gold-300 mb-2">
+              <Award className="w-3.5 h-3.5 text-gold-400" />
+              <span>OFFICIAL 100-DAY COLLECTION PASSBOOK • கணக்குப் புத்தகம்</span>
+            </div>
+
+            <h1 className="text-xl sm:text-3xl font-serif font-black tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-gold-300 via-amber-200 to-gold-400 uppercase">
+              KRS DAILY COLLECTION FINANCE
+            </h1>
+            <p className="text-xs sm:text-sm text-gold-200/90 font-medium tracking-wide mt-0.5">
+              சென்னை, தமிழ்நாடு • Microfinance Doorstep Ledger
+            </p>
+
+            <div className="flex flex-wrap items-center justify-center gap-3 text-[11px] text-slate-300 mt-2 font-mono">
+              <span className="bg-navy-950/80 px-2.5 py-1 rounded-lg border border-slate-700">
+                A/C No: <strong className="text-gold-300">{account.id}</strong>
+              </span>
+              <span className="bg-navy-950/80 px-2.5 py-1 rounded-lg border border-slate-700">
+                Book Serial: <strong className="text-gold-300">PB-{personal.id}</strong>
+              </span>
+              <span className="bg-navy-950/80 px-2.5 py-1 rounded-lg border border-slate-700 text-emerald-400">
+                {t(account.status.toLowerCase(), account.status)}
+              </span>
+            </div>
+          </div>
+
+          {/* PASSBOOK FRONT FOLIO: ACCOUNT HOLDER & LOAN SUMMARY */}
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-navy-950/70 rounded-2xl p-4 border border-gold-500/20 text-xs">
+            
+            {/* Customer Photo with Bank Seal */}
+            <div className="md:col-span-3 flex flex-col items-center justify-center text-center space-y-2 border-b md:border-b-0 md:border-r border-slate-800 pb-3 md:pb-0 md:pr-3">
+              <div className="relative">
+                <div className="w-20 h-20 rounded-2xl overflow-hidden border-2 border-gold-400/80 shadow-lg bg-navy-900 flex items-center justify-center">
+                  {personal.profile_photo ? (
+                    <img src={personal.profile_photo} alt={personal.full_name} className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-2xl font-black text-gold-400">{personal.full_name.slice(0, 2).toUpperCase()}</span>
+                  )}
+                </div>
+                {/* Official Red Verification Stamp */}
+                <div className="absolute -bottom-2 -right-2 bg-rose-950 border border-rose-500 text-rose-300 rounded-full px-2 py-0.5 text-[8px] font-black uppercase tracking-tighter rotate-[-8deg] shadow-md">
+                  VERIFIED
+                </div>
+              </div>
+
+              <div>
+                <div className="font-black text-sm text-white">{t(personal.full_name, personal.full_name)}</div>
+                <div className="text-[11px] text-gold-400 font-semibold">{t(business?.shop_name || 'Commercial Shop', business?.shop_name || 'Commercial Shop')}</div>
+                <div className="text-[10px] text-slate-400">{t(business?.shop_area || address?.area || 'Bazaar Main Road', business?.shop_area || address?.area || 'Bazaar Main Road')}</div>
+              </div>
+            </div>
+
+            {/* Loan Financial Parameters */}
+            <div className="md:col-span-9 grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-center">
+              <div className="p-2.5 rounded-xl bg-navy-900/90 border border-slate-800">
+                <span className="text-[10px] text-slate-400 font-semibold block uppercase">{t('disbursedAmount', 'Disbursed Principal')}</span>
+                <span className="text-sm sm:text-base font-black text-gold-300 font-mono">{formatCurrency(account.disbursed_amount)}</span>
+              </div>
+              <div className="p-2.5 rounded-xl bg-navy-900/90 border border-slate-800">
+                <span className="text-[10px] text-slate-400 font-semibold block uppercase">{t('dailyPayment', 'Daily Due (100 Days)')}</span>
+                <span className="text-sm sm:text-base font-black text-white font-mono">{formatCurrency(account.daily_collection)}</span>
+              </div>
+              <div className="p-2.5 rounded-xl bg-navy-900/90 border border-slate-800">
+                <span className="text-[10px] text-slate-400 font-semibold block uppercase">{t('amountPaid', 'Paid So Far')}</span>
+                <span className="text-sm sm:text-base font-black text-emerald-400 font-mono">{formatCurrency(account.amount_collected)}</span>
+              </div>
+              <div className="p-2.5 rounded-xl bg-navy-900/90 border border-slate-800">
+                <span className="text-[10px] text-slate-400 font-semibold block uppercase">{t('balance', 'Remaining Balance')}</span>
+                <span className="text-sm sm:text-base font-black text-rose-400 font-mono">{formatCurrency(account.remaining_amount)}</span>
+              </div>
+            </div>
+
+          </div>
+
+          {/* PHYSICAL PASSBOOK LEDGER PAGES CONTAINER */}
+          <div className="bg-[#fcfaf5] text-slate-900 rounded-2xl shadow-[inset_0_2px_10px_rgba(0,0,0,0.15)] border-2 border-[#e3d8c2] overflow-hidden">
+            
+            {/* Top Passbook Binder Strip */}
+            <div className="bg-[#ece3ce] px-4 py-2 border-b border-[#dacbb0] flex items-center justify-between text-xs font-serif text-[#685536]">
+              <div className="flex items-center gap-2">
+                <BookOpen className="w-4 h-4 text-[#8a7248]" />
+                <span className="font-bold tracking-wider uppercase">DOORSTEP REPAYMENT LEDGER • பக்கம் {currentPage}</span>
+              </div>
+              <div className="flex items-center gap-2 text-[11px] font-mono font-bold">
+                <span>Start: {formatDate(account.start_date)}</span>
+                <span>&bull;</span>
+                <span>End: {formatDate(account.expected_end_date)}</span>
+              </div>
+            </div>
+
+            {/* Passbook Table */}
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs font-mono border-collapse">
+                <thead>
+                  <tr className="bg-[#f4ecdb] text-[#554326] border-b border-[#dfd1b5] text-[11px] uppercase tracking-wider font-bold">
+                    <th className="py-2.5 px-3 border-r border-[#dfd1b5] text-center w-12">#</th>
+                    <th className="py-2.5 px-3 border-r border-[#dfd1b5]">{t('date', 'Date')}</th>
+                    <th className="py-2.5 px-3 border-r border-[#dfd1b5]">{t('receipt', 'Receipt #')}</th>
+                    <th className="py-2.5 px-3 border-r border-[#dfd1b5] text-center">{t('mode', 'Mode')}</th>
+                    <th className="py-2.5 px-3 border-r border-[#dfd1b5] text-right">{t('due', 'Due (₹)')}</th>
+                    <th className="py-2.5 px-3 border-r border-[#dfd1b5] text-right font-bold text-emerald-800">{t('amountPaid', 'Credit (₹)')}</th>
+                    <th className="py-2.5 px-3 border-r border-[#dfd1b5] text-right font-bold text-[#7a2020]">{t('balance', 'Balance (₹)')}</th>
+                    <th className="py-2.5 px-3 text-center">{t('status', 'Official Seal & Stamp')}</th>
+                    {isAdmin && <th className="py-2.5 px-2 text-center w-16 bg-[#ebdfc6]">{t('edit', 'Modify')}</th>}
+                  </tr>
+                </thead>
+
+                <tbody className="divide-y divide-[#e9ddc4] text-[11px]">
+                  {currentEntries.length === 0 ? (
+                    <tr>
+                      <td colSpan={isAdmin ? 9 : 8} className="py-12 text-center text-[#8a785d] font-sans">
+                        {t('noPaymentsYet', 'No payments recorded in passbook yet.')}
+                      </td>
+                    </tr>
+                  ) : (
+                    currentEntries.map((p, idx) => {
+                      const entryNum = (currentPage - 1) * entriesPerPage + idx + 1;
+                      const cancelled = p.status === 'CANCELLED';
+
+                      return (
+                        <tr key={p.id} className={`hover:bg-[#f6f0e2] transition-colors ${cancelled ? 'bg-rose-50/60' : ''}`}>
+                          {/* Entry Line Number */}
+                          <td className="py-2 px-3 border-r border-[#e9ddc4] text-center font-bold text-[#8a785d]">
+                            {String(entryNum).padStart(2, '0')}
+                          </td>
+
+                          {/* Collection Date */}
+                          <td className="py-2 px-3 border-r border-[#e9ddc4] font-bold text-slate-800 whitespace-nowrap">
+                            {formatDate(p.collection_date)}
+                          </td>
+
+                          {/* Receipt Number with View Button */}
+                          <td className="py-2 px-3 border-r border-[#e9ddc4] whitespace-nowrap">
+                            <button
+                              type="button"
+                              onClick={() => onShowReceipt(p)}
+                              className="text-blue-700 hover:text-blue-900 underline font-semibold flex items-center gap-1 cursor-pointer"
+                              title="Click to view digital receipt"
+                            >
+                              <ReceiptIcon className="w-3 h-3 flex-shrink-0" />
+                              <span>{p.receipt_number}</span>
+                            </button>
+                          </td>
+
+                          {/* Payment Mode */}
+                          <td className="py-2 px-3 border-r border-[#e9ddc4] text-center font-sans font-semibold text-[10px]">
+                            <span className="px-1.5 py-0.5 rounded bg-[#ebdfc6] text-[#4d3c22]">
+                              {t(p.payment_mode, p.payment_mode)}
+                            </span>
+                          </td>
+
+                          {/* Daily Due */}
+                          <td className="py-2 px-3 border-r border-[#e9ddc4] text-right text-slate-600">
+                            {p.daily_due || account.daily_collection}
+                          </td>
+
+                          {/* Amount Paid / Credit */}
+                          <td className={`py-2 px-3 border-r border-[#e9ddc4] text-right font-black ${
+                            cancelled ? 'line-through text-slate-400' : 'text-emerald-800'
+                          }`}>
+                            {formatCurrency(p.amount_paid)}
+                          </td>
+
+                          {/* Remaining Balance */}
+                          <td className="py-2 px-3 border-r border-[#e9ddc4] text-right font-bold text-[#6d2020]">
+                            {formatCurrency(p.remaining_balance)}
+                          </td>
+
+                          {/* Authentic Stamp & Signature */}
+                          <td className="py-2 px-3 text-center whitespace-nowrap">
+                            {cancelled ? (
+                              <span className="inline-block px-2 py-0.5 rounded border border-rose-600 text-rose-700 font-bold text-[9px] uppercase tracking-wider rotate-[-3deg]">
+                                CANCELLED / ரத்து
+                              </span>
+                            ) : (
+                              <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-emerald-600 text-emerald-800 bg-emerald-100/60 font-bold text-[9px] tracking-tight">
+                                <CheckCircle2 className="w-3 h-3 text-emerald-700" />
+                                <span>PAID &bull; {p.collector_name ? t(p.collector_name, p.collector_name) : 'VERIFIED'}</span>
+                              </div>
+                            )}
+                          </td>
+
+                          {/* Admin Only: Modify Button */}
+                          {isAdmin && (
+                            <td className="py-2 px-2 text-center bg-[#f2e7d1] whitespace-nowrap">
+                              <button
+                                type="button"
+                                onClick={() => onEditPayment && onEditPayment(p)}
+                                className="p-1 rounded bg-[#dfcfaf] hover:bg-gold-500 hover:text-navy-950 text-slate-800 transition-colors cursor-pointer"
+                                title="Admin: Modify amount, date or details of this payment"
+                              >
+                                <Edit3 className="w-3.5 h-3.5" />
+                              </button>
+                            </td>
+                          )}
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Bottom Passbook Ledger Footer with Page Controls & Official Seal */}
+            <div className="bg-[#ece3ce] px-4 py-3 border-t border-[#dacbb0] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-serif text-[#554326]">
+              
+              {/* Official Seal Watermark */}
+              <div className="flex items-center gap-2 text-[11px] font-sans text-[#705e41]">
+                <ShieldCheck className="w-4 h-4 text-emerald-700" />
+                <span>Authorized Microfinance Passbook &bull; KRS Finance Audit Wing</span>
+              </div>
+
+              {/* Turn Page Navigation */}
+              <div className="flex items-center gap-2 font-mono">
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage <= 1}
+                  className="px-2.5 py-1 rounded-lg bg-[#ded0b6] hover:bg-[#cfc0a2] disabled:opacity-40 text-slate-800 font-bold text-xs flex items-center gap-1 cursor-pointer transition-colors"
+                >
+                  <ChevronLeft className="w-3.5 h-3.5" />
+                  <span>Prev Page</span>
+                </button>
+
+                <span className="px-3 py-1 font-bold text-xs text-[#413117]">
+                  Page {currentPage} of {totalPages}
+                </span>
+
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage >= totalPages}
+                  className="px-2.5 py-1 rounded-lg bg-[#ded0b6] hover:bg-[#cfc0a2] disabled:opacity-40 text-slate-800 font-bold text-xs flex items-center gap-1 cursor-pointer transition-colors"
+                >
+                  <span>Next Page</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+            </div>
+
+          </div>
+
+          {/* PASSBOOK FOOTER ACTIONS */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 text-xs">
+            <div className="text-slate-400 text-[11px]">
+              {isAdmin ? (
+                <span className="text-gold-400 font-bold flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Admin Mode: You have authorized access to modify any payment record across any month.</span>
+                </span>
+              ) : (
+                <span>Official passbook for verified customer transactions. For questions, contact branch office.</span>
+              )}
+            </div>
+
+            {onPrintStatement && (
+              <button
+                type="button"
+                onClick={onPrintStatement}
+                className="py-2.5 px-4 rounded-xl bg-gold-500 hover:bg-gold-400 text-navy-950 font-black text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md shadow-gold-500/20"
+              >
+                <Printer className="w-3.5 h-3.5" />
+                <span>{t('print', 'Print Passbook Statement')}</span>
+              </button>
+            )}
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  );
+};
+
+================================================================================
+FILE [48/79]: src/components/customer-portal/RazorpayCheckoutModal.tsx (656 lines)
 ================================================================================
 import React, { useState, useEffect } from 'react';
 import { CollectionAccount, Customer360Profile } from '../../types';
@@ -13274,7 +14405,7 @@ export const RazorpayCheckoutModal: React.FC<RazorpayCheckoutModalProps> = ({
 };
 
 ================================================================================
-FILE [47/77]: src/components/customers/CustomerForm.tsx (256 lines)
+FILE [49/79]: src/components/customers/CustomerForm.tsx (256 lines)
 ================================================================================
 import React, { useEffect, useState } from 'react';
 import { Check, ChevronDown, ChevronUp, Wallet } from 'lucide-react';
@@ -13533,7 +14664,7 @@ export const CustomerForm: React.FC<CustomerFormProps> = ({ initial, onSaved, on
 };
 
 ================================================================================
-FILE [48/77]: src/components/customers/CustomerManagement.tsx (172 lines)
+FILE [50/79]: src/components/customers/CustomerManagement.tsx (172 lines)
 ================================================================================
 import React, { useEffect, useState } from 'react';
 import { AlertTriangle, CalendarCheck, Search, UserPlus, Users, Wallet } from 'lucide-react';
@@ -13708,12 +14839,12 @@ export const CustomerManagement: React.FC<CustomerManagementProps> = ({ onOpenCu
 };
 
 ================================================================================
-FILE [49/77]: src/components/customers/CustomerPage.tsx (606 lines)
+FILE [51/79]: src/components/customers/CustomerPage.tsx (685 lines)
 ================================================================================
 import React, { useEffect, useState } from 'react';
 import {
-  AlertTriangle, ArrowLeft, CalendarCheck, Camera, Check, ChevronDown, ChevronUp, Edit3, FileText,
-  MapPin, Receipt as ReceiptIcon, RotateCcw, Send, Trash2, UserX, Wallet,
+  AlertTriangle, ArrowLeft, BookOpen, CalendarCheck, Camera, Check, ChevronDown, ChevronUp, Edit3, FileText,
+  MapPin, PlusCircle, Receipt as ReceiptIcon, RotateCcw, Send, Trash2, UserX, Wallet,
 } from 'lucide-react';
 import {
   Area, Collector, Customer360Profile, CustomerDocument, DailyCollectionRecord, DocumentType, PaymentTransaction, Receipt, User,
@@ -13728,6 +14859,8 @@ import { PhotoPicker } from '../common/PhotoPicker';
 import { ReceiptModal } from '../collections/ReceiptModal';
 import { IssueLoanModal } from '../loans/IssueLoanModal';
 import { CustomerForm } from './CustomerForm';
+import { PaymentEditModal } from '../common/PaymentEditModal';
+import { PremiumPassbookBook } from '../customer-portal/PremiumPassbookBook';
 
 type PageTab = 'loan' | 'payments' | 'details';
 
@@ -13776,6 +14909,9 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ customerId, currentU
   const [schedule, setSchedule] = useState<DailyCollectionRecord[] | null>(null);
   const [showSchedule, setShowSchedule] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [editingPayment, setEditingPayment] = useState<PaymentTransaction | null>(null);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showPassbookBook, setShowPassbookBook] = useState(false);
   const [busy, setBusy] = useState(false);
 
   const load = async () => {
@@ -13828,8 +14964,8 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ customerId, currentU
 
   const undoable = (p: PaymentTransaction) =>
     p.status !== 'CANCELLED' &&
-    p.collection_date === todayIso() &&
-    activePayments.find(x => x.collection_account_id === p.collection_account_id)?.id === p.id;
+    (isOffice || (p.collection_date === todayIso() &&
+      activePayments.find(x => x.collection_account_id === p.collection_account_id)?.id === p.id));
 
   const openReceipt = (p: PaymentTransaction) => {
     const receipt = profile.receipts.find(r => r.receipt_number === p.receipt_number);
@@ -13991,30 +15127,75 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ customerId, currentU
       )}
 
       {tab === 'payments' && (
-        payments.length === 0 ? (
-          <EmptyState icon={ReceiptIcon} text={t('noPaymentsYet', 'No payments yet')} />
-        ) : (
-          <div className="space-y-2">
-            {payments.map(p => {
-              const cancelled = p.status === 'CANCELLED';
-              return (
-                <div key={p.id} className="glass-card rounded-2xl p-3 flex items-center justify-between gap-3">
-                  <button type="button" onClick={() => openReceipt(p)} className="text-left min-w-0">
-                    <div className={`text-lg font-black ${cancelled ? 'line-through text-slate-500' : 'text-white'}`}>{formatCurrency(p.amount_paid)}</div>
-                    <div className="text-xs text-slate-400">
-                      {formatDate(p.collection_date)} • {t(p.payment_mode, p.payment_mode)} • {p.receipt_number}
-                    </div>
-                    {cancelled && <div className="text-xs font-bold text-rose-400">{t('cancelled', 'Cancelled')}</div>}
-                  </button>
-                  <div className="flex gap-2 flex-shrink-0">
-                    <BigButton small icon={ReceiptIcon} label={t('receipt', 'Receipt')} onClick={() => openReceipt(p)} />
-                    {undoable(p) && <BigButton small icon={RotateCcw} label={t('undo', 'Undo')} onClick={() => setUndoFor(p)} disabled={busy} />}
-                  </div>
-                </div>
-              );
-            })}
+        <div className="space-y-3">
+          {/* Top Passbook & Action Buttons */}
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="text-xs text-slate-400 font-semibold">
+              {t('paymentHistory', 'Payment History')} ({activePayments.length})
+            </div>
+            <div className="flex items-center gap-2">
+              {loan && (
+                <button
+                  type="button"
+                  onClick={() => setShowPassbookBook(true)}
+                  className="py-1.5 px-3 rounded-xl bg-navy-900 hover:bg-slate-800 border border-gold-500/30 text-gold-300 font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-sm"
+                  title="Open authentic physical passbook book"
+                >
+                  <BookOpen className="w-3.5 h-3.5 text-gold-400" />
+                  <span>{t('viewPassbookBook', 'Open Passbook Book')}</span>
+                </button>
+              )}
+              {loan && isOffice && (
+                <button
+                  type="button"
+                  onClick={() => { setEditingPayment(null); setShowPaymentModal(true); }}
+                  className="py-1.5 px-3 rounded-xl bg-gradient-to-r from-gold-500 via-amber-500 to-gold-600 hover:from-gold-400 hover:to-amber-500 text-navy-950 font-black text-xs flex items-center gap-1.5 cursor-pointer shadow-md shadow-gold-500/20"
+                  title="Admin: Record payment for any past or future date"
+                >
+                  <PlusCircle className="w-3.5 h-3.5" />
+                  <span>{t('recordPaymentAnyDate', '+ Record Payment (Any Date)')}</span>
+                </button>
+              )}
+            </div>
           </div>
-        )
+
+          {payments.length === 0 ? (
+            <EmptyState icon={ReceiptIcon} text={t('noPaymentsYet', 'No payments yet')} />
+          ) : (
+            <div className="space-y-2">
+              {payments.map(p => {
+                const cancelled = p.status === 'CANCELLED';
+                return (
+                  <div key={p.id} className="glass-card rounded-2xl p-3 flex items-center justify-between gap-3">
+                    <button type="button" onClick={() => openReceipt(p)} className="text-left min-w-0">
+                      <div className={`text-lg font-black ${cancelled ? 'line-through text-slate-500' : 'text-white'}`}>{formatCurrency(p.amount_paid)}</div>
+                      <div className="text-xs text-slate-400">
+                        {formatDate(p.collection_date)} • {t(p.payment_mode, p.payment_mode)} • {p.receipt_number}
+                      </div>
+                      {cancelled && <div className="text-xs font-bold text-rose-400">{t('cancelled', 'Cancelled')}</div>}
+                    </button>
+                    <div className="flex gap-2 flex-shrink-0">
+                      <BigButton small icon={ReceiptIcon} label={t('receipt', 'Receipt')} onClick={() => openReceipt(p)} />
+                      {/* STRICT: ONLY ADMIN can modify customer payment history! */}
+                      {isOffice && !cancelled && (
+                        <button
+                          type="button"
+                          onClick={() => { setEditingPayment(p); setShowPaymentModal(true); }}
+                          className="py-1 px-2.5 rounded-xl bg-navy-900 hover:bg-gold-500 hover:text-navy-950 border border-slate-700 text-gold-300 font-bold text-xs flex items-center gap-1 transition-all cursor-pointer shadow-sm"
+                          title="Admin: Modify amount, date (before/after month), or mode"
+                        >
+                          <Edit3 className="w-3.5 h-3.5" />
+                          <span>{t('edit', 'Modify')}</span>
+                        </button>
+                      )}
+                      {undoable(p) && <BigButton small icon={RotateCcw} label={t('undo', 'Undo')} onClick={() => setUndoFor(p)} disabled={busy} />}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
       )}
 
       {tab === 'details' && (
@@ -14143,6 +15324,35 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ customerId, currentU
       )}
       {receiptView && (
         <ReceiptModal receipt={receiptView} customerMobile={personal.mobile_number} onClose={() => setReceiptView(null)} />
+      )}
+      {showPaymentModal && loan && (
+        <PaymentEditModal
+          isOpen={showPaymentModal}
+          onClose={() => { setShowPaymentModal(false); setEditingPayment(null); }}
+          payment={editingPayment}
+          account={loan}
+          customerName={personal.full_name}
+          shopName={business?.shop_name}
+          currentUser={currentUser}
+          onSuccess={() => {
+            setNotice({ kind: 'ok', text: t('paymentUpdated', 'Payment successfully updated') });
+            load();
+          }}
+        />
+      )}
+      {showPassbookBook && loan && (
+        <Sheet title={t('premiumPassbook', 'Official Passbook Book')} onClose={() => setShowPassbookBook(false)}>
+          <PremiumPassbookBook
+            profile={profile}
+            account={loan}
+            isAdmin={isOffice}
+            onEditPayment={(p) => {
+              setEditingPayment(p);
+              setShowPaymentModal(true);
+            }}
+            onShowReceipt={(p) => openReceipt(p)}
+          />
+        </Sheet>
       )}
       {undoFor && (
         <ConfirmSheet
@@ -14317,7 +15527,7 @@ const ChangePlaceSheet: React.FC<{
 };
 
 ================================================================================
-FILE [50/77]: src/components/dashboard/AdminDashboard.tsx (236 lines)
+FILE [52/79]: src/components/dashboard/AdminDashboard.tsx (236 lines)
 ================================================================================
 import React, { useEffect, useState } from 'react';
 import {
@@ -14556,7 +15766,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenCollect, o
 };
 
 ================================================================================
-FILE [51/77]: src/components/field/StaffAndAreasView.tsx (28 lines)
+FILE [53/79]: src/components/field/StaffAndAreasView.tsx (28 lines)
 ================================================================================
 import React, { useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
@@ -14587,7 +15797,7 @@ export const StaffAndAreasView: React.FC = () => {
 };
 
 ================================================================================
-FILE [52/77]: src/components/layout/MobileBottomNav.tsx (65 lines)
+FILE [54/79]: src/components/layout/MobileBottomNav.tsx (65 lines)
 ================================================================================
 import React from 'react';
 import { Home, Menu } from 'lucide-react';
@@ -14655,7 +15865,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ currentRole, c
 };
 
 ================================================================================
-FILE [53/77]: src/components/layout/Navbar.tsx (180 lines)
+FILE [55/79]: src/components/layout/Navbar.tsx (180 lines)
 ================================================================================
 import React, { useState } from 'react';
 import { Bell, Search, LogOut, Menu, CheckCheck, ChevronDown, Clock } from 'lucide-react';
@@ -14838,7 +16048,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 };
 
 ================================================================================
-FILE [54/77]: src/components/layout/Sidebar.tsx (77 lines)
+FILE [56/79]: src/components/layout/Sidebar.tsx (77 lines)
 ================================================================================
 import React from 'react';
 import { LogOut } from 'lucide-react';
@@ -14918,7 +16128,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 };
 
 ================================================================================
-FILE [55/77]: src/components/loans/IssueLoanModal.tsx (93 lines)
+FILE [57/79]: src/components/loans/IssueLoanModal.tsx (93 lines)
 ================================================================================
 import React, { useEffect, useState } from 'react';
 import { Wallet } from 'lucide-react';
@@ -15014,7 +16224,7 @@ export const IssueLoanModal: React.FC<IssueLoanModalProps> = ({ customerId, onCl
 };
 
 ================================================================================
-FILE [56/77]: src/components/loans/LoanTermsForm.tsx (344 lines)
+FILE [58/79]: src/components/loans/LoanTermsForm.tsx (344 lines)
 ================================================================================
 import React, { useState } from 'react';
 import { AlertCircle, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
@@ -15361,7 +16571,7 @@ export const LoanTermsForm: React.FC<LoanTermsFormProps> = ({ value, onChange, c
 };
 
 ================================================================================
-FILE [57/77]: src/components/notifications/NotificationsView.tsx (124 lines)
+FILE [59/79]: src/components/notifications/NotificationsView.tsx (124 lines)
 ================================================================================
 import React, { useEffect, useState } from 'react';
 import { Notification, Role } from '../../types';
@@ -15488,10 +16698,10 @@ export const NotificationsView: React.FC<NotificationsViewProps> = ({ currentRol
 };
 
 ================================================================================
-FILE [58/77]: src/components/reports/MonthlyExcelReportView.tsx (325 lines)
+FILE [60/79]: src/components/reports/MonthlyExcelReportView.tsx (422 lines)
 ================================================================================
 import React, { useEffect, useState } from 'react';
-import { MonthlyReportData, Collector, Area } from '../../types';
+import { MonthlyReportData, Collector, Area, PaymentTransaction, CollectionAccount, MonthlyReportRow } from '../../types';
 import { api } from '../../services/api';
 import { formatCurrency, formatPercent } from '../../utils/formatters';
 import { exportMonthlyReportToExcel } from '../../utils/excelExport';
@@ -15507,8 +16717,11 @@ import {
   TrendingUp, 
   ShieldCheck,
   CheckCircle2,
-  Clock
+  Clock,
+  Sparkles,
+  Edit3
 } from 'lucide-react';
+import { PaymentEditModal } from '../common/PaymentEditModal';
 
 export const MonthlyExcelReportView: React.FC = () => {
   const { t } = useLanguage();
@@ -15522,6 +16735,78 @@ export const MonthlyExcelReportView: React.FC = () => {
   const [collectors, setCollectors] = useState<Collector[]>([]);
   const [areas, setAreas] = useState<Area[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+
+  const currentUser = (() => {
+    try {
+      const cached = localStorage.getItem('krs_user');
+      return cached ? JSON.parse(cached) : { name: 'admin', role: 'ADMIN' };
+    } catch {
+      return { name: 'admin', role: 'ADMIN' };
+    }
+  })();
+  const isAdmin = currentUser.role?.toUpperCase() === 'ADMIN';
+
+  const [editModalData, setEditModalData] = useState<{
+    account: CollectionAccount;
+    customerName: string;
+    shopName?: string;
+    defaultDate: string;
+    payment: PaymentTransaction | null;
+  } | null>(null);
+
+  const handleCellClick = async (r: MonthlyReportRow, d: number) => {
+    if (!isAdmin) return;
+    const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    try {
+      const [payments, account] = await Promise.all([
+        api.getPayments({ customer_id: r.customerId }),
+        api.getCollectionAccount(r.collectionAccountId).catch(() => null),
+      ]);
+      const payment = payments.find(
+        p => p.collection_account_id === r.collectionAccountId && p.collection_date === dateStr && p.status !== 'CANCELLED'
+      ) || null;
+
+      const targetAccount: CollectionAccount = account || {
+        id: r.collectionAccountId,
+        customer_id: r.customerId,
+        customer_name: r.customerName,
+        shop_name: r.shopName,
+        collection_area: r.area,
+        assigned_collector_id: '',
+        assigned_collector_name: r.collector,
+        requested_amount: r.requestedAmount,
+        margin_percentage: r.marginPercentage,
+        margin_amount: r.marginAmount,
+        disbursed_amount: r.disbursedAmount,
+        daily_collection: r.dailyCollection,
+        collection_days: r.collectionDays,
+        total_repayment: r.totalRepayment,
+        finance_margin: r.financeMargin,
+        amount_collected: r.amountCollected,
+        remaining_amount: r.remainingAmount,
+        start_date: r.startDate,
+        expected_end_date: r.endDate,
+        collection_percentage: r.collectionPercentage,
+        plan_id: '',
+        plan_name: '100-Day Collection',
+        completed_days: r.completedDays,
+        remaining_days: r.remainingDays,
+        status: (r.status as any) || 'ACTIVE',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+
+      setEditModalData({
+        account: targetAccount,
+        customerName: r.customerName,
+        shopName: r.shopName,
+        defaultDate: dateStr,
+        payment,
+      });
+    } catch (err) {
+      console.error('Failed to open payment modal:', err);
+    }
+  };
 
   const months = [
     { num: 1, name: 'January' },
@@ -15737,10 +17022,15 @@ export const MonthlyExcelReportView: React.FC = () => {
                     {/* Daily Columns */}
                     {daysArray.map(d => {
                       const dayPaid = r.dailyCollections[d] || 0;
+                      const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
                       return (
                         <td
                           key={d}
-                          className={`py-2 px-2 text-center font-mono border-l border-r border-slate-800/50 ${
+                          onClick={() => handleCellClick(r, d)}
+                          title={isAdmin ? `Admin: Click to edit or record payment for ${dateStr}` : undefined}
+                          className={`py-2 px-2 text-center font-mono border-l border-r border-slate-800/50 transition-all ${
+                            isAdmin ? 'cursor-pointer hover:bg-gold-500/20 hover:text-white hover:font-black' : ''
+                          } ${
                             dayPaid > 0 
                               ? 'text-emerald-400 font-bold bg-emerald-500/5' 
                               : 'text-slate-600'
@@ -15811,12 +17101,29 @@ export const MonthlyExcelReportView: React.FC = () => {
           </table>
         </div>
       </div>
+
+      {/* Admin Payment Edit Modal for Monthly Register */}
+      {editModalData && (
+        <PaymentEditModal
+          isOpen={!!editModalData}
+          onClose={() => setEditModalData(null)}
+          payment={editModalData.payment}
+          account={editModalData.account}
+          customerName={editModalData.customerName}
+          shopName={editModalData.shopName}
+          defaultDate={editModalData.defaultDate}
+          currentUser={currentUser}
+          onSuccess={() => {
+            loadData();
+          }}
+        />
+      )}
     </div>
   );
 };
 
 ================================================================================
-FILE [59/77]: src/components/reports/ReportsView.tsx (176 lines)
+FILE [61/79]: src/components/reports/ReportsView.tsx (176 lines)
 ================================================================================
 import React, { useEffect, useState } from 'react';
 import { AlertTriangle, Download, HandCoins, PiggyBank, TrendingUp, Wallet } from 'lucide-react';
@@ -15995,7 +17302,7 @@ const SummaryReport: React.FC = () => {
 };
 
 ================================================================================
-FILE [60/77]: src/context/ConfigContext.tsx (73 lines)
+FILE [62/79]: src/context/ConfigContext.tsx (73 lines)
 ================================================================================
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { AppConfig, ConfigSection } from '../types';
@@ -16071,7 +17378,7 @@ export const useConfig = (): ConfigContextType => {
 };
 
 ================================================================================
-FILE [61/77]: src/context/LanguageContext.tsx (65 lines)
+FILE [63/79]: src/context/LanguageContext.tsx (65 lines)
 ================================================================================
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Language, getTranslation } from '../utils/translations';
@@ -16139,7 +17446,7 @@ export const useLanguage = (): LanguageContextType => {
 };
 
 ================================================================================
-FILE [62/77]: src/context/ThemeContext.tsx (64 lines)
+FILE [64/79]: src/context/ThemeContext.tsx (64 lines)
 ================================================================================
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
@@ -16206,7 +17513,7 @@ export const useTheme = (): ThemeContextType => {
 };
 
 ================================================================================
-FILE [63/77]: src/index.css (284 lines)
+FILE [65/79]: src/index.css (284 lines)
 ================================================================================
 @tailwind base;
 @tailwind components;
@@ -16493,7 +17800,7 @@ html.light .bg-rose-500\/20 {
 }
 
 ================================================================================
-FILE [64/77]: src/main.tsx (21 lines)
+FILE [66/79]: src/main.tsx (21 lines)
 ================================================================================
 import React from 'react';
 import ReactDOM from 'react-dom/client';
@@ -16517,7 +17824,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 );
 
 ================================================================================
-FILE [65/77]: src/navigation/menus.ts (80 lines)
+FILE [67/79]: src/navigation/menus.ts (80 lines)
 ================================================================================
 import React from 'react';
 import {
@@ -16600,7 +17907,7 @@ export function menuItem(role: Role, id: AppView): MenuItem | undefined {
 }
 
 ================================================================================
-FILE [66/77]: src/services/api.ts (556 lines)
+FILE [68/79]: src/services/api.ts (585 lines)
 ================================================================================
 import {
   User,
@@ -16797,6 +18104,13 @@ export const api = {
     return handleResponse(res);
   },
 
+  async getCollectionAccount(id: string): Promise<CollectionAccount> {
+    const res = await fetch(`${API_BASE}/collection-accounts/${encodeURIComponent(id)}`, {
+      headers: getAuthHeader(),
+    });
+    return handleResponse(res);
+  },
+
   async createCollectionAccount(data: IssueLoanPayload & { customer_id: string }): Promise<CollectionAccount> {
     const res = await fetch(`${API_BASE}/collection-accounts`, {
       method: 'POST',
@@ -16876,12 +18190,34 @@ export const api = {
     return handleResponse(res);
   },
 
-  /** Undoes one of today's payments (by payment ID or receipt number). */
+  /** Undoes a payment (by payment ID or receipt number). Admin can undo across any month. */
   async undoPayment(paymentOrReceiptId: string, by: { name: string; role: string }): Promise<{ success: boolean; account: CollectionAccount; dailyRecord?: DailyCollectionRecord }> {
     const res = await fetch(`${API_BASE}/payments/${encodeURIComponent(paymentOrReceiptId)}/undo`, {
       method: 'POST',
       headers: getAuthHeader(),
       body: JSON.stringify({ by: by.name, role: by.role }),
+    });
+    return handleResponse(res);
+  },
+
+  /** Modifies/edits a payment transaction (Admin only). Can adjust amount, date (before/after month), mode, collector, remarks. */
+  async updatePayment(
+    paymentId: string,
+    data: {
+      amount_paid?: number;
+      collection_date?: string;
+      payment_mode?: string;
+      collector_id?: string;
+      collector_name?: string;
+      remarks?: string;
+      by?: string;
+      role?: string;
+    }
+  ): Promise<{ success: boolean; payment: PaymentTransaction; account: CollectionAccount }> {
+    const res = await fetch(`${API_BASE}/payments/${encodeURIComponent(paymentId)}`, {
+      method: 'PUT',
+      headers: getAuthHeader(),
+      body: JSON.stringify(data),
     });
     return handleResponse(res);
   },
@@ -17159,7 +18495,7 @@ export const api = {
 };
 
 ================================================================================
-FILE [67/77]: src/types/index.ts (422 lines)
+FILE [69/79]: src/types/index.ts (422 lines)
 ================================================================================
 // DAILY COLLECTION - Comprehensive TypeScript Type Definitions
 
@@ -17584,7 +18920,7 @@ export interface MonthlyReportData {
 }
 
 ================================================================================
-FILE [68/77]: src/utils/calendarSchedule.ts (115 lines)
+FILE [70/79]: src/utils/calendarSchedule.ts (115 lines)
 ================================================================================
 /**
  * Calendar Scheduling & Continuous Month-to-Month Carryover Utility
@@ -17702,7 +19038,7 @@ export function calculateMonthlyBreakdown(
 }
 
 ================================================================================
-FILE [69/77]: src/utils/excelExport.ts (353 lines)
+FILE [71/79]: src/utils/excelExport.ts (353 lines)
 ================================================================================
 import { MonthlyReportData } from '../types';
 
@@ -18058,7 +19394,7 @@ export function exportTableToExcel(
 }
 
 ================================================================================
-FILE [70/77]: src/utils/formatters.ts (149 lines)
+FILE [72/79]: src/utils/formatters.ts (149 lines)
 ================================================================================
 // Utility functions for formatting Indian currency, dates, numbers, and status badges
 
@@ -18210,7 +19546,7 @@ export function computeCollectionPercentage(amountCollected: number, totalRepaym
 }
 
 ================================================================================
-FILE [71/77]: src/utils/printHelper.ts (562 lines)
+FILE [73/79]: src/utils/printHelper.ts (562 lines)
 ================================================================================
 import { Receipt, CompanyProfile, Customer360Profile, CollectionAccount } from '../types';
 import { formatCurrency, formatDate, formatDateTime } from './formatters';
@@ -18775,7 +20111,7 @@ export function printPassbookStatement(
 }
 
 ================================================================================
-FILE [72/77]: src/utils/receiptShare.ts (36 lines)
+FILE [74/79]: src/utils/receiptShare.ts (36 lines)
 ================================================================================
 import { CompanyProfile, Receipt } from '../types';
 import { formatCurrency, formatDateTime } from './formatters';
@@ -18814,7 +20150,7 @@ export function shareOnWhatsApp(phone: string | undefined, text: string) {
 }
 
 ================================================================================
-FILE [73/77]: src/utils/translations.ts (2996 lines)
+FILE [75/79]: src/utils/translations.ts (3020 lines)
 ================================================================================
 export type Language = 'en' | 'ta';
 
@@ -20870,9 +22206,33 @@ export const translations: Record<string, { en: string; ta: string }> = {
     en: 'My payments',
     ta: 'நான் கட்டியவை',
   },
-  myDetails: {
-    en: 'My details',
-    ta: 'என் விவரங்கள்',
+  editPayment: {
+    en: 'Edit Payment',
+    ta: 'தவணைத் திருத்தம்',
+  },
+  modifyCustomerPayment: {
+    en: 'Modify Customer Payment (Admin Only)',
+    ta: 'வாடிக்கையாளர் தவணை திருத்துதல் (நிர்வாகி மட்டும்)',
+  },
+  recordPaymentAnyDate: {
+    en: '+ Record Payment (Any Date)',
+    ta: '+ தவணை பதிவு (எந்த தேதியும்)',
+  },
+  onlyAdminCanModify: {
+    en: 'Payment history can be modified only by office administrators',
+    ta: 'கட்டண வரலாற்றை அலுவலக நிர்வாகி மட்டுமே திருத்த முடியும்',
+  },
+  premiumPassbook: {
+    en: 'Official Passbook Book',
+    ta: 'அசல் கணக்குப் புத்தகம்',
+  },
+  passbookBooklet: {
+    en: 'Passbook Booklet',
+    ta: 'பாஸ்புக் புத்தகம்',
+  },
+  viewPassbookBook: {
+    en: 'Open Passbook Book',
+    ta: 'கணக்குப் புத்தகத்தைத் திறக்க',
   },
 };
 
@@ -21813,12 +23173,12 @@ function reportMissingTamil(key: string, fallback?: string) {
 
 
 ================================================================================
-FILE [74/77]: src/vite-env.d.ts (2 lines)
+FILE [76/79]: src/vite-env.d.ts (2 lines)
 ================================================================================
 /// <reference types="vite/client" />
 
 ================================================================================
-FILE [75/77]: tailwind.config.js (71 lines)
+FILE [77/79]: tailwind.config.js (71 lines)
 ================================================================================
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -21892,7 +23252,7 @@ export default {
 }
 
 ================================================================================
-FILE [76/77]: tsconfig.json (26 lines)
+FILE [78/79]: tsconfig.json (26 lines)
 ================================================================================
 {
   "compilerOptions": {
@@ -21921,7 +23281,7 @@ FILE [76/77]: tsconfig.json (26 lines)
 }
 
 ================================================================================
-FILE [77/77]: vite.config.ts (22 lines)
+FILE [79/79]: vite.config.ts (22 lines)
 ================================================================================
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
@@ -21946,5 +23306,5 @@ export default defineConfig({
 });
 
 ================================================================================
-END OF PROJECT CODEBASE EXPORT - Total Lines of Code: 21629
+END OF PROJECT CODEBASE EXPORT - Total Lines of Code: 22981
 ================================================================================

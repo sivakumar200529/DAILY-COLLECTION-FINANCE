@@ -939,6 +939,14 @@ app.post('/api/collection-accounts', (req: Request, res: Response) => {
   }
 });
 
+app.get('/api/collection-accounts/:id', (req: Request, res: Response) => {
+  const id = getParam(req, 'id');
+  const db = repository.getDb();
+  const acc = db.collection_accounts.find(a => a.id === id);
+  if (!acc) return res.status(404).json({ error: 'Collection account not found' });
+  res.json(withDaysBehind(acc));
+});
+
 app.get('/api/collection-accounts/:id/schedule', (req: Request, res: Response) => {
   const id = getParam(req, 'id');
   const db = repository.getDb();
@@ -1453,8 +1461,178 @@ app.get('/api/receipts/:id', (req: Request, res: Response) => {
 });
 
 /**
- * UNDO A PAYMENT taken today. The payment and receipt are kept but marked CANCELLED,
- * the loan balance goes back, and the day returns to "to collect".
+ * MODIFY / EDIT A CUSTOMER PAYMENT TRANSACTION (STRICTLY ADMIN ONLY)
+ * Admin can adjust amount_paid, collection_date (past or future month), payment_mode, collector, and remarks.
+ */
+app.put('/api/payments/:id', (req: Request, res: Response) => {
+  const id = getParam(req, 'id');
+  const db = repository.getDb();
+  const payment = db.payments.find(p => p.id === id || p.receipt_number === id);
+  if (!payment) return res.status(404).json({ error: 'Payment record not found' });
+  if (!isActivePayment(payment)) return res.status(400).json({ error: 'Cannot modify a cancelled payment' });
+
+  const role = String(req.body?.role || 'ADMIN').toUpperCase();
+  const by = String(req.body?.by || 'admin');
+
+  // STRICT RULE: ONLY ADMIN can modify customer payment history!
+  if (role !== 'ADMIN') {
+    return res.status(403).json({ error: 'Access denied: Only office administrators can modify payment history.' });
+  }
+
+  const account = db.collection_accounts.find(a => a.id === payment.collection_account_id);
+  if (!account) return res.status(404).json({ error: 'Collection loan account not found' });
+
+  const oldAmount = payment.amount_paid;
+  const oldDate = payment.collection_date;
+  const oldMode = payment.payment_mode;
+
+  const newAmount = req.body.amount_paid !== undefined ? safeRound(Number(req.body.amount_paid), 2) : oldAmount;
+  const newDate = (req.body.collection_date || oldDate).trim();
+  const newMode = req.body.payment_mode || oldMode;
+  const newRemarks = req.body.remarks !== undefined ? req.body.remarks : payment.remarks;
+  const collectorId = req.body.collector_id || payment.collector_id;
+  const collectorName = req.body.collector_name || (collectorId ? db.collectors.find(c => c.id === collectorId)?.name : payment.collector_name) || payment.collector_name;
+
+  if (!Number.isFinite(newAmount) || newAmount <= 0) {
+    return res.status(400).json({ error: 'Please enter a valid positive payment amount.' });
+  }
+
+  // Ensure new amount does not exceed the total repayment minus other payments
+  const otherPaymentsTotal = db.payments
+    .filter(p => p.collection_account_id === account.id && p.id !== payment.id && isActivePayment(p))
+    .reduce((s, p) => s + p.amount_paid, 0);
+
+  const maxAllowed = safeRound(account.total_repayment - otherPaymentsTotal, 2);
+  if (newAmount > maxAllowed) {
+    return res.status(400).json({ error: `Amount cannot exceed maximum remaining loan limit of ₹${maxAllowed}` });
+  }
+
+  // Update payment object
+  payment.amount_paid = newAmount;
+  payment.collection_date = newDate;
+  payment.payment_mode = newMode;
+  payment.collector_id = collectorId;
+  payment.collector_name = collectorName;
+  payment.remarks = newRemarks;
+  payment.advance_amount = Math.max(0, safeRound(newAmount - account.daily_collection, 2));
+  payment.status = newAmount > account.daily_collection ? 'ADVANCE' : (newAmount < account.daily_collection ? 'PARTIAL' : 'SUCCESS');
+  (payment as any).updated_at = new Date().toISOString();
+  (payment as any).modified_by_admin = by;
+
+  // Update corresponding receipt
+  const receipt = db.receipts.find(r => r.payment_id === payment.id || r.receipt_number === payment.receipt_number);
+  if (receipt) {
+    receipt.amount_paid = newAmount;
+    receipt.date = newDate;
+    receipt.payment_mode = newMode;
+    receipt.collector_name = collectorName;
+    receipt.remarks = newRemarks;
+    (receipt as any).updated_at = new Date().toISOString();
+  }
+
+  // Recalculate account totals strictly based on all active payments
+  const allActive = db.payments.filter(p => p.collection_account_id === account.id && isActivePayment(p));
+  account.amount_collected = safeRound(allActive.reduce((s, p) => s + p.amount_paid, 0), 2);
+  refreshAccountTotals(account);
+
+  if (account.remaining_amount === 0) {
+    account.status = 'COMPLETED';
+    account.actual_completion_date = newDate;
+  } else if (account.status === 'COMPLETED' && account.remaining_amount > 0) {
+    account.status = 'ACTIVE';
+    delete account.actual_completion_date;
+  }
+
+  payment.remaining_balance = account.remaining_amount;
+  if (receipt) {
+    receipt.remaining_balance = account.remaining_amount;
+  }
+
+  // Sync daily collection records for oldDate and newDate
+  const updateDailyRecordForDate = (targetDate: string) => {
+    const dayPayments = db.payments.filter(
+      p => p.collection_account_id === account.id && p.collection_date === targetDate && isActivePayment(p)
+    );
+    const dayPaid = safeRound(dayPayments.reduce((s, p) => s + p.amount_paid, 0), 2);
+    let dailyRec = db.daily_collections.find(
+      d => d.collection_account_id === account.id && d.date === targetDate
+    );
+
+    if (dayPaid === 0) {
+      if (dailyRec) {
+        dailyRec.paid_amount = 0;
+        dailyRec.pending_amount = dailyRec.daily_due;
+        dailyRec.advance_amount = 0;
+        dailyRec.status = 'PENDING';
+        dailyRec.payment_mode = undefined;
+        dailyRec.receipt_id = undefined;
+        dailyRec.receipt_number = undefined;
+        dailyRec.balance_remaining = account.remaining_amount;
+      }
+    } else {
+      const dailyDue = account.daily_collection;
+      const advance = Math.max(0, safeRound(dayPaid - dailyDue, 2));
+      const pending = Math.max(0, safeRound(dailyDue - dayPaid, 2));
+      const status = advance > 0 ? 'ADVANCE' : (pending > 0 ? 'PARTIAL' : 'PAID');
+      const latestPay = dayPayments[dayPayments.length - 1];
+
+      if (!dailyRec) {
+        dailyRec = {
+          id: `DC-${targetDate}-${account.id}`,
+          collection_account_id: account.id,
+          customer_id: account.customer_id,
+          customer_name: account.customer_name,
+          shop_name: account.shop_name || '',
+          mobile_number: db.customers.find(c => c.id === account.customer_id)?.mobile_number || '',
+          date: targetDate,
+          daily_due: dailyDue,
+          paid_amount: dayPaid,
+          pending_amount: pending,
+          advance_amount: advance,
+          status,
+          payment_mode: latestPay.payment_mode,
+          collector_id: latestPay.collector_id,
+          collector_name: latestPay.collector_name,
+          collection_area: account.collection_area,
+          remarks: latestPay.remarks,
+          receipt_id: latestPay.id,
+          receipt_number: latestPay.receipt_number,
+          balance_remaining: account.remaining_amount,
+        };
+        db.daily_collections.push(dailyRec);
+      } else {
+        dailyRec.paid_amount = dayPaid;
+        dailyRec.pending_amount = pending;
+        dailyRec.advance_amount = advance;
+        dailyRec.status = status;
+        dailyRec.payment_mode = latestPay.payment_mode;
+        dailyRec.collector_id = latestPay.collector_id;
+        dailyRec.collector_name = latestPay.collector_name;
+        dailyRec.remarks = latestPay.remarks;
+        dailyRec.receipt_number = latestPay.receipt_number;
+        dailyRec.balance_remaining = account.remaining_amount;
+      }
+    }
+  };
+
+  updateDailyRecordForDate(oldDate);
+  if (newDate !== oldDate) {
+    updateDailyRecordForDate(newDate);
+  }
+
+  logAudit(by, 'ADMIN', 'EDIT_PAYMENT', account.id, 'payments',
+    { amount: oldAmount, date: oldDate, mode: oldMode },
+    { amount: newAmount, date: newDate, mode: newMode }
+  );
+
+  repository.save();
+  res.json({ success: true, payment, account: withDaysBehind(account) });
+});
+
+/**
+ * UNDO A PAYMENT.
+ * Admin can undo payments from ANY date (past months before or current/future dates).
+ * Field collectors can only undo today's payment.
  */
 app.post('/api/payments/:id/undo', (req: Request, res: Response) => {
   const id = getParam(req, 'id');
@@ -1462,43 +1640,20 @@ app.post('/api/payments/:id/undo', (req: Request, res: Response) => {
   const payment = db.payments.find(p => p.id === id || p.receipt_number === id);
   if (!payment) return res.status(404).json({ error: 'Payment not found' });
   if (!isActivePayment(payment)) return res.status(400).json({ error: 'This payment was already undone.' });
-  if (payment.collection_date !== todayIso()) {
-    return res.status(400).json({ error: "Only today's payments can be undone." });
+
+  const by = String(req.body?.by || 'admin');
+  const role = String(req.body?.role || 'ADMIN').toUpperCase();
+  const isAdmin = role === 'ADMIN';
+
+  // Collectors are restricted to today; Admins can undo payments across any month!
+  if (!isAdmin && payment.collection_date !== todayIso()) {
+    return res.status(400).json({ error: "Only today's payments can be undone by collectors. Office admin can undo any date." });
   }
-  const latest = db.payments
-    .filter(p => p.collection_account_id === payment.collection_account_id && isActivePayment(p))
-    .sort((a, b) => a.created_at.localeCompare(b.created_at))
-    .pop();
-  if (latest?.id !== payment.id) {
-    return res.status(400).json({ error: 'Undo the latest payment of this loan first.' });
-  }
+
   const account = db.collection_accounts.find(a => a.id === payment.collection_account_id);
   if (!account) return res.status(404).json({ error: 'Collection account not found' });
 
   const balanceBefore = account.remaining_amount;
-  account.amount_collected = safeRound(account.amount_collected - payment.amount_paid, 2);
-  refreshAccountTotals(account);
-  if (account.status === 'COMPLETED') {
-    account.status = 'ACTIVE';
-    delete account.actual_completion_date;
-  }
-
-  const dailyRecord = db.daily_collections.find(
-    d => d.collection_account_id === account.id && d.date === payment.collection_date
-  );
-  if (dailyRecord) {
-    dailyRecord.paid_amount = 0;
-    dailyRecord.pending_amount = dailyRecord.daily_due;
-    dailyRecord.advance_amount = 0;
-    dailyRecord.status = 'PENDING';
-    dailyRecord.payment_mode = undefined;
-    dailyRecord.receipt_id = undefined;
-    dailyRecord.receipt_number = undefined;
-    dailyRecord.reason = undefined;
-    dailyRecord.remarks = 'Payment undone';
-    dailyRecord.balance_remaining = account.remaining_amount;
-  }
-
   const now = new Date().toISOString();
   payment.status = 'CANCELLED';
   payment.cancelled_at = now;
@@ -1508,8 +1663,45 @@ app.post('/api/payments/:id/undo', (req: Request, res: Response) => {
     receipt.cancelled_at = now;
   }
 
-  const by = String(req.body?.by || 'admin');
-  const role = String(req.body?.role || 'ADMIN');
+  // Recalculate account totals from remaining active payments
+  const allActive = db.payments.filter(p => p.collection_account_id === account.id && isActivePayment(p));
+  account.amount_collected = safeRound(allActive.reduce((s, p) => s + p.amount_paid, 0), 2);
+  refreshAccountTotals(account);
+  if (account.status === 'COMPLETED' && account.remaining_amount > 0) {
+    account.status = 'ACTIVE';
+    delete account.actual_completion_date;
+  }
+
+  // Sync daily collection record for that payment date
+  const dayPayments = db.payments.filter(
+    p => p.collection_account_id === account.id && p.collection_date === payment.collection_date && isActivePayment(p)
+  );
+  const dayPaid = safeRound(dayPayments.reduce((s, p) => s + p.amount_paid, 0), 2);
+  const dailyRecord = db.daily_collections.find(
+    d => d.collection_account_id === account.id && d.date === payment.collection_date
+  );
+
+  if (dailyRecord) {
+    if (dayPaid === 0) {
+      dailyRecord.paid_amount = 0;
+      dailyRecord.pending_amount = dailyRecord.daily_due;
+      dailyRecord.advance_amount = 0;
+      dailyRecord.status = 'PENDING';
+      dailyRecord.payment_mode = undefined;
+      dailyRecord.receipt_id = undefined;
+      dailyRecord.receipt_number = undefined;
+      dailyRecord.reason = undefined;
+      dailyRecord.remarks = 'Payment undone by admin';
+      dailyRecord.balance_remaining = account.remaining_amount;
+    } else {
+      dailyRecord.paid_amount = dayPaid;
+      dailyRecord.pending_amount = Math.max(0, safeRound(dailyRecord.daily_due - dayPaid, 2));
+      dailyRecord.advance_amount = Math.max(0, safeRound(dayPaid - dailyRecord.daily_due, 2));
+      dailyRecord.status = dailyRecord.advance_amount > 0 ? 'ADVANCE' : (dailyRecord.pending_amount > 0 ? 'PARTIAL' : 'PAID');
+      dailyRecord.balance_remaining = account.remaining_amount;
+    }
+  }
+
   logAudit(by, role, 'UNDO_PAYMENT', account.id, 'payments',
     { receipt: payment.receipt_number, paid: payment.amount_paid, balance: balanceBefore },
     { balance: account.remaining_amount });
