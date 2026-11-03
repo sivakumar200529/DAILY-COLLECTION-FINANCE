@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
-  AlertTriangle, ArrowLeft, BookOpen, Calendar, CalendarCheck, Camera, Check, ChevronDown, ChevronUp, Edit3, FileText,
-  MapPin, PlusCircle, Receipt as ReceiptIcon, RotateCcw, Send, Trash2, UserX, Wallet,
+  ArrowLeft, BookOpen, Calendar, CalendarCheck, Camera, Check, CheckCircle2, ChevronDown, ChevronUp, Clock, Edit3, FileText,
+  MapPin, PlusCircle, Send, Trash2, UserX, Wallet,
 } from 'lucide-react';
 import {
   Area, Collector, Customer360Profile, CustomerDocument, DailyCollectionRecord, DocumentType, PaymentTransaction, Receipt, User,
@@ -11,13 +11,14 @@ import { formatCurrency, formatDate, formatDateTime } from '../../utils/formatte
 import { todayIso } from '../../../shared/finance';
 import { useLanguage } from '../../context/LanguageContext';
 import { Avatar } from '../common/Avatar';
-import { BigButton, CallButton, ConfirmSheet, EmptyState, PillTabs, ProgressBar, Sheet, Spinner } from '../common/ui';
+import { BigButton, CallButton, ConfirmSheet, EmptyState, PillTabs, Sheet, Spinner } from '../common/ui';
 import { PhotoPicker } from '../common/PhotoPicker';
 import { ReceiptModal } from '../collections/ReceiptModal';
 import { IssueLoanModal } from '../loans/IssueLoanModal';
 import { CustomerForm } from './CustomerForm';
 import { PaymentEditModal } from '../common/PaymentEditModal';
-import { PremiumPassbookBook } from '../customer-portal/PremiumPassbookBook';
+import { CustomerPassbookView } from '../customer-portal/CustomerPassbookView';
+import { LoanFiguresView } from '../customer-portal/LoanFigures';
 import { CustomerScheduleCalendar } from '../customer-portal/CustomerScheduleCalendar';
 import { HandNoteBulkModal } from './HandNoteBulkModal';
 
@@ -70,7 +71,7 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ customerId, currentU
   const [showHistory, setShowHistory] = useState(false);
   const [editingPayment, setEditingPayment] = useState<PaymentTransaction | null>(null);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [showPassbookBook, setShowPassbookBook] = useState(false);
+  const [collectors, setCollectors] = useState<Collector[]>([]);
   const [showHandNoteModal, setShowHandNoteModal] = useState(false);
   const [busy, setBusy] = useState(false);
 
@@ -84,6 +85,7 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ customerId, currentU
 
   useEffect(() => {
     load();
+    api.getCollectors().then(setCollectors).catch(() => setCollectors([]));
   }, [customerId]);
 
   useEffect(() => {
@@ -121,16 +123,10 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ customerId, currentU
   const pastLoans = profile.accounts.filter(a => a.id !== loan?.id);
   const isOffice = currentUser.role === 'ADMIN';
   const loanHasPayments = !!loan && activePayments.some(p => p.collection_account_id === loan.id);
-
-  const undoable = (p: PaymentTransaction) =>
-    p.status !== 'CANCELLED' &&
-    (isOffice || (p.collection_date === todayIso() &&
-      activePayments.find(x => x.collection_account_id === p.collection_account_id)?.id === p.id));
-
-  const openReceipt = (p: PaymentTransaction) => {
-    const receipt = profile.receipts.find(r => r.receipt_number === p.receipt_number);
-    if (receipt) setReceiptView(receipt);
-  };
+  const paidToday = activePayments
+    .filter(p => p.collection_account_id === loan?.id && p.collection_date === todayIso())
+    .reduce((sum, p) => sum + p.amount_paid, 0);
+  const collector = collectors.find(x => x.id === loan?.assigned_collector_id);
 
   const toggleSchedule = async () => {
     const next = !showSchedule;
@@ -194,39 +190,29 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ customerId, currentU
         <div className="space-y-4">
           {loan ? (
             <div className="glass-card rounded-2xl p-5 space-y-4">
-              <div className="flex items-end justify-between gap-3">
+              <LoanFiguresView loan={loan} layout="list" />
+              <div
+                className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-base font-bold border ${
+                  paidToday > 0
+                    ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
+                    : 'bg-amber-500/10 border-amber-500/30 text-amber-200'
+                }`}
+              >
+                {paidToday > 0 ? <CheckCircle2 className="w-5 h-5" /> : <Clock className="w-5 h-5" />}
+                <span>
+                  {t('today', 'Today')}:{' '}
+                  {paidToday > 0 ? `${t('paidToday', 'Paid')} ${formatCurrency(paidToday)}` : t('notPaidYet', 'Not paid yet')}
+                </span>
+              </div>
+              <div className="flex items-center justify-between gap-3">
                 <div>
-                  <div className="text-sm text-slate-400 font-semibold">{t('balance', 'Balance')}</div>
-                  <div className="text-4xl font-black text-gold-300">{formatCurrency(loan.remaining_amount)}</div>
+                  <div className="text-xs text-slate-400">{t('collector', 'Collector')}</div>
+                  <div className="text-base font-bold text-white">{loan.assigned_collector_name}</div>
                 </div>
-                <div className="text-right text-sm text-slate-300">
-                  {t('paidSoFar', 'Paid')} <strong className="text-white">{formatCurrency(loan.amount_collected)}</strong>
-                  <div className="text-xs text-slate-400">{t('of', 'of')} {formatCurrency(loan.total_repayment)}</div>
-                </div>
+                <CallButton phone={collector?.mobile} label={t('call', 'Call')} />
               </div>
-              <ProgressBar percent={loan.collection_percentage} tone={(loan.days_behind ?? 0) > 0 ? 'gold' : 'green'} />
-              <div className="grid grid-cols-3 gap-2 text-center">
-                <div className="rounded-xl bg-navy-950 border border-slate-800 p-2">
-                  <div className="text-xs text-slate-400">{t('dailyPayment', 'Daily payment')}</div>
-                  <div className="text-base font-black text-white">{formatCurrency(loan.daily_collection)}</div>
-                </div>
-                <div className="rounded-xl bg-navy-950 border border-slate-800 p-2">
-                  <div className="text-xs text-slate-400">{t('daysLeft', 'Days left')}</div>
-                  <div className="text-base font-black text-white">{loan.remaining_days}</div>
-                </div>
-                <div className="rounded-xl bg-navy-950 border border-slate-800 p-2">
-                  <div className="text-xs text-slate-400">{t('lastDay', 'Last day')}</div>
-                  <div className="text-sm font-black text-white">{formatDate(loan.expected_end_date)}</div>
-                </div>
-              </div>
-              {(loan.days_behind ?? 0) > 0 && (
-                <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-sm font-semibold">
-                  <AlertTriangle className="w-4 h-4" />
-                  {loan.days_behind} {t('daysNotPaid', 'days not paid')} • {formatCurrency((loan.days_behind ?? 0) * loan.daily_collection)}
-                </div>
-              )}
               <div className="text-sm text-slate-400">
-                {t('given', 'Given')}: {formatCurrency(loan.disbursed_amount)} • {t('collector', 'Collector')}: {loan.assigned_collector_name} • {loan.plan_name}
+                {t('balance', 'Balance')} {formatCurrency(loan.remaining_amount)} • {t('dailyPayment', 'Daily payment')} {formatCurrency(loan.daily_collection)} • {t('lastDay', 'Last day')} {formatDate(loan.expected_end_date)} • {loan.plan_name}
               </div>
               <BigButton tone="green" icon={CalendarCheck} label={t('navCollect', 'Collect')} onClick={() => onCollect(loan.id)} className="w-full py-4 text-base" />
               
@@ -333,84 +319,36 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ customerId, currentU
 
       {tab === 'payments' && (
         <div className="space-y-3">
-          {/* Top Passbook & Action Buttons */}
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="text-xs text-slate-400 font-semibold">
-              {t('paymentHistory', 'Payment History')} ({activePayments.length})
-            </div>
-            <div className="flex items-center gap-2">
-              {loan && (
-                <button
-                  type="button"
-                  onClick={() => setShowPassbookBook(true)}
-                  className="py-1.5 px-3 rounded-xl bg-navy-900 hover:bg-slate-800 border border-gold-500/30 text-gold-300 font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-sm"
-                  title="Open authentic physical passbook book"
-                >
-                  <BookOpen className="w-3.5 h-3.5 text-gold-400" />
-                  <span>{t('viewPassbookBook', 'Open Passbook Book')}</span>
-                </button>
-              )}
-              {loan && isOffice && (
-                <button
-                  type="button"
-                  onClick={() => setShowHandNoteModal(true)}
-                  className="py-1.5 px-3 rounded-xl bg-navy-900 hover:bg-slate-800 border border-gold-500/40 text-gold-300 font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-sm"
-                  title="Admin: Fast bulk upload from physical notebook"
-                >
-                  <BookOpen className="w-3.5 h-3.5 text-gold-400" />
-                  <span>{t('handNoteUpload', '📓 Hand Note Upload')}</span>
-                </button>
-              )}
-              {loan && isOffice && (
-                <button
-                  type="button"
-                  onClick={() => { setEditingPayment(null); setShowPaymentModal(true); }}
-                  className="py-1.5 px-3 rounded-xl bg-gradient-to-r from-gold-500 via-amber-500 to-gold-600 hover:from-gold-400 hover:to-amber-500 text-navy-950 font-black text-xs flex items-center gap-1.5 cursor-pointer shadow-md shadow-gold-500/20"
-                  title="Admin: Record payment for any past or future date"
-                >
-                  <PlusCircle className="w-3.5 h-3.5" />
-                  <span>{t('recordPaymentAnyDate', '+ Record Payment (Any Date)')}</span>
-                </button>
-              )}
-            </div>
-          </div>
-
-          {payments.length === 0 ? (
-            <EmptyState icon={ReceiptIcon} text={t('noPaymentsYet', 'No payments yet')} />
-          ) : (
-            <div className="space-y-2">
-              {payments.map(p => {
-                const cancelled = p.status === 'CANCELLED';
-                return (
-                  <div key={p.id} className="glass-card rounded-2xl p-3 flex items-center justify-between gap-3">
-                    <button type="button" onClick={() => openReceipt(p)} className="text-left min-w-0">
-                      <div className={`text-lg font-black ${cancelled ? 'line-through text-slate-500' : 'text-white'}`}>{formatCurrency(p.amount_paid)}</div>
-                      <div className="text-xs text-slate-400">
-                        {formatDate(p.collection_date)} • {t(p.payment_mode, p.payment_mode)} • {p.receipt_number}
-                      </div>
-                      {cancelled && <div className="text-xs font-bold text-rose-400">{t('cancelled', 'Cancelled')}</div>}
-                    </button>
-                    <div className="flex gap-2 flex-shrink-0">
-                      <BigButton small icon={ReceiptIcon} label={t('receipt', 'Receipt')} onClick={() => openReceipt(p)} />
-                      {/* STRICT: ONLY ADMIN can modify customer payment history! */}
-                      {isOffice && !cancelled && (
-                        <button
-                          type="button"
-                          onClick={() => { setEditingPayment(p); setShowPaymentModal(true); }}
-                          className="py-1 px-2.5 rounded-xl bg-navy-900 hover:bg-gold-500 hover:text-navy-950 border border-slate-700 text-gold-300 font-bold text-xs flex items-center gap-1 transition-all cursor-pointer shadow-sm"
-                          title="Admin: Modify amount, date (before/after month), or mode"
-                        >
-                          <Edit3 className="w-3.5 h-3.5" />
-                          <span>{t('edit', 'Modify')}</span>
-                        </button>
-                      )}
-                      {undoable(p) && <BigButton small icon={RotateCcw} label={t('undo', 'Undo')} onClick={() => setUndoFor(p)} disabled={busy} />}
-                    </div>
-                  </div>
-                );
-              })}
+          {loan && isOffice && (
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setShowHandNoteModal(true)}
+                className="py-1.5 px-3 rounded-xl bg-navy-900 hover:bg-slate-800 border border-gold-500/40 text-gold-300 font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-sm"
+                title="Admin: Fast bulk upload from physical notebook"
+              >
+                <BookOpen className="w-3.5 h-3.5 text-gold-400" />
+                <span>{t('handNoteUpload', '📓 Hand Note Upload')}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => { setEditingPayment(null); setShowPaymentModal(true); }}
+                className="py-1.5 px-3 rounded-xl bg-gradient-to-r from-gold-500 via-amber-500 to-gold-600 hover:from-gold-400 hover:to-amber-500 text-navy-950 font-black text-xs flex items-center gap-1.5 cursor-pointer shadow-md shadow-gold-500/20"
+                title="Admin: Record payment for any past or future date"
+              >
+                <PlusCircle className="w-3.5 h-3.5" />
+                <span>{t('recordPaymentAnyDate', '+ Record Payment (Any Date)')}</span>
+              </button>
             </div>
           )}
+          <CustomerPassbookView
+            profile={profile}
+            loan={loan ?? profile.latestAccount}
+            office={isOffice ? {
+              onModify: p => { setEditingPayment(p); setShowPaymentModal(true); },
+              onUndo: setUndoFor,
+            } : undefined}
+          />
         </div>
       )}
 
@@ -568,20 +506,6 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ customerId, currentU
             load();
           }}
         />
-      )}
-      {showPassbookBook && loan && (
-        <Sheet title={t('premiumPassbook', 'Official Passbook Book')} onClose={() => setShowPassbookBook(false)}>
-          <PremiumPassbookBook
-            profile={profile}
-            account={loan}
-            isAdmin={isOffice}
-            onEditPayment={(p) => {
-              setEditingPayment(p);
-              setShowPaymentModal(true);
-            }}
-            onShowReceipt={(p) => openReceipt(p)}
-          />
-        </Sheet>
       )}
       {undoFor && (
         <ConfirmSheet

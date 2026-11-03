@@ -38,3 +38,9 @@ Thumbs.db
 
 # Photos uploaded from the app (customer photos, ID copies) must never go into git
 uploads/
+
+# Open sign-ins (hashed tokens), rewritten on every login and logout
+krs_sessions.json
+
+# Copies of the business data kept before loading the sample data set
+krs_finance_data.before-sample-*.json

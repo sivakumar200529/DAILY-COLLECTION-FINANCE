@@ -1,5 +1,7 @@
 import { Receipt, CompanyProfile, Customer360Profile, CollectionAccount } from '../types';
 import { formatCurrency, formatDate, formatDateTime } from './formatters';
+import { loanFigures } from './loanFigures';
+import { roundMoney } from '../../shared/finance';
 
 type Translate = (key: string, fallback?: string) => string;
 
@@ -254,8 +256,8 @@ export function printPassbookStatement(
   t: Translate
 ) {
   const companyName = company?.company_name || 'DAILY COLLECTION FINANCE';
-  const companyAddress = company?.company_address || 'Bazaar Street, Main Road, Tamil Nadu';
-  const companyPhone = company?.company_phone || '+91 98422 10001';
+  const companyAddress = company?.company_address || '';
+  const companyPhone = company?.company_phone || '';
 
   const payments = [...profile.recentPayments]
     .filter(p => p.status !== 'CANCELLED' && (!p.collection_account_id || p.collection_account_id === account.id))
@@ -361,36 +363,10 @@ export function printPassbookStatement(
       color: #111827;
       margin-top: 2px;
     }
-    .summary-card {
-      background: #0f172a;
-      color: #ffffff;
-      border-radius: 8px;
-      padding: 12px 16px;
-      margin-bottom: 16px;
-    }
-    .summary-top {
-      display: flex;
-      justify-content: space-between;
-      font-size: 12px;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-    .progress-bar-bg {
-      background: #334155;
-      height: 8px;
-      border-radius: 9999px;
-      overflow: hidden;
-      margin-bottom: 6px;
-    }
-    .progress-bar-fill {
-      background: #10b981;
-      height: 100%;
-    }
-    .summary-bottom {
-      display: flex;
-      justify-content: space-between;
-      font-size: 10px;
-      color: #94a3b8;
+    .term-sub {
+      font-size: 8.5px;
+      color: #6b7280;
+      margin-top: 2px;
     }
     table {
       width: 100%;
@@ -438,12 +414,17 @@ export function printPassbookStatement(
     }
   `;
 
+  const figures = loanFigures(account);
+  const moneyHtml = (total: number, pending?: number) =>
+    (pending !== undefined ? `${formatCurrency(pending)} / ` : '') + formatCurrency(total);
+  const { terms } = figures;
+  const termsHtml = `${terms.pending} / ${terms.total} | <span style="color:#b91c1c;">${terms.missed}</span> / <span style="color:#047857;">${terms.advance}</span>`;
+
   const rowsHtml = payments.length === 0
     ? `<tr><td colspan="6" style="text-align:center; padding: 12px; color: #6b7280;">No payments recorded yet.</td></tr>`
     : payments.map((p, idx) => {
-        const bal = (p as any).remaining_balance !== undefined && (p as any).remaining_balance !== null
-          ? (p as any).remaining_balance
-          : Math.max(0, account.total_repayment - payments.slice(0, idx + 1).reduce((s, item) => s + item.amount_paid, 0));
+        // Worked out from the payments in date order (a stored balance goes stale when an earlier payment changes).
+        const bal = Math.max(0, roundMoney(account.total_repayment - payments.slice(0, idx + 1).reduce((s, item) => s + item.amount_paid, 0)));
 
         return `
           <tr>
@@ -462,8 +443,8 @@ export function printPassbookStatement(
       <div class="header-box">
         <div>
           <div class="company-title">${companyName}</div>
-          <div class="company-sub">${companyAddress}</div>
-          <div class="company-sub" style="font-weight: 600;">Helpline: ${companyPhone}</div>
+          ${companyAddress ? `<div class="company-sub">${companyAddress}</div>` : ''}
+          ${companyPhone ? `<div class="company-sub" style="font-weight: 600;">Helpline: ${companyPhone}</div>` : ''}
         </div>
         <div style="text-align: right;">
           <div class="doc-badge">Official Passbook Statement</div>
@@ -477,7 +458,7 @@ export function printPassbookStatement(
         <div>
           <div class="section-title">Customer &amp; Shop Profile</div>
           <div class="main-name">${profile.personal.full_name}</div>
-          <div class="info-line" style="font-weight: 600;">${profile.business?.shop_name || 'Commercial Business'}</div>
+          <div class="info-line" style="font-weight: 600;">${profile.business?.shop_name || ''}</div>
           <div class="info-line">Mobile: <span class="font-mono">${profile.personal.mobile_number}</span></div>
           <div class="info-line" style="color: #6b7280;">Cust ID: ${profile.personal.id} &bull; Area: ${account.collection_area}</div>
         </div>
@@ -493,37 +474,21 @@ export function printPassbookStatement(
 
       <div class="terms-grid">
         <div class="term-card">
-          <div class="term-label">Requested Amount</div>
-          <div class="term-val font-mono">${formatCurrency(account.requested_amount)}</div>
+          <div class="term-label">${t('totalLoanLabel', 'Total loan')}</div>
+          <div class="term-val font-mono" style="color: #1e3a8a;">${formatCurrency(figures.total)}</div>
         </div>
         <div class="term-card">
-          <div class="term-label">Disbursed (Net)</div>
-          <div class="term-val font-mono">${formatCurrency(account.disbursed_amount)}</div>
-          <div style="font-size: 8.5px; color: #6b7280;">Margin: ${account.margin_percentage || 10}%</div>
+          <div class="term-label">${t('principal', 'Principal')}</div>
+          <div class="term-val font-mono">${moneyHtml(figures.principal, figures.pending?.principal)}</div>
         </div>
         <div class="term-card">
-          <div class="term-label">Total Repayment</div>
-          <div class="term-val font-mono" style="color: #1e3a8a;">${formatCurrency(account.total_repayment)}</div>
+          <div class="term-label">${t('interest', 'Interest')}</div>
+          <div class="term-val font-mono">${moneyHtml(figures.interest, figures.pending?.interest)}</div>
         </div>
         <div class="term-card">
-          <div class="term-label">Daily Installment</div>
-          <div class="term-val font-mono" style="color: #b45309;">${formatCurrency(account.daily_collection)}</div>
-          <div style="font-size: 8.5px; color: #6b7280;">/ day</div>
-        </div>
-      </div>
-
-      <div class="summary-card">
-        <div class="summary-top">
-          <span>Total Collected: <strong style="color: #34d399;">${formatCurrency(account.amount_collected)}</strong></span>
-          <span>Balance Remaining: <strong style="color: #fde047;">${formatCurrency(account.remaining_amount)}</strong></span>
-        </div>
-        <div class="progress-bar-bg">
-          <div class="progress-bar-fill" style="width: ${Math.min(100, Math.max(0, account.collection_percentage))}%;"></div>
-        </div>
-        <div class="summary-bottom">
-          <span>${account.completed_days} of ${account.collection_days} installments completed</span>
-          <span style="font-weight: 800; color: #fde047;">${account.collection_percentage}% Repaid</span>
-          <span>${account.remaining_days} days remaining</span>
+          <div class="term-label">${t('terms', 'Terms')}</div>
+          <div class="term-val font-mono">${termsHtml}</div>
+          <div class="term-sub">${t('termsLegend', 'pending/total | missed/advance')}</div>
         </div>
       </div>
 

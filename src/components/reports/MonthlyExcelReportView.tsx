@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { MonthlyReportData, Collector, Area, PaymentTransaction, CollectionAccount, MonthlyReportRow } from '../../types';
 import { api } from '../../services/api';
 import { formatCurrency, formatPercent } from '../../utils/formatters';
@@ -17,7 +18,9 @@ import {
   CheckCircle2,
   Clock,
   Sparkles,
-  Edit3
+  Edit3,
+  Minimize2,
+  ArrowUp
 } from 'lucide-react';
 import { PaymentEditModal } from '../common/PaymentEditModal';
 
@@ -33,6 +36,125 @@ export const MonthlyExcelReportView: React.FC = () => {
   const [collectors, setCollectors] = useState<Collector[]>([]);
   const [areas, setAreas] = useState<Area[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+
+  // Scrolling down onto the register opens it on the whole screen, with the filters. At the top of the
+  // list two separate upward scrolls (or swipes), or the arrow shown there, go back to the page; one
+  // stray scroll does not.
+  const registerRef = useRef<HTMLDivElement>(null);
+  const pageScrollRef = useRef<HTMLDivElement>(null);
+  const focusScrollRef = useRef<HTMLDivElement>(null);
+  const [focused, setFocused] = useState(false);
+  const [edgeHits, setEdgeHits] = useState(0);
+  const [atTop, setAtTop] = useState(true);
+  const leftAt = useRef(0);
+
+  const leave = useCallback(() => {
+    leftAt.current = Date.now();
+    setFocused(false);
+    setEdgeHits(0);
+    // Back on the page with the register just below the middle of the screen, its list at the first row.
+    requestAnimationFrame(() => {
+      const wrap = registerRef.current;
+      if (!wrap) return;
+      if (pageScrollRef.current) pageScrollRef.current.scrollTop = 0;
+      const main = wrap.closest('main');
+      const scroller = main && main.scrollHeight > main.clientHeight ? main : document.scrollingElement;
+      if (!scroller) return;
+      const viewTop = scroller === main ? main.getBoundingClientRect().top : 0;
+      const viewHeight = scroller === main ? main.clientHeight : window.innerHeight;
+      scroller.scrollTop += wrap.getBoundingClientRect().top - viewTop - viewHeight * 0.6;
+    });
+  }, []);
+
+  useEffect(() => {
+    if (focused) return;
+    const wrap = registerRef.current;
+    if (!wrap) return;
+    const open = () => {
+      if (Date.now() - leftAt.current <= 700) return false;
+      setAtTop(true);
+      setFocused(true);
+      return true;
+    };
+    // The page or the content area may be what scrolls, so every scroll is watched.
+    const last = new WeakMap<Element, number>();
+    for (const el of [document.scrollingElement, wrap.closest('main')]) if (el) last.set(el, el.scrollTop);
+    const onScroll = (e: Event) => {
+      const el = (e.target === document ? document.scrollingElement : e.target) as Element | null;
+      if (!el || !('scrollTop' in el)) return;
+      const before = last.get(el) ?? 0;
+      last.set(el, el.scrollTop);
+      if (el.scrollTop <= before) return;
+      const top = wrap.getBoundingClientRect().top;
+      const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 2;
+      if (top <= window.innerHeight * 0.3 || atBottom) open();
+    };
+    // The scroll that opens the full view must not also scroll the list on the page, or it is found
+    // further down when coming back.
+    const onWheel = (e: WheelEvent) => {
+      if (e.deltaY > 0 && Math.abs(e.deltaY) > Math.abs(e.deltaX) && open()) e.preventDefault();
+    };
+    document.addEventListener('scroll', onScroll, { capture: true, passive: true });
+    wrap.addEventListener('wheel', onWheel, { passive: false });
+    return () => {
+      document.removeEventListener('scroll', onScroll, { capture: true });
+      wrap.removeEventListener('wheel', onWheel);
+    };
+  }, [focused, reportData]);
+
+  useEffect(() => {
+    if (!focused) return;
+    const el = focusScrollRef.current;
+    if (!el) return;
+    setAtTop(el.scrollTop <= 0);
+    let lastWheel = 0;
+    let hits = 0;
+    let touchStartY: number | null = null;
+    const hit = () => {
+      hits += 1;
+      setEdgeHits(hits);
+      if (hits >= 2) leave();
+    };
+    const reset = () => {
+      if (hits === 0) return;
+      hits = 0;
+      setEdgeHits(0);
+    };
+    // A pause of a quarter second ends one scroll; reaching the top during a scroll does not count.
+    const onWheel = (e: WheelEvent) => {
+      const now = Date.now();
+      const fresh = now - lastWheel > 250;
+      lastWheel = now;
+      if (e.deltaY > 0) return reset();
+      if (e.deltaY < 0 && el.scrollTop <= 0 && fresh) hit();
+    };
+    const onScroll = () => {
+      setAtTop(el.scrollTop <= 0);
+      if (el.scrollTop > 0) reset();
+    };
+    const onTouchStart = (e: TouchEvent) => {
+      touchStartY = el.scrollTop <= 0 ? e.touches[0].clientY : null;
+    };
+    const onTouchEnd = (e: TouchEvent) => {
+      if (touchStartY !== null && el.scrollTop <= 0 && e.changedTouches[0].clientY - touchStartY > 50) hit();
+      touchStartY = null;
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') leave();
+    };
+    el.addEventListener('wheel', onWheel, { passive: true });
+    el.addEventListener('scroll', onScroll, { passive: true });
+    el.addEventListener('touchstart', onTouchStart, { passive: true });
+    el.addEventListener('touchend', onTouchEnd, { passive: true });
+    window.addEventListener('keydown', onKey);
+    return () => {
+      el.removeEventListener('wheel', onWheel);
+      el.removeEventListener('scroll', onScroll);
+      el.removeEventListener('touchstart', onTouchStart);
+      el.removeEventListener('touchend', onTouchEnd);
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [focused, leave]);
 
   const currentUser = (() => {
     try {
@@ -157,27 +279,7 @@ export const MonthlyExcelReportView: React.FC = () => {
 
   const daysArray = reportData ? Array.from({ length: reportData.daysInMonth }, (_, i) => i + 1) : [];
 
-  return (
-    <div className="space-y-4 font-sans">
-      {/* This month in three numbers */}
-      {reportData && (
-        <div className="grid grid-cols-3 gap-2">
-          <div className="glass-card rounded-2xl p-3">
-            <div className="text-xs text-slate-400 font-semibold">{t('expectedThisMonth', 'Expected')}</div>
-            <div className="text-lg sm:text-2xl font-black text-white">{formatCurrency(reportData.totals.expectedMonthly)}</div>
-          </div>
-          <div className="glass-card rounded-2xl p-3">
-            <div className="text-xs text-slate-400 font-semibold">{t('collected', 'Collected')}</div>
-            <div className="text-lg sm:text-2xl font-black text-emerald-400">{formatCurrency(reportData.totals.actualMonthly)}</div>
-          </div>
-          <div className="glass-card rounded-2xl p-3">
-            <div className="text-xs text-slate-400 font-semibold">{t('stillToCollect', 'Still to collect')}</div>
-            <div className="text-lg sm:text-2xl font-black text-rose-400">{formatCurrency(reportData.totals.monthlyPending)}</div>
-          </div>
-        </div>
-      )}
-
-      {/* Filter Ribbon */}
+  const filters = (
       <div className="glass-card p-4 rounded-2xl space-y-3">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           {/* Month Selector */}
@@ -193,7 +295,7 @@ export const MonthlyExcelReportView: React.FC = () => {
               ))}
             </select>
           </div>
-
+  
           {/* Year Selector */}
           <div>
             <label className="block text-[11px] font-bold text-slate-300 mb-1 uppercase tracking-wider">{t('year', 'Year')}</label>
@@ -207,7 +309,7 @@ export const MonthlyExcelReportView: React.FC = () => {
               ))}
             </select>
           </div>
-
+  
           {/* Collector */}
           <div>
             <label className="block text-[11px] font-bold text-slate-300 mb-1 uppercase tracking-wider">{t('collector', 'Collector')}</label>
@@ -222,7 +324,7 @@ export const MonthlyExcelReportView: React.FC = () => {
               ))}
             </select>
           </div>
-
+  
           {/* Area */}
           <div>
             <label className="block text-[11px] font-bold text-slate-300 mb-1 uppercase tracking-wider">{t('area', 'Area')}</label>
@@ -237,7 +339,7 @@ export const MonthlyExcelReportView: React.FC = () => {
               ))}
             </select>
           </div>
-
+  
           <div className="flex items-end">
             <button
               onClick={handleExport}
@@ -250,10 +352,23 @@ export const MonthlyExcelReportView: React.FC = () => {
           </div>
         </div>
       </div>
+  );
 
-      {/* MATRIX TABLE WITH HORIZONTAL SCROLL & DAY-BY-DAY COLUMNS */}
-      <div className="glass-card rounded-2xl overflow-hidden border border-gold-500/20 shadow-xl">
-        <div className="overflow-x-auto max-h-[600px] relative">
+  /** The register table: inside the page (`full` false) or filling the screen. */
+  const table = (full: boolean) => (
+      <div ref={full ? undefined : registerRef} className={`glass-card rounded-2xl overflow-hidden border border-gold-500/20 shadow-xl ${full ? 'h-full flex flex-col relative' : ''}`}>
+        {full && atTop && (
+          <button
+            type="button"
+            onClick={leave}
+            aria-label={t('backToPage', 'Back to page')}
+            className="absolute left-1/2 -translate-x-1/2 top-12 z-40 px-4 py-2 rounded-full bg-gold-500 hover:bg-gold-400 text-navy-950 text-sm font-black flex items-center gap-1.5 shadow-lg shadow-black/50"
+          >
+            <ArrowUp className="w-4 h-4" />
+            {t('backToPage', 'Back to page')}
+          </button>
+        )}
+        <div ref={full ? focusScrollRef : pageScrollRef} className={full ? 'flex-1 min-h-0 overflow-auto overscroll-contain relative' : 'overflow-x-auto max-h-[600px] relative'}>
           <table className="w-full text-left border-collapse text-[11px] whitespace-nowrap">
             <thead className="sticky top-0 z-20">
               <tr className="bg-navy-950 text-white font-bold uppercase tracking-wider border-b border-slate-800">
@@ -267,14 +382,14 @@ export const MonthlyExcelReportView: React.FC = () => {
                 <th className="py-2.5 px-3 text-right">{t('disb', 'Disb')} (₹)</th>
                 <th className="py-2.5 px-3 text-right">{t('daily', 'Daily')} (₹)</th>
                 <th className="py-2.5 px-3 text-right">{t('margin', 'Margin')} (₹)</th>
-
+  
                 {/* Day-by-Day Columns (01 to 30/31) */}
                 {daysArray.map(d => (
                   <th key={d} className="py-2.5 px-2 text-center bg-gold-950/60 border-l border-r border-slate-800 text-[10px] text-gold-300">
                     {String(d).padStart(2, '0')}-{reportData?.monthName.slice(0, 3)}
                   </th>
                 ))}
-
+  
                 {/* Final Summary Columns */}
                 <th className="py-2.5 px-3 text-right bg-emerald-950/60 text-emerald-300 font-bold border-l border-slate-800">
                   {t('monthly total', 'Monthly Total')} (₹)
@@ -285,7 +400,7 @@ export const MonthlyExcelReportView: React.FC = () => {
                 <th className="py-2.5 px-3 text-center">{t('status', 'Status')}</th>
               </tr>
             </thead>
-
+  
             <tbody className="divide-y divide-slate-800/60">
               {loading ? (
                 <tr>
@@ -316,7 +431,7 @@ export const MonthlyExcelReportView: React.FC = () => {
                     <td className="py-2 px-3 text-right font-mono text-gold-400 font-semibold">{r.disbursedAmount}</td>
                     <td className="py-2 px-3 text-right font-mono text-slate-200">{r.dailyCollection}</td>
                     <td className="py-2 px-3 text-right font-mono text-emerald-400 font-semibold">{r.financeMargin}</td>
-
+  
                     {/* Daily Columns */}
                     {daysArray.map(d => {
                       const dayPaid = r.dailyCollections[d] || 0;
@@ -338,7 +453,7 @@ export const MonthlyExcelReportView: React.FC = () => {
                         </td>
                       );
                     })}
-
+  
                     {/* Summary Columns */}
                     <td className="py-2 px-3 text-right font-mono font-black text-emerald-400 bg-emerald-950/20 border-l border-slate-800">
                       {r.monthlyTotal}
@@ -364,7 +479,7 @@ export const MonthlyExcelReportView: React.FC = () => {
                 ))
               )}
             </tbody>
-
+  
             {/* GRAND TOTALS ROW */}
             {reportData && reportData.rows.length > 0 && (
               <tfoot className="sticky bottom-0 z-20 bg-navy-950 font-bold text-white border-t-2 border-gold-500 shadow-2xl">
@@ -377,14 +492,14 @@ export const MonthlyExcelReportView: React.FC = () => {
                   <td className="py-3 px-3 text-right font-mono text-gold-400">{reportData.totals.disbursed}</td>
                   <td className="py-3 px-3 text-right text-slate-400">-</td>
                   <td className="py-3 px-3 text-right font-mono text-emerald-400">{reportData.totals.financeMargin}</td>
-
+  
                   {/* Daily totals */}
                   {daysArray.map(d => (
                     <td key={d} className="py-3 px-2 text-center font-mono text-gold-300 border-l border-r border-slate-800 bg-navy-900">
                       {reportData.totals.dailyTotals[d] || 0}
                     </td>
                   ))}
-
+  
                   {/* Final totals */}
                   <td className="py-3 px-3 text-right font-mono font-black text-emerald-400 bg-emerald-950/40 border-l border-slate-800">
                     {reportData.totals.actualMonthly}
@@ -399,9 +514,9 @@ export const MonthlyExcelReportView: React.FC = () => {
           </table>
         </div>
       </div>
+  );
 
-      {/* Admin Payment Edit Modal for Monthly Register */}
-      {editModalData && (
+  const editModal = editModalData && (
         <PaymentEditModal
           isOpen={!!editModalData}
           onClose={() => setEditModalData(null)}
@@ -415,7 +530,61 @@ export const MonthlyExcelReportView: React.FC = () => {
             loadData();
           }}
         />
+  );
+
+  return (
+    <div className="space-y-4 font-sans">
+      {/* This month in three numbers */}
+      {reportData && (
+        <div className="grid grid-cols-3 gap-2">
+          <div className="glass-card rounded-2xl p-3">
+            <div className="text-xs text-slate-400 font-semibold">{t('expectedThisMonth', 'Expected')}</div>
+            <div className="text-lg sm:text-2xl font-black text-white">{formatCurrency(reportData.totals.expectedMonthly)}</div>
+          </div>
+          <div className="glass-card rounded-2xl p-3">
+            <div className="text-xs text-slate-400 font-semibold">{t('collected', 'Collected')}</div>
+            <div className="text-lg sm:text-2xl font-black text-emerald-400">{formatCurrency(reportData.totals.actualMonthly)}</div>
+          </div>
+          <div className="glass-card rounded-2xl p-3">
+            <div className="text-xs text-slate-400 font-semibold">{t('stillToCollect', 'Still to collect')}</div>
+            <div className="text-lg sm:text-2xl font-black text-rose-400">{formatCurrency(reportData.totals.monthlyPending)}</div>
+          </div>
+        </div>
       )}
+
+      {filters}
+
+      {table(false)}
+
+      {focused
+        ? createPortal(
+            <div className="fixed inset-0 z-[70] bg-navy-950 flex flex-col gap-2 sm:gap-3 p-2 sm:p-4 font-sans" role="dialog" aria-label={t('monthlyRegister', 'Monthly register')}>
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <h2 className="text-lg font-black text-gold-300">{t('monthlyRegister', 'Monthly register')}</h2>
+                  <p className={`text-xs ${edgeHits > 0 ? 'text-gold-300 font-bold' : 'text-slate-400'}`}>
+                    {edgeHits > 0
+                      ? t('scrollUpOnceMore', 'Scroll up once more to go back to the page')
+                      : t('scrollUpTwiceOrArrowHint', 'At the top of the list, scroll up twice or tap the arrow to go back')}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={leave}
+                  className="px-3 py-2 rounded-xl bg-navy-900 border border-slate-700 text-slate-200 text-sm font-bold flex items-center gap-1.5 whitespace-nowrap"
+                >
+                  <Minimize2 className="w-4 h-4 text-gold-400" />
+                  {t('backToPage', 'Back to page')}
+                </button>
+              </div>
+              {filters}
+              <div className="flex-1 min-h-0">{table(true)}</div>
+            </div>,
+            document.body
+          )
+        : null}
+
+      {editModal && (focused ? createPortal(<div className="relative z-[80]">{editModal}</div>, document.body) : editModal)}
     </div>
   );
 };

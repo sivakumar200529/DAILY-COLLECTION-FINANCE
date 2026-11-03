@@ -146,3 +146,8 @@ export function computeCollectionPercentage(amountCollected: number, totalRepaym
   if (totalRepayment <= 0) return 0;
   return safeRound((amountCollected / totalRepayment) * 100, 1);
 }
+
+/** 9:05 am */
+export function formatTime(iso: string): string {
+  return new Date(iso).toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' });
+}

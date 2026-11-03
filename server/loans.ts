@@ -48,7 +48,7 @@ export function planLoan(db: KRSFinanceDatabase, input: IssueLoanInput, party: L
   });
   if (errors.length > 0) throw new LoanValidationError(errors.join(' '));
 
-  const area = input.collection_area || party.shop_area || party.home_area || db.config.masters.default_location.area;
+  const area = input.collection_area || party.shop_area || party.home_area;
   if (!area) throw new LoanValidationError('Select a collection area.');
   const areaRecord = db.areas.find(a => a.area_name === area);
   const collectorId = input.assigned_collector_id || areaRecord?.assigned_collector_id;
@@ -135,6 +135,11 @@ export function commitLoan(
 export function createLoanAccount(db: KRSFinanceDatabase, input: IssueLoanInput): CollectionAccount {
   const customer = db.customers.find(c => c.id === input.customer_id);
   if (!customer) throw new LoanValidationError('Valid customer is required.');
+  if (customer.status !== 'ACTIVE') throw new LoanValidationError('This customer is not active.');
+  // One running loan per customer: a new one is given after the last one is paid off.
+  if (db.collection_accounts.some(a => a.customer_id === customer.id && (a.status === 'ACTIVE' || a.status === 'OVERDUE'))) {
+    throw new LoanValidationError('This customer still has a running loan.');
+  }
   const biz = db.business_details.find(b => b.customer_id === customer.id);
   const addr = db.customer_addresses.find(a => a.customer_id === customer.id);
   const party: LoanParty = { shop_name: biz?.shop_name, shop_area: biz?.shop_area, home_area: addr?.area };

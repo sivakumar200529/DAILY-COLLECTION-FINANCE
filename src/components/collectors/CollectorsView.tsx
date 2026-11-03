@@ -2,27 +2,21 @@ import React, { useEffect, useState } from 'react';
 import { Check, Edit3, Trash2, UserPlus, UserCheck } from 'lucide-react';
 import { Area, Collector } from '../../types';
 import { api } from '../../services/api';
-import { formatCurrency } from '../../utils/formatters';
+import { formatCurrency, formatDate } from '../../utils/formatters';
 import { useLanguage } from '../../context/LanguageContext';
-import { useConfig } from '../../context/ConfigContext';
 import { Avatar } from '../common/Avatar';
-import { BigButton, CallButton, ConfirmSheet, EmptyState, Sheet, Spinner } from '../common/ui';
+import { AmountList, BigButton, CallButton, ConfirmSheet, EmptyState, Sheet, Spinner } from '../common/ui';
 import { PhotoPicker } from '../common/PhotoPicker';
 
 const inputClass = 'w-full px-4 py-3 bg-navy-950 border border-slate-700 rounded-2xl text-base text-white focus:border-gold-500 focus:outline-none';
 
-interface CollectorEditState extends Partial<Collector> {
-  username?: string;
-  password?: string;
-}
-
-/** Field collectors: who they are, their area, and how much they collected today. */
+/** Field collectors: each name with their amounts as a list; tapping the name opens their profile. */
 export const CollectorsView: React.FC = () => {
   const { t } = useLanguage();
-  const defaultArea = useConfig().config.masters.default_location.area;
   const [collectors, setCollectors] = useState<Collector[] | null>(null);
   const [areas, setAreas] = useState<Area[]>([]);
-  const [editing, setEditing] = useState<CollectorEditState | null>(null);
+  const [editing, setEditing] = useState<Partial<Collector> | null>(null);
+  const [profile, setProfile] = useState<Collector | null>(null);
   const [deleting, setDeleting] = useState<Collector | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -43,15 +37,13 @@ export const CollectorsView: React.FC = () => {
     const mobile = (editing.mobile || '').replace(/\D/g, '');
     if (!editing.name?.trim()) return setError(t('needName', 'Enter the name.'));
     if (mobile.length !== 10) return setError(t('needMobile', 'Enter a 10-digit mobile number.'));
-    const body: Partial<Collector> & { username?: string; password?: string } = {
+    const body: Partial<Collector> = {
       name: editing.name.trim(),
       mobile,
       photo: editing.photo || '',
-      assigned_area: editing.assigned_area || defaultArea,
+      assigned_area: editing.assigned_area || '',
       target_amount: Number(editing.target_amount) || 0,
       ...(editing.id ? { status: editing.status } : {}),
-      ...(editing.username?.trim() ? { username: editing.username.trim() } : {}),
-      ...(editing.password?.trim() ? { password: editing.password.trim() } : {}),
     };
     setBusy(true);
     try {
@@ -86,34 +78,74 @@ export const CollectorsView: React.FC = () => {
 
   return (
     <div className="space-y-3">
-      <BigButton tone="gold" icon={UserPlus} label={t('addCollector', 'Add collector')}
-        onClick={() => { setError(null); setEditing({ assigned_area: defaultArea, status: 'ACTIVE', password: '1234' }); }} />
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-lg font-black text-white">{t('collectors', 'Collectors')}</h2>
+        <BigButton small tone="gold" icon={UserPlus} label={t('addCollector', 'Add collector')}
+          onClick={() => { setError(null); setEditing({ assigned_area: '', status: 'ACTIVE' }); }} />
+      </div>
 
       {error && !editing && <div className="px-4 py-3 rounded-2xl text-sm font-semibold border bg-rose-500/10 border-rose-500/30 text-rose-300">{error}</div>}
 
       {collectors.length === 0 ? (
         <EmptyState icon={UserCheck} text={t('nobodyHere', 'Nobody here')} />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="glass-card rounded-2xl border border-slate-800 divide-y divide-slate-800">
           {collectors.map(c => (
-            <div key={c.id} className="glass-card rounded-2xl p-4 flex items-center gap-3">
-              <Avatar src={c.photo} name={c.name} className="w-12 h-12 rounded-2xl text-base" />
-              <div className="min-w-0 flex-1">
-                <div className="text-lg font-black text-white truncate">{t(c.name, c.name)}</div>
-                <div className="text-sm text-slate-400 truncate">{t(c.assigned_area, c.assigned_area)}</div>
-                <div className="text-xs text-slate-400">
-                  {t('today', 'Today')}: <strong className="text-emerald-400">{formatCurrency(c.today_collected_amount ?? 0)}</strong>
-                  {c.status !== 'ACTIVE' && <span className="ml-2 text-rose-300 font-bold">{t('stopped', 'Stopped')}</span>}
-                </div>
-              </div>
-              <CallButton phone={c.mobile} label={t('call', 'Call')} />
-              <button type="button" onClick={() => { setError(null); setEditing({ ...c, username: c.id, password: '1234' }); }} aria-label={t('edit', 'Edit')}
-                className="p-3 rounded-xl bg-navy-950 border border-slate-700 text-slate-200 hover:border-gold-500/60">
-                <Edit3 className="w-5 h-5" />
+            <div key={c.id} className="flex items-start justify-between gap-3 p-4">
+              <button type="button" onClick={() => setProfile(c)} className="min-w-0 flex-1 flex items-center gap-3 text-left">
+                <Avatar src={c.photo} name={c.name} className="w-10 h-10 rounded-xl text-sm flex-shrink-0" />
+                <span className="min-w-0">
+                  <span className="block font-black text-white underline decoration-slate-600 underline-offset-4">{t(c.name, c.name)}</span>
+                  <span className="block text-xs text-slate-400">{t(c.assigned_area, c.assigned_area)}</span>
+                  {c.status !== 'ACTIVE' && <span className="block text-xs text-rose-300 font-bold">{t('stopped', 'Stopped')}</span>}
+                </span>
               </button>
+              <AmountList
+                rows={[
+                  [t('today', 'Today'), formatCurrency(c.today_collected_amount ?? 0), 'text-emerald-400'],
+                  [t('thisMonth', 'This month'), formatCurrency(c.month_collected ?? 0)],
+                  [t('balance', 'Balance'), formatCurrency(c.balance_to_collect ?? 0), 'text-gold-300'],
+                ]}
+              />
             </div>
           ))}
         </div>
+      )}
+
+      {profile && (
+        <Sheet title={t('collectorProfile', 'Collector profile')} onClose={() => setProfile(null)}>
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <Avatar src={profile.photo} name={profile.name} className="w-16 h-16 rounded-2xl text-lg" />
+              <div className="min-w-0 flex-1">
+                <div className="text-xl font-black text-white">{t(profile.name, profile.name)}</div>
+                <div className="text-sm text-slate-400">{profile.id}</div>
+                {profile.status !== 'ACTIVE' && <div className="text-sm text-rose-300 font-bold">{t('stopped', 'Stopped')}</div>}
+              </div>
+              <CallButton phone={profile.mobile} label={t('call', 'Call')} />
+            </div>
+            <dl className="rounded-2xl bg-navy-950 border border-slate-800 divide-y divide-slate-800">
+              {([
+                [t('mobile', 'Mobile'), profile.mobile],
+                [t('email', 'Email'), profile.email],
+                [t('address', 'Address'), profile.address],
+                [t('joiningDate', 'Joining date'), profile.joining_date ? formatDate(profile.joining_date) : ''],
+                [t('areas', 'Areas'), areas.filter(a => a.assigned_collector_id === profile.id).map(a => a.area_name).join(', ') || profile.assigned_area],
+                [t('runningLoansLabel', 'Running loans'), String(profile.running_loans ?? 0)],
+                [t('balanceToCollect', 'Balance to collect'), formatCurrency(profile.balance_to_collect ?? 0)],
+                [t('today', 'Today'), formatCurrency(profile.today_collected_amount ?? 0)],
+                [t('thisMonth', 'This month'), formatCurrency(profile.month_collected ?? 0)],
+                [t('dailyTarget', 'Daily target'), profile.target_amount ? formatCurrency(profile.target_amount) : ''],
+              ] as [string, string][]).filter(([, value]) => value).map(([label, value]) => (
+                <div key={label} className="flex justify-between gap-3 px-4 py-2.5 text-sm">
+                  <dt className="text-slate-400">{label}</dt>
+                  <dd className="text-white font-semibold text-right">{value}</dd>
+                </div>
+              ))}
+            </dl>
+            <BigButton icon={Edit3} label={t('edit', 'Edit')} onClick={() => { setError(null); setEditing(profile); setProfile(null); }} />
+          </div>
+        </Sheet>
       )}
 
       {editing && (
@@ -145,33 +177,9 @@ export const CollectorsView: React.FC = () => {
               <input className={inputClass} type="number" min={0} value={editing.target_amount || ''} onChange={e => setEditing({ ...editing, target_amount: Number(e.target.value) })} />
             </div>
 
-            {/* Agent / Collector Portal Login Credentials */}
-            <div className="p-3.5 rounded-2xl bg-navy-950/80 border border-slate-800 space-y-3">
-              <div className="text-sm font-bold text-cyan-400 flex items-center justify-between">
-                <span>{t('portalLogin', 'Agent Login Credentials')}</span>
-                <span className="text-xs text-slate-400 font-normal">{t('defaultCredentialsHint', 'Default PIN: 1234')}</span>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">{t('userId', 'User ID / Username')}</label>
-                  <input
-                    className={inputClass}
-                    placeholder={editing.id ? editing.id : t('autoCollectorId', 'e.g. COL102 or agent_name')}
-                    value={editing.username ?? ''}
-                    onChange={e => setEditing({ ...editing, username: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">{t('password', 'Password / PIN')}</label>
-                  <input
-                    className={inputClass}
-                    placeholder="1234"
-                    value={editing.password ?? ''}
-                    onChange={e => setEditing({ ...editing, password: e.target.value })}
-                  />
-                </div>
-              </div>
-            </div>
+            {!editing.id && (
+              <p className="text-xs text-slate-400">{t('collectorLoginHint', 'Their login is created with this. See it in User Management.')}</p>
+            )}
 
             {editing.id && (
               <label className="flex items-center justify-between gap-3 text-base font-bold text-white">

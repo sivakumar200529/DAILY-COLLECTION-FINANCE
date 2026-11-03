@@ -12,7 +12,7 @@ const ConfigContext = createContext<ConfigContextType | undefined>(undefined);
 
 /**
  * Loads the runtime configuration (loan products, master lists, numbering, company profile)
- * from the server once, and holds the app until it is available so every screen can rely on it.
+ * from the server, and holds the app until it is available so every screen can rely on it.
  */
 export const ConfigProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [config, setConfig] = useState<AppConfig | null>(null);
@@ -29,6 +29,20 @@ export const ConfigProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   useEffect(() => {
     reload();
+  }, [reload]);
+
+  // Settings changed by the office reach other phones when the app is brought back to the screen,
+  // without anyone having to reload it.
+  useEffect(() => {
+    const refreshWhenShown = () => {
+      if (document.visibilityState === 'visible') reload();
+    };
+    document.addEventListener('visibilitychange', refreshWhenShown);
+    window.addEventListener('focus', refreshWhenShown);
+    return () => {
+      document.removeEventListener('visibilitychange', refreshWhenShown);
+      window.removeEventListener('focus', refreshWhenShown);
+    };
   }, [reload]);
 
   const updateSection = useCallback(async <K extends ConfigSection>(section: K, value: AppConfig[K]) => {

@@ -6,8 +6,6 @@ import {
   Trash2,
   Copy,
   Check,
-  Eye,
-  EyeOff,
   Search,
   RefreshCw,
   Share2,
@@ -20,6 +18,7 @@ import {
 } from 'lucide-react';
 import { Role, User, CustomerPersonalDetails, Collector } from '../../types';
 import { api } from '../../services/api';
+import { formatDateTime } from '../../utils/formatters';
 import { useLanguage } from '../../context/LanguageContext';
 import { BigButton, ConfirmSheet, EmptyState, PageTitle, PillTabs, Sheet, Spinner } from '../common/ui';
 
@@ -51,6 +50,15 @@ const emptyForm: UserFormData = {
   is_active: true,
 };
 
+/** The signed-in login, whose own entry cannot be deleted. */
+const myUserId = (() => {
+  try {
+    return (JSON.parse(localStorage.getItem('krs_user') || '{}') as { id?: string }).id;
+  } catch {
+    return undefined;
+  }
+})();
+
 export const UserManagementView: React.FC = () => {
   const { t } = useLanguage();
   const [users, setUsers] = useState<User[] | null>(null);
@@ -58,7 +66,8 @@ export const UserManagementView: React.FC = () => {
   const [collectors, setCollectors] = useState<Collector[]>([]);
   const [roleFilter, setRoleFilter] = useState<RoleFilter>('ALL');
   const [search, setSearch] = useState('');
-  const [revealedPasswords, setRevealedPasswords] = useState<Record<string, boolean>>({});
+  const [profile, setProfile] = useState<User | null>(null);
+  const [credentials, setCredentials] = useState<{ username: string; password: string } | null>(null);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
   // Modals state
@@ -93,23 +102,32 @@ export const UserManagementView: React.FC = () => {
     setTimeout(() => setCopiedKey(null), 2500);
   };
 
-  const togglePasswordVisibility = (userId: string) => {
-    setRevealedPasswords(prev => ({
-      ...prev,
-      [userId]: !prev[userId],
-    }));
+  /** The list carries no passwords: they are fetched only when a profile is opened. */
+  const openProfile = async (u: User) => {
+    setError(null);
+    setProfile(u);
+    setCredentials(null);
+    try {
+      setCredentials(await api.getUserCredentials(u.id));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('somethingWentWrong', 'Something went wrong. Please try again.'));
+    }
   };
 
-  const shareViaWhatsApp = (u: User) => {
+  const closeProfile = () => {
+    setProfile(null);
+    setCredentials(null);
+  };
+
+  const shareViaWhatsApp = (u: User, login: { username: string; password: string }) => {
     const cleanPhone = (u.phone || '').replace(/\D/g, '');
     const loginUrl = window.location.origin;
-    const pass = u.password || '1234';
     const message = encodeURIComponent(
       `*DAILY COLLECTION - Login Credentials*\n\n` +
       `Hello ${u.name},\nHere are your portal login details:\n\n` +
       `🔹 *Role:* ${u.role}\n` +
-      `👤 *User ID / Username:* ${u.username}\n` +
-      `🔑 *Password / PIN:* ${pass}\n` +
+      `👤 *User ID / Username:* ${login.username}\n` +
+      `🔑 *Password / PIN:* ${login.password}\n` +
       `🌐 *Login Link:* ${loginUrl}\n\n` +
       `_Please keep your credentials safe._`
     );
@@ -130,12 +148,13 @@ export const UserManagementView: React.FC = () => {
     });
   };
 
-  const openEditModal = (u: User) => {
+  const openEditModal = (u: User, login: { username: string; password: string }) => {
     setError(null);
+    closeProfile();
     setEditing({
       id: u.id,
-      username: u.username,
-      password: u.password || '1234',
+      username: login.username,
+      password: login.password,
       role: u.role,
       name: u.name,
       phone: u.phone,
@@ -229,6 +248,7 @@ export const UserManagementView: React.FC = () => {
     try {
       await api.deleteUser(deleting.id);
       setDeleting(null);
+      closeProfile();
       await loadData();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not delete user.');
@@ -239,6 +259,19 @@ export const UserManagementView: React.FC = () => {
   };
 
   if (!users) return <Spinner />;
+
+  const roleLabel = (role: Role) =>
+    role === 'ADMIN' ? t('roleOffice', 'ADMIN') : role === 'COLLECTOR' ? t('roleCollector', 'AGENT') : t('roleCustomer', 'CUSTOMER');
+
+  const sessionStatus = (u: User) =>
+    (u.active_sessions ?? 0) > 0 ? (
+      <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-300">
+        <span className="w-2 h-2 rounded-full bg-emerald-400" />
+        {t('activeNow', 'Active now')}{(u.active_sessions ?? 0) > 1 ? ` (${u.active_sessions})` : ''}
+      </span>
+    ) : (
+      <span className="text-xs text-slate-400">{t('noActiveSession', 'Not active')}</span>
+    );
 
   // Filtered users list
   const filteredUsers = users.filter(u => {
@@ -359,154 +392,125 @@ export const UserManagementView: React.FC = () => {
       {filteredUsers.length === 0 ? (
         <EmptyState icon={Users} text={t('noUsersFound', 'No users found matching your search.')} />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-          {filteredUsers.map(u => {
-            const isRevealed = !!revealedPasswords[u.id];
-            const displayPassword = u.password || '1234';
-            const roleBadgeColor =
-              u.role === 'ADMIN'
-                ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
-                : u.role === 'COLLECTOR'
-                ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30'
-                : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30';
-
-            return (
-              <div
-                key={u.id}
-                className={`glass-card rounded-2xl p-4 border flex flex-col justify-between transition-all ${
-                  u.is_active ? 'border-slate-800' : 'border-rose-500/30 bg-rose-950/10 opacity-75'
-                }`}
-              >
-                <div>
-                  {/* Top line: Role badge & Status */}
-                  <div className="flex items-center justify-between gap-2 mb-2">
-                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-black tracking-wide border ${roleBadgeColor}`}>
-                      {u.role === 'ADMIN' ? t('roleOffice', 'ADMIN') : u.role === 'COLLECTOR' ? t('roleCollector', 'AGENT') : t('roleCustomer', 'CUSTOMER')}
-                    </span>
-                    <div className="flex items-center gap-1.5">
-                      <span
-                        className={`w-2 h-2 rounded-full ${
-                          u.is_active ? 'bg-emerald-400 shadow-sm shadow-emerald-400' : 'bg-rose-400'
-                        }`}
-                      />
-                      <span className="text-xs font-semibold text-slate-400">
-                        {u.is_active ? t('active', 'Active') : t('deactivated', 'Deactivated')}
+        <div className="glass-card rounded-2xl border border-slate-800 overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-left text-xs text-slate-400 border-b border-slate-800">
+                <th className="py-2.5 pl-4 pr-1 font-semibold">{t('user', 'User')}</th>
+                <th className="py-2.5 px-1 font-semibold">{t('activeSession', 'Active session')}</th>
+                <th className="py-2.5 pl-1 pr-4 font-semibold">{t('lastLogin', 'Last login')}</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-800">
+              {filteredUsers.map(u => (
+                <tr key={u.id} className={u.is_active ? undefined : 'bg-rose-950/10 opacity-75'}>
+                  <td className="py-2.5 pl-4 pr-1">
+                    <button type="button" onClick={() => openProfile(u)} className="text-left">
+                      <span className="block font-bold text-white underline decoration-slate-600 underline-offset-4">{t(u.name, u.name)}</span>
+                      <span className="block text-xs text-slate-400">
+                        {roleLabel(u.role)}
+                        {!u.is_active && <span className="ml-2 text-rose-300 font-semibold">{t('deactivated', 'Deactivated')}</span>}
                       </span>
-                    </div>
-                  </div>
-
-                  {/* User Name & Details */}
-                  <div className="text-lg font-black text-white truncate">{t(u.name, u.name)}</div>
-                  <div className="text-xs text-slate-400 flex items-center gap-2 mt-0.5 mb-3">
-                    {u.phone ? (
-                      <span className="flex items-center gap-1 font-mono text-slate-300">
-                        <Phone className="w-3 h-3 text-slate-400" />
-                        {u.phone}
-                      </span>
-                    ) : (
-                      <span>{t('noPhone', 'No phone')}</span>
-                    )}
-                    {u.customer_id && <span className="font-mono text-emerald-400 font-bold">({u.customer_id})</span>}
-                    {u.collector_id && <span className="font-mono text-cyan-400 font-bold">({u.collector_id})</span>}
-                  </div>
-
-                  {/* Credentials Box */}
-                  <div className="bg-navy-950/90 border border-slate-800 rounded-xl p-3 space-y-2 mb-3">
-                    {/* Username / User ID */}
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-slate-400 font-bold">{t('userId', 'User ID')}:</span>
-                      <div className="flex items-center gap-1.5">
-                        <span className="font-mono font-bold text-gold-400 bg-gold-500/10 px-2 py-0.5 rounded border border-gold-500/20">
-                          {u.username}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => copyToClipboard(u.username, `user-${u.id}`)}
-                          title={t('copy', 'Copy User ID')}
-                          className="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
-                        >
-                          {copiedKey === `user-${u.id}` ? (
-                            <Check className="w-3.5 h-3.5 text-emerald-400" />
-                          ) : (
-                            <Copy className="w-3.5 h-3.5" />
-                          )}
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Password / PIN */}
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-slate-400 font-bold">{t('password', 'Password')}:</span>
-                      <div className="flex items-center gap-1.5">
-                        <span className="font-mono font-bold text-white bg-slate-900 px-2 py-0.5 rounded border border-slate-700 min-w-[5rem] text-center">
-                          {isRevealed ? displayPassword : '••••••••'}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => togglePasswordVisibility(u.id)}
-                          title={isRevealed ? t('hide', 'Hide') : t('show', 'Show')}
-                          className="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
-                        >
-                          {isRevealed ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => copyToClipboard(displayPassword, `pass-${u.id}`)}
-                          title={t('copyPassword', 'Copy Password')}
-                          className="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
-                        >
-                          {copiedKey === `pass-${u.id}` ? (
-                            <Check className="w-3.5 h-3.5 text-emerald-400" />
-                          ) : (
-                            <Copy className="w-3.5 h-3.5" />
-                          )}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Bottom Actions */}
-                <div className="flex items-center justify-between gap-1 pt-2 border-t border-slate-800/80">
-                  {/* Share on WhatsApp */}
-                  <button
-                    type="button"
-                    onClick={() => shareViaWhatsApp(u)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 hover:bg-emerald-500/20 transition-all cursor-pointer"
-                    title={t('shareWhatsApp', 'Send login details via WhatsApp')}
-                  >
-                    <Share2 className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>{t('shareWhatsApp', 'WhatsApp')}</span>
-                  </button>
-
-                  <div className="flex items-center gap-1">
-                    {/* Edit button */}
-                    <button
-                      type="button"
-                      onClick={() => openEditModal(u)}
-                      className="p-2 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800 border border-slate-700 transition-all cursor-pointer"
-                      title={t('edit', 'Edit Credentials')}
-                    >
-                      <Edit3 className="w-4 h-4" />
                     </button>
+                  </td>
+                  <td className="py-2.5 px-1">{sessionStatus(u)}</td>
+                  <td className="py-2.5 pl-1 pr-4 text-xs text-slate-300">{u.last_login_at ? formatDateTime(u.last_login_at) : t('notRecorded', 'Not recorded')}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
-                    {/* Delete button (protected for USR001) */}
-                    {u.id !== 'USR001' && (
+      {/* Profile: the only place the User ID and password are shown */}
+      {profile && (
+        <Sheet title={t('userProfile', 'User profile')} onClose={closeProfile}>
+          <div className="space-y-4">
+            <div>
+              <div className="text-xl font-black text-white">{t(profile.name, profile.name)}</div>
+              <div className="text-sm text-slate-400">{roleLabel(profile.role)}</div>
+            </div>
+
+            <div className="bg-navy-950/90 border border-slate-800 rounded-xl p-3 space-y-2">
+              {credentials ? (
+                ([
+                  [t('userId', 'User ID'), credentials.username, 'user'],
+                  [t('password', 'Password'), credentials.password, 'pass'],
+                ] as const).map(([label, value, key]) => (
+                  <div key={key} className="flex items-center justify-between gap-3 text-sm">
+                    <span className="text-slate-400 font-bold">{label}</span>
+                    <span className="flex items-center gap-1.5 min-w-0">
+                      <span className="font-mono font-bold text-gold-300 truncate">{value}</span>
                       <button
                         type="button"
-                        onClick={() => setDeleting(u)}
-                        className="p-2 rounded-xl text-rose-400 hover:text-rose-200 hover:bg-rose-500/20 border border-rose-500/30 transition-all cursor-pointer"
-                        title={t('delete', 'Delete User')}
+                        onClick={() => copyToClipboard(value, key)}
+                        aria-label={`${t('copy', 'Copy')} ${label}`}
+                        className="p-1.5 rounded text-slate-400 hover:text-white hover:bg-slate-800"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        {copiedKey === key ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
                       </button>
-                    )}
+                    </span>
                   </div>
+                ))
+              ) : error ? (
+                <p className="text-sm text-rose-400">{error}</p>
+              ) : (
+                <Spinner />
+              )}
+            </div>
+
+            <dl className="rounded-2xl bg-navy-950 border border-slate-800 divide-y divide-slate-800 text-sm">
+              {([
+                [t('status', 'Status'), profile.is_active ? t('active', 'Active') : t('deactivated', 'Deactivated')],
+                [t('activeSession', 'Active session'), sessionStatus(profile)],
+                [t('lastActive', 'Last active'), profile.last_seen_at ? formatDateTime(profile.last_seen_at) : t('notRecorded', 'Not recorded')],
+                [t('lastLogin', 'Last login'), profile.last_login_at ? formatDateTime(profile.last_login_at) : t('notRecorded', 'Not recorded')],
+                [t('mobile', 'Mobile'), profile.phone ? <span className="inline-flex items-center gap-1 font-mono"><Phone className="w-3 h-3" />{profile.phone}</span> : t('noPhone', 'No phone')],
+              ] as [string, React.ReactNode][]).map(([label, value]) => (
+                <div key={label} className="flex justify-between gap-3 px-4 py-2.5">
+                  <dt className="text-slate-400">{label}</dt>
+                  <dd className="text-white font-semibold text-right">{value}</dd>
+                </div>
+              ))}
+            </dl>
+
+            {credentials && (
+              <div className="flex items-center justify-between gap-2">
+                <button
+                  type="button"
+                  onClick={() => shareViaWhatsApp(profile, credentials)}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-bold text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 hover:bg-emerald-500/20"
+                >
+                  <Share2 className="w-4 h-4 text-emerald-400" />
+                  <span>{t('shareWhatsApp', 'WhatsApp')}</span>
+                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => openEditModal(profile, credentials)}
+                    aria-label={t('edit', 'Edit Credentials')}
+                    title={t('edit', 'Edit Credentials')}
+                    className="p-2.5 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800 border border-slate-700"
+                  >
+                    <Edit3 className="w-4 h-4" />
+                  </button>
+                  {/* Your own login cannot be deleted (nor the last office login: the server says so) */}
+                  {profile.id !== myUserId && (
+                    <button
+                      type="button"
+                      onClick={() => setDeleting(profile)}
+                      aria-label={t('delete', 'Delete User')}
+                      title={t('delete', 'Delete User')}
+                      className="p-2.5 rounded-xl text-rose-400 hover:text-rose-200 hover:bg-rose-500/20 border border-rose-500/30"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
                 </div>
               </div>
-            );
-          })}
-        </div>
+            )}
+          </div>
+        </Sheet>
       )}
 
       {/* Create / Edit User Sheet */}

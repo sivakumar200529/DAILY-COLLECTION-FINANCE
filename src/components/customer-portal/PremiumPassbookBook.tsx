@@ -2,19 +2,15 @@ import React, { useState } from 'react';
 import { Customer360Profile, CollectionAccount, PaymentTransaction } from '../../types';
 import { formatCurrency, formatDate } from '../../utils/formatters';
 import { useLanguage } from '../../context/LanguageContext';
-import { 
-  BookOpen, 
-  ChevronLeft, 
-  ChevronRight, 
-  Printer, 
-  ShieldCheck, 
-  CheckCircle2, 
-  Clock, 
-  Edit3, 
+import { LoanFiguresView } from './LoanFigures';
+import {
+  BookOpen,
+  ChevronLeft,
+  ChevronRight,
+  Printer,
+  CheckCircle2,
+  Edit3,
   Receipt as ReceiptIcon,
-  Sparkles,
-  Award,
-  Stamp
 } from 'lucide-react';
 
 interface PremiumPassbookBookProps {
@@ -38,8 +34,6 @@ export const PremiumPassbookBook: React.FC<PremiumPassbookBookProps> = ({
   const [currentPage, setCurrentPage] = useState<number>(1);
   const entriesPerPage = 10;
 
-  const { personal, business, address } = profile;
-  
   // Sort payments chronologically from first payment to latest for passbook ledger flow
   const allPayments = [...profile.recentPayments]
     .filter(p => p.collection_account_id === account.id)
@@ -66,80 +60,8 @@ export const PremiumPassbookBook: React.FC<PremiumPassbookBookProps> = ({
         {/* Outer Stitched Border */}
         <div className="rounded-2xl border border-gold-500/30 p-4 sm:p-6 bg-gradient-to-b from-[#131f37]/90 to-[#0b1324]/90 backdrop-blur-sm relative space-y-5">
           
-          {/* PASSBOOK COVER EMBOSSED HEADER */}
-          <div className="text-center border-b-2 border-gold-500/40 pb-4 relative">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold-500/10 border border-gold-500/30 text-[10px] font-black uppercase tracking-widest text-gold-300 mb-2">
-              <Award className="w-3.5 h-3.5 text-gold-400" />
-              <span>OFFICIAL 100-DAY COLLECTION PASSBOOK • கணக்குப் புத்தகம்</span>
-            </div>
-
-            <h1 className="text-xl sm:text-3xl font-serif font-black tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-gold-300 via-amber-200 to-gold-400 uppercase">
-              KRS DAILY COLLECTION FINANCE
-            </h1>
-            <p className="text-xs sm:text-sm text-gold-200/90 font-medium tracking-wide mt-0.5">
-              சென்னை, தமிழ்நாடு • Microfinance Doorstep Ledger
-            </p>
-
-            <div className="flex flex-wrap items-center justify-center gap-3 text-[11px] text-slate-300 mt-2 font-mono">
-              <span className="bg-navy-950/80 px-2.5 py-1 rounded-lg border border-slate-700">
-                A/C No: <strong className="text-gold-300">{account.id}</strong>
-              </span>
-              <span className="bg-navy-950/80 px-2.5 py-1 rounded-lg border border-slate-700">
-                Book Serial: <strong className="text-gold-300">PB-{personal.id}</strong>
-              </span>
-              <span className="bg-navy-950/80 px-2.5 py-1 rounded-lg border border-slate-700 text-emerald-400">
-                {t(account.status.toLowerCase(), account.status)}
-              </span>
-            </div>
-          </div>
-
-          {/* PASSBOOK FRONT FOLIO: ACCOUNT HOLDER & LOAN SUMMARY */}
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-navy-950/70 rounded-2xl p-4 border border-gold-500/20 text-xs">
-            
-            {/* Customer Photo with Bank Seal */}
-            <div className="md:col-span-3 flex flex-col items-center justify-center text-center space-y-2 border-b md:border-b-0 md:border-r border-slate-800 pb-3 md:pb-0 md:pr-3">
-              <div className="relative">
-                <div className="w-20 h-20 rounded-2xl overflow-hidden border-2 border-gold-400/80 shadow-lg bg-navy-900 flex items-center justify-center">
-                  {personal.profile_photo ? (
-                    <img src={personal.profile_photo} alt={personal.full_name} className="w-full h-full object-cover" />
-                  ) : (
-                    <span className="text-2xl font-black text-gold-400">{personal.full_name.slice(0, 2).toUpperCase()}</span>
-                  )}
-                </div>
-                {/* Official Red Verification Stamp */}
-                <div className="absolute -bottom-2 -right-2 bg-rose-950 border border-rose-500 text-rose-300 rounded-full px-2 py-0.5 text-[8px] font-black uppercase tracking-tighter rotate-[-8deg] shadow-md">
-                  VERIFIED
-                </div>
-              </div>
-
-              <div>
-                <div className="font-black text-sm text-white">{t(personal.full_name, personal.full_name)}</div>
-                <div className="text-[11px] text-gold-400 font-semibold">{t(business?.shop_name || 'Commercial Shop', business?.shop_name || 'Commercial Shop')}</div>
-                <div className="text-[10px] text-slate-400">{t(business?.shop_area || address?.area || 'Bazaar Main Road', business?.shop_area || address?.area || 'Bazaar Main Road')}</div>
-              </div>
-            </div>
-
-            {/* Loan Financial Parameters */}
-            <div className="md:col-span-9 grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-center">
-              <div className="p-2.5 rounded-xl bg-navy-900/90 border border-slate-800">
-                <span className="text-[10px] text-slate-400 font-semibold block uppercase">{t('disbursedAmount', 'Disbursed Principal')}</span>
-                <span className="text-sm sm:text-base font-black text-gold-300 font-mono">{formatCurrency(account.disbursed_amount)}</span>
-              </div>
-              <div className="p-2.5 rounded-xl bg-navy-900/90 border border-slate-800">
-                <span className="text-[10px] text-slate-400 font-semibold block uppercase">{t('dailyPayment', 'Daily Due (100 Days)')}</span>
-                <span className="text-sm sm:text-base font-black text-white font-mono">{formatCurrency(account.daily_collection)}</span>
-              </div>
-              <div className="p-2.5 rounded-xl bg-navy-900/90 border border-slate-800">
-                <span className="text-[10px] text-slate-400 font-semibold block uppercase">{t('amountPaid', 'Paid So Far')}</span>
-                <span className="text-sm sm:text-base font-black text-emerald-400 font-mono">{formatCurrency(account.amount_collected)}</span>
-              </div>
-              <div className="p-2.5 rounded-xl bg-navy-900/90 border border-slate-800">
-                <span className="text-[10px] text-slate-400 font-semibold block uppercase">{t('balance', 'Remaining Balance')}</span>
-                <span className="text-sm sm:text-base font-black text-rose-400 font-mono">{formatCurrency(account.remaining_amount)}</span>
-              </div>
-            </div>
-
-          </div>
+          {/* Same four figures as the customer's main screen */}
+          <LoanFiguresView loan={account} layout="grid" />
 
           {/* PHYSICAL PASSBOOK LEDGER PAGES CONTAINER */}
           <div className="bg-[#fcfaf5] text-slate-900 rounded-2xl shadow-[inset_0_2px_10px_rgba(0,0,0,0.15)] border-2 border-[#e3d8c2] overflow-hidden">
@@ -271,14 +193,8 @@ export const PremiumPassbookBook: React.FC<PremiumPassbookBookProps> = ({
             </div>
 
             {/* Bottom Passbook Ledger Footer with Page Controls & Official Seal */}
-            <div className="bg-[#ece3ce] px-4 py-3 border-t border-[#dacbb0] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-serif text-[#554326]">
+            <div className="bg-[#ece3ce] px-4 py-3 border-t border-[#dacbb0] flex items-center justify-center gap-3 text-xs font-serif text-[#554326]">
               
-              {/* Official Seal Watermark */}
-              <div className="flex items-center gap-2 text-[11px] font-sans text-[#705e41]">
-                <ShieldCheck className="w-4 h-4 text-emerald-700" />
-                <span>Authorized Microfinance Passbook &bull; KRS Finance Audit Wing</span>
-              </div>
-
               {/* Turn Page Navigation */}
               <div className="flex items-center gap-2 font-mono">
                 <button
@@ -310,20 +226,8 @@ export const PremiumPassbookBook: React.FC<PremiumPassbookBookProps> = ({
 
           </div>
 
-          {/* PASSBOOK FOOTER ACTIONS */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 text-xs">
-            <div className="text-slate-400 text-[11px]">
-              {isAdmin ? (
-                <span className="text-gold-400 font-bold flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>Admin Mode: You have authorized access to modify any payment record across any month.</span>
-                </span>
-              ) : (
-                <span>Official passbook for verified customer transactions. For questions, contact branch office.</span>
-              )}
-            </div>
-
-            {onPrintStatement && (
+          {onPrintStatement && (
+            <div className="flex justify-end pt-2 text-xs">
               <button
                 type="button"
                 onClick={onPrintStatement}
@@ -332,8 +236,8 @@ export const PremiumPassbookBook: React.FC<PremiumPassbookBookProps> = ({
                 <Printer className="w-3.5 h-3.5" />
                 <span>{t('print', 'Print Passbook Statement')}</span>
               </button>
-            )}
-          </div>
+            </div>
+          )}
 
         </div>
 

@@ -20,6 +20,9 @@ import {
   AppConfig,
   ConfigSection,
   LoanRequest,
+  CollectorReport,
+  PaymentClaim,
+  DayClosing,
 } from '../types';
 
 /** Payload for issuing a loan; money values are computed by the server from these terms. */
@@ -48,7 +51,14 @@ export type CustomerListItem = CustomerPersonalDetails & {
 
 const API_BASE = '/api';
 
+/** Fired when the server no longer knows this sign-in (expired, signed out elsewhere, switched off). */
+export const SIGNED_OUT_EVENT = 'krs-signed-out';
+
 async function handleResponse<T>(res: Response): Promise<T> {
+  const signedIn = localStorage.getItem('krs_token') || localStorage.getItem('krs_user');
+  if (res.status === 401 && signedIn && !/\/auth\/(login|logout)$/.test(res.url)) {
+    window.dispatchEvent(new Event(SIGNED_OUT_EVENT));
+  }
   if (!res.ok) {
     const errorText = await res.text();
     let message = 'API request failed';
@@ -71,6 +81,18 @@ function getAuthHeader(): HeadersInit {
   };
 }
 
+export interface ImportResult {
+  created: number;
+  skipped: { name: string; reason: string }[];
+  new_areas: string[];
+}
+
+export interface DayAssignmentStatus {
+  assigned: boolean;
+  assigned_by?: string;
+  assigned_at?: string;
+}
+
 export const api = {
   // Authentication
   async login(payload: { username?: string; password?: string; role?: string }): Promise<{ token: string; user: User }> {
@@ -87,6 +109,17 @@ export const api = {
       headers: getAuthHeader(),
     });
     return handleResponse(res);
+  },
+
+  /** Tells the server this app is still open. */
+  async heartbeat(): Promise<void> {
+    const res = await fetch(`${API_BASE}/auth/heartbeat`, { method: 'POST', headers: getAuthHeader() });
+    await handleResponse(res);
+  },
+
+  async logout(): Promise<void> {
+    const res = await fetch(`${API_BASE}/auth/logout`, { method: 'POST', headers: getAuthHeader() });
+    await handleResponse(res);
   },
 
   // Dashboard
@@ -245,6 +278,24 @@ export const api = {
   },
 
   // Daily Collections & Collecting Payments
+  async getDayAssignment(date?: string): Promise<DayAssignmentStatus> {
+    const query = date ? `?date=${date}` : '';
+    const res = await fetch(`${API_BASE}/daily-collections/assignment${query}`, { headers: getAuthHeader() });
+    return handleResponse(res);
+  },
+
+  async assignDayWork(data: {
+    changes: { collection_account_id: string; collector_id: string }[];
+    assigned_by: string;
+  }): Promise<DayAssignmentStatus> {
+    const res = await fetch(`${API_BASE}/daily-collections/assign`, {
+      method: 'POST',
+      headers: getAuthHeader(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(res);
+  },
+
   async getDailyCollections(params?: { date?: string; area?: string; collector?: string; status?: string; search?: string }): Promise<DailyCollectionRecord[]> {
     const query = new URLSearchParams();
     if (params?.date) query.set('date', params.date);
@@ -556,6 +607,112 @@ export const api = {
     return handleResponse(res);
   },
 
+  /** Tells the office the customer paid by UPI; the office records it after checking. */
+  async claimUpiPayment(data: { customer_id: string; amount: number; upi_reference?: string }): Promise<{ success: boolean }> {
+    const res = await fetch(`${API_BASE}/customer/payment-claim`, {
+      method: 'POST',
+      headers: getAuthHeader(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(res);
+  },
+
+  // Customer requests the office acts on
+  async getLoanRequests(status?: string): Promise<LoanRequest[]> {
+    const res = await fetch(`${API_BASE}/customer/loan-requests`, { headers: getAuthHeader() });
+    const list = await handleResponse<LoanRequest[]>(res);
+    return status ? list.filter(r => r.status === status) : list;
+  },
+
+  async decideLoanRequest(id: string, data: { decision: 'APPROVED' | 'REJECTED'; by: string; account_id?: string }): Promise<LoanRequest> {
+    const res = await fetch(`${API_BASE}/loan-requests/${encodeURIComponent(id)}/decision`, {
+      method: 'POST',
+      headers: getAuthHeader(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(res);
+  },
+
+  async getPaymentClaims(status?: string): Promise<PaymentClaim[]> {
+    const query = status ? `?status=${encodeURIComponent(status)}` : '';
+    const res = await fetch(`${API_BASE}/payment-claims${query}`, { headers: getAuthHeader() });
+    return handleResponse(res);
+  },
+
+  async decidePaymentClaim(id: string, data: { decision: 'RECORDED' | 'NOT_RECEIVED'; by: string; receipt_number?: string }): Promise<PaymentClaim> {
+    const res = await fetch(`${API_BASE}/payment-claims/${encodeURIComponent(id)}/decision`, {
+      method: 'POST',
+      headers: getAuthHeader(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(res);
+  },
+
+  // Collector day reports
+  async getCollectorReports(params: { date?: string; collector_id?: string; status?: string } = {}): Promise<CollectorReport[]> {
+    const query = new URLSearchParams();
+    Object.entries(params).forEach(([k, v]) => v && query.set(k, v));
+    const res = await fetch(`${API_BASE}/collector-reports?${query.toString()}`, { headers: getAuthHeader() });
+    return handleResponse(res);
+  },
+
+  async sendCollectorReport(data: {
+    collector_id: string;
+    cash_notes: Record<string, number>;
+    coins: number;
+    note?: string;
+  }): Promise<CollectorReport> {
+    const res = await fetch(`${API_BASE}/collector-reports`, {
+      method: 'POST',
+      headers: getAuthHeader(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(res);
+  },
+
+  async decideCollectorReport(id: string, decision: 'APPROVED' | 'REJECTED', by: string): Promise<CollectorReport> {
+    const res = await fetch(`${API_BASE}/collector-reports/${encodeURIComponent(id)}/decision`, {
+      method: 'POST',
+      headers: getAuthHeader(),
+      body: JSON.stringify({ decision, by }),
+    });
+    return handleResponse(res);
+  },
+
+  async verifyCollectorReport(id: string, by: string): Promise<CollectorReport> {
+    const res = await fetch(`${API_BASE}/collector-reports/${encodeURIComponent(id)}/verify`, {
+      method: 'POST',
+      headers: getAuthHeader(),
+      body: JSON.stringify({ by }),
+    });
+    return handleResponse(res);
+  },
+
+  // Closing the day's business
+  async getDayClosings(date?: string): Promise<DayClosing[]> {
+    const query = date ? `?date=${encodeURIComponent(date)}` : '';
+    const res = await fetch(`${API_BASE}/day-closings${query}`, { headers: getAuthHeader() });
+    return handleResponse(res);
+  },
+
+  async closeDay(data: { by: string; note?: string }): Promise<DayClosing> {
+    const res = await fetch(`${API_BASE}/day-closings`, {
+      method: 'POST',
+      headers: getAuthHeader(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(res);
+  },
+
+  async reopenDay(id: string, by: string): Promise<DayClosing> {
+    const res = await fetch(`${API_BASE}/day-closings/${encodeURIComponent(id)}/reopen`, {
+      method: 'POST',
+      headers: getAuthHeader(),
+      body: JSON.stringify({ by }),
+    });
+    return handleResponse(res);
+  },
+
   async getCustomerLoanRequests(customerId: string): Promise<LoanRequest[]> {
     const res = await fetch(`${API_BASE}/customer/loan-requests?customer_id=${encodeURIComponent(customerId)}`, {
       headers: getAuthHeader(),
@@ -564,10 +721,25 @@ export const api = {
   },
 
   // User Credential & Account Management
+  /** Startup setup: add customers or collectors from a form or a checked spreadsheet. */
+  async importPeople(kind: 'customer' | 'collector', rows: Record<string, string | undefined>[]): Promise<ImportResult> {
+    const res = await fetch(`${API_BASE}/setup/import`, {
+      method: 'POST',
+      headers: getAuthHeader(),
+      body: JSON.stringify({ kind, rows }),
+    });
+    return handleResponse(res);
+  },
+
   async getUsers(role?: Role): Promise<User[]> {
     const url = role ? `${API_BASE}/users?role=${role}` : `${API_BASE}/users`;
     const res = await fetch(url, { headers: getAuthHeader() });
     return handleResponse<User[]>(res);
+  },
+
+  async getUserCredentials(id: string): Promise<{ username: string; password: string }> {
+    const res = await fetch(`${API_BASE}/users/${id}/credentials`, { headers: getAuthHeader() });
+    return handleResponse(res);
   },
 
   async createUser(data: {

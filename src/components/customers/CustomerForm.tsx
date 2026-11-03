@@ -28,12 +28,11 @@ export const CustomerForm: React.FC<CustomerFormProps> = ({ initial, onSaved, on
   const { t } = useLanguage();
   const { config } = useConfig();
   const isEdit = !!initial;
-  const loc = config.masters.default_location;
 
   const [name, setName] = useState(initial?.personal.full_name ?? '');
   const [mobile, setMobile] = useState(initial?.personal.mobile_number ?? '');
   const [shopName, setShopName] = useState(initial?.business?.shop_name ?? '');
-  const [area, setArea] = useState(initial?.business?.shop_area || initial?.address?.area || loc.area);
+  const [area, setArea] = useState(initial?.business?.shop_area || initial?.address?.area || '');
   const [address, setAddress] = useState(
     initial?.business?.shop_address || [initial?.address?.door_number, initial?.address?.street].filter(Boolean).join(', ')
   );

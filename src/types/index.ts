@@ -4,6 +4,9 @@ import type { LoanOverride } from '../../shared/finance';
 export type { LoanOverride, OverridableField, LoanCalculation, LoanTerms } from '../../shared/finance';
 export type { AppConfig, CompanyProfile, LoanProduct, MasterLists, Numbering, NumberingRule, NumberingKind, ConfigSection, DefaultLocation } from '../../shared/config';
 
+export type { CollectorReport, CollectorReportStatus, CollectionDaySummary, DayClosing, DayClosingCollector } from '../../shared/collectorDay';
+export type { PaymentClaim, PaymentClaimStatus } from '../../shared/requests';
+
 export type Role = 'ADMIN' | 'CUSTOMER' | 'COLLECTOR';
 
 export interface User {
@@ -19,6 +22,10 @@ export interface User {
   is_active: boolean;
   avatar?: string;
   created_at: string;
+  last_login_at?: string;
+  /** Apps open right now (from the server's sessions; only in the office's user list). */
+  active_sessions?: number;
+  last_seen_at?: string;
 }
 
 export type MaritalStatus = 'Married' | 'Single' | 'Other';
@@ -266,6 +273,9 @@ export interface Collector {
   today_customers_count?: number;
   today_collected_amount?: number;
   monthly_collected_amount?: number;
+  running_loans?: number;
+  balance_to_collect?: number;
+  month_collected?: number;
 }
 
 export interface Area {
@@ -302,6 +312,10 @@ export interface LoanRequest {
   remarks?: string;
   status: 'PENDING' | 'APPROVED' | 'REJECTED';
   created_at: string;
+  decided_by?: string;
+  decided_at?: string;
+  /** The loan given when the request was approved. */
+  account_id?: string;
 }
 
 export interface AuditLog {
@@ -347,6 +361,14 @@ export interface Customer360Profile {
 
 // Dashboard statistics
 export interface DashboardStats {
+  /** This whole month: expected - collected = balance. */
+  monthExpected: number;
+  monthCollected: number;
+  monthBalance: number;
+  /** Working collectors. */
+  totalCollectors: number;
+  /** Loans with more than one term pending. */
+  longStandingLoans: number;
   totalCustomers: number;
   activeAccounts: number;
   todayExpected: number;

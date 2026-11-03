@@ -1,27 +1,19 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useLanguage } from '../../context/LanguageContext';
-import { PageTitle, PillTabs } from '../common/ui';
+import { PageTitle } from '../common/ui';
 import { CollectorsView } from '../collectors/CollectorsView';
 import { AreasView } from '../areas/AreasView';
 
-type FieldTab = 'collectors' | 'areas';
-
-/** One menu item for the field team: collectors and the areas they cover. */
-export const StaffAndAreasView: React.FC = () => {
+/** The field team: collectors and areas side by side, in two equal halves (one above the other on a phone). */
+export const StaffAndAreasView: React.FC<{ onOpenCustomer: (customerId: string) => void }> = ({ onOpenCustomer }) => {
   const { t } = useLanguage();
-  const [tab, setTab] = useState<FieldTab>('collectors');
   return (
     <div className="space-y-4 pb-8">
       <PageTitle title={t('navStaffAreas', 'Staff & areas')} />
-      <PillTabs<FieldTab>
-        value={tab}
-        onChange={setTab}
-        tabs={[
-          { id: 'collectors', label: t('collectors', 'Collectors') },
-          { id: 'areas', label: t('areas', 'Areas') },
-        ]}
-      />
-      {tab === 'collectors' ? <CollectorsView /> : <AreasView />}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+        <CollectorsView />
+        <AreasView onOpenCustomer={onOpenCustomer} />
+      </div>
     </div>
   );
 };

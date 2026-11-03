@@ -10,7 +10,9 @@
     "build": "tsc && vite build",
     "start": "tsx server/index.ts",
     "lint": "tsc --noEmit",
-    "export:txt": "node scripts/exportTotalProjectTxt.cjs"
+    "test": "tsx --test tests/*.test.ts",
+    "export:txt": "node scripts/exportTotalProjectTxt.cjs",
+    "set-password": "node scripts/setPassword.cjs"
   },
   "dependencies": {
     "clsx": "^2.1.1",
@@ -19,6 +21,7 @@
     "lucide-react": "^0.475.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "read-excel-file": "^9.3.14",
     "recharts": "^2.15.1",
     "tailwind-merge": "^3.0.1"
   },

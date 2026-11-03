@@ -10,19 +10,12 @@ interface LoginPageProps {
   onLoginSuccess: (user: User, token: string) => void;
 }
 
-/** Demo accounts from the sample data (for testing; see README). */
-const DEMO: Record<Role, { username: string; password: string }> = {
-  ADMIN: { username: 'admin', password: 'admin123' },
-  COLLECTOR: { username: 'COL101', password: '1234' },
-  CUSTOMER: { username: '9876543210', password: '1234' },
-};
-
 /** Sign in: pick the language (first time), who you are, then mobile/ID and PIN. */
 export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
   const { t, hasChosenLanguage } = useLanguage();
   const [role, setRole] = useState<Role>('ADMIN');
-  const [username, setUsername] = useState(DEMO.ADMIN.username);
-  const [password, setPassword] = useState(DEMO.ADMIN.password);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -30,8 +23,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
   const chooseRole = (next: Role) => {
     setRole(next);
     setError(null);
-    setUsername(DEMO[next].username);
-    setPassword(DEMO[next].password);
+    setPassword('');
   };
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -166,9 +158,11 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
                   </button>
                 </form>
 
-                <p className="text-xs text-slate-500 pt-2 border-t border-slate-800">
-                  {t('demoAccountsNote', 'Demo accounts are filled in when you choose who you are (testing only).')}
-                </p>
+                {role !== 'ADMIN' && (
+                  <p className="text-xs text-slate-500 pt-2 border-t border-slate-800">
+                    {t('askOfficeForPin', 'New here? Ask the office for your PIN.')}
+                  </p>
+                )}
               </div>
             )}
           </div>

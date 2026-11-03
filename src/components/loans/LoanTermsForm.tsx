@@ -27,7 +27,7 @@ export function activeProducts(config: AppConfig): LoanProduct[] {
 /** Initial terms: the first active loan type's defaults, the borrower's area and that area's collector. */
 export function initialLoanForm(config: AppConfig, areas: Area[], borrowerArea?: string): LoanFormState {
   const product = activeProducts(config)[0];
-  const area = borrowerArea || config.masters.default_location.area;
+  const area = borrowerArea || '';
   return {
     product_id: product?.id ?? '',
     requested_amount: product?.min_amount ?? 0,

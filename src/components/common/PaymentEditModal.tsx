@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { PaymentTransaction, CollectionAccount, Collector } from '../../types';
 import { api } from '../../services/api';
 import { formatCurrency, formatDate } from '../../utils/formatters';
+import { roundMoney } from '../../../shared/finance';
 import { useLanguage } from '../../context/LanguageContext';
 import { 
   ShieldAlert, 
@@ -366,24 +367,24 @@ export const PaymentEditModal: React.FC<PaymentEditModalProps> = ({
               </button>
               <button
                 type="button"
-                onClick={() => setAmountPaid(account.daily_collection * 2)}
+                onClick={() => setAmountPaid(roundMoney(account.daily_collection * 2))}
                 className="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-[11px] font-bold text-slate-200 cursor-pointer"
               >
-                2 Days ({account.daily_collection * 2})
+                2 Days ({roundMoney(account.daily_collection * 2)})
               </button>
               <button
                 type="button"
-                onClick={() => setAmountPaid(account.daily_collection * 5)}
+                onClick={() => setAmountPaid(roundMoney(account.daily_collection * 5))}
                 className="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-[11px] font-bold text-slate-200 cursor-pointer"
               >
-                5 Days ({account.daily_collection * 5})
+                5 Days ({roundMoney(account.daily_collection * 5)})
               </button>
               <button
                 type="button"
-                onClick={() => setAmountPaid(account.remaining_amount + oldAmount)}
+                onClick={() => setAmountPaid(roundMoney(account.remaining_amount + oldAmount))}
                 className="px-2 py-1 rounded-lg bg-emerald-950 hover:bg-emerald-900 text-emerald-300 border border-emerald-800/60 text-[11px] font-bold cursor-pointer"
               >
-                Full Loan ({account.remaining_amount + oldAmount})
+                Full Loan ({roundMoney(account.remaining_amount + oldAmount)})
               </button>
             </div>
           </div>

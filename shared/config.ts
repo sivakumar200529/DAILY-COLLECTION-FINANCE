@@ -19,7 +19,6 @@ export interface LoanProduct {
 }
 
 export interface DefaultLocation {
-  area: string;
   city: string;
   district: string;
   state: string;
@@ -33,6 +32,10 @@ export interface MasterLists {
   not_paid_reasons: string[];
   /** A loan counts as "not paying" once it is this many days behind its schedule. */
   not_paying_after_days: number;
+  /** A customer is "long pending" (long standing) once this many terms are pending. */
+  long_pending_after_terms: number;
+  /** How many times a collector may send the day's report; corrections after that need office approval. */
+  report_send_limit: number;
   default_location: DefaultLocation;
 }
 
@@ -56,6 +59,12 @@ export interface CompanyProfile {
   currency: string;
   notifications_enabled: boolean;
   opening_balance?: number;
+  /** UPI ID customers and collectors pay to (shown as a QR code). Empty = online payment not set up. */
+  upi_id?: string;
+  /** Name shown in the customer's UPI app; defaults to company_name. */
+  upi_name?: string;
+  /** The startup setup was finished; until then a new installation opens it after login. */
+  setup_completed?: boolean;
 }
 
 export interface AppConfig {
@@ -100,7 +109,9 @@ export const DEFAULT_CONFIG: AppConfig = {
     default_payment_mode: 'Cash',
     not_paid_reasons: ['Shop closed', 'No money today', 'Asked to come later', 'Customer not there'],
     not_paying_after_days: 3,
-    default_location: { area: '', city: '', district: '', state: '', pincode: '' },
+    long_pending_after_terms: 2,
+    report_send_limit: 2,
+    default_location: { city: '', district: '', state: '', pincode: '' },
   },
   numbering: {
     customer: { prefix: 'DC', include_year: false, pad: 5, next: 10001 },

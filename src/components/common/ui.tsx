@@ -212,6 +212,18 @@ export const ProgressBar: React.FC<{ percent: number; tone?: 'green' | 'gold' | 
 };
 
 /** Opens the phone dialler. Shown as a round button next to names. */
+/** Amounts one under the other, label beside value (used next to a name in a list). */
+export const AmountList: React.FC<{ rows: [label: string, value: React.ReactNode, tone?: string][] }> = ({ rows }) => (
+  <dl className="flex-shrink-0 space-y-0.5 text-xs">
+    {rows.map(([label, value, tone]) => (
+      <div key={label} className="flex justify-between gap-3">
+        <dt className="text-slate-400">{label}</dt>
+        <dd className={`font-mono font-bold whitespace-nowrap ${tone ?? 'text-white'}`}>{value}</dd>
+      </div>
+    ))}
+  </dl>
+);
+
 export const CallButton: React.FC<{ phone?: string; label: string }> = ({ phone, label }) => {
   if (!phone) return null;
   return (

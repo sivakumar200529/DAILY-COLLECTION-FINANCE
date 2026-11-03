@@ -77,8 +77,8 @@ export const translations: Record<string, { en: string; ta: string }> = {
     ta: 'இன்று வசூலாகும் பணம் நேரடியாக வசூலிக்க வேண்டிய தொகையைக் குறைத்து, வசூலான தொகை மட்டுமே மொத்த இருப்பில் சேமிக்கப்படுகிறது.',
   },
   userManagement: {
-    en: 'User Logins',
-    ta: 'பயனர் உள்நுழைவுகள்',
+    en: 'User Management',
+    ta: 'பயனர் மேலாண்மை',
   },
   userAccounts: {
     en: 'Users & Logins',
@@ -2151,6 +2151,1052 @@ export const translations: Record<string, { en: string; ta: string }> = {
   quickDateJump: {
     en: 'Jump Month / Date',
     ta: 'மாதம் / தேதி தேர்வு',
+  },
+
+  // Customer screen (one screen: loan figures, passbook, payment, new loan)
+  totalLoanLabel: {
+    en: 'Total loan',
+    ta: 'மொத்த கடன்',
+  },
+  repayment: {
+    en: 'Repayment',
+    ta: 'திருப்பிச் செலுத்துதல்',
+  },
+  principal: {
+    en: 'Principal',
+    ta: 'அசல்',
+  },
+  terms: {
+    en: 'Terms',
+    ta: 'தவணைகள்',
+  },
+  termsLegend: {
+    en: 'pending/total | missed/advance',
+    ta: 'மீதம்/மொத்தம் | தவறியது/முன்கூட்டியே',
+  },
+  notPaidYet: {
+    en: 'Not paid yet',
+    ta: 'இன்னும் கட்டவில்லை',
+  },
+  payment: {
+    en: 'Payment',
+    ta: 'பணம் செலுத்து',
+  },
+  applyNewLoan: {
+    en: 'Apply for New Loan',
+    ta: 'புதிய கடனுக்கு விண்ணப்பி',
+  },
+  loanRequestWaiting: {
+    en: 'New loan request waiting for the office',
+    ta: 'புதிய கடன் கோரிக்கை அலுவலக பதிலுக்காக காத்திருக்கிறது',
+  },
+  passbookSimple: {
+    en: 'Simple',
+    ta: 'எளிய',
+  },
+  passbookBook: {
+    en: 'Book',
+    ta: 'புத்தகம்',
+  },
+  upiNotReady: {
+    en: 'Online payment is not ready yet. Please pay your collector.',
+    ta: 'ஆன்லைன் கட்டணம் இன்னும் தயாராகவில்லை. உங்கள் வசூலிப்பாளரிடம் கட்டவும்.',
+  },
+  paymentClaimSent: {
+    en: 'Message sent to the office',
+    ta: 'அலுவலகத்திற்கு தகவல் அனுப்பப்பட்டது',
+  },
+  paymentClaimNext: {
+    en: 'Your payment will show in the passbook after the office checks it.',
+    ta: 'அலுவலகம் சரிபார்த்த பிறகு உங்கள் கட்டணம் பாஸ்புக்கில் தெரியும்.',
+  },
+  done: {
+    en: 'Done',
+    ta: 'முடிந்தது',
+  },
+  somethingWentWrong: {
+    en: 'Something went wrong. Please try again.',
+    ta: 'ஏதோ தவறு நடந்தது. மீண்டும் முயற்சிக்கவும்.',
+  },
+  amountToPay: {
+    en: 'Amount to pay',
+    ta: 'கட்ட வேண்டிய தொகை',
+  },
+  upiQr: {
+    en: 'UPI QR code',
+    ta: 'UPI QR குறியீடு',
+  },
+  upiId: {
+    en: 'UPI ID',
+    ta: 'UPI ஐடி',
+  },
+  copied: {
+    en: 'Copied',
+    ta: 'நகலெடுக்கப்பட்டது',
+  },
+  copy: {
+    en: 'Copy',
+    ta: 'நகலெடு',
+  },
+  openUpiApp: {
+    en: 'Open UPI app',
+    ta: 'UPI செயலியைத் திற',
+  },
+  afterPayingTell: {
+    en: 'After paying, tell the office here:',
+    ta: 'கட்டிய பிறகு, இங்கே அலுவலகத்திற்குத் தெரிவிக்கவும்:',
+  },
+  upiRefOptional: {
+    en: 'UPI reference number (optional)',
+    ta: 'UPI குறிப்பு எண் (விருப்பம்)',
+  },
+  sending: {
+    en: 'Sending...',
+    ta: 'அனுப்புகிறது...',
+  },
+  iHavePaid: {
+    en: 'I have paid',
+    ta: 'நான் கட்டிவிட்டேன்',
+  },
+  myDetails: {
+    en: 'My details',
+    ta: 'என் விவரங்கள்',
+  },
+  detailsChangeViaOffice: {
+    en: 'To change your details, please call the office.',
+    ta: 'உங்கள் விவரங்களை மாற்ற அலுவலகத்தை அழைக்கவும்.',
+  },
+  '3days': {
+    en: '3 Days',
+    ta: '3 நாட்கள்',
+  },
+  custom: {
+    en: 'Custom',
+    ta: 'விருப்பத் தொகை',
+  },
+  upiNotSetUp: {
+    en: 'UPI is not set up yet. Ask the office to add the UPI ID in Settings → Business.',
+    ta: 'UPI இன்னும் அமைக்கப்படவில்லை. அமைப்புகள் → வணிகம் பகுதியில் UPI ஐடியைச் சேர்க்க அலுவலகத்திடம் கேளுங்கள்.',
+  },
+  paidToBusinessUpi: {
+    en: 'Money goes to the business UPI ID above',
+    ta: 'பணம் மேலே உள்ள நிறுவன UPI ஐடிக்குச் செல்லும்',
+  },
+  upiSettingsHint: {
+    en: 'Customers and collectors pay to this UPI ID. Leave it empty to turn off UPI payment.',
+    ta: 'வாடிக்கையாளர்களும் வசூலிப்பாளர்களும் இந்த UPI ஐடிக்கு பணம் செலுத்துவார்கள். UPI கட்டணத்தை நிறுத்த இதை காலியாக விடவும்.',
+  },
+  upiIdLabel: {
+    en: 'UPI ID (for example shopname@okicici)',
+    ta: 'UPI ஐடி (உதாரணம் shopname@okicici)',
+  },
+  upiNameLabel: {
+    en: 'Name shown in UPI apps (optional)',
+    ta: 'UPI செயலிகளில் காட்டப்படும் பெயர் (விருப்பம்)',
+  },
+
+  // Collector screen (Payment and Report) and report approval
+  countYourCash: {
+    en: 'Count your cash',
+    ta: 'உங்கள் பணத்தை எண்ணுங்கள்',
+  },
+  reset: {
+    en: 'Reset',
+    ta: 'மீட்டமை',
+  },
+  coinsAndChange: {
+    en: 'Coins / change',
+    ta: 'நாணயங்கள் / சில்லறை',
+  },
+  cashCounted: {
+    en: 'Cash counted',
+    ta: 'எண்ணிய பணம்',
+  },
+  withPendingTerms: {
+    en: 'With pending terms',
+    ta: 'நிலுவை தவணைகளுடன்',
+  },
+  customerScansQr: {
+    en: 'Customer scans this and pays.',
+    ta: 'வாடிக்கையாளர் இதை ஸ்கேன் செய்து பணம் செலுத்துவார்.',
+  },
+  upiReceived: {
+    en: 'UPI received',
+    ta: 'UPI பெறப்பட்டது',
+  },
+  pendingTerms: {
+    en: 'pending terms',
+    ta: 'நிலுவை தவணைகள்',
+  },
+  collectorNotLinked: {
+    en: 'This login is not linked to a collector. Please call the office.',
+    ta: 'இந்த உள்நுழைவு எந்த வசூலிப்பாளருடனும் இணைக்கப்படவில்லை. அலுவலகத்தை அழைக்கவும்.',
+  },
+  collectorId: {
+    en: 'Collector ID',
+    ta: 'வசூலிப்பாளர் ஐடி',
+  },
+  collectionAmount: {
+    en: 'Collection amount',
+    ta: 'வசூல் தொகை',
+  },
+  pendingOfTotal: {
+    en: 'pending / total',
+    ta: 'நிலுவை / மொத்தம்',
+  },
+  report: {
+    en: 'Report',
+    ta: 'அறிக்கை',
+  },
+  pendingCustomers: {
+    en: 'Pending customers',
+    ta: 'நிலுவை வாடிக்கையாளர்கள்',
+  },
+  reportSentForApproval: {
+    en: 'Correction sent. The office will check and approve it.',
+    ta: 'திருத்தம் அனுப்பப்பட்டது. அலுவலகம் சரிபார்த்து ஒப்புதல் அளிக்கும்.',
+  },
+  reportSent: {
+    en: 'Report sent to the office.',
+    ta: 'அறிக்கை அலுவலகத்திற்கு அனுப்பப்பட்டது.',
+  },
+  reportStatusSent: {
+    en: 'Sent',
+    ta: 'அனுப்பப்பட்டது',
+  },
+  reportStatusWaiting: {
+    en: 'Waiting for office approval',
+    ta: 'அலுவலக ஒப்புதலுக்காக காத்திருக்கிறது',
+  },
+  reportStatusApproved: {
+    en: 'Approved',
+    ta: 'ஒப்புதல் அளிக்கப்பட்டது',
+  },
+  reportStatusRejected: {
+    en: 'Rejected',
+    ta: 'நிராகரிக்கப்பட்டது',
+  },
+  totalCustomersAssigned: {
+    en: 'Total customers assigned',
+    ta: 'ஒதுக்கப்பட்ட மொத்த வாடிக்கையாளர்கள்',
+  },
+  customersPaid: {
+    en: 'Customers paid',
+    ta: 'கட்டிய வாடிக்கையாளர்கள்',
+  },
+  totalExpectedCollection: {
+    en: 'Total expected collection',
+    ta: 'எதிர்பார்க்கும் மொத்த வசூல்',
+  },
+  totalCollection: {
+    en: 'Total Collection',
+    ta: 'மொத்த வசூல்',
+  },
+  amountInCash: {
+    en: 'Amount in cash',
+    ta: 'ரொக்கத் தொகை',
+  },
+  amountInUpi: {
+    en: 'Amount in UPI',
+    ta: 'UPI தொகை',
+  },
+  grandTotal: {
+    en: 'Grand total',
+    ta: 'மொத்தக் கூட்டுத்தொகை',
+  },
+  tallyMatches: {
+    en: 'Grand total matches the total collection',
+    ta: 'மொத்தக் கூட்டுத்தொகை மொத்த வசூலுடன் பொருந்துகிறது',
+  },
+  tallyMatchesShort: {
+    en: 'Matches',
+    ta: 'பொருந்துகிறது',
+  },
+  tallyShort: {
+    en: 'short',
+    ta: 'குறைவு',
+  },
+  tallyExtra: {
+    en: 'extra',
+    ta: 'அதிகம்',
+  },
+  sendCorrection: {
+    en: 'Send correction for approval',
+    ta: 'ஒப்புதலுக்காக திருத்தத்தை அனுப்பு',
+  },
+  sendToOffice: {
+    en: 'Send to office',
+    ta: 'அலுவலகத்திற்கு அனுப்பு',
+  },
+  reportLimitReached: {
+    en: 'Daily sending limit reached. Corrections need office approval.',
+    ta: 'இன்றைய அனுப்பும் வரம்பு முடிந்தது. திருத்தங்களுக்கு அலுவலக ஒப்புதல் தேவை.',
+  },
+  reportsSentToday: {
+    en: 'Sent today',
+    ta: 'இன்று அனுப்பியவை',
+  },
+  sentToday: {
+    en: 'Sent today',
+    ta: 'இன்று அனுப்பியவை',
+  },
+  yesSend: {
+    en: 'Yes, send',
+    ta: 'ஆம், அனுப்பு',
+  },
+  openGoogleMaps: {
+    en: 'Open in Google Maps',
+    ta: 'Google Maps-இல் திற',
+  },
+  noAddressSaved: {
+    en: 'No address saved. Ask the office to add it.',
+    ta: 'முகவரி சேமிக்கப்படவில்லை. அலுவலகத்திடம் சேர்க்கச் சொல்லுங்கள்.',
+  },
+  collectorReports: {
+    en: 'Collector reports',
+    ta: 'வசூலிப்பாளர் அறிக்கைகள்',
+  },
+  correctionToApprove: {
+    en: 'Correction to approve',
+    ta: 'ஒப்புதல் தேவைப்படும் திருத்தம்',
+  },
+  approveReportQuestion: {
+    en: 'Approve this correction?',
+    ta: 'இந்த திருத்தத்தை ஒப்புக்கொள்ளவா?',
+  },
+  rejectReportQuestion: {
+    en: 'Reject this correction?',
+    ta: 'இந்த திருத்தத்தை நிராகரிக்கவா?',
+  },
+  reportSendLimitLabel: {
+    en: 'How many times can a collector send the day\'s report?',
+    ta: 'ஒரு வசூலிப்பாளர் தினசரி அறிக்கையை எத்தனை முறை அனுப்பலாம்?',
+  },
+  reportSendLimitHint: {
+    en: 'After this, a collector\'s corrections wait for your approval on Home.',
+    ta: 'அதன் பிறகு, வசூலிப்பாளரின் திருத்தங்கள் முகப்பில் உங்கள் ஒப்புதலுக்காக காத்திருக்கும்.',
+  },
+
+  // Collector: long pending, note counting while collecting
+  countNotes: {
+    en: 'Count notes',
+    ta: 'நோட்டுகளை எண்ணு',
+  },
+  countNotesReceived: {
+    en: 'Count the notes received',
+    ta: 'பெற்ற நோட்டுகளை எண்ணுங்கள்',
+  },
+  notesCounted: {
+    en: 'Notes counted',
+    ta: 'எண்ணிய தொகை',
+  },
+  moreThanBalanceGiveBack: {
+    en: 'More than the balance. Give back',
+    ta: 'மீதித் தொகையை விட அதிகம். திருப்பிக் கொடுக்க வேண்டியது',
+  },
+  longPending: {
+    en: 'Long pending',
+    ta: 'நீண்ட நிலுவை',
+  },
+  undoPayment: {
+    en: 'Undo this payment',
+    ta: 'இந்தக் கட்டணத்தை ரத்து செய்',
+  },
+
+  // Collector: payment list columns, report after sending, history
+  notMatching: {
+    en: 'Does not match',
+    ta: 'பொருந்தவில்லை',
+  },
+  history: {
+    en: 'History',
+    ta: 'வரலாறு',
+  },
+  lastSent: {
+    en: 'Last sent',
+    ta: 'கடைசியாக அனுப்பியது',
+  },
+  collectionChangedSinceReport: {
+    en: 'Collections changed after this report. Send a correction.',
+    ta: 'இந்த அறிக்கைக்குப் பிறகு வசூல் மாறியுள்ளது. திருத்தம் அனுப்பவும்.',
+  },
+  correction: {
+    en: 'Correction',
+    ta: 'திருத்தம்',
+  },
+  reportHistory: {
+    en: 'Report history',
+    ta: 'அறிக்கை வரலாறு',
+  },
+  noReportsYet: {
+    en: 'No reports sent yet',
+    ta: 'இன்னும் அறிக்கை அனுப்பவில்லை',
+  },
+  totalAmount: {
+    en: 'Total amount',
+    ta: 'மொத்தத் தொகை',
+  },
+  pendingTermsShort: {
+    en: 'Pending terms',
+    ta: 'நிலுவை தவணைகள்',
+  },
+
+  // Office: requests from customers, collector reports, settings tabs
+  noRunningLoanForPayment: {
+    en: 'This customer has no running loan to record it on.',
+    ta: 'இதைப் பதிவு செய்ய இந்த வாடிக்கையாளருக்கு நடப்பு கடன் இல்லை.',
+  },
+  upiRecorded: {
+    en: 'recorded',
+    ta: 'பதிவு செய்யப்பட்டது',
+  },
+  requests: {
+    en: 'Requests',
+    ta: 'கோரிக்கைகள்',
+  },
+  requestsSubtitle: {
+    en: 'From the customer app',
+    ta: 'வாடிக்கையாளர் செயலியிலிருந்து',
+  },
+  newLoanRequests: {
+    en: 'New loans',
+    ta: 'புதிய கடன்கள்',
+  },
+  upiPayments: {
+    en: 'UPI payments',
+    ta: 'UPI கட்டணங்கள்',
+  },
+  noNewRequests: {
+    en: 'Nothing waiting',
+    ta: 'காத்திருப்பில் எதுவும் இல்லை',
+  },
+  handled: {
+    en: 'Handled',
+    ta: 'முடிந்தவை',
+  },
+  upiReference: {
+    en: 'UPI ref',
+    ta: 'UPI குறிப்பு',
+  },
+  checkBankFirst: {
+    en: 'Check the bank account first.',
+    ta: 'முதலில் வங்கிக் கணக்கைச் சரிபார்க்கவும்.',
+  },
+  notReceived: {
+    en: 'Not received',
+    ta: 'பெறப்படவில்லை',
+  },
+  recordPayment: {
+    en: 'Record payment',
+    ta: 'கட்டணத்தைப் பதிவு செய்',
+  },
+  recorded: {
+    en: 'Recorded',
+    ta: 'பதிவு செய்யப்பட்டது',
+  },
+  loanGiven: {
+    en: 'loan given',
+    ta: 'கடன் வழங்கப்பட்டது',
+  },
+  rejectLoanQuestion: {
+    en: 'Reject this loan request?',
+    ta: 'இந்தக் கடன் கோரிக்கையை நிராகரிக்கவா?',
+  },
+  recordUpiQuestion: {
+    en: 'Record this UPI payment?',
+    ta: 'இந்த UPI கட்டணத்தைப் பதிவு செய்யவா?',
+  },
+  notReceivedQuestion: {
+    en: 'Mark as not received?',
+    ta: 'பெறப்படவில்லை எனக் குறிக்கவா?',
+  },
+  reportNotSent: {
+    en: 'Not sent',
+    ta: 'அனுப்பவில்லை',
+  },
+  waitingForYou: {
+    en: 'Waiting for you',
+    ta: 'உங்களுக்காகக் காத்திருப்பவை',
+  },
+
+  // Office: customer page
+  paymentUpdated: {
+    en: 'Payment successfully updated',
+    ta: 'கட்டணம் வெற்றிகரமாக மாற்றப்பட்டது',
+  },
+
+  // Office dashboard, assignment, profiles and sessions
+  expectedCollection: {
+    en: 'Expected Collection',
+    ta: 'எதிர்பார்க்கும் வசூல்',
+  },
+  totalPayments: {
+    en: 'Total Payments',
+    ta: 'மொத்த கட்டணங்கள்',
+  },
+  totalCashReceived: {
+    en: 'Total Cash received',
+    ta: 'பெற்ற மொத்த பணம்',
+  },
+  totalUpiPayments: {
+    en: 'Total UPI payments',
+    ta: 'மொத்த UPI கட்டணங்கள்',
+  },
+  collectorsReport: {
+    en: 'Collectors Report',
+    ta: 'வசூலிப்பாளர் அறிக்கை',
+  },
+  todaysWork: {
+    en: 'Today\'s work',
+    ta: 'இன்றைய பணி',
+  },
+  workNotAssignedYet: {
+    en: 'Today\'s work is not assigned yet',
+    ta: 'இன்றைய பணி இன்னும் ஒதுக்கப்படவில்லை',
+  },
+  assignTodaysWork: {
+    en: 'Assign today\'s work',
+    ta: 'இன்றைய பணியை ஒதுக்கு',
+  },
+  monthlyAnalytics: {
+    en: 'Monthly analytics',
+    ta: 'மாத பகுப்பாய்வு',
+  },
+  orgStatistics: {
+    en: 'Organisation statistics',
+    ta: 'நிறுவன புள்ளிவிவரம்',
+  },
+  totalCollectors: {
+    en: 'Total Collectors',
+    ta: 'மொத்த வசூலிப்பாளர்கள்',
+  },
+  longStandingLoans: {
+    en: 'Long standing loans',
+    ta: 'நீண்டகால நிலுவை கடன்கள்',
+  },
+  workAssigned: {
+    en: 'Work assigned',
+    ta: 'பணி ஒதுக்கப்பட்டது',
+  },
+  changeAssignment: {
+    en: 'Change assignment',
+    ta: 'ஒதுக்கீட்டை மாற்று',
+  },
+  customersPendingShort: {
+    en: 'Customers pending',
+    ta: 'மீதமுள்ள வாடிக்கையாளர்கள்',
+  },
+  amountPendingShort: {
+    en: 'Amount pending',
+    ta: 'மீதமுள்ள தொகை',
+  },
+  assignWorkHelp: {
+    en: 'Each customer is with their usual collector. Change a collector here for today only. Collectors can start after you assign.',
+    ta: 'ஒவ்வொரு வாடிக்கையாளரும் வழக்கமான வசூலிப்பாளரிடம் உள்ளனர். இன்றைக்கு மட்டும் இங்கே மாற்றலாம். நீங்கள் ஒதுக்கிய பிறகே வசூலிப்பாளர்கள் தொடங்க முடியும்.',
+  },
+  assignWork: {
+    en: 'Assign work',
+    ta: 'பணியை ஒதுக்கு',
+  },
+  workNotAssignedCollector: {
+    en: 'Today\'s work is not assigned yet. Your list will open here when the office assigns it.',
+    ta: 'இன்றைய பணி இன்னும் ஒதுக்கப்படவில்லை. அலுவலகம் ஒதுக்கியதும் உங்கள் பட்டியல் இங்கே திறக்கும்.',
+  },
+  loanManagement: {
+    en: 'Loan Management',
+    ta: 'கடன் மேலாண்மை',
+  },
+  customerDetails: {
+    en: 'Customer details',
+    ta: 'வாடிக்கையாளர் விவரம்',
+  },
+  collectorProfile: {
+    en: 'Collector profile',
+    ta: 'வசூலிப்பாளர் விவரம்',
+  },
+  collectorLoginHint: {
+    en: 'Their login is created with this. See it in User Management.',
+    ta: 'இதனுடன் அவரது உள்நுழைவு உருவாகும். பயனர் மேலாண்மையில் பார்க்கலாம்.',
+  },
+  joiningDate: {
+    en: 'Joining date',
+    ta: 'சேர்ந்த தேதி',
+  },
+  address: {
+    en: 'Address',
+    ta: 'முகவரி',
+  },
+  user: {
+    en: 'User',
+    ta: 'பயனர்',
+  },
+  activeSession: {
+    en: 'Active session',
+    ta: 'செயலில் உள்ள அமர்வு',
+  },
+  lastLogin: {
+    en: 'Last login',
+    ta: 'கடைசி உள்நுழைவு',
+  },
+  lastActive: {
+    en: 'Last active',
+    ta: 'கடைசியாக செயலில்',
+  },
+  notRecorded: {
+    en: 'Not recorded',
+    ta: 'பதிவாகவில்லை',
+  },
+  userProfile: {
+    en: 'User profile',
+    ta: 'பயனர் விவரம்',
+  },
+  status: {
+    en: 'Status',
+    ta: 'நிலை',
+  },
+  activeNow: {
+    en: 'Active now',
+    ta: 'இப்போது செயலில்',
+  },
+  noActiveSession: {
+    en: 'Not active',
+    ta: 'செயலில் இல்லை',
+  },
+
+  // Collector profile
+  email: {
+    en: 'Email',
+    ta: 'மின்னஞ்சல்',
+  },
+  runningLoansLabel: {
+    en: 'Running loans',
+    ta: 'நடப்பு கடன்கள்',
+  },
+  dailyTarget: {
+    en: 'Daily target',
+    ta: 'தினசரி இலக்கு',
+  },
+
+  // Dashboard links, new loan, requests in Loan Management, areas
+  lastDayOfMonth: {
+    en: 'Last day of the month',
+    ta: 'மாதத்தின் கடைசி நாள்',
+  },
+  newLoan: {
+    en: 'New loan',
+    ta: 'புதிய கடன்',
+  },
+  newCustomer: {
+    en: 'New customer',
+    ta: 'புதிய வாடிக்கையாளர்',
+  },
+  existingCustomer: {
+    en: 'Existing customer',
+    ta: 'ஏற்கனவே உள்ள வாடிக்கையாளர்',
+  },
+  runningLoanNotListed: {
+    en: 'Customers with a running loan are not listed.',
+    ta: 'நடப்பு கடன் உள்ள வாடிக்கையாளர்கள் இங்கே காட்டப்படமாட்டார்கள்.',
+  },
+  loanRequestsTab: {
+    en: 'Loan requests',
+    ta: 'கடன் கோரிக்கைகள்',
+  },
+  longPendingRule: {
+    en: 'More than 1 term pending',
+    ta: '1 தவணைக்கு மேல் நிலுவை',
+  },
+  openInGoogleMaps: {
+    en: 'Open in Google Maps',
+    ta: 'கூகுள் மேப்பில் திற',
+  },
+  collectorToday: {
+    en: 'Collector today',
+    ta: 'இன்றைய வசூலிப்பாளர்',
+  },
+  usualCollector: {
+    en: 'Usual collector (not assigned yet)',
+    ta: 'வழக்கமான வசூலிப்பாளர் (இன்னும் ஒதுக்கப்படவில்லை)',
+  },
+  shopsCustomers: {
+    en: 'Shops / customers',
+    ta: 'கடைகள் / வாடிக்கையாளர்கள்',
+  },
+  collectionTodayShort: {
+    en: 'Collection today',
+    ta: 'இன்றைய வசூல்',
+  },
+  map: {
+    en: 'Map',
+    ta: 'வரைபடம்',
+  },
+
+  // Startup setup
+  startupSetup: {
+    en: 'Startup setup',
+    ta: 'தொடக்க அமைப்பு',
+  },
+  startupSetupSubtitle: {
+    en: 'Your organisation, collectors and customers',
+    ta: 'உங்கள் நிறுவனம், வசூலிப்பாளர்கள் மற்றும் வாடிக்கையாளர்கள்',
+  },
+  organisation: {
+    en: 'Organisation',
+    ta: 'நிறுவனம்',
+  },
+  taglineOptional: {
+    en: 'Tagline (optional)',
+    ta: 'வாசகம் (விருப்பம்)',
+  },
+  saveAndNext: {
+    en: 'Save and next',
+    ta: 'சேமித்து அடுத்து',
+  },
+  needBusinessName: {
+    en: 'Enter the business name.',
+    ta: 'நிறுவனத்தின் பெயரை உள்ளிடவும்.',
+  },
+  collectorsAddedSoFar: {
+    en: 'Collectors added so far',
+    ta: 'இதுவரை சேர்த்த வசூலிப்பாளர்கள்',
+  },
+  customersAddedSoFar: {
+    en: 'Customers added so far',
+    ta: 'இதுவரை சேர்த்த வாடிக்கையாளர்கள்',
+  },
+  uploadExcel: {
+    en: 'Upload Excel',
+    ta: 'எக்செல் பதிவேற்று',
+  },
+  addOneByOne: {
+    en: 'Add one by one (type or speak)',
+    ta: 'ஒவ்வொருவராகச் சேர் (தட்டச்சு அல்லது குரல்)',
+  },
+  nextCustomers: {
+    en: 'Next: Customers',
+    ta: 'அடுத்து: வாடிக்கையாளர்கள்',
+  },
+  finishSetup: {
+    en: 'Finish setup',
+    ta: 'அமைப்பை முடி',
+  },
+  added: {
+    en: 'added',
+    ta: 'சேர்க்கப்பட்டது',
+  },
+  add: {
+    en: 'Add',
+    ta: 'சேர்',
+  },
+  speak: {
+    en: 'Speak',
+    ta: 'பேசு',
+  },
+  speakIn: {
+    en: 'Speak in',
+    ta: 'பேசும் மொழி',
+  },
+  speakAllDetails: {
+    en: 'Speak all details',
+    ta: 'எல்லா விவரங்களையும் பேசு',
+  },
+  listening: {
+    en: 'Listening... tap to stop',
+    ta: 'கேட்கிறது... நிறுத்த தட்டவும்',
+  },
+  heard: {
+    en: 'Heard',
+    ta: 'கேட்டது',
+  },
+  speakExampleCustomer: {
+    en: 'Say, for example: name Ravi, mobile 98765 43210, shop Ravi Stores, area Bazaar.',
+    ta: 'உதாரணமாக: பெயர் ரவி, மொபைல் 98765 43210, கடை ரவி ஸ்டோர்ஸ், பகுதி பஜார்.',
+  },
+  speakExampleCollector: {
+    en: 'Say, for example: name Ravi, mobile 98765 43210, area Bazaar.',
+    ta: 'உதாரணமாக: பெயர் ரவி, மொபைல் 98765 43210, பகுதி பஜார்.',
+  },
+  micBlocked: {
+    en: 'The microphone is blocked. Allow it in the browser. It works only on a secure (https) address or on this computer.',
+    ta: 'மைக்ரோஃபோன் தடுக்கப்பட்டுள்ளது. உலாவியில் அனுமதிக்கவும். இது பாதுகாப்பான (https) முகவரியிலோ இந்தக் கணினியிலோ மட்டுமே செயல்படும்.',
+  },
+  micNoSpeech: {
+    en: 'Nothing was heard. Please try again.',
+    ta: 'எதுவும் கேட்கவில்லை. மீண்டும் முயற்சிக்கவும்.',
+  },
+  micFailed: {
+    en: 'Voice typing did not work. Check the internet connection, or type instead.',
+    ta: 'குரல் தட்டச்சு செயல்படவில்லை. இணைய இணைப்பைச் சரிபார்க்கவும் அல்லது தட்டச்சு செய்யவும்.',
+  },
+  voiceNotSupported: {
+    en: 'Voice typing needs Chrome, Edge or Safari. You can still type.',
+    ta: 'குரல் தட்டச்சுக்கு Chrome, Edge அல்லது Safari தேவை. நீங்கள் தட்டச்சு செய்யலாம்.',
+  },
+  alternateNumber: {
+    en: 'Other number',
+    ta: 'மற்றொரு எண்',
+  },
+  relativeName: {
+    en: 'Father / husband',
+    ta: 'தந்தை / கணவர்',
+  },
+  issueNeedName: {
+    en: 'Enter the name',
+    ta: 'பெயரை உள்ளிடவும்',
+  },
+  issueNeedMobile: {
+    en: 'Enter the mobile number',
+    ta: 'மொபைல் எண்ணை உள்ளிடவும்',
+  },
+  issueBadMobile: {
+    en: 'Not a 10-digit mobile number',
+    ta: '10 இலக்க மொபைல் எண் இல்லை',
+  },
+  issueAlreadyAdded: {
+    en: 'This mobile number is already added',
+    ta: 'இந்த மொபைல் எண் ஏற்கனவே சேர்க்கப்பட்டுள்ளது',
+  },
+  issueRepeated: {
+    en: 'Same mobile number as a row above',
+    ta: 'மேலே உள்ள வரிசையின் அதே மொபைல் எண்',
+  },
+  excelOldFormat: {
+    en: 'Please save the file as .xlsx or .csv in Excel (File > Save As) and upload that.',
+    ta: 'எக்செல்லில் கோப்பை .xlsx அல்லது .csv ஆகச் சேமித்து (File > Save As) பதிவேற்றவும்.',
+  },
+  excelEmpty: {
+    en: 'No people were found in this file.',
+    ta: 'இந்தக் கோப்பில் யாரும் இல்லை.',
+  },
+  excelUnreadable: {
+    en: 'This file could not be read. Please check it opens in Excel.',
+    ta: 'இந்தக் கோப்பைப் படிக்க முடியவில்லை. எக்செல்லில் திறக்கிறதா என்று பார்க்கவும்.',
+  },
+  chooseExcelFile: {
+    en: 'Choose Excel or CSV file',
+    ta: 'எக்செல் அல்லது CSV கோப்பைத் தேர்வு செய்',
+  },
+  excelAnyLayout: {
+    en: 'Any layout works, in English or Tamil. You can check and correct everything before it is added.',
+    ta: 'எந்த அமைப்பும், ஆங்கிலம் அல்லது தமிழ் சரி. சேர்க்கும் முன் எல்லாவற்றையும் சரிபார்த்து திருத்தலாம்.',
+  },
+  newAreasCreated: {
+    en: 'New areas created (check their collector in Staff & areas)',
+    ta: 'புதிய பகுதிகள் உருவாக்கப்பட்டன (பணியாளர் & பகுதிகளில் வசூலிப்பாளரைச் சரிபார்க்கவும்)',
+  },
+  sheet: {
+    en: 'Sheet',
+    ta: 'தாள்',
+  },
+  whatEachColumnHolds: {
+    en: 'What each column holds',
+    ta: 'ஒவ்வொரு நெடுவரிசையிலும் என்ன உள்ளது',
+  },
+  ignoreColumn: {
+    en: 'Leave out',
+    ta: 'விட்டுவிடு',
+  },
+  readyToAdd: {
+    en: 'ready to add',
+    ta: 'சேர்க்கத் தயார்',
+  },
+  needFixing: {
+    en: 'need fixing',
+    ta: 'திருத்த வேண்டும்',
+  },
+  row: {
+    en: 'Row',
+    ta: 'வரிசை',
+  },
+  showingFirstRows: {
+    en: 'Showing the first rows, problems first. The rest are added as they are if they have no problem.',
+    ta: 'முதல் வரிசைகள் காட்டப்படுகின்றன, சிக்கல் உள்ளவை முதலில். மற்றவை சிக்கல் இல்லையெனில் அப்படியே சேர்க்கப்படும்.',
+  },
+
+  // Collector report verification
+  verifyAndApprove: {
+    en: 'Verify and approve',
+    ta: 'சரிபார்த்து ஒப்புதல் அளி',
+  },
+  verifyAndApproveQuestion: {
+    en: 'Approve this report?',
+    ta: 'இந்த அறிக்கைக்கு ஒப்புதல் அளிக்கவா?',
+  },
+  Other: {
+    en: 'Other',
+    ta: 'மற்றவை',
+  },
+
+  // Report verification, closing the day, menu and settings
+  reportVerified: {
+    en: 'Verified by office',
+    ta: 'அலுவலகம் சரிபார்த்தது',
+  },
+  verifiedBy: {
+    en: 'Verified by',
+    ta: 'சரிபார்த்தவர்',
+  },
+  verify: {
+    en: 'Verify',
+    ta: 'சரிபார்',
+  },
+  verified: {
+    en: 'Verified',
+    ta: 'சரிபார்க்கப்பட்டது',
+  },
+  toVerify: {
+    en: 'To verify',
+    ta: 'சரிபார்க்க வேண்டும்',
+  },
+  changedAfterReportOffice: {
+    en: 'Collections changed after this report. The collector has to send a correction.',
+    ta: 'இந்த அறிக்கைக்குப் பிறகு வசூல் மாறியுள்ளது. வசூலிப்பாளர் திருத்தம் அனுப்ப வேண்டும்.',
+  },
+  changedAfterReport: {
+    en: 'Changed after report',
+    ta: 'அறிக்கைக்குப் பின் மாறியது',
+  },
+  correctionWaiting: {
+    en: 'Correction waiting',
+    ta: 'திருத்தம் காத்திருக்கிறது',
+  },
+  earlierReports: {
+    en: 'Earlier reports',
+    ta: 'முந்தைய அறிக்கைகள்',
+  },
+  closeTodaysBusiness: {
+    en: 'Close today\'s business',
+    ta: 'இன்றைய வணிகத்தை முடி',
+  },
+  closeBoardHint: {
+    en: 'All reports are in. Check each collector\'s cash, verify, then close the day.',
+    ta: 'அனைத்து அறிக்கைகளும் வந்துவிட்டன. ஒவ்வொரு வசூலிப்பாளரின் ரொக்கத்தையும் சரிபார்த்து, பின்னர் நாளை முடிக்கவும்.',
+  },
+  verifyAllFirst: {
+    en: 'Verify every report to close the day.',
+    ta: 'நாளை முடிக்க ஒவ்வொரு அறிக்கையையும் சரிபார்க்கவும்.',
+  },
+  closeDayQuestion: {
+    en: 'Close today\'s business?',
+    ta: 'இன்றைய வணிகத்தை முடிக்கவா?',
+  },
+  closeDayHint: {
+    en: 'Today\'s collections are locked after this. You can reopen the day if something has to change.',
+    ta: 'இதன் பிறகு இன்றைய வசூல் பூட்டப்படும். ஏதாவது மாற்ற வேண்டுமெனில் நாளை மீண்டும் திறக்கலாம்.',
+  },
+  closeDay: {
+    en: 'Close the day',
+    ta: 'நாளை முடி',
+  },
+  dayClosed: {
+    en: 'Today\'s business is closed',
+    ta: 'இன்றைய வணிகம் முடிக்கப்பட்டது',
+  },
+  reopenDay: {
+    en: 'Reopen the day',
+    ta: 'நாளை மீண்டும் திற',
+  },
+  reopenDayQuestion: {
+    en: 'Reopen today?',
+    ta: 'இன்றை மீண்டும் திறக்கவா?',
+  },
+  reopenDayHint: {
+    en: 'Collections for today can change again. Close the day again afterwards.',
+    ta: 'இன்றைய வசூலை மீண்டும் மாற்றலாம். பின்னர் நாளை மீண்டும் முடிக்கவும்.',
+  },
+  dayClosedLocked: {
+    en: 'This day\'s business is closed. Reopen it on Home to change collections.',
+    ta: 'இந்த நாளின் வணிகம் முடிக்கப்பட்டது. வசூலை மாற்ற முகப்பில் மீண்டும் திறக்கவும்.',
+  },
+  dayClosings: {
+    en: 'Day closings',
+    ta: 'நாள் முடிவுகள்',
+  },
+  noDayClosings: {
+    en: 'No day has been closed yet',
+    ta: 'இதுவரை எந்த நாளும் முடிக்கப்படவில்லை',
+  },
+  closedBy: {
+    en: 'Closed by',
+    ta: 'முடித்தவர்',
+  },
+  closed: {
+    en: 'Closed',
+    ta: 'முடிக்கப்பட்டது',
+  },
+  reopened: {
+    en: 'Reopened',
+    ta: 'மீண்டும் திறக்கப்பட்டது',
+  },
+  movedFrom: {
+    en: 'Moved from',
+    ta: 'இவரிடமிருந்து மாற்றப்பட்டது:',
+  },
+  collapseMenu: {
+    en: 'Collapse menu',
+    ta: 'மெனுவைச் சுருக்கு',
+  },
+  expandMenu: {
+    en: 'Show menu names',
+    ta: 'மெனு பெயர்களைக் காட்டு',
+  },
+  collectionRules: {
+    en: 'Collection rules',
+    ta: 'வசூல் விதிகள்',
+  },
+  scrollUpOnceMore: {
+    en: 'Scroll up once more to go back to the page',
+    ta: 'பக்கத்துக்குத் திரும்ப இன்னொரு முறை மேலே உருட்டவும்',
+  },
+  scrollUpTwiceHint: {
+    en: 'At the top of the list, scroll up twice to go back',
+    ta: 'பட்டியலின் மேலே, திரும்ப இரண்டு முறை மேலே உருட்டவும்',
+  },
+  scrollUpTwiceOrArrowHint: {
+    en: 'At the top of the list, scroll up twice or tap the arrow to go back',
+    ta: 'பட்டியலின் மேலே, திரும்ப இரண்டு முறை மேலே உருட்டவும் அல்லது அம்புக்குறியைத் தொடவும்',
+  },
+  businessClosedOn: {
+    en: 'Business closed',
+    ta: 'வணிகம் முடிக்கப்பட்டது',
+  },
+  backToPage: {
+    en: 'Back to page',
+    ta: 'பக்கத்துக்குத் திரும்பு',
+  },
+
+  // Day closing tally
+  received: {
+    en: 'Received',
+    ta: 'பெறப்பட்டது',
+  },
+  longStandingShort: {
+    en: 'Long standing',
+    ta: 'நீண்ட நிலுவை',
+  },
+
+  // Sign-in and collection rules
+  askOfficeForPin: {
+    en: 'New here? Ask the office for your PIN.',
+    ta: 'புதியவரா? உங்கள் PIN-ஐ அலுவலகத்திடம் கேளுங்கள்.',
+  },
+  termsPendingAtLeast: {
+    en: 'Terms pending, at least',
+    ta: 'நிலுவை தவணைகள், குறைந்தது',
+  },
+  longPendingAfterTerms: {
+    en: 'Count as "Long pending" after how many pending terms?',
+    ta: 'எத்தனை தவணைகள் நிலுவையில் இருந்தால் "நீண்ட நிலுவை" எனக் கணக்கிட வேண்டும்?',
+  },
+  longPendingAfterTermsHint: {
+    en: 'Used for "Long standing loans" on Home, the collector\'s list and the Long pending report.',
+    ta: 'முகப்பில் "நீண்டகால கடன்கள்", வசூலிப்பவரின் பட்டியல் மற்றும் நீண்ட நிலுவை அறிக்கையில் இது பயன்படும்.',
+  },
+
+  // Loan terms that do not repay the loan
+  loanIssue_DAILY_TOO_LOW: {
+    en: 'The daily payment for these days does not repay the loan amount. Raise the daily payment or the days.',
+    ta: 'இந்த நாட்களுக்கான தினசரி தவணை கடன் தொகையை முழுமையாகச் செலுத்தாது. தினசரி தவணையையோ நாட்களையோ உயர்த்தவும்.',
   },
 };
 

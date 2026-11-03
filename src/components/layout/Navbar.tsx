@@ -1,14 +1,11 @@
 import React, { useState } from 'react';
-import { Bell, Search, LogOut, Menu, CheckCheck, ChevronDown, Clock } from 'lucide-react';
-import { User, Notification } from '../../types';
+import { Bell, Search, Menu, CheckCheck, Clock, Settings } from 'lucide-react';
+import { Notification } from '../../types';
 import { formatDate } from '../../utils/formatters';
 import { KrsLogo } from '../common/KrsLogo';
 import { useLanguage } from '../../context/LanguageContext';
-import { LanguageButton, ThemeToggle } from '../common/ThemeLanguageSwitch';
 
 interface NavbarProps {
-  currentUser: User;
-  onLogout: () => void;
   onGoHome: () => void;
   /** Office only: search customers by name, shop, mobile or ID (runs on Enter). */
   onSearch?: (query: string) => void;
@@ -18,11 +15,11 @@ interface NavbarProps {
   onViewAllNotifications: () => void;
   onOpenMenu: () => void;
   showMenuButton: boolean;
+  /** The ⚙️ sheet: details, language, light/dark, sign out. */
+  onOpenSettings: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
-  currentUser,
-  onLogout,
   onGoHome,
   onSearch,
   notifications,
@@ -31,16 +28,13 @@ export const Navbar: React.FC<NavbarProps> = ({
   onViewAllNotifications,
   onOpenMenu,
   showMenuButton,
+  onOpenSettings,
 }) => {
   const { t } = useLanguage();
   const [showNotifications, setShowNotifications] = useState(false);
-  const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [searchVal, setSearchVal] = useState('');
 
   const unreadCount = notifications.filter(n => !n.is_read).length;
-  const roleLabel =
-    currentUser.role === 'ADMIN' ? t('roleOffice', 'Office') : currentUser.role === 'COLLECTOR' ? t('roleCollector', 'Collector') : t('roleCustomer', 'Customer');
-
   const submitSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (onSearch && searchVal.trim()) onSearch(searchVal.trim());
@@ -60,7 +54,9 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           )}
           <button type="button" onClick={onGoHome} className="flex-shrink-0" aria-label={t('navHome', 'Home')}>
-            <KrsLogo size="sm" showSubtitle={false} />
+            {/* With the menu button there is no room for the name on a phone. */}
+            {showMenuButton && <span className="sm:hidden"><KrsLogo size="sm" variant="badge-only" /></span>}
+            <span className={showMenuButton ? 'hidden sm:inline-flex' : 'inline-flex'}><KrsLogo size="sm" showSubtitle={false} /></span>
           </button>
         </div>
 
@@ -80,11 +76,9 @@ export const Navbar: React.FC<NavbarProps> = ({
         )}
 
         <div className="flex items-center gap-2 flex-shrink-0">
-          <LanguageButton />
-
           <div className="relative">
             <button
-              onClick={() => { setShowNotifications(!showNotifications); setShowProfileMenu(false); }}
+              onClick={() => setShowNotifications(!showNotifications)}
               className="relative p-2.5 rounded-xl text-slate-300 hover:text-gold-300 hover:bg-slate-800/80"
               aria-label={t('notifications', 'Messages')}
             >
@@ -143,35 +137,13 @@ export const Navbar: React.FC<NavbarProps> = ({
             )}
           </div>
 
-          <div className="relative">
-            <button
-              onClick={() => { setShowProfileMenu(!showProfileMenu); setShowNotifications(false); }}
-              className="flex items-center gap-2 p-1 pl-1 pr-2 rounded-full bg-navy-900 border border-slate-800 hover:border-gold-500/40"
-            >
-              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-gold-500 to-amber-600 flex items-center justify-center text-navy-950 font-black text-sm">
-                {currentUser.name ? currentUser.name.charAt(0).toUpperCase() : '?'}
-              </div>
-              <span className="text-sm font-bold text-white hidden sm:block truncate max-w-[120px]">{currentUser.name}</span>
-              <ChevronDown className="w-4 h-4 text-slate-400" />
-            </button>
-
-            {showProfileMenu && (
-              <div className="absolute right-0 mt-2 w-60 rounded-2xl glass-card border border-gold-500/30 shadow-2xl p-2 z-50 bg-navy-900">
-                <div className="px-3 py-2 border-b border-slate-800 mb-1">
-                  <p className="text-sm font-bold text-white">{currentUser.name}</p>
-                  <p className="text-xs text-gold-400 font-semibold">{roleLabel}</p>
-                </div>
-                <ThemeToggle />
-                <button
-                  onClick={() => { setShowProfileMenu(false); onLogout(); }}
-                  className="w-full text-left px-3 py-2.5 rounded-xl text-sm text-rose-400 hover:bg-rose-500/10 flex items-center gap-2 font-semibold"
-                >
-                  <LogOut className="w-4 h-4" />
-                  {t('logout', 'Sign Out')}
-                </button>
-              </div>
-            )}
-          </div>
+          <button
+            onClick={() => { setShowNotifications(false); onOpenSettings(); }}
+            className="p-2.5 rounded-xl text-slate-300 hover:text-gold-300 hover:bg-slate-800/80"
+            aria-label={t('settings', 'Settings')}
+          >
+            <Settings className="w-5 h-5" />
+          </button>
         </div>
       </div>
     </header>

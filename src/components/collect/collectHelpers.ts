@@ -1,9 +1,7 @@
 import { DailyCollectionRecord } from '../../types';
 
-export type CollectTab = 'todo' | 'paid' | 'not-paid' | 'all';
-
 /** Where a customer's day stands: still to visit, paid (fully or partly), or marked not paid. */
-export function dayState(record: DailyCollectionRecord): Exclude<CollectTab, 'all'> {
+export function dayState(record: DailyCollectionRecord): 'todo' | 'paid' | 'not-paid' {
   if (record.paid_amount > 0) return 'paid';
   if (record.status === 'MISSED') return 'not-paid';
   return 'todo';

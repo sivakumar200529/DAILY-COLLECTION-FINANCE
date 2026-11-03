@@ -12,10 +12,12 @@ interface IssueLoanModalProps {
   customerId: string;
   onClose: () => void;
   onIssued?: (account: CollectionAccount) => void;
+  /** Starting amount and days, e.g. from the customer's new-loan request. */
+  prefill?: { requested_amount?: number; collection_days?: number };
 }
 
 /** The single "Give loan" flow, opened from the Customers list and the customer page. */
-export const IssueLoanModal: React.FC<IssueLoanModalProps> = ({ customerId, onClose, onIssued }) => {
+export const IssueLoanModal: React.FC<IssueLoanModalProps> = ({ customerId, onClose, onIssued, prefill }) => {
   const { config } = useConfig();
   const { t } = useLanguage();
   const [customer, setCustomer] = useState<CustomerListItem | null>(null);
@@ -32,7 +34,12 @@ export const IssueLoanModal: React.FC<IssueLoanModalProps> = ({ customerId, onCl
         setCustomer(found);
         setCollectors(cols.filter(c => c.status === 'ACTIVE'));
         setAreas(ars);
-        setForm(initialLoanForm(config, ars, found?.business?.shop_area || found?.address?.area));
+        const initial = initialLoanForm(config, ars, found?.business?.shop_area || found?.address?.area);
+        setForm({
+          ...initial,
+          requested_amount: prefill?.requested_amount ?? initial.requested_amount,
+          collection_days: prefill?.collection_days ?? initial.collection_days,
+        });
       })
       .catch(err => setError(err instanceof Error ? err.message : 'Could not load'));
   }, [customerId]);

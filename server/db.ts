@@ -3,13 +3,18 @@ import * as path from 'path';
 import { fileURLToPath } from 'url';
 import { AppConfig, DEFAULT_CONFIG, LoanProduct, MasterLists, NumberingKind, formatId } from '../shared/config.ts';
 import { LoanOverride } from '../shared/finance.ts';
+import type { CollectorReport, DayAssignment, DayClosing } from '../shared/collectorDay.ts';
+import type { PaymentClaim } from '../shared/requests.ts';
+import { reconcileAll } from './ledger.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const dbFilePath = path.resolve(__dirname, '..', 'krs_finance_data.json');
-const dbBackupFilePath = path.resolve(__dirname, '..', 'krs_finance_data.backup.json');
-const dbTmpFilePath = path.resolve(__dirname, '..', 'krs_finance_data.tmp.json');
+// The data lives beside the app; KRS_DATA_DIR points it at another folder (the automated tests use a throwaway one).
+export const dataDir = process.env.KRS_DATA_DIR ? path.resolve(process.env.KRS_DATA_DIR) : path.resolve(__dirname, '..');
+const dbFilePath = path.resolve(dataDir, 'krs_finance_data.json');
+const dbBackupFilePath = path.resolve(dataDir, 'krs_finance_data.backup.json');
+const dbTmpFilePath = path.resolve(dataDir, 'krs_finance_data.tmp.json');
 // Committed, read-only sample data set. Loaded on demand from the admin Data tab.
 export const sampleDataFilePath = path.resolve(__dirname, '..', 'data', 'sample_data.json');
 
@@ -31,6 +36,7 @@ export interface User {
   is_active: boolean;
   avatar?: string;
   created_at: string;
+  last_login_at?: string;
 }
 
 export interface CustomerPersonalDetails {
@@ -286,6 +292,10 @@ export interface LoanRequest {
   remarks?: string;
   status: 'PENDING' | 'APPROVED' | 'REJECTED';
   created_at: string;
+  decided_by?: string;
+  decided_at?: string;
+  /** The loan given when the request was approved. */
+  account_id?: string;
 }
 
 export interface CustomerNote {
@@ -336,6 +346,10 @@ export interface KRSFinanceDatabase {
   documents: CustomerDocument[];
   notifications: Notification[];
   loan_requests?: LoanRequest[];
+  collector_reports?: CollectorReport[];
+  day_assignments?: DayAssignment[];
+  payment_claims?: PaymentClaim[];
+  day_closings?: DayClosing[];
   customer_notes: CustomerNote[];
   audit_logs: AuditLog[];
   config: AppConfig;
@@ -405,7 +419,6 @@ export function migrateDatabase(raw: LegacyDatabase): KRSFinanceDatabase {
   // The default location is derived from the data itself the first time.
   const addrs = raw.customer_addresses || [];
   const derivedLocation = {
-    area: mostCommon((raw.areas || []).map(a => a.area_name)),
     city: mostCommon(addrs.map(a => a.city)),
     district: mostCommon(addrs.map(a => a.district)),
     state: mostCommon(addrs.map(a => a.state)),
@@ -419,11 +432,14 @@ export function migrateDatabase(raw: LegacyDatabase): KRSFinanceDatabase {
     default_payment_mode: em.default_payment_mode ?? legacy.default_payment_mode ?? dm.default_payment_mode,
     not_paid_reasons: em.not_paid_reasons ?? dm.not_paid_reasons,
     not_paying_after_days: em.not_paying_after_days ?? dm.not_paying_after_days,
-    default_location: {
+    long_pending_after_terms: em.long_pending_after_terms ?? dm.long_pending_after_terms,
+    report_send_limit: em.report_send_limit ?? dm.report_send_limit,
+    // Only the town is kept: new customers no longer get a default area.
+    default_location: (({ city, district, state, pincode }) => ({ city, district, state, pincode }))({
       ...dm.default_location,
       ...(existing.masters ? {} : derivedLocation),
       ...em.default_location,
-    },
+    }),
   };
 
   let loan_products = existing.loan_products;
@@ -449,8 +465,9 @@ export function migrateDatabase(raw: LegacyDatabase): KRSFinanceDatabase {
     numbering[kind] = rule;
   });
 
-  const { settings: _settings, collection_plans: _plans, config: _config, ...rest } = raw;
-  return { ...rest, config: { company, masters, loan_products, numbering } };
+  // The retired money book (and its per-payment marks) drop out of old files.
+  const { settings: _settings, collection_plans: _plans, config: _config, money_entries: _money, ...rest } = raw as typeof raw & { money_entries?: unknown };
+  return { ...rest, payments: (rest.payments || []).map(({ money_posted: _posted, ...p }: PaymentTransaction & { money_posted?: unknown }) => p), config: { company, masters, loan_products, numbering } };
 }
 
 /** Allocates the next ID of a kind from the configured numbering rule, skipping any already taken. */
@@ -1597,7 +1614,9 @@ function generateLegacySeed(): LegacyDatabase {
 }
 
 export function initializeDatabase(): void {
-  repository.load();
+  const db = repository.load();
+  // Totals, statuses and day records follow the payments (also heals anything an older version left).
+  reconcileAll(db);
   // Persist any migration applied on load, then keep one snapshot per start.
   repository.save();
   repository.writeStartupBackup();
@@ -1608,6 +1627,13 @@ export function loadSampleData(): void {
   if (!fs.existsSync(sampleDataFilePath)) {
     throw new Error('Sample data file data/sample_data.json was not found.');
   }
-  repository.save(migrateDatabase(JSON.parse(fs.readFileSync(sampleDataFilePath, 'utf-8'))));
+  const db = migrateDatabase(JSON.parse(fs.readFileSync(sampleDataFilePath, 'utf-8')));
+  reconcileAll(db);
+  // The data being replaced is kept, so a mistaken tap can be undone by restoring this file.
+  if (fs.existsSync(dbFilePath)) {
+    const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+    fs.copyFileSync(dbFilePath, path.resolve(dataDir, `krs_finance_data.before-sample-${stamp}.json`));
+  }
+  repository.save(db);
 }
 
