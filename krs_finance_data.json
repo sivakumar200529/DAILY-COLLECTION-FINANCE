@@ -2067,7 +2067,7 @@
       "collection_area": "Bazaar Main Road",
       "status": "COMPLETED",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-18T15:34:13.730Z",
+      "updated_at": "2026-11-18T15:47:46.832Z",
       "actual_completion_date": "2026-10-07"
     },
     {
@@ -2095,7 +2095,7 @@
       "collection_area": "Town Hall Road",
       "status": "COMPLETED",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-18T15:37:16.208Z",
+      "updated_at": "2026-11-18T15:47:46.838Z",
       "actual_completion_date": "2026-11-18"
     },
     {
@@ -2123,7 +2123,7 @@
       "collection_area": "Car Street",
       "status": "OVERDUE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-18T15:34:13.741Z"
+      "updated_at": "2026-11-18T15:47:46.841Z"
     },
     {
       "id": "ACC-2026-004",
@@ -2150,7 +2150,7 @@
       "collection_area": "Market Gate",
       "status": "COMPLETED",
       "created_at": "2026-06-15T10:00:00.000Z",
-      "updated_at": "2026-11-18T15:34:13.745Z",
+      "updated_at": "2026-11-18T15:47:46.845Z",
       "actual_completion_date": "2026-10-28"
     },
     {
@@ -2178,7 +2178,7 @@
       "collection_area": "New Bus Stand Area",
       "status": "COMPLETED",
       "created_at": "2026-07-15T10:00:00.000Z",
-      "updated_at": "2026-11-18T15:34:13.750Z",
+      "updated_at": "2026-11-18T15:47:46.847Z",
       "actual_completion_date": "2026-09-02"
     },
     {
@@ -2206,7 +2206,7 @@
       "collection_area": "Bazaar Main Road",
       "status": "OVERDUE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-18T15:34:13.753Z"
+      "updated_at": "2026-11-18T15:47:46.848Z"
     },
     {
       "id": "ACC-2026-007",
@@ -2233,7 +2233,7 @@
       "collection_area": "Town Hall Road",
       "status": "OVERDUE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-18T15:34:13.756Z"
+      "updated_at": "2026-11-18T15:47:46.851Z"
     },
     {
       "id": "ACC-2026-008",
@@ -2260,7 +2260,7 @@
       "collection_area": "Car Street",
       "status": "OVERDUE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-18T15:34:13.759Z"
+      "updated_at": "2026-11-18T15:47:46.854Z"
     },
     {
       "id": "ACC-2026-009",
@@ -2287,7 +2287,7 @@
       "collection_area": "Market Gate",
       "status": "OVERDUE",
       "created_at": "2026-07-10T10:00:00.000Z",
-      "updated_at": "2026-11-18T15:34:13.763Z"
+      "updated_at": "2026-11-18T15:47:46.858Z"
     },
     {
       "id": "ACC-2026-010",
@@ -2314,7 +2314,7 @@
       "collection_area": "New Bus Stand Area",
       "status": "OVERDUE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-18T15:34:13.766Z"
+      "updated_at": "2026-11-18T15:47:46.861Z"
     },
     {
       "id": "ACC-2026-011",
@@ -2341,7 +2341,7 @@
       "collection_area": "Bazaar Main Road",
       "status": "OVERDUE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-18T15:34:13.770Z"
+      "updated_at": "2026-11-18T15:47:46.864Z"
     },
     {
       "id": "ACC-2026-012",
@@ -2368,7 +2368,7 @@
       "collection_area": "Town Hall Road",
       "status": "OVERDUE",
       "created_at": "2026-07-05T10:00:00.000Z",
-      "updated_at": "2026-11-18T15:34:13.772Z"
+      "updated_at": "2026-11-18T15:47:46.866Z"
     },
     {
       "id": "ACC-2026-013",
@@ -2395,7 +2395,7 @@
       "collection_area": "Car Street",
       "status": "OVERDUE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-18T15:34:13.775Z"
+      "updated_at": "2026-11-18T15:47:46.868Z"
     },
     {
       "id": "ACC-2026-014",
@@ -2422,7 +2422,7 @@
       "collection_area": "Market Gate",
       "status": "OVERDUE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-18T15:34:13.778Z"
+      "updated_at": "2026-11-18T15:47:46.870Z"
     },
     {
       "id": "ACC-2026-015",
@@ -2449,7 +2449,7 @@
       "collection_area": "New Bus Stand Area",
       "status": "OVERDUE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-18T15:34:13.780Z"
+      "updated_at": "2026-11-18T15:47:46.872Z"
     },
     {
       "id": "ACC-2026-016",
@@ -2476,7 +2476,7 @@
       "collection_area": "Bazaar Main Road",
       "status": "OVERDUE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-18T15:34:13.782Z"
+      "updated_at": "2026-11-18T15:47:46.874Z"
     },
     {
       "id": "ACC-2026-017",
@@ -2503,7 +2503,7 @@
       "collection_area": "Town Hall Road",
       "status": "COMPLETED",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-18T15:34:13.786Z",
+      "updated_at": "2026-11-18T15:47:46.878Z",
       "actual_completion_date": "2026-11-02"
     },
     {
@@ -2531,7 +2531,7 @@
       "collection_area": "Car Street",
       "status": "OVERDUE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-18T15:34:13.789Z"
+      "updated_at": "2026-11-18T15:47:46.880Z"
     },
     {
       "id": "ACC-2026-019",
@@ -2558,7 +2558,7 @@
       "collection_area": "Market Gate",
       "status": "OVERDUE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-18T15:34:13.792Z"
+      "updated_at": "2026-11-18T15:47:46.883Z"
     },
     {
       "id": "ACC-2026-020",
@@ -2585,7 +2585,7 @@
       "collection_area": "New Bus Stand Area",
       "status": "OVERDUE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-18T15:34:13.794Z"
+      "updated_at": "2026-11-18T15:47:46.885Z"
     },
     {
       "id": "ACC-2026-021",
@@ -2612,7 +2612,7 @@
       "collection_area": "Bazaar Main Road",
       "status": "OVERDUE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-18T15:34:13.796Z"
+      "updated_at": "2026-11-18T15:47:46.887Z"
     },
     {
       "id": "ACC-2026-022",
@@ -2639,7 +2639,7 @@
       "collection_area": "Town Hall Road",
       "status": "OVERDUE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-18T15:34:13.798Z"
+      "updated_at": "2026-11-18T15:47:46.890Z"
     },
     {
       "id": "ACC-2026-023",
@@ -2666,7 +2666,7 @@
       "collection_area": "Car Street",
       "status": "OVERDUE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-18T15:34:13.802Z"
+      "updated_at": "2026-11-18T15:47:46.892Z"
     },
     {
       "id": "ACC-2026-024",
@@ -2693,7 +2693,7 @@
       "collection_area": "Market Gate",
       "status": "OVERDUE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-18T15:34:13.805Z"
+      "updated_at": "2026-11-18T15:47:46.894Z"
     },
     {
       "id": "ACC-2026-025",
@@ -2720,7 +2720,7 @@
       "collection_area": "New Bus Stand Area",
       "status": "OVERDUE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-18T15:34:13.807Z"
+      "updated_at": "2026-11-18T15:47:46.896Z"
     },
     {
       "id": "ACC-2026-026",
@@ -2747,7 +2747,7 @@
       "collection_area": "Bazaar Main Road",
       "status": "OVERDUE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-18T15:34:13.809Z"
+      "updated_at": "2026-11-18T15:47:46.898Z"
     },
     {
       "id": "ACC-2026-027",
@@ -2774,7 +2774,7 @@
       "collection_area": "Town Hall Road",
       "status": "OVERDUE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-18T15:34:13.811Z"
+      "updated_at": "2026-11-18T15:47:46.900Z"
     },
     {
       "id": "ACC-2026-028",
@@ -2801,7 +2801,7 @@
       "collection_area": "Car Street",
       "status": "OVERDUE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-18T15:34:13.813Z"
+      "updated_at": "2026-11-18T15:47:46.902Z"
     },
     {
       "id": "ACC-2026-029",
@@ -2828,7 +2828,7 @@
       "collection_area": "Market Gate",
       "status": "OVERDUE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-18T15:34:13.816Z"
+      "updated_at": "2026-11-18T15:47:46.904Z"
     },
     {
       "id": "ACC-2026-030",
@@ -2855,7 +2855,7 @@
       "collection_area": "New Bus Stand Area",
       "status": "OVERDUE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-18T15:34:13.819Z"
+      "updated_at": "2026-11-18T15:47:46.906Z"
     },
     {
       "id": "ACC-2026-031",
@@ -2884,7 +2884,7 @@
       "collection_area": "Bazaar Main Road",
       "status": "ACTIVE",
       "created_at": "2026-09-30T09:21:17.614Z",
-      "updated_at": "2026-11-18T15:34:13.822Z"
+      "updated_at": "2026-11-18T15:47:46.908Z"
     },
     {
       "id": "ACC-2026-032",
@@ -2913,7 +2913,7 @@
       "collection_area": "Bazaar Main Road",
       "status": "ACTIVE",
       "created_at": "2026-10-07T17:21:56.021Z",
-      "updated_at": "2026-11-18T15:34:13.823Z"
+      "updated_at": "2026-11-18T15:47:46.908Z"
     }
   ],
   "daily_collections": [
