@@ -24,6 +24,7 @@ import {
   PaymentClaim,
   DayClosing,
 } from '../types';
+import type { NotebookCellError, NotebookChange, NotebookPage } from '../../shared/notebook';
 
 /** Payload for issuing a loan; money values are computed by the server from these terms. */
 export interface IssueLoanPayload {
@@ -385,6 +386,29 @@ export const api = {
     return handleResponse(res);
   },
 
+  /** The notebook page: running loans and each day's amount over a period. */
+  async getNotebook(params: { from: string; to: string; collector?: string; area?: string }): Promise<NotebookPage> {
+    const res = await fetch(`${API_BASE}/notebook?${new URLSearchParams(params as Record<string, string>)}`, {
+      headers: getAuthHeader(),
+    });
+    return handleResponse(res);
+  },
+
+  /** Saves the changed notebook cells together; when any is wrong, nothing is saved and `errors` lists them. */
+  async saveNotebook(changes: NotebookChange[]): Promise<{ saved: number } | { error: string; errors: NotebookCellError[] }> {
+    const res = await fetch(`${API_BASE}/notebook`, {
+      method: 'POST',
+      headers: getAuthHeader(),
+      body: JSON.stringify({ changes }),
+    });
+    if (res.status === 400) {
+      const body = await res.json().catch(() => ({ error: 'Could not save' }));
+      if (Array.isArray(body.errors)) return { error: body.error, errors: body.errors };
+      throw new Error(body.error || 'Could not save');
+    }
+    return handleResponse(res);
+  },
+
   /** Saves a photo (data URL, already shrunk in the browser) and returns where it is served from. */
   async uploadPhoto(dataUrl: string): Promise<{ url: string }> {
     const res = await fetch(`${API_BASE}/uploads`, {
@@ -583,6 +607,16 @@ export const api = {
   },
 
   /** Replaces the live data with the committed sample data set. */
+  /** Removes customers, loans, payments and day work; settings and office logins stay. */
+  async clearData(keepStaff: boolean): Promise<{ message: string }> {
+    const res = await fetch(`${API_BASE}/data/clear`, {
+      method: 'POST',
+      headers: getAuthHeader(),
+      body: JSON.stringify({ confirm: 'DELETE', keep_staff: keepStaff }),
+    });
+    return handleResponse(res);
+  },
+
   async loadSampleData(): Promise<{ message: string }> {
     const res = await fetch(`${API_BASE}/seed/reset`, {
       method: 'POST',

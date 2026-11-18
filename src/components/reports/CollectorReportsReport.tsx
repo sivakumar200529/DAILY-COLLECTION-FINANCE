@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { AlertTriangle, CheckCircle2, ChevronRight, ShieldCheck } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, ChevronRight, ClipboardList, ShieldCheck } from 'lucide-react';
 import { Collector, CollectorReport, DailyCollectionRecord } from '../../types';
 import { api } from '../../services/api';
 import { formatCurrency, formatDate, formatDateTime } from '../../utils/formatters';
 import { canVerify, collectionDaySummary, latestReport } from '../../../shared/collectorDay';
 import { todayIso } from '../../../shared/finance';
 import { useLanguage } from '../../context/LanguageContext';
-import { BigButton, ConfirmSheet, Spinner } from '../common/ui';
+import { BigButton, ConfirmSheet, EmptyState, Spinner } from '../common/ui';
 import { ReportStatusBadge, ReportTally, reportTally } from '../collector/ReportTally';
 
 type Deciding = { report: CollectorReport; decision: 'APPROVED' | 'REJECTED' | 'VERIFIED' };
@@ -110,6 +110,9 @@ export const CollectorReportsReport: React.FC<{ officeName: string }> = ({ offic
   );
 
   const ids = [...new Set([...collectors.map(c => c.id), ...reports.map(r => r.collector_id)])];
+  // Each collector who worked, sent a report or is still working.
+  const shown = ids.filter(id =>
+    reports.some(r => r.collector_id === id) || records.some(r => r.collector_id === id) || collectors.some(c => c.id === id && c.status === 'ACTIVE'));
   const nameOf = (id: string) => collectors.find(c => c.id === id)?.name ?? reports.find(r => r.collector_id === id)?.collector_name ?? id;
 
   return (
@@ -143,10 +146,11 @@ export const CollectorReportsReport: React.FC<{ officeName: string }> = ({ offic
 
       {error && <p className="text-sm text-rose-400">{error}</p>}
 
-      {ids.map(id => {
+      {shown.length === 0 && <EmptyState icon={ClipboardList} text={t('noCollectorReportsDay', 'No collector worked or sent a report on this day')} />}
+
+      {shown.map(id => {
         const theirs = reports.filter(r => r.collector_id === id);
         const hasWork = records.some(r => r.collector_id === id);
-        if (theirs.length === 0 && !hasWork && !collectors.some(c => c.id === id && c.status === 'ACTIVE')) return null;
         const current = latestReport(theirs, id, date);
         const live = collectionDaySummary(records.filter(r => r.collector_id === id));
         const changed = !!current && current.status !== 'PENDING_APPROVAL' &&

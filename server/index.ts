@@ -7,6 +7,7 @@ import {
   repository,
   initializeDatabase,
   loadSampleData,
+  clearBusinessData,
   nextId,
   CustomerPersonalDetails,
   CustomerAddress,
@@ -26,6 +27,7 @@ import {
 import { createLoanAccount, planLoan, commitLoan, LoanValidationError, IssueLoanInput, LoanParty, PlannedLoan } from './loans.ts';
 import { todayIso, roundMoney, addDaysIso, scheduleDates, termProgress, monthExpected, monthBounds, monthDueDays } from '../shared/finance.ts';
 import { activePayments, dayPosition, isActivePayment, isRunning, payStanding, settleStatus, syncDayRecord, syncLoan } from './ledger.ts';
+import { NOTEBOOK_MAX_DAYS, type NotebookCellError, type NotebookChange, type NotebookPage, type NotebookRow } from '../shared/notebook.ts';
 import {
   CollectorReport,
   DayClosing,
@@ -1383,6 +1385,210 @@ app.post('/api/collection-accounts/:id/bulk-hand-note', (req: Request, res: Resp
     totalAmountRecorded: totalRecordedAmount,
     account: withDaysBehind(acc),
   });
+});
+
+// -------------------------------------------------------------
+// NOTEBOOK ENTRY (the paper collection notebook: loans down the side, days across the top)
+// -------------------------------------------------------------
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+app.get('/api/notebook', (req: Request, res: Response) => {
+  const db = repository.getDb();
+  refreshStatuses(db);
+  const { from, to, collector, area } = req.query as Record<string, string | undefined>;
+  if (!from || !to || !ISO_DATE.test(from) || !ISO_DATE.test(to) || from > to) {
+    return res.status(400).json({ error: 'Choose a start date and an end date.' });
+  }
+  if (Math.round((Date.parse(to) - Date.parse(from)) / 86400000) + 1 > NOTEBOOK_MAX_DAYS) {
+    return res.status(400).json({ error: `Choose at most ${NOTEBOOK_MAX_DAYS} days at a time.` });
+  }
+
+  const rows: NotebookRow[] = db.collection_accounts
+    .filter(acc => {
+      if (acc.status === 'CANCELLED' || acc.start_date > to) return false;
+      if (collector && collector !== 'ALL' && acc.assigned_collector_id !== collector) return false;
+      if (area && area !== 'ALL' && acc.collection_area !== area) return false;
+      // Being collected in the period, or paid in it.
+      return isRunning(acc) || (!!acc.actual_completion_date && acc.actual_completion_date >= from) ||
+        activePayments(db, acc.id).some(p => p.collection_date >= from && p.collection_date <= to);
+    })
+    .sort((a, b) => a.start_date.localeCompare(b.start_date) || a.id.localeCompare(b.id))
+    .map(acc => {
+      const cells: NotebookRow['cells'] = {};
+      for (const p of activePayments(db, acc.id)) {
+        if (p.collection_date < from || p.collection_date > to) continue;
+        const cell = cells[p.collection_date];
+        cells[p.collection_date] = { amount: safeRound((cell?.amount || 0) + p.amount_paid, 2), payment_id: p.id };
+      }
+      return {
+        account_id: acc.id,
+        customer_id: acc.customer_id,
+        customer_name: acc.customer_name,
+        shop_name: acc.shop_name || '',
+        area: acc.collection_area,
+        collector_id: acc.assigned_collector_id,
+        collector_name: acc.assigned_collector_name,
+        requested_amount: acc.requested_amount,
+        total_repayment: acc.total_repayment,
+        daily_collection: acc.daily_collection,
+        start_date: acc.start_date,
+        end_date: acc.expected_end_date,
+        status: acc.status,
+        balance: acc.remaining_amount,
+        cells,
+      };
+    });
+  const closings = (db.day_closings || [])
+    .filter(c => !c.reopened_at && c.date >= from && c.date <= to)
+    .map(c => ({ id: c.id, date: c.date, closed_by: c.closed_by }));
+  const page: NotebookPage = { from, to, today: todayIso(), closed_dates: closings.map(c => c.date), closings, rows };
+  res.json(page);
+});
+
+/**
+ * Saves the changed cells of the notebook together: an amount in an empty day records a payment,
+ * a different amount changes the day's payment, and 0 undoes it. Every cell is checked first;
+ * if any is wrong nothing is saved and each wrong cell is reported.
+ */
+app.post('/api/notebook', (req: Request, res: Response) => {
+  const db = repository.getDb();
+  const input = (req.body?.changes || []) as NotebookChange[];
+  if (!Array.isArray(input) || input.length === 0) return res.status(400).json({ error: 'Nothing to save.' });
+  const today = todayIso();
+  const errors: NotebookCellError[] = [];
+  const changes: (NotebookChange & { acc: CollectionAccount; existing: PaymentTransaction[] })[] = [];
+  const seen = new Set<string>();
+
+  for (const c of input) {
+    const amount = safeRound(Number(c?.amount), 2);
+    const fail = (error: string) => errors.push({ account_id: c?.account_id, date: c?.date, amount, error });
+    const acc = db.collection_accounts.find(a => a.id === c?.account_id);
+    if (!acc) { fail('Loan not found.'); continue; }
+    if (acc.status === 'CANCELLED') { fail('This loan was cancelled.'); continue; }
+    if (!ISO_DATE.test(String(c.date))) { fail('Not a date.'); continue; }
+    if (c.date > today) { fail('This day has not come yet.'); continue; }
+    if (c.date < acc.start_date) { fail(`The loan starts on ${acc.start_date}.`); continue; }
+    const closed = closedDayError(db, c.date);
+    if (closed) { fail('This day is closed.'); continue; }
+    if (!Number.isFinite(amount) || amount < 0) { fail('Enter an amount.'); continue; }
+    const key = `${acc.id}|${c.date}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    const existing = activePayments(db, acc.id).filter(p => p.collection_date === c.date);
+    const now = safeRound(existing.reduce((s, p) => s + p.amount_paid, 0), 2);
+    if (now === amount) continue;
+    changes.push({ account_id: acc.id, date: c.date, amount, acc, existing });
+  }
+
+  // A loan never gets more than it owes.
+  const byLoan = new Map<string, typeof changes>();
+  for (const c of changes) byLoan.set(c.account_id, [...(byLoan.get(c.account_id) || []), c]);
+  for (const [, list] of byLoan) {
+    const acc = list[0].acc;
+    const removed = list.reduce((s, c) => s + c.existing.reduce((t, p) => t + p.amount_paid, 0), 0);
+    const added = list.reduce((s, c) => s + c.amount, 0);
+    const total = safeRound(acc.amount_collected - removed + added, 2);
+    if (total > acc.total_repayment) {
+      const over = safeRound(total - acc.total_repayment, 2);
+      for (const c of list) {
+        errors.push({ account_id: c.account_id, date: c.date, amount: c.amount, error: `₹${over} more than this loan owes.` });
+      }
+    }
+  }
+  if (errors.length > 0) return res.status(400).json({ error: 'Some cells need a look.', errors });
+
+  const nowIso = new Date().toISOString();
+  const mode = db.config.masters.default_payment_mode;
+  const by = byWho(req);
+  for (const c of changes) {
+    const [keep, ...extra] = c.existing;
+    const cancel = (p: PaymentTransaction) => {
+      p.status = 'CANCELLED';
+      p.cancelled_at = nowIso;
+      const r = db.receipts.find(x => x.payment_id === p.id || x.receipt_number === p.receipt_number);
+      if (r) { r.status = 'CANCELLED'; r.cancelled_at = nowIso; }
+    };
+    extra.forEach(cancel);
+    if (c.amount === 0) {
+      if (keep) cancel(keep);
+      continue;
+    }
+    if (keep) {
+      keep.amount_paid = c.amount;
+      (keep as any).updated_at = nowIso;
+      (keep as any).modified_by_admin = by;
+      const r = db.receipts.find(x => x.payment_id === keep.id || x.receipt_number === keep.receipt_number);
+      if (r) r.amount_paid = c.amount;
+      continue;
+    }
+    const dayRecord = db.daily_collections.find(d => d.collection_account_id === c.acc.id && d.date === c.date);
+    const collector = db.collectors.find(x => x.id === dayRecord?.collector_id) ||
+      { id: c.acc.assigned_collector_id, name: c.acc.assigned_collector_name };
+    const receiptNum = nextId(db, 'receipt', db.receipts.map(r => r.receipt_number));
+    const paymentId = `PAY-${uniqueSuffix()}`;
+    db.payments.push({
+      id: paymentId,
+      receipt_number: receiptNum,
+      collection_account_id: c.acc.id,
+      customer_id: c.acc.customer_id,
+      customer_name: c.acc.customer_name,
+      shop_name: c.acc.shop_name || '',
+      collection_date: c.date,
+      daily_due: c.acc.daily_collection,
+      amount_paid: c.amount,
+      advance_amount: 0,
+      payment_mode: mode,
+      collector_id: collector.id,
+      collector_name: collector.name,
+      previous_balance: 0,
+      remaining_balance: 0,
+      status: 'SUCCESS',
+      remarks: 'Notebook entry',
+      created_at: nowIso,
+    });
+    db.receipts.push({
+      id: `REC-${uniqueSuffix()}`,
+      receipt_number: receiptNum,
+      payment_id: paymentId,
+      collection_account_id: c.acc.id,
+      customer_id: c.acc.customer_id,
+      customer_name: c.acc.customer_name,
+      shop_name: c.acc.shop_name || '',
+      daily_due: c.acc.daily_collection,
+      amount_paid: c.amount,
+      payment_mode: mode,
+      previous_balance: 0,
+      remaining_balance: 0,
+      collector_name: collector.name,
+      date: c.date,
+      created_at: nowIso,
+      remarks: 'Notebook entry',
+    });
+  }
+
+  // Each loan follows its payments; the changed days' payments and receipts get their standing and balances.
+  for (const [, list] of byLoan) {
+    const acc = list[0].acc;
+    const dates = list.map(c => c.date);
+    syncLoan(db, acc, dates);
+    for (const date of dates) {
+      const pos = dayPosition(db, acc, date);
+      for (const p of activePayments(db, acc.id).filter(x => x.collection_date === date)) {
+        const standing = payStanding(p.amount_paid, pos);
+        p.advance_amount = standing.advance;
+        p.status = standing.status === 'ADVANCE' ? 'ADVANCE' : standing.status === 'PARTIAL' ? 'PARTIAL' : 'SUCCESS';
+        p.previous_balance = pos.morningBalance;
+        p.remaining_balance = pos.balanceAfter;
+        const r = db.receipts.find(x => x.payment_id === p.id || x.receipt_number === p.receipt_number);
+        if (r) { r.previous_balance = pos.morningBalance; r.remaining_balance = pos.balanceAfter; }
+      }
+    }
+    logAudit(by, 'ADMIN', 'NOTEBOOK_ENTRY', acc.id, 'payments', null,
+      { days: list.map(c => ({ date: c.date, amount: c.amount })), balance: acc.remaining_amount });
+  }
+
+  repository.save();
+  res.json({ saved: changes.length });
 });
 
 // Cancel a loan issued by mistake. Only allowed before any payment has been taken.
@@ -2968,6 +3174,17 @@ app.get('/api/audit-logs', (req: Request, res: Response) => {
 });
 
 // Replace the live data with the committed sample data set (data/sample_data.json).
+// Remove the business data (after trying the app with the sample data). A copy is kept beside the data file.
+app.post('/api/data/clear', (req: Request, res: Response) => {
+  if (req.body?.confirm !== 'DELETE') return res.status(400).json({ error: 'Type DELETE to confirm.' });
+  const keepStaff = req.body?.keep_staff === true;
+  // Removed logins are signed out by themselves: their sessions no longer find a user.
+  clearBusinessData(keepStaff);
+  logAudit(byWho(req), 'ADMIN', 'CLEAR_BUSINESS_DATA', 'all', 'data', null, { keep_staff: keepStaff });
+  repository.save();
+  res.json({ message: 'Data removed.' });
+});
+
 app.post('/api/seed/reset', (req: Request, res: Response) => {
   try {
     loadSampleData();

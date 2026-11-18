@@ -4,21 +4,41 @@ import { DayClosing } from '../../types';
 import { api } from '../../services/api';
 import { formatCurrency, formatDate, formatDateTime } from '../../utils/formatters';
 import { useLanguage } from '../../context/LanguageContext';
-import { EmptyState, Spinner } from '../common/ui';
+import { BigButton, ConfirmSheet, EmptyState, Spinner } from '../common/ui';
 
 /**
  * Every day the office closed, newest first, as a list: the date, who closed it, what was received
  * against expected and whether it was reopened. Pressing a day opens its details: expected, received,
  * balance and long-standing loans with each collector's verified cash and UPI.
  */
-export const DayClosingsReport: React.FC = () => {
+export const DayClosingsReport: React.FC<{ officeName: string }> = ({ officeName }) => {
   const { t } = useLanguage();
   const [closings, setClosings] = useState<DayClosing[] | null>(null);
   const [openId, setOpenId] = useState<string | null>(null);
+  const [reopening, setReopening] = useState<DayClosing | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
+  const load = () => api.getDayClosings().then(setClosings).catch(() => setClosings([]));
   useEffect(() => {
-    api.getDayClosings().then(setClosings).catch(() => setClosings([]));
+    load();
   }, []);
+
+  // Any closed day can be reopened here (Home offers it only for today), e.g. to enter the notebook.
+  const reopen = async () => {
+    if (!reopening) return;
+    setBusy(true);
+    setError(null);
+    try {
+      await api.reopenDay(reopening.id, officeName);
+      await load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not reopen');
+    } finally {
+      setBusy(false);
+      setReopening(null);
+    }
+  };
 
   if (!closings) return <Spinner />;
   if (closings.length === 0) return <EmptyState icon={Lock} text={t('noDayClosings', 'No day has been closed yet')} />;
@@ -138,11 +158,26 @@ export const DayClosingsReport: React.FC = () => {
                   ))}
                 </div>
                 {details(c)}
+                {!c.reopened_at && (
+                  <BigButton small icon={LockOpen} label={t('reopenDay', 'Reopen the day')} onClick={() => setReopening(c)} />
+                )}
               </div>
             )}
           </div>
         );
       })}
+      {error && <p className="px-4 py-3 text-sm text-rose-300">{error}</p>}
+      {reopening && (
+        <ConfirmSheet
+          title={t('reopenDateQuestion', 'Reopen {date}?').replace('{date}', formatDate(reopening.date))}
+          message={t('reopenPastDayNote', "It was closed by {name}. Once reopened, that day's collections can be changed; a past day stays open (only today can be closed on Home).").replace('{name}', reopening.closed_by)}
+          yesLabel={t('reopenDay', 'Reopen the day')}
+          noLabel={t('no', 'No')}
+          busy={busy}
+          onYes={reopen}
+          onNo={() => setReopening(null)}
+        />
+      )}
     </div>
   );
 };

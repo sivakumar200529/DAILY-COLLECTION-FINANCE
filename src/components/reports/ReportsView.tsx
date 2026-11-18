@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { AlertTriangle, Download, HandCoins, PiggyBank, TrendingUp, Wallet } from 'lucide-react';
+import { AlertTriangle, Download, HandCoins, PiggyBank, TrendingUp, Users, Wallet } from 'lucide-react';
 import { api, CustomerListItem } from '../../services/api';
 import { CollectionAccount, Collector, PaymentTransaction } from '../../types';
-import { formatCurrency } from '../../utils/formatters';
+import { formatCurrency, orNA } from '../../utils/formatters';
 import { amountBehind } from '../../utils/loanFigures';
 import { exportTableToExcel } from '../../utils/excelExport';
 import { daysLeftInMonth, todayIso } from '../../../shared/finance';
@@ -61,7 +61,7 @@ export const ReportsView: React.FC<{
       {tab === 'monthly' && <MonthlyExcelReportView />}
       {tab === 'long-pending' && <LongPendingReport onOpenCustomer={onOpenCustomer} />}
       {tab === 'collectors' && <CollectorReportsReport officeName={officeName} />}
-      {tab === 'closings' && <DayClosingsReport />}
+      {tab === 'closings' && <DayClosingsReport officeName={officeName} />}
       {tab === 'summary' && <SummaryReport />}
       {tab === 'receipts' && <ReceiptsMasterView />}
     </div>
@@ -164,6 +164,7 @@ const SummaryReport: React.FC = () => {
   const collected = loans.reduce((s, a) => s + a.amount_collected, 0);
   const balance = running.reduce((s, a) => s + a.remaining_amount, 0);
   const interest = loans.reduce((s, a) => s + a.finance_margin, 0);
+  const has = loans.length > 0;
 
   const today = todayIso();
   const month = today.slice(0, 7);
@@ -189,17 +190,18 @@ const SummaryReport: React.FC = () => {
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <StatTile icon={HandCoins} label={t('givenOut', 'Money given out')} value={formatCurrency(given)} tone="blue" />
-        <StatTile icon={Wallet} label={t('collected', 'Collected')} value={formatCurrency(collected)} tone="green" />
-        <StatTile icon={TrendingUp} label={t('balanceToCollect', 'Balance to collect')} value={formatCurrency(balance)} tone="gold" />
-        <StatTile icon={PiggyBank} label={t('interestEarned', 'Interest earned')} value={formatCurrency(interest)} tone="gold" />
+        <StatTile icon={HandCoins} label={t('givenOut', 'Money given out')} value={orNA(has, formatCurrency(given))} tone="blue" />
+        <StatTile icon={Wallet} label={t('collected', 'Collected')} value={orNA(has, formatCurrency(collected))} tone="green" />
+        <StatTile icon={TrendingUp} label={t('balanceToCollect', 'Balance to collect')} value={orNA(has, formatCurrency(balance))} tone="gold" />
+        <StatTile icon={PiggyBank} label={t('interestEarned', 'Interest earned')} value={orNA(has, formatCurrency(interest))} tone="gold" />
       </div>
 
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-lg font-black text-white">{t('byCollector', 'By collector')}</h2>
-        <BigButton small icon={Download} label="Excel" onClick={download} />
+        <BigButton small icon={Download} label="Excel" onClick={download} disabled={perCollector.length === 0} />
       </div>
       <div className="space-y-2">
+        {perCollector.length === 0 && <EmptyState icon={Users} text={t('noCollectorsYet', 'No collectors yet')} />}
         {perCollector.map(r => (
           <div key={r.collector.id} className="glass-card rounded-2xl p-4 grid grid-cols-3 gap-2 items-center">
             <div className="min-w-0">
@@ -208,11 +210,11 @@ const SummaryReport: React.FC = () => {
             </div>
             <div className="text-right">
               <div className="text-xs text-slate-400">{t('today', 'Today')}</div>
-              <div className="text-base font-black text-emerald-400">{formatCurrency(r.today)}</div>
+              <div className="text-base font-black text-emerald-400">{orNA(r.loans > 0 || r.month > 0, formatCurrency(r.today))}</div>
             </div>
             <div className="text-right">
               <div className="text-xs text-slate-400">{t('thisMonth', 'This month')}</div>
-              <div className="text-base font-black text-white">{formatCurrency(r.month)}</div>
+              <div className="text-base font-black text-white">{orNA(r.loans > 0 || r.month > 0, formatCurrency(r.month))}</div>
             </div>
           </div>
         ))}

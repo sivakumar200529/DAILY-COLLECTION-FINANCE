@@ -1629,11 +1629,48 @@ export function loadSampleData(): void {
   }
   const db = migrateDatabase(JSON.parse(fs.readFileSync(sampleDataFilePath, 'utf-8')));
   reconcileAll(db);
-  // The data being replaced is kept, so a mistaken tap can be undone by restoring this file.
-  if (fs.existsSync(dbFilePath)) {
-    const stamp = new Date().toISOString().replace(/[:.]/g, '-');
-    fs.copyFileSync(dbFilePath, path.resolve(dataDir, `krs_finance_data.before-sample-${stamp}.json`));
+  keepCopy('before-sample');
+  repository.save(db);
+}
+
+/** The data being replaced is kept beside it, so a mistaken tap can be undone by restoring this file. */
+function keepCopy(reason: string): void {
+  if (!fs.existsSync(dbFilePath)) return;
+  const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+  fs.copyFileSync(dbFilePath, path.resolve(dataDir, `krs_finance_data.${reason}-${stamp}.json`));
+}
+
+/**
+ * Removes the business data (customers, loans, payments, receipts, day work and reports), to start
+ * real work after trying the app with sample data. Settings, loan products and office logins stay;
+ * collectors and areas stay too when `keepStaff` is set. Numbering starts again for what is removed.
+ */
+export function clearBusinessData(keepStaff: boolean): void {
+  const db = repository.getDb();
+  keepCopy('before-clear');
+  db.customers = [];
+  db.customer_addresses = [];
+  db.business_details = [];
+  db.collection_accounts = [];
+  db.daily_collections = [];
+  db.payments = [];
+  db.receipts = [];
+  db.documents = [];
+  db.notifications = [];
+  db.customer_notes = [];
+  db.loan_requests = [];
+  db.collector_reports = [];
+  db.day_assignments = [];
+  db.payment_claims = [];
+  db.day_closings = [];
+  const cleared: NumberingKind[] = ['customer', 'account', 'receipt'];
+  if (!keepStaff) {
+    db.collectors = [];
+    db.areas = [];
+    cleared.push('collector', 'area');
   }
+  db.users = db.users.filter(u => u.role === 'ADMIN' || (keepStaff && u.role === 'COLLECTOR'));
+  for (const kind of cleared) db.config.numbering[kind].next = DEFAULT_CONFIG.numbering[kind].next;
   repository.save(db);
 }
 

@@ -43,4 +43,4 @@ uploads/
 krs_sessions.json
 
 # Copies of the business data kept before loading the sample data set
-krs_finance_data.before-sample-*.json
+krs_finance_data.before-*.json

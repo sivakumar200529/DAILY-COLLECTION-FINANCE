@@ -1,7 +1,15 @@
 // Utility functions for formatting Indian currency, dates, numbers, and status badges
 
+/** Shown in place of a figure when there is nothing to show (no data, or a missing value). */
+export const NA = '—';
+
+/** The value, or "—" when there is no data behind it (e.g. after the data is removed). */
+export function orNA<T>(hasData: boolean, value: T): T | string {
+  return hasData ? value : NA;
+}
+
 export function formatCurrency(amount: number | undefined | null): string {
-  if (amount === undefined || amount === null || isNaN(amount)) return '₹0';
+  if (amount === undefined || amount === null || isNaN(amount)) return NA;
   // Whole rupees stay short (₹100); paise are shown when present (₹133.33) so the
   // amount on screen is exactly what gets recorded.
   const hasPaise = Math.round(amount * 100) % 100 !== 0;
@@ -14,12 +22,12 @@ export function formatCurrency(amount: number | undefined | null): string {
 }
 
 export function formatNumber(val: number | undefined | null): string {
-  if (val === undefined || val === null || isNaN(val)) return '0';
+  if (val === undefined || val === null || isNaN(val)) return NA;
   return new Intl.NumberFormat('en-IN').format(val);
 }
 
 export function formatPercent(val: number | undefined | null): string {
-  if (val === undefined || val === null || isNaN(val)) return '0%';
+  if (val === undefined || val === null || isNaN(val)) return NA;
   return `${Number(val).toFixed(1)}%`;
 }
 

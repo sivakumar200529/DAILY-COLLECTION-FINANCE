@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { DailyCollectionRecord, Collector } from '../../types';
 import { api } from '../../services/api';
-import { formatCurrency, formatDate } from '../../utils/formatters';
+import { formatCurrency, formatDate, orNA } from '../../utils/formatters';
 import { Printer, ArrowLeft } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useConfig } from '../../context/ConfigContext';
@@ -92,6 +92,11 @@ export const DailyCollectionRegisterView: React.FC<DailyCollectionRegisterViewPr
             </tr>
           </thead>
           <tbody>
+            {records.length === 0 && (
+              <tr className="border-b border-slate-300">
+                <td colSpan={9} className="py-4 text-center text-slate-500">{t('noCustomersThisDay', 'No customers on the list for this day')}</td>
+              </tr>
+            )}
             {records.map((r, idx) => (
               <tr key={r.id} className="border-b border-slate-300">
                 <td className="py-2 px-2 border-r border-slate-300 text-center font-mono">{idx + 1}</td>
@@ -120,13 +125,13 @@ export const DailyCollectionRegisterView: React.FC<DailyCollectionRegisterViewPr
                 {t('totals:', 'TOTALS:')}
               </td>
               <td className="py-2.5 px-2.5 text-right font-mono border-r border-slate-400">
-                {formatCurrency(totalExpected)}
+                {orNA(records.length > 0, formatCurrency(totalExpected))}
               </td>
               <td className="py-2.5 px-2.5 text-right font-mono text-emerald-800 font-black border-r border-slate-400">
-                {formatCurrency(totalCollected)}
+                {orNA(records.length > 0, formatCurrency(totalCollected))}
               </td>
               <td colSpan={3} className="py-2.5 px-3">
-                <span className="text-rose-800">{t('pending to collect:', 'Pending to Collect:')} <strong>{formatCurrency(totalPending)}</strong></span>
+                <span className="text-rose-800">{t('pending to collect:', 'Pending to Collect:')} <strong>{orNA(records.length > 0, formatCurrency(totalPending))}</strong></span>
               </td>
             </tr>
           </tfoot>
@@ -136,15 +141,15 @@ export const DailyCollectionRegisterView: React.FC<DailyCollectionRegisterViewPr
         <div className="mt-8 pt-4 border-t-2 border-slate-300 grid grid-cols-3 gap-6 text-xs">
           <div>
             <span className="text-slate-600 block">{t('total due expected:', 'Total Due Expected:')}</span>
-            <strong className="text-base text-slate-950 font-mono">{formatCurrency(totalExpected)}</strong>
+            <strong className="text-base text-slate-950 font-mono">{orNA(records.length > 0, formatCurrency(totalExpected))}</strong>
           </div>
           <div>
             <span className="text-slate-600 block">{t('total actual collected:', 'Total Actual Collected:')}</span>
-            <strong className="text-base text-emerald-800 font-mono">{formatCurrency(totalCollected)}</strong>
+            <strong className="text-base text-emerald-800 font-mono">{orNA(records.length > 0, formatCurrency(totalCollected))}</strong>
           </div>
           <div>
             <span className="text-slate-600 block">{t('total field pending:', 'Total Field Pending:')}</span>
-            <strong className="text-base text-rose-800 font-mono">{formatCurrency(totalPending)}</strong>
+            <strong className="text-base text-rose-800 font-mono">{orNA(records.length > 0, formatCurrency(totalPending))}</strong>
           </div>
         </div>
 

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Check, Edit3, MapPin, Navigation, PlusCircle, Trash2 } from 'lucide-react';
 import { Area, Collector, DailyCollectionRecord } from '../../types';
 import { api, CustomerListItem } from '../../services/api';
-import { formatCurrency } from '../../utils/formatters';
+import { formatCurrency, orNA } from '../../utils/formatters';
 import { mapsDirections, mapsSearch } from '../../utils/maps';
 import { collectionDaySummary } from '../../../shared/collectorDay';
 import { todayIso } from '../../../shared/finance';
@@ -105,6 +105,8 @@ export const AreasView: React.FC<{ onOpenCustomer: (customerId: string) => void 
       collected: loans.reduce((sum, l) => sum + l.amount_collected, 0),
       balance: loans.reduce((sum, l) => sum + l.remaining_amount, 0),
       longPending: loans.filter(l => (l.days_behind ?? 0) >= longAfter).length,
+      // No shop with a loan and nobody on today's list: figures show "—" rather than ₹0.
+      has: loans.length > 0 || today.length > 0,
     };
   };
   const mapButton = 'p-2 rounded-xl bg-navy-950 border border-slate-700 text-gold-300 hover:border-gold-500/60';
@@ -137,9 +139,9 @@ export const AreasView: React.FC<{ onOpenCustomer: (customerId: string) => void 
                 </button>
                 <AmountList
                   rows={[
-                    [t('today', 'Today'), formatCurrency(area.today.collected), 'text-emerald-400'],
-                    [t('runningLoansLabel', 'Running loans'), area.runningLoans],
-                    [t('balance', 'Balance'), formatCurrency(area.balance), 'text-gold-300'],
+                    [t('today', 'Today'), orNA(area.has, formatCurrency(area.today.collected)), 'text-emerald-400'],
+                    [t('runningLoansLabel', 'Running loans'), orNA(area.has, area.runningLoans)],
+                    [t('balance', 'Balance'), orNA(area.has, formatCurrency(area.balance)), 'text-gold-300'],
                   ]}
                 />
               </div>
@@ -165,12 +167,12 @@ export const AreasView: React.FC<{ onOpenCustomer: (customerId: string) => void 
               {([
                 [assigned ? t('collectorToday', 'Collector today') : t('usualCollector', 'Usual collector (not assigned yet)'), shown.collectorsToday.map(name => t(name, name)).join(', ')],
                 [t('shopsCustomers', 'Shops / customers'), shown.shops.length],
-                [t('runningLoansLabel', 'Running loans'), shown.runningLoans],
-                [t('totalLoanLabel', 'Total loan'), formatCurrency(shown.totalLoan)],
-                [t('collected', 'Collected'), formatCurrency(shown.collected)],
-                [t('balanceToCollect', 'Balance to collect'), formatCurrency(shown.balance)],
-                [t('collectionTodayShort', 'Collection today'), `${formatCurrency(shown.today.collected)} / ${formatCurrency(shown.today.expected)}`],
-                [t('longPending', 'Long pending'), shown.longPending],
+                [t('runningLoansLabel', 'Running loans'), orNA(shown.has, shown.runningLoans)],
+                [t('totalLoanLabel', 'Total loan'), orNA(shown.has, formatCurrency(shown.totalLoan))],
+                [t('collected', 'Collected'), orNA(shown.has, formatCurrency(shown.collected))],
+                [t('balanceToCollect', 'Balance to collect'), orNA(shown.has, formatCurrency(shown.balance))],
+                [t('collectionTodayShort', 'Collection today'), orNA(shown.has, `${formatCurrency(shown.today.collected)} / ${formatCurrency(shown.today.expected)}`)],
+                [t('longPending', 'Long pending'), orNA(shown.has, shown.longPending)],
               ] as [string, React.ReactNode][]).map(([label, value]) => (
                 <div key={label} className="flex justify-between gap-3 px-4 py-2.5">
                   <dt className="text-slate-400">{label}</dt>

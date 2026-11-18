@@ -1,6 +1,6 @@
 import React from 'react';
 import { CollectorReport } from '../../types';
-import { formatCurrency } from '../../utils/formatters';
+import { formatCurrency, orNA } from '../../utils/formatters';
 import { collectionDaySummary, dayPaymentSplit } from '../../../shared/collectorDay';
 import { useLanguage } from '../../context/LanguageContext';
 import type { DailyCollectionRecord } from '../../types';
@@ -61,25 +61,27 @@ export const TodayFigureLines: React.FC<{
   const split = dayPaymentSplit(records);
   const collectorIds = new Set(records.map(r => r.collector_id));
   const reported = new Set(reports.filter(r => r.status !== 'REJECTED' && collectorIds.has(r.collector_id)).map(r => r.collector_id));
+  // Nobody on the day's list: "—" rather than a row of zeros.
+  const has = records.length > 0;
 
   return (
     <div className="space-y-4">
       <FigureLine
         large
         figures={[
-          { label: t('expectedCollection', 'Expected Collection'), value: formatCurrency(summary.expected), onClick: links?.collection },
-          { label: t('totalCollection', 'Total Collection'), value: formatCurrency(summary.collected), tone: 'text-emerald-400', onClick: links?.collection },
-          { label: t('balance', 'Balance'), value: formatCurrency(summary.pendingAmount), tone: 'text-gold-300', onClick: links?.collection },
-          { label: t('collectors', 'Collectors'), value: collectorIds.size, onClick: links?.collectors },
+          { label: t('expectedCollection', 'Expected Collection'), value: orNA(has, formatCurrency(summary.expected)), onClick: links?.collection },
+          { label: t('totalCollection', 'Total Collection'), value: orNA(has, formatCurrency(summary.collected)), tone: 'text-emerald-400', onClick: links?.collection },
+          { label: t('balance', 'Balance'), value: orNA(has, formatCurrency(summary.pendingAmount)), tone: 'text-gold-300', onClick: links?.collection },
+          { label: t('collectors', 'Collectors'), value: orNA(has, collectorIds.size), onClick: links?.collectors },
         ]}
       />
       <div className="border-t border-slate-800 pt-4">
         <FigureLine
           figures={[
-            { label: t('totalPayments', 'Total Payments'), value: split.payments, onClick: links?.receipts },
-            { label: t('totalCashReceived', 'Total Cash received'), value: formatCurrency(split.cash), onClick: links?.receipts },
-            { label: t('totalUpiPayments', 'Total UPI payments'), value: formatCurrency(split.upi), onClick: links?.receipts },
-            { label: t('collectorsReport', 'Collectors Report'), value: `${reported.size} / ${collectorIds.size}`, onClick: links?.reports },
+            { label: t('totalPayments', 'Total Payments'), value: orNA(has, split.payments), onClick: links?.receipts },
+            { label: t('totalCashReceived', 'Total Cash received'), value: orNA(has, formatCurrency(split.cash)), onClick: links?.receipts },
+            { label: t('totalUpiPayments', 'Total UPI payments'), value: orNA(has, formatCurrency(split.upi)), onClick: links?.receipts },
+            { label: t('collectorsReport', 'Collectors Report'), value: orNA(has, `${reported.size} / ${collectorIds.size}`), onClick: links?.reports },
           ]}
         />
       </div>

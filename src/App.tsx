@@ -14,6 +14,7 @@ import { CollectorHome } from './components/collector/CollectorHome';
 import { AccountSettingsSheet } from './components/common/AccountSettingsSheet';
 import { ReportsView, ReportTab } from './components/reports/ReportsView';
 import { StaffAndAreasView } from './components/field/StaffAndAreasView';
+import { NotebookEntryView } from './components/notebook/NotebookEntryView';
 import { SettingsView, SettingsTab } from './components/configuration/SettingsView';
 import { UserManagementView } from './components/configuration/UserManagementView';
 import { NotificationsView } from './components/notifications/NotificationsView';
@@ -178,6 +179,7 @@ export function App() {
       />
     ),
     'collect': collectScreen,
+    'notebook': () => <NotebookEntryView officeName={currentUser.name} />,
     'customers': () => (
       <CustomerManagement
         key={`${customersPreset.tab ?? ''}|${customersPreset.search ?? ''}`}

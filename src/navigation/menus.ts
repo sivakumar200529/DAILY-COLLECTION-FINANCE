@@ -7,6 +7,7 @@ import {
   UserCheck,
   Settings,
   KeyRound,
+  BookOpen,
 } from 'lucide-react';
 import { Role } from '../types';
 
@@ -16,7 +17,7 @@ import { Role } from '../types';
  * App.tsx maps each view to its component; the Record types there make a missing screen a
  * compile error.
  */
-export type AdminView = 'home' | 'collect' | 'customers' | 'customer-page' | 'reports' | 'staff' | 'users' | 'settings' | 'notifications';
+export type AdminView = 'home' | 'collect' | 'notebook' | 'customers' | 'customer-page' | 'reports' | 'staff' | 'users' | 'settings' | 'notifications';
 /** Collectors have one screen (CollectorHome), like customers. */
 export type CollectorView = 'home' | 'notifications';
 /** Customers have one screen (CustomerHome); the bell's "See all" opens notifications. */
@@ -33,6 +34,7 @@ export interface MenuItem {
 const ADMIN_MENU: MenuItem[] = [
   { id: 'home', labelKey: 'navHome', label: 'Home', icon: Home },
   { id: 'collect', labelKey: 'navCollect', label: 'Daily Collection', icon: CalendarCheck },
+  { id: 'notebook', labelKey: 'notebookEntry', label: 'Notebook entry', icon: BookOpen },
   { id: 'customers', labelKey: 'loanManagement', label: 'Loan Management', icon: Users },
   { id: 'reports', labelKey: 'reports', label: 'Reports', icon: FileText },
   { id: 'staff', labelKey: 'navStaffAreas', label: 'Staff & areas', icon: UserCheck },

@@ -3198,6 +3198,154 @@ export const translations: Record<string, { en: string; ta: string }> = {
     en: 'The daily payment for these days does not repay the loan amount. Raise the daily payment or the days.',
     ta: 'இந்த நாட்களுக்கான தினசரி தவணை கடன் தொகையை முழுமையாகச் செலுத்தாது. தினசரி தவணையையோ நாட்களையோ உயர்த்தவும்.',
   },
+
+  // Notebook entry page
+  notebookEntry: {
+    en: 'Notebook entry',
+    ta: 'நோட்டு பதிவு',
+  },
+  notebookEntryHint: {
+    en: 'Type each day\'s amount as in the collection notebook. "=" copies the day before; a block copied from Excel can be pasted; clear a cell to remove that day\'s payment.',
+    ta: 'வசூல் நோட்டில் உள்ளது போல ஒவ்வொரு நாளின் தொகையையும் பதியவும். "=" முந்தைய நாளின் தொகையை நகலெடுக்கும்; Excel-இல் நகலெடுத்த பகுதியை ஒட்டலாம்; ஒரு கட்டத்தை காலியாக்கினால் அந்த நாளின் வரவு நீக்கப்படும்.',
+  },
+  notebookChooseDates: {
+    en: 'Choose the start date and the end date.',
+    ta: 'தொடக்க நாளையும் முடிவு நாளையும் தேர்ந்தெடுக்கவும்.',
+  },
+  notebookFromAfterTo: {
+    en: 'The start date is after the end date.',
+    ta: 'தொடக்க நாள் முடிவு நாளுக்குப் பின் உள்ளது.',
+  },
+  notebookTooLong: {
+    en: 'Choose at most {n} days at a time.',
+    ta: 'ஒரே நேரத்தில் அதிகபட்சம் {n} நாட்கள் தேர்ந்தெடுக்கவும்.',
+  },
+  notebookFixAmounts: {
+    en: 'Some cells are not amounts. Fix the red cells.',
+    ta: 'சில கட்டங்களில் சரியான தொகை இல்லை. சிவப்பு கட்டங்களைச் சரிசெய்யவும்.',
+  },
+  notebookNotSaved: {
+    en: 'Nothing was saved. Fix the red cells (point at one to see why).',
+    ta: 'எதுவும் சேமிக்கப்படவில்லை. சிவப்பு கட்டங்களைச் சரிசெய்யவும் (காரணம் அறிய அதன் மேல் வைக்கவும்).',
+  },
+  notebookSaved: {
+    en: 'Saved {n} days.',
+    ta: '{n} நாட்கள் சேமிக்கப்பட்டன.',
+  },
+  notebookSaveFirst: {
+    en: 'Save or discard the typed amounts before changing the dates or filters.',
+    ta: 'நாட்களையோ வடிகட்டிகளையோ மாற்றும் முன் பதிந்த தொகைகளைச் சேமிக்கவும் அல்லது நீக்கவும்.',
+  },
+  notebookNoLoans: {
+    en: 'No running loans in these days.',
+    ta: 'இந்த நாட்களில் நடப்பு கடன்கள் இல்லை.',
+  },
+  notebookChanges: {
+    en: '{n} days typed, not saved yet',
+    ta: '{n} நாட்கள் பதியப்பட்டன, இன்னும் சேமிக்கவில்லை',
+  },
+  startDate: {
+    en: 'Start date',
+    ta: 'தொடக்க நாள்',
+  },
+  endDate: {
+    en: 'End date',
+    ta: 'முடிவு நாள்',
+  },
+  daily: {
+    en: 'Daily',
+    ta: 'தினசரி',
+  },
+  total: {
+    en: 'Total',
+    ta: 'மொத்தம்',
+  },
+  dayTotal: {
+    en: 'Day total',
+    ta: 'நாள் மொத்தம்',
+  },
+  discard: {
+    en: 'Discard',
+    ta: 'நீக்கு',
+  },
+  saving: {
+    en: 'Saving…',
+    ta: 'சேமிக்கிறது…',
+  },
+  save: {
+    en: 'Save',
+    ta: 'சேமி',
+  },
+  collector: {
+    en: 'Collector',
+    ta: 'வசூலிப்பாளர்',
+  },
+  notAnAmount: {
+    en: 'Not an amount',
+    ta: 'சரியான தொகை இல்லை',
+  },
+
+  // Full screen, reopening a day, removing the data
+  fullScreen: {
+    en: 'Full screen',
+    ta: 'முழுத் திரை',
+  },
+  dayClosedTapToReopen: {
+    en: 'This day is closed. Tap to reopen it.',
+    ta: 'இந்த நாள் முடிக்கப்பட்டது. மீண்டும் திறக்க தட்டவும்.',
+  },
+  reopenPastDayNote: {
+    en: 'It was closed by {name}. Once reopened, that day\'s collections can be changed; a past day stays open (only today can be closed on Home).',
+    ta: 'இதை {name} முடித்தார். மீண்டும் திறந்தால் அந்த நாளின் வசூலை மாற்றலாம்; கடந்த நாள் திறந்தே இருக்கும் (இன்றைய நாளை மட்டுமே முகப்பில் முடிக்க முடியும்).',
+  },
+  removeAllData: {
+    en: 'Remove the data',
+    ta: 'தரவை நீக்கு',
+  },
+  removeAllDataDesc: {
+    en: 'Removes every customer, loan, payment, receipt and day report, to start real work after trying the sample. Settings, loan types and office logins stay. A copy of the removed data is kept beside the data file.',
+    ta: 'மாதிரித் தரவைப் பயன்படுத்திய பின் உண்மையான வேலையைத் தொடங்க, அனைத்து வாடிக்கையாளர்கள், கடன்கள், வரவுகள், ரசீதுகள் மற்றும் நாள் அறிக்கைகளை நீக்கும். அமைப்புகள், கடன் வகைகள், அலுவலக உள்நுழைவுகள் அப்படியே இருக்கும். நீக்கிய தரவின் நகல் தரவுக் கோப்பின் அருகே சேமிக்கப்படும்.',
+  },
+  removeAllDataQuestion: {
+    en: 'Remove all customers, loans and payments?',
+    ta: 'அனைத்து வாடிக்கையாளர்கள், கடன்கள், வரவுகளை நீக்கவா?',
+  },
+  keepCollectorsAreas: {
+    en: 'Keep collectors and areas',
+    ta: 'வசூலிப்பாளர்களையும் பகுதிகளையும் வைத்திரு',
+  },
+  keepCollectorsAreasHint: {
+    en: 'Untick to remove the collectors (and their logins) and the areas too.',
+    ta: 'வசூலிப்பாளர்களையும் (அவர்களின் உள்நுழைவுகளும்) பகுதிகளையும் நீக்க, குறியை எடுக்கவும்.',
+  },
+  typeDeleteToConfirm: {
+    en: 'Type DELETE to confirm',
+    ta: 'உறுதிப்படுத்த DELETE என்று தட்டச்சு செய்யவும்',
+  },
+  copyIsKept: {
+    en: 'A copy of the current data is kept beside the data file.',
+    ta: 'தற்போதைய தரவின் நகல் தரவுக் கோப்பின் அருகே சேமிக்கப்படும்.',
+  },
+
+  // Reopening a past day
+  reopenDateQuestion: {
+    en: 'Reopen {date}?',
+    ta: '{date} மீண்டும் திறக்கவா?',
+  },
+
+  // Empty screens
+  noCollectorsYet: {
+    en: 'No collectors yet',
+    ta: 'இன்னும் வசூலிப்பாளர்கள் இல்லை',
+  },
+  noCollectorReportsDay: {
+    en: 'No collector worked or sent a report on this day',
+    ta: 'இந்த நாளில் எந்த வசூலிப்பாளரும் வேலை செய்யவில்லை, அறிக்கையும் அனுப்பவில்லை',
+  },
+  noCustomersThisDay: {
+    en: 'No customers on the list for this day',
+    ta: 'இந்த நாளின் பட்டியலில் வாடிக்கையாளர்கள் இல்லை',
+  },
 };
 
 // Global direct fallback lookup table (case-insensitive) for any English text in the entire app

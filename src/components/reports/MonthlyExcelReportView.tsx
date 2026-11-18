@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { MonthlyReportData, Collector, Area, PaymentTransaction, CollectionAccount, MonthlyReportRow } from '../../types';
 import { api } from '../../services/api';
-import { formatCurrency, formatPercent } from '../../utils/formatters';
+import { formatCurrency, formatPercent, orNA } from '../../utils/formatters';
 import { exportMonthlyReportToExcel } from '../../utils/excelExport';
 import { useLanguage } from '../../context/LanguageContext';
 import { 
@@ -536,18 +536,19 @@ export const MonthlyExcelReportView: React.FC = () => {
     <div className="space-y-4 font-sans">
       {/* This month in three numbers */}
       {reportData && (
+        // No loan in the month: "—" rather than ₹0.
         <div className="grid grid-cols-3 gap-2">
           <div className="glass-card rounded-2xl p-3">
             <div className="text-xs text-slate-400 font-semibold">{t('expectedThisMonth', 'Expected')}</div>
-            <div className="text-lg sm:text-2xl font-black text-white">{formatCurrency(reportData.totals.expectedMonthly)}</div>
+            <div className="text-lg sm:text-2xl font-black text-white">{orNA(reportData.rows.length > 0, formatCurrency(reportData.totals.expectedMonthly))}</div>
           </div>
           <div className="glass-card rounded-2xl p-3">
             <div className="text-xs text-slate-400 font-semibold">{t('collected', 'Collected')}</div>
-            <div className="text-lg sm:text-2xl font-black text-emerald-400">{formatCurrency(reportData.totals.actualMonthly)}</div>
+            <div className="text-lg sm:text-2xl font-black text-emerald-400">{orNA(reportData.rows.length > 0, formatCurrency(reportData.totals.actualMonthly))}</div>
           </div>
           <div className="glass-card rounded-2xl p-3">
             <div className="text-xs text-slate-400 font-semibold">{t('stillToCollect', 'Still to collect')}</div>
-            <div className="text-lg sm:text-2xl font-black text-rose-400">{formatCurrency(reportData.totals.monthlyPending)}</div>
+            <div className="text-lg sm:text-2xl font-black text-rose-400">{orNA(reportData.rows.length > 0, formatCurrency(reportData.totals.monthlyPending))}</div>
           </div>
         </div>
       )}

@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { CalendarCheck } from 'lucide-react';
 import { CollectorReport, DailyCollectionRecord, DashboardStats, DayClosing } from '../../types';
 import { api } from '../../services/api';
-import { formatCurrency, formatDate } from '../../utils/formatters';
+import { formatCurrency, formatDate, orNA } from '../../utils/formatters';
 import { addDaysIso, daysLeftInMonth, todayIso } from '../../../shared/finance';
 import { activeClosing } from '../../../shared/collectorDay';
 import { useLanguage } from '../../context/LanguageContext';
@@ -92,6 +92,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenCollect, o
   // Once every report is in (and after closing) the closing board comes first, in place of today's figures.
   const closingDay = assigned && closeBoardShown(records, reports, closing);
   const openRegister = () => onOpenReports('monthly');
+  // No customers and no loans (e.g. after the data is removed): figures show "—".
+  const has = stats.totalCustomers > 0 || stats.activeAccounts > 0 || stats.monthExpected > 0 || stats.monthCollected > 0;
 
   const month = (
     <FigureCard
@@ -101,9 +103,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenCollect, o
       <FigureLine
         large={lastDayOfMonth}
         figures={[
-          { label: t('expectedCollection', 'Expected Collection'), value: formatCurrency(stats.monthExpected), onClick: openRegister },
-          { label: t('totalCollection', 'Total Collection'), value: formatCurrency(stats.monthCollected), tone: 'text-emerald-400', onClick: openRegister },
-          { label: t('balance', 'Balance'), value: formatCurrency(stats.monthBalance), tone: 'text-gold-300', onClick: openRegister },
+          { label: t('expectedCollection', 'Expected Collection'), value: orNA(has, formatCurrency(stats.monthExpected)), onClick: openRegister },
+          { label: t('totalCollection', 'Total Collection'), value: orNA(has, formatCurrency(stats.monthCollected)), tone: 'text-emerald-400', onClick: openRegister },
+          { label: t('balance', 'Balance'), value: orNA(has, formatCurrency(stats.monthBalance)), tone: 'text-gold-300', onClick: openRegister },
         ]}
       />
     </FigureCard>
@@ -166,10 +168,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenCollect, o
       <FigureCard title={t('orgStatistics', 'Organisation statistics')}>
         <FigureLine
           figures={[
-            { label: t('totalCustomers', 'Total Customers'), value: stats.totalCustomers, onClick: () => onOpenLoans('all') },
-            { label: t('totalCollectors', 'Total Collectors'), value: stats.totalCollectors, onClick: onOpenStaff },
-            { label: t('activeLoans', 'Active Loans'), value: stats.activeAccounts, onClick: () => onOpenLoans('active') },
-            { label: t('longStandingLoans', 'Long standing loans'), value: stats.longStandingLoans, tone: 'text-rose-300', onClick: () => onOpenReports('long-pending') },
+            { label: t('totalCustomers', 'Total Customers'), value: orNA(has, stats.totalCustomers), onClick: () => onOpenLoans('all') },
+            { label: t('totalCollectors', 'Total Collectors'), value: orNA(has || stats.totalCollectors > 0, stats.totalCollectors), onClick: onOpenStaff },
+            { label: t('activeLoans', 'Active Loans'), value: orNA(has, stats.activeAccounts), onClick: () => onOpenLoans('active') },
+            { label: t('longStandingLoans', 'Long standing loans'), value: orNA(has, stats.longStandingLoans), tone: 'text-rose-300', onClick: () => onOpenReports('long-pending') },
           ]}
         />
       </FigureCard>

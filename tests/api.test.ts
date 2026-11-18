@@ -306,3 +306,71 @@ test('office records and the customer portal', async () => {
   const notes = await ok(get('/api/notifications?role=ADMIN', token), 'notifications');
   assert.ok(notes.every((n: any) => n.recipient_role === 'CUSTOMER' && n.customer_id === cust.id), 'only own notifications');
 });
+
+test('notebook entry: many days at once, all checked before anything is saved', async () => {
+  const collectors = await ok(get('/api/collectors'), 'collectors');
+  const col = collectors.find((c: any) => c.status === 'ACTIVE');
+  const config = await ok(get('/api/config'), 'config');
+  const product = config.loan_products.find((p: any) => p.status === 'ACTIVE');
+  let amount = product.default_days * 100;
+  if (product.min_amount > 0 && amount < product.min_amount) amount = product.min_amount;
+  if (product.max_amount > 0 && amount > product.max_amount) amount = product.max_amount;
+  const start = addDaysIso(T, -6);
+  const cust = await ok(post('/api/customers', {
+    personal: { full_name: 'Notebook Customer', mobile_number: '7' + String(Date.now()).slice(-9) },
+    loan: { product_id: product.id, requested_amount: amount, start_date: start, assigned_collector_id: col.id, collection_area: col.assigned_area },
+  }), 'create');
+  const accId = cust.activeAccount.id;
+  const d = cust.activeAccount.daily_collection;
+  const total = cust.activeAccount.total_repayment;
+  const day = (n: number) => addDaysIso(start, n);
+
+  const page = await ok(get(`/api/notebook?from=${start}&to=${T}&collector=${col.id}`), 'notebook');
+  assert.ok(page.rows.some((r: any) => r.account_id === accId), 'the new loan is a row');
+  assert.equal((await get(`/api/notebook?from=${T}&to=${start}`)).status, 400, 'dates the wrong way round');
+
+  // Four days typed.
+  const first = await ok(post('/api/notebook', { changes: [0, 1, 2, 3].map(n => ({ account_id: accId, date: day(n), amount: d })) }), 'save');
+  assert.equal(first.saved, 4);
+  await checkLoan(accId, 4 * d);
+
+  // Change one, clear one, add one; plus one wrong cell (a future day): nothing at all is saved.
+  const mixed = [
+    { account_id: accId, date: day(1), amount: 2 * d },
+    { account_id: accId, date: day(2), amount: 0 },
+    { account_id: accId, date: day(4), amount: d },
+  ];
+  const refused = await post('/api/notebook', { changes: [...mixed, { account_id: accId, date: addDaysIso(T, 1), amount: d }] });
+  assert.equal(refused.status, 400);
+  assert.equal(refused.data.errors.length, 1, 'the wrong cell is named');
+  await checkLoan(accId, 4 * d);
+  assert.equal((await post('/api/notebook', { changes: [{ account_id: accId, date: day(5), amount: total }] })).status, 400, 'more than the loan owes');
+
+  await ok(post('/api/notebook', { changes: mixed }), 'save mixed');
+  await checkLoan(accId, 5 * d);
+  const after = await ok(get(`/api/notebook?from=${start}&to=${T}`), 'notebook');
+  const row = after.rows.find((r: any) => r.account_id === accId);
+  assert.equal(row.cells[day(1)].amount, 2 * d);
+  assert.equal(row.cells[day(2)], undefined, 'cleared day has no payment');
+  assert.equal(row.balance, roundMoney(total - 5 * d));
+});
+
+test('removing the data keeps settings, office logins and (when asked) the staff', async () => {
+  assert.equal((await post('/api/data/clear', { keep_staff: true })).status, 400, 'needs the typed confirmation');
+  const collectorsBefore = (await ok(get('/api/collectors'), 'collectors')).length;
+  const products = (await ok(get('/api/config'), 'config')).loan_products.length;
+  await ok(post('/api/data/clear', { confirm: 'DELETE', keep_staff: true }), 'clear');
+  assert.equal((await ok(get('/api/customers'), 'customers')).length, 0);
+  assert.equal((await ok(get('/api/collection-accounts'), 'loans')).length, 0);
+  assert.equal((await ok(get('/api/payments'), 'payments')).length, 0);
+  assert.equal((await ok(get('/api/collectors'), 'collectors')).length, collectorsBefore, 'collectors kept');
+  assert.equal((await ok(get('/api/config'), 'config')).loan_products.length, products, 'settings kept');
+  const users = await ok(get('/api/users'), 'users');
+  assert.ok(users.every((u: any) => u.role !== 'CUSTOMER'), 'customer logins removed');
+  assert.ok(users.some((u: any) => u.role === 'ADMIN'), 'office login kept');
+  const stats = await ok(get('/api/dashboard/stats'), 'Home still works');
+  assert.equal(stats.monthCollected, 0);
+  await ok(post('/api/data/clear', { confirm: 'DELETE', keep_staff: false }), 'clear staff too');
+  assert.equal((await ok(get('/api/collectors'), 'collectors')).length, 0);
+  assert.equal((await ok(get('/api/areas'), 'areas')).length, 0);
+});
