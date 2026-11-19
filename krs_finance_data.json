@@ -11,7 +11,7 @@
       "is_active": true,
       "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150",
       "created_at": "2026-01-01T09:00:00.000Z",
-      "last_login_at": "2026-11-03T10:14:01.427Z"
+      "last_login_at": "2026-11-18T15:36:32.504Z"
     },
     {
       "id": "USR005",
@@ -2067,7 +2067,7 @@
       "collection_area": "Bazaar Main Road",
       "status": "COMPLETED",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-03T11:57:24.852Z",
+      "updated_at": "2026-11-18T15:47:46.832Z",
       "actual_completion_date": "2026-10-07"
     },
     {
@@ -2085,17 +2085,18 @@
       "finance_margin": 2400,
       "start_date": "2026-07-01",
       "expected_end_date": "2026-10-09",
-      "amount_collected": 19400,
-      "remaining_amount": 600,
-      "completed_days": 97,
-      "remaining_days": 3,
-      "collection_percentage": 97,
+      "amount_collected": 20000,
+      "remaining_amount": 0,
+      "completed_days": 100,
+      "remaining_days": 0,
+      "collection_percentage": 100,
       "assigned_collector_id": "COL102",
       "assigned_collector_name": "Karthik Raja",
       "collection_area": "Town Hall Road",
-      "status": "OVERDUE",
+      "status": "COMPLETED",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-03T11:57:24.858Z"
+      "updated_at": "2026-11-18T15:47:46.838Z",
+      "actual_completion_date": "2026-11-18"
     },
     {
       "id": "ACC-2026-003",
@@ -2122,7 +2123,7 @@
       "collection_area": "Car Street",
       "status": "OVERDUE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-03T11:57:24.864Z"
+      "updated_at": "2026-11-18T15:47:46.841Z"
     },
     {
       "id": "ACC-2026-004",
@@ -2149,7 +2150,7 @@
       "collection_area": "Market Gate",
       "status": "COMPLETED",
       "created_at": "2026-06-15T10:00:00.000Z",
-      "updated_at": "2026-11-03T11:57:24.871Z",
+      "updated_at": "2026-11-18T15:47:46.845Z",
       "actual_completion_date": "2026-10-28"
     },
     {
@@ -2177,7 +2178,7 @@
       "collection_area": "New Bus Stand Area",
       "status": "COMPLETED",
       "created_at": "2026-07-15T10:00:00.000Z",
-      "updated_at": "2026-11-03T11:57:24.878Z",
+      "updated_at": "2026-11-18T15:47:46.847Z",
       "actual_completion_date": "2026-09-02"
     },
     {
@@ -2205,7 +2206,7 @@
       "collection_area": "Bazaar Main Road",
       "status": "OVERDUE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-03T11:57:24.882Z"
+      "updated_at": "2026-11-18T15:47:46.848Z"
     },
     {
       "id": "ACC-2026-007",
@@ -2232,7 +2233,7 @@
       "collection_area": "Town Hall Road",
       "status": "OVERDUE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-03T11:57:24.887Z"
+      "updated_at": "2026-11-18T15:47:46.851Z"
     },
     {
       "id": "ACC-2026-008",
@@ -2259,7 +2260,7 @@
       "collection_area": "Car Street",
       "status": "OVERDUE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-03T11:57:24.892Z"
+      "updated_at": "2026-11-18T15:47:46.854Z"
     },
     {
       "id": "ACC-2026-009",
@@ -2286,7 +2287,7 @@
       "collection_area": "Market Gate",
       "status": "OVERDUE",
       "created_at": "2026-07-10T10:00:00.000Z",
-      "updated_at": "2026-11-03T11:57:24.897Z"
+      "updated_at": "2026-11-18T15:47:46.858Z"
     },
     {
       "id": "ACC-2026-010",
@@ -2313,7 +2314,7 @@
       "collection_area": "New Bus Stand Area",
       "status": "OVERDUE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-03T11:57:24.902Z"
+      "updated_at": "2026-11-18T15:47:46.861Z"
     },
     {
       "id": "ACC-2026-011",
@@ -2340,7 +2341,7 @@
       "collection_area": "Bazaar Main Road",
       "status": "OVERDUE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-03T11:57:24.907Z"
+      "updated_at": "2026-11-18T15:47:46.864Z"
     },
     {
       "id": "ACC-2026-012",
@@ -2367,7 +2368,7 @@
       "collection_area": "Town Hall Road",
       "status": "OVERDUE",
       "created_at": "2026-07-05T10:00:00.000Z",
-      "updated_at": "2026-11-03T11:57:24.911Z"
+      "updated_at": "2026-11-18T15:47:46.866Z"
     },
     {
       "id": "ACC-2026-013",
@@ -2394,7 +2395,7 @@
       "collection_area": "Car Street",
       "status": "OVERDUE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-03T11:57:24.917Z"
+      "updated_at": "2026-11-18T15:47:46.868Z"
     },
     {
       "id": "ACC-2026-014",
@@ -2421,7 +2422,7 @@
       "collection_area": "Market Gate",
       "status": "OVERDUE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-03T11:57:24.922Z"
+      "updated_at": "2026-11-18T15:47:46.870Z"
     },
     {
       "id": "ACC-2026-015",
@@ -2448,7 +2449,7 @@
       "collection_area": "New Bus Stand Area",
       "status": "OVERDUE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-03T11:57:24.927Z"
+      "updated_at": "2026-11-18T15:47:46.872Z"
     },
     {
       "id": "ACC-2026-016",
@@ -2475,7 +2476,7 @@
       "collection_area": "Bazaar Main Road",
       "status": "OVERDUE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-03T11:57:24.935Z"
+      "updated_at": "2026-11-18T15:47:46.874Z"
     },
     {
       "id": "ACC-2026-017",
@@ -2502,7 +2503,7 @@
       "collection_area": "Town Hall Road",
       "status": "COMPLETED",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-03T11:57:24.942Z",
+      "updated_at": "2026-11-18T15:47:46.878Z",
       "actual_completion_date": "2026-11-02"
     },
     {
@@ -2530,7 +2531,7 @@
       "collection_area": "Car Street",
       "status": "OVERDUE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-03T11:57:24.950Z"
+      "updated_at": "2026-11-18T15:47:46.880Z"
     },
     {
       "id": "ACC-2026-019",
@@ -2557,7 +2558,7 @@
       "collection_area": "Market Gate",
       "status": "OVERDUE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-03T11:57:24.956Z"
+      "updated_at": "2026-11-18T15:47:46.883Z"
     },
     {
       "id": "ACC-2026-020",
@@ -2584,7 +2585,7 @@
       "collection_area": "New Bus Stand Area",
       "status": "OVERDUE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-03T11:57:24.966Z"
+      "updated_at": "2026-11-18T15:47:46.885Z"
     },
     {
       "id": "ACC-2026-021",
@@ -2611,7 +2612,7 @@
       "collection_area": "Bazaar Main Road",
       "status": "OVERDUE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-03T11:57:24.971Z"
+      "updated_at": "2026-11-18T15:47:46.887Z"
     },
     {
       "id": "ACC-2026-022",
@@ -2638,7 +2639,7 @@
       "collection_area": "Town Hall Road",
       "status": "OVERDUE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-03T11:57:24.978Z"
+      "updated_at": "2026-11-18T15:47:46.890Z"
     },
     {
       "id": "ACC-2026-023",
@@ -2665,7 +2666,7 @@
       "collection_area": "Car Street",
       "status": "OVERDUE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-03T11:57:24.984Z"
+      "updated_at": "2026-11-18T15:47:46.892Z"
     },
     {
       "id": "ACC-2026-024",
@@ -2692,7 +2693,7 @@
       "collection_area": "Market Gate",
       "status": "OVERDUE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-03T11:57:24.988Z"
+      "updated_at": "2026-11-18T15:47:46.894Z"
     },
     {
       "id": "ACC-2026-025",
@@ -2719,7 +2720,7 @@
       "collection_area": "New Bus Stand Area",
       "status": "OVERDUE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-03T11:57:24.996Z"
+      "updated_at": "2026-11-18T15:47:46.896Z"
     },
     {
       "id": "ACC-2026-026",
@@ -2746,7 +2747,7 @@
       "collection_area": "Bazaar Main Road",
       "status": "OVERDUE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-03T11:57:25.002Z"
+      "updated_at": "2026-11-18T15:47:46.898Z"
     },
     {
       "id": "ACC-2026-027",
@@ -2773,7 +2774,7 @@
       "collection_area": "Town Hall Road",
       "status": "OVERDUE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-03T11:57:25.009Z"
+      "updated_at": "2026-11-18T15:47:46.900Z"
     },
     {
       "id": "ACC-2026-028",
@@ -2800,7 +2801,7 @@
       "collection_area": "Car Street",
       "status": "OVERDUE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-03T11:57:25.018Z"
+      "updated_at": "2026-11-18T15:47:46.902Z"
     },
     {
       "id": "ACC-2026-029",
@@ -2827,7 +2828,7 @@
       "collection_area": "Market Gate",
       "status": "OVERDUE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-03T11:57:25.025Z"
+      "updated_at": "2026-11-18T15:47:46.904Z"
     },
     {
       "id": "ACC-2026-030",
@@ -2854,7 +2855,7 @@
       "collection_area": "New Bus Stand Area",
       "status": "OVERDUE",
       "created_at": "2026-07-01T10:00:00.000Z",
-      "updated_at": "2026-11-03T11:57:25.036Z"
+      "updated_at": "2026-11-18T15:47:46.906Z"
     },
     {
       "id": "ACC-2026-031",
@@ -2883,7 +2884,7 @@
       "collection_area": "Bazaar Main Road",
       "status": "ACTIVE",
       "created_at": "2026-09-30T09:21:17.614Z",
-      "updated_at": "2026-11-03T11:57:25.046Z"
+      "updated_at": "2026-11-18T15:47:46.908Z"
     },
     {
       "id": "ACC-2026-032",
@@ -2912,7 +2913,7 @@
       "collection_area": "Bazaar Main Road",
       "status": "ACTIVE",
       "created_at": "2026-10-07T17:21:56.021Z",
-      "updated_at": "2026-11-03T11:57:25.052Z"
+      "updated_at": "2026-11-18T15:47:46.908Z"
     }
   ],
   "daily_collections": [
@@ -68978,7 +68979,8 @@
       "remarks": "Scheduled collection day",
       "balance_remaining": 9900,
       "missed_days_count": 48,
-      "missed_amount": 4800
+      "missed_amount": 4800,
+      "route_order": 27
     },
     {
       "id": "DC-2026-11-19-ACC-2026-031",
@@ -72068,7 +72070,8 @@
       "receipt_id": "REC-1791394033952",
       "receipt_number": "DC-REC-2026-03768",
       "missed_days_count": 0,
-      "missed_amount": 0
+      "missed_amount": 0,
+      "route_order": 28
     },
     {
       "id": "DC-2026-11-19-ACC-2026-032",
@@ -75835,16 +75838,16 @@
       "date": "2026-11-30",
       "daily_due": 200,
       "paid_amount": 0,
-      "pending_amount": 200,
+      "pending_amount": 0,
       "advance_amount": 0,
       "status": "PENDING",
       "collector_id": "COL102",
       "collector_name": "Karthik Raja",
       "collection_area": "Town Hall Road",
-      "balance_remaining": 600,
+      "balance_remaining": 0,
       "route_order": 1,
-      "missed_days_count": 3,
-      "missed_amount": 600
+      "missed_days_count": 0,
+      "missed_amount": 0
     },
     {
       "id": "DC-2026-11-30-ACC-2026-003",
@@ -76904,6 +76907,555 @@
       "shop_name": "Krishna Organic Provisions & Millets",
       "mobile_number": "9845122334",
       "date": "2026-11-03",
+      "daily_due": 100,
+      "paid_amount": 0,
+      "pending_amount": 100,
+      "advance_amount": 0,
+      "status": "PENDING",
+      "collector_id": "COL102",
+      "collector_name": "Karthik Raja",
+      "collection_area": "New Bus Stand Area",
+      "balance_remaining": 1250,
+      "route_order": 26,
+      "missed_days_count": 13,
+      "missed_amount": 1250
+    },
+    {
+      "id": "DC-2026-11-18-ACC-2026-002",
+      "collection_account_id": "ACC-2026-002",
+      "customer_id": "KRS10002",
+      "customer_name": "Sundar Rajan",
+      "shop_name": "Annapoorna Sweets, Bakery & Snacks",
+      "mobile_number": "9842211990",
+      "date": "2026-11-18",
+      "daily_due": 200,
+      "paid_amount": 600,
+      "pending_amount": 0,
+      "advance_amount": 0,
+      "status": "PAID",
+      "collector_id": "COL102",
+      "collector_name": "Karthik Raja",
+      "collection_area": "Town Hall Road",
+      "balance_remaining": 0,
+      "route_order": 1,
+      "missed_days_count": 3,
+      "missed_amount": 600,
+      "payment_mode": "Cash",
+      "receipt_id": "REC-1795016236208-finzho",
+      "receipt_number": "DC-REC-2026-03788"
+    },
+    {
+      "id": "DC-2026-11-18-ACC-2026-003",
+      "collection_account_id": "ACC-2026-003",
+      "customer_id": "KRS10003",
+      "customer_name": "Meenakshi Ammal",
+      "shop_name": "Murugan Textiles, Sarees & Readymade",
+      "mobile_number": "9842377881",
+      "date": "2026-11-18",
+      "daily_due": 500,
+      "paid_amount": 0,
+      "pending_amount": 500,
+      "advance_amount": 0,
+      "status": "PENDING",
+      "collector_id": "COL103",
+      "collector_name": "Saravanan P.",
+      "collection_area": "Car Street",
+      "balance_remaining": 3000,
+      "route_order": 2,
+      "missed_days_count": 6,
+      "missed_amount": 3000
+    },
+    {
+      "id": "DC-2026-11-18-ACC-2026-006",
+      "collection_account_id": "ACC-2026-006",
+      "customer_id": "KRS10006",
+      "customer_name": "Kavitha Selvam",
+      "shop_name": "Selvam Fancy Store, Toys & Stationeries",
+      "mobile_number": "9842666778",
+      "date": "2026-11-18",
+      "daily_due": 100,
+      "paid_amount": 0,
+      "pending_amount": 100,
+      "advance_amount": 0,
+      "status": "PENDING",
+      "collector_id": "COL101",
+      "collector_name": "Murugan S.",
+      "collection_area": "Bazaar Main Road",
+      "balance_remaining": 600,
+      "route_order": 3,
+      "missed_days_count": 6,
+      "missed_amount": 600
+    },
+    {
+      "id": "DC-2026-11-18-ACC-2026-007",
+      "collection_account_id": "ACC-2026-007",
+      "customer_id": "KRS10007",
+      "customer_name": "Muthuraman K.",
+      "shop_name": "Sri Lakshmi Medicals & Health Care",
+      "mobile_number": "9842711223",
+      "date": "2026-11-18",
+      "daily_due": 200,
+      "paid_amount": 0,
+      "pending_amount": 200,
+      "advance_amount": 0,
+      "status": "PENDING",
+      "collector_id": "COL102",
+      "collector_name": "Karthik Raja",
+      "collection_area": "Town Hall Road",
+      "balance_remaining": 1600,
+      "route_order": 4,
+      "missed_days_count": 8,
+      "missed_amount": 1600
+    },
+    {
+      "id": "DC-2026-11-18-ACC-2026-008",
+      "collection_account_id": "ACC-2026-008",
+      "customer_id": "KRS10008",
+      "customer_name": "Annamalai C.",
+      "shop_name": "Balaji Automobiles & Two-Wheeler Spares",
+      "mobile_number": "9842833445",
+      "date": "2026-11-18",
+      "daily_due": 100,
+      "paid_amount": 0,
+      "pending_amount": 100,
+      "advance_amount": 0,
+      "status": "PENDING",
+      "collector_id": "COL103",
+      "collector_name": "Saravanan P.",
+      "collection_area": "Car Street",
+      "balance_remaining": 850,
+      "route_order": 5,
+      "missed_days_count": 9,
+      "missed_amount": 850
+    },
+    {
+      "id": "DC-2026-11-18-ACC-2026-009",
+      "collection_account_id": "ACC-2026-009",
+      "customer_id": "KRS10009",
+      "customer_name": "Priya Dharshini",
+      "shop_name": "Priya Bridal Studio & Tailoring",
+      "mobile_number": "9842955667",
+      "date": "2026-11-18",
+      "daily_due": 100,
+      "paid_amount": 0,
+      "pending_amount": 100,
+      "advance_amount": 0,
+      "status": "PENDING",
+      "collector_id": "COL101",
+      "collector_name": "Murugan S.",
+      "collection_area": "Market Gate",
+      "balance_remaining": 1750,
+      "route_order": 6,
+      "missed_days_count": 18,
+      "missed_amount": 1750
+    },
+    {
+      "id": "DC-2026-11-18-ACC-2026-010",
+      "collection_account_id": "ACC-2026-010",
+      "customer_id": "KRS10010",
+      "customer_name": "Selva Ganesh",
+      "shop_name": "Ganesh Electricals & Home Appliances",
+      "mobile_number": "9843011224",
+      "date": "2026-11-18",
+      "daily_due": 200,
+      "paid_amount": 0,
+      "pending_amount": 200,
+      "advance_amount": 0,
+      "status": "PENDING",
+      "collector_id": "COL102",
+      "collector_name": "Karthik Raja",
+      "collection_area": "New Bus Stand Area",
+      "balance_remaining": 1700,
+      "route_order": 7,
+      "missed_days_count": 9,
+      "missed_amount": 1700
+    },
+    {
+      "id": "DC-2026-11-18-ACC-2026-011",
+      "collection_account_id": "ACC-2026-011",
+      "customer_id": "KRS10011",
+      "customer_name": "Saravanan V.",
+      "shop_name": "Thirumalai Maligai & Provisions",
+      "mobile_number": "9843122335",
+      "date": "2026-11-18",
+      "daily_due": 200,
+      "paid_amount": 0,
+      "pending_amount": 200,
+      "advance_amount": 0,
+      "status": "PENDING",
+      "collector_id": "COL101",
+      "collector_name": "Murugan S.",
+      "collection_area": "Bazaar Main Road",
+      "balance_remaining": 1700,
+      "route_order": 8,
+      "missed_days_count": 9,
+      "missed_amount": 1700
+    },
+    {
+      "id": "DC-2026-11-18-ACC-2026-012",
+      "collection_account_id": "ACC-2026-012",
+      "customer_id": "KRS10012",
+      "customer_name": "Lakshmi Narayanan",
+      "shop_name": "Royal Footwear & Bag World",
+      "mobile_number": "9843233446",
+      "date": "2026-11-18",
+      "daily_due": 100,
+      "paid_amount": 0,
+      "pending_amount": 100,
+      "advance_amount": 0,
+      "status": "PENDING",
+      "collector_id": "COL102",
+      "collector_name": "Karthik Raja",
+      "collection_area": "Town Hall Road",
+      "balance_remaining": 1150,
+      "route_order": 9,
+      "missed_days_count": 12,
+      "missed_amount": 1150
+    },
+    {
+      "id": "DC-2026-11-18-ACC-2026-013",
+      "collection_account_id": "ACC-2026-013",
+      "customer_id": "KRS10013",
+      "customer_name": "Deepa Venkatesh",
+      "shop_name": "Deepa Xerox, DTP & Online Services",
+      "mobile_number": "9843344557",
+      "date": "2026-11-18",
+      "daily_due": 100,
+      "paid_amount": 0,
+      "pending_amount": 100,
+      "advance_amount": 0,
+      "status": "PENDING",
+      "collector_id": "COL103",
+      "collector_name": "Saravanan P.",
+      "collection_area": "Car Street",
+      "balance_remaining": 1050,
+      "route_order": 10,
+      "missed_days_count": 11,
+      "missed_amount": 1050
+    },
+    {
+      "id": "DC-2026-11-18-ACC-2026-014",
+      "collection_account_id": "ACC-2026-014",
+      "customer_id": "KRS10014",
+      "customer_name": "Manikandan R.",
+      "shop_name": "Murugan Fruit Stall & Fresh Juice Corner",
+      "mobile_number": "9843455668",
+      "date": "2026-11-18",
+      "daily_due": 100,
+      "paid_amount": 0,
+      "pending_amount": 100,
+      "advance_amount": 0,
+      "status": "PENDING",
+      "collector_id": "COL101",
+      "collector_name": "Murugan S.",
+      "collection_area": "Market Gate",
+      "balance_remaining": 1450,
+      "route_order": 11,
+      "missed_days_count": 15,
+      "missed_amount": 1450
+    },
+    {
+      "id": "DC-2026-11-18-ACC-2026-015",
+      "collection_account_id": "ACC-2026-015",
+      "customer_id": "KRS10015",
+      "customer_name": "Rajasekaran P.",
+      "shop_name": "Raja Cafe & Hot Chips Centre",
+      "mobile_number": "9843566779",
+      "date": "2026-11-18",
+      "daily_due": 100,
+      "paid_amount": 0,
+      "pending_amount": 100,
+      "advance_amount": 0,
+      "status": "PENDING",
+      "collector_id": "COL102",
+      "collector_name": "Karthik Raja",
+      "collection_area": "New Bus Stand Area",
+      "balance_remaining": 1150,
+      "route_order": 12,
+      "missed_days_count": 12,
+      "missed_amount": 1150
+    },
+    {
+      "id": "DC-2026-11-18-ACC-2026-016",
+      "collection_account_id": "ACC-2026-016",
+      "customer_id": "KRS10016",
+      "customer_name": "Thangavel M.",
+      "shop_name": "Sri Murugan Iron Hardware & Pipes",
+      "mobile_number": "9843677880",
+      "date": "2026-11-18",
+      "daily_due": 500,
+      "paid_amount": 0,
+      "pending_amount": 500,
+      "advance_amount": 0,
+      "status": "PENDING",
+      "collector_id": "COL101",
+      "collector_name": "Murugan S.",
+      "collection_area": "Bazaar Main Road",
+      "balance_remaining": 5750,
+      "route_order": 13,
+      "missed_days_count": 12,
+      "missed_amount": 5750
+    },
+    {
+      "id": "DC-2026-11-18-ACC-2026-018",
+      "collection_account_id": "ACC-2026-018",
+      "customer_id": "KRS10018",
+      "customer_name": "Shanmuga Sundaram",
+      "shop_name": "Sundaram Timber & Plywood Depot",
+      "mobile_number": "9843899002",
+      "date": "2026-11-18",
+      "daily_due": 500,
+      "paid_amount": 0,
+      "pending_amount": 500,
+      "advance_amount": 0,
+      "status": "PENDING",
+      "collector_id": "COL103",
+      "collector_name": "Saravanan P.",
+      "collection_area": "Car Street",
+      "balance_remaining": 5750,
+      "route_order": 14,
+      "missed_days_count": 12,
+      "missed_amount": 5750
+    },
+    {
+      "id": "DC-2026-11-18-ACC-2026-019",
+      "collection_account_id": "ACC-2026-019",
+      "customer_id": "KRS10019",
+      "customer_name": "Radha Krishnan",
+      "shop_name": "Sri Radha Krishna Flower Market",
+      "mobile_number": "9843900113",
+      "date": "2026-11-18",
+      "daily_due": 100,
+      "paid_amount": 0,
+      "pending_amount": 100,
+      "advance_amount": 0,
+      "status": "PENDING",
+      "collector_id": "COL101",
+      "collector_name": "Murugan S.",
+      "collection_area": "Market Gate",
+      "balance_remaining": 1250,
+      "route_order": 15,
+      "missed_days_count": 13,
+      "missed_amount": 1250
+    },
+    {
+      "id": "DC-2026-11-18-ACC-2026-020",
+      "collection_account_id": "ACC-2026-020",
+      "customer_id": "KRS10020",
+      "customer_name": "Geetha Rani",
+      "shop_name": "Saraswathi Book Center & Stationers",
+      "mobile_number": "9844011224",
+      "date": "2026-11-18",
+      "daily_due": 100,
+      "paid_amount": 0,
+      "pending_amount": 100,
+      "advance_amount": 0,
+      "status": "PENDING",
+      "collector_id": "COL102",
+      "collector_name": "Karthik Raja",
+      "collection_area": "New Bus Stand Area",
+      "balance_remaining": 1250,
+      "route_order": 16,
+      "missed_days_count": 13,
+      "missed_amount": 1250
+    },
+    {
+      "id": "DC-2026-11-18-ACC-2026-021",
+      "collection_account_id": "ACC-2026-021",
+      "customer_id": "KRS10021",
+      "customer_name": "Karthikeyan S.",
+      "shop_name": "Shiva Sakthi Rice Mundy & Wholesale",
+      "mobile_number": "9844122335",
+      "date": "2026-11-18",
+      "daily_due": 200,
+      "paid_amount": 0,
+      "pending_amount": 200,
+      "advance_amount": 0,
+      "status": "PENDING",
+      "collector_id": "COL101",
+      "collector_name": "Murugan S.",
+      "collection_area": "Bazaar Main Road",
+      "balance_remaining": 2500,
+      "route_order": 17,
+      "missed_days_count": 13,
+      "missed_amount": 2500
+    },
+    {
+      "id": "DC-2026-11-18-ACC-2026-022",
+      "collection_account_id": "ACC-2026-022",
+      "customer_id": "KRS10022",
+      "customer_name": "Sivakumar M.",
+      "shop_name": "Maruthi Cycle Works & Fitness Gears",
+      "mobile_number": "9844233446",
+      "date": "2026-11-18",
+      "daily_due": 100,
+      "paid_amount": 0,
+      "pending_amount": 100,
+      "advance_amount": 0,
+      "status": "PENDING",
+      "collector_id": "COL102",
+      "collector_name": "Karthik Raja",
+      "collection_area": "Town Hall Road",
+      "balance_remaining": 1250,
+      "route_order": 18,
+      "missed_days_count": 13,
+      "missed_amount": 1250
+    },
+    {
+      "id": "DC-2026-11-18-ACC-2026-023",
+      "collection_account_id": "ACC-2026-023",
+      "customer_id": "KRS10023",
+      "customer_name": "Govindaraj K.",
+      "shop_name": "Om Muruga Optical & Eye Care",
+      "mobile_number": "9844344557",
+      "date": "2026-11-18",
+      "daily_due": 100,
+      "paid_amount": 0,
+      "pending_amount": 100,
+      "advance_amount": 0,
+      "status": "PENDING",
+      "collector_id": "COL103",
+      "collector_name": "Saravanan P.",
+      "collection_area": "Car Street",
+      "balance_remaining": 1250,
+      "route_order": 19,
+      "missed_days_count": 13,
+      "missed_amount": 1250
+    },
+    {
+      "id": "DC-2026-11-18-ACC-2026-024",
+      "collection_account_id": "ACC-2026-024",
+      "customer_id": "KRS10024",
+      "customer_name": "Revathi Mohan",
+      "shop_name": "Mohan Tailors & Readymade Garments",
+      "mobile_number": "9844455668",
+      "date": "2026-11-18",
+      "daily_due": 100,
+      "paid_amount": 0,
+      "pending_amount": 100,
+      "advance_amount": 0,
+      "status": "PENDING",
+      "collector_id": "COL101",
+      "collector_name": "Murugan S.",
+      "collection_area": "Market Gate",
+      "balance_remaining": 1250,
+      "route_order": 20,
+      "missed_days_count": 13,
+      "missed_amount": 1250
+    },
+    {
+      "id": "DC-2026-11-18-ACC-2026-025",
+      "collection_account_id": "ACC-2026-025",
+      "customer_id": "KRS10025",
+      "customer_name": "Arumugam P.",
+      "shop_name": "Vasantham Pure Veg Tiffin Center",
+      "mobile_number": "9844566779",
+      "date": "2026-11-18",
+      "daily_due": 200,
+      "paid_amount": 0,
+      "pending_amount": 200,
+      "advance_amount": 0,
+      "status": "PENDING",
+      "collector_id": "COL102",
+      "collector_name": "Karthik Raja",
+      "collection_area": "New Bus Stand Area",
+      "balance_remaining": 2500,
+      "route_order": 21,
+      "missed_days_count": 13,
+      "missed_amount": 2500
+    },
+    {
+      "id": "DC-2026-11-18-ACC-2026-026",
+      "collection_account_id": "ACC-2026-026",
+      "customer_id": "KRS10026",
+      "customer_name": "Vijayalakshmi N.",
+      "shop_name": "Lakshmi Gold Covering & Fashion Jewels",
+      "mobile_number": "9844677880",
+      "date": "2026-11-18",
+      "daily_due": 200,
+      "paid_amount": 0,
+      "pending_amount": 200,
+      "advance_amount": 0,
+      "status": "PENDING",
+      "collector_id": "COL101",
+      "collector_name": "Murugan S.",
+      "collection_area": "Bazaar Main Road",
+      "balance_remaining": 2500,
+      "route_order": 22,
+      "missed_days_count": 13,
+      "missed_amount": 2500
+    },
+    {
+      "id": "DC-2026-11-18-ACC-2026-027",
+      "collection_account_id": "ACC-2026-027",
+      "customer_id": "KRS10027",
+      "customer_name": "Dinesh Kumar",
+      "shop_name": "Smart Computers & CCTV Security Solutions",
+      "mobile_number": "9844788991",
+      "date": "2026-11-18",
+      "daily_due": 100,
+      "paid_amount": 0,
+      "pending_amount": 100,
+      "advance_amount": 0,
+      "status": "PENDING",
+      "collector_id": "COL102",
+      "collector_name": "Karthik Raja",
+      "collection_area": "Town Hall Road",
+      "balance_remaining": 1250,
+      "route_order": 23,
+      "missed_days_count": 13,
+      "missed_amount": 1250
+    },
+    {
+      "id": "DC-2026-11-18-ACC-2026-028",
+      "collection_account_id": "ACC-2026-028",
+      "customer_id": "KRS10028",
+      "customer_name": "Padmavathi R.",
+      "shop_name": "Padmavathi Fancy & Plastic Home Goods",
+      "mobile_number": "9844899002",
+      "date": "2026-11-18",
+      "daily_due": 100,
+      "paid_amount": 0,
+      "pending_amount": 100,
+      "advance_amount": 0,
+      "status": "PENDING",
+      "collector_id": "COL103",
+      "collector_name": "Saravanan P.",
+      "collection_area": "Car Street",
+      "balance_remaining": 1250,
+      "route_order": 24,
+      "missed_days_count": 13,
+      "missed_amount": 1250
+    },
+    {
+      "id": "DC-2026-11-18-ACC-2026-029",
+      "collection_account_id": "ACC-2026-029",
+      "customer_id": "KRS10029",
+      "customer_name": "Kalaiselvan S.",
+      "shop_name": "Sri Kumaran Bakery, Milk & Dairy",
+      "mobile_number": "9845011223",
+      "date": "2026-11-18",
+      "daily_due": 200,
+      "paid_amount": 0,
+      "pending_amount": 200,
+      "advance_amount": 0,
+      "status": "PENDING",
+      "collector_id": "COL101",
+      "collector_name": "Murugan S.",
+      "collection_area": "Market Gate",
+      "balance_remaining": 2500,
+      "route_order": 25,
+      "missed_days_count": 13,
+      "missed_amount": 2500
+    },
+    {
+      "id": "DC-2026-11-18-ACC-2026-030",
+      "collection_account_id": "ACC-2026-030",
+      "customer_id": "KRS10030",
+      "customer_name": "Subhashini V.",
+      "shop_name": "Krishna Organic Provisions & Millets",
+      "mobile_number": "9845122334",
+      "date": "2026-11-18",
       "daily_due": 100,
       "paid_amount": 0,
       "pending_amount": 100,
@@ -132659,6 +133211,25 @@
       "remaining_balance": 0,
       "status": "ADVANCE",
       "created_at": "2026-11-02T13:10:23.823Z"
+    },
+    {
+      "id": "PAY-1795016236208-0n98oh",
+      "receipt_number": "DC-REC-2026-03788",
+      "collection_account_id": "ACC-2026-002",
+      "customer_id": "KRS10002",
+      "customer_name": "Sundar Rajan",
+      "shop_name": "Annapoorna Sweets, Bakery & Snacks",
+      "collection_date": "2026-11-18",
+      "daily_due": 200,
+      "amount_paid": 600,
+      "advance_amount": 0,
+      "payment_mode": "Cash",
+      "collector_id": "COL102",
+      "collector_name": "Karthik Raja",
+      "previous_balance": 600,
+      "remaining_balance": 0,
+      "status": "SUCCESS",
+      "created_at": "2026-11-18T15:37:16.208Z"
     }
   ],
   "receipts": [
@@ -181661,6 +182232,24 @@
       "date": "2026-11-02",
       "created_at": "2026-11-02T13:10:23.823Z",
       "remarks": "Thank you for your prompt payment."
+    },
+    {
+      "id": "REC-1795016236208-finzho",
+      "receipt_number": "DC-REC-2026-03788",
+      "payment_id": "PAY-1795016236208-0n98oh",
+      "collection_account_id": "ACC-2026-002",
+      "customer_id": "KRS10002",
+      "customer_name": "Sundar Rajan",
+      "shop_name": "Annapoorna Sweets, Bakery & Snacks",
+      "daily_due": 200,
+      "amount_paid": 600,
+      "payment_mode": "Cash",
+      "previous_balance": 600,
+      "remaining_balance": 0,
+      "collector_name": "Karthik Raja",
+      "date": "2026-11-18",
+      "created_at": "2026-11-18T15:37:16.208Z",
+      "remarks": "Thank you for your prompt payment."
     }
   ],
   "collectors": [
@@ -182553,6 +183142,16 @@
     }
   ],
   "notifications": [
+    {
+      "id": "NOTIF-1795016236210-563",
+      "recipient_role": "CUSTOMER",
+      "customer_id": "KRS10002",
+      "title": "Payment Received: ₹600",
+      "message": "Received ₹600 for account ACC-2026-002. Balance remaining: ₹0. Receipt #DC-REC-2026-03788",
+      "type": "PAYMENT",
+      "is_read": false,
+      "created_at": "2026-11-18T15:37:16.210Z"
+    },
     {
       "id": "NOTIF-1793692003459-R",
       "recipient_role": "ADMIN",
@@ -183500,6 +184099,36 @@
     }
   ],
   "audit_logs": [
+    {
+      "id": "AUDIT-1795016236294-otle1x",
+      "user": "Operations Admin",
+      "role": "ADMIN",
+      "action": "COLLECT_PAYMENT",
+      "record_id": "ACC-2026-002",
+      "record_type": "payments",
+      "previous_value": {
+        "balance": 600
+      },
+      "new_value": {
+        "paid": 600,
+        "newBalance": 0,
+        "receiptNum": "DC-REC-2026-03788"
+      },
+      "timestamp": "2026-11-18T15:37:16.294Z"
+    },
+    {
+      "id": "AUDIT-1795016229396-7u260p",
+      "user": "Operations Admin",
+      "role": "ADMIN",
+      "action": "ASSIGN_DAY_WORK",
+      "record_id": "2026-11-18",
+      "record_type": "day_assignments",
+      "previous_value": null,
+      "new_value": {
+        "changes": []
+      },
+      "timestamp": "2026-11-18T15:37:09.397Z"
+    },
     {
       "id": "AUDIT-1793696357428-775",
       "user": "admin",
@@ -185920,6 +186549,11 @@
       "date": "2026-11-03",
       "assigned_by": "Operations Admin",
       "assigned_at": "2026-11-03T06:58:47.960Z"
+    },
+    {
+      "date": "2026-11-18",
+      "assigned_by": "Operations Admin",
+      "assigned_at": "2026-11-18T15:37:09.396Z"
     }
   ],
   "day_closings": [
@@ -186125,7 +186759,7 @@
         "prefix": "DC-REC-",
         "include_year": true,
         "pad": 5,
-        "next": 3788
+        "next": 3789
       },
       "collector": {
         "prefix": "COL",
