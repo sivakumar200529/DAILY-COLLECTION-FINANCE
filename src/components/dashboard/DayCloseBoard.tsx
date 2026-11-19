@@ -217,7 +217,7 @@ export const DayCloseBoard: React.FC<{
               <th className={th}>{t('balance', 'Balance')}</th>
               <th className={th}>{t('longStandingShort', 'Long standing')}</th>
               <th className={th}>{t('amountInCash', 'Amount in cash')}</th>
-              <th className={th}>UPI</th>
+              <th className={th}>{t('notCash', 'Other than cash')}</th>
               <th className="py-2.5 pl-2 pr-3 font-semibold text-center">{t('status', 'Status')}</th>
             </tr>
           </thead>

@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { BookOpen, CheckCircle2, Clock, IndianRupee, PlusCircle, Receipt as ReceiptIcon } from 'lucide-react';
 import { Collector, Customer360Profile, LoanRequest, User } from '../../types';
 import { api } from '../../services/api';
+import { useDataChanged } from '../../utils/dataSync';
 import { formatCurrency } from '../../utils/formatters';
 import { todayIso } from '../../../shared/finance';
 import { useLanguage } from '../../context/LanguageContext';
@@ -50,6 +51,7 @@ export const CustomerHome: React.FC<{
   useEffect(() => {
     load();
   }, [load]);
+  useDataChanged(load);
 
   const settings = settingsOpen && (
     <CustomerSettingsSheet profile={profile} onLogout={onLogout} onClose={onCloseSettings} />

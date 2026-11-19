@@ -3,6 +3,7 @@ import { Check, ChevronDown, ChevronUp, Wallet } from 'lucide-react';
 import { Area, BusinessDetails, Collector, CustomerAddress, CustomerPersonalDetails } from '../../types';
 import { api } from '../../services/api';
 import { useConfig } from '../../context/ConfigContext';
+import { formatId } from '../../../shared/config';
 import { useLanguage } from '../../context/LanguageContext';
 import { BigButton, Sheet } from '../common/ui';
 import { PhotoPicker } from '../common/PhotoPicker';
@@ -204,7 +205,7 @@ export const CustomerForm: React.FC<CustomerFormProps> = ({ initial, onSaved, on
               <label className="block text-xs font-bold text-slate-300 mb-1">{t('userId', 'User ID / Username')}</label>
               <input
                 className={inputClass}
-                placeholder={isEdit ? initial.personal.id : t('autoCustomerId', 'Auto Customer ID (e.g. KRS10005)')}
+                placeholder={isEdit ? initial.personal.id : `${t('autoIdExample', 'Automatic, e.g.')} ${formatId(config.numbering.customer, config.numbering.customer.next)}`}
                 value={customUsername}
                 onChange={e => setCustomUsername(e.target.value)}
               />

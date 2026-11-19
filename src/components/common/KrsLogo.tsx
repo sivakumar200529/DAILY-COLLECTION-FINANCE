@@ -1,4 +1,5 @@
 import React from 'react';
+import { useConfig } from '../../context/ConfigContext';
 
 interface KrsLogoProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
@@ -12,7 +13,15 @@ export const KrsLogo: React.FC<KrsLogoProps> = ({
   size = 'md',
   className = '',
   variant = 'horizontal',
+  showTagline = false,
 }) => {
+  // The company name from Settings: the first word in white, the rest in gold.
+  const { company } = useConfig().config;
+  const name = (company.company_name || '').trim() || 'DAILY COLLECTION';
+  const tagline = showTagline ? (company.company_tagline || '').trim() : '';
+  const logo = company.company_logo || '';
+  const [firstWord, ...restWords] = name.split(/\s+/);
+  const rest = restWords.join(' ');
   const sizeConfig = {
     sm: {
       badge: 'w-8 h-8',
@@ -36,8 +45,12 @@ export const KrsLogo: React.FC<KrsLogoProps> = ({
     },
   }[size];
 
-  // Official Gold Coin & Indian Rupee (₹) Finance Symbol Insignia
-  const LogoInsignia = (
+  // The business's own logo when one is set in Settings; otherwise the gold coin.
+  const LogoInsignia = logo ? (
+    <div className={`${sizeConfig.badge} rounded-2xl bg-white p-1 shadow-xl flex-shrink-0 overflow-hidden flex items-center justify-center`}>
+      <img src={logo} alt={name} className="w-full h-full object-contain" />
+    </div>
+  ) : (
     <div className={`relative ${sizeConfig.badge} rounded-2xl bg-gradient-to-br from-gold-400 via-amber-500 to-gold-700 p-0.5 shadow-xl shadow-gold-500/25 flex-shrink-0 group`}>
       <div className="w-full h-full bg-navy-950 rounded-[14px] flex items-center justify-center relative overflow-hidden border border-gold-400/30">
         {/* Subtle radial gold glow inside */}
@@ -133,12 +146,13 @@ export const KrsLogo: React.FC<KrsLogoProps> = ({
       <div>
         <div className="flex items-center justify-center sm:justify-start gap-2">
           <span className={`font-royal font-black tracking-wider text-white ${sizeConfig.textKrs} drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]`}>
-            DAILY
+            {rest ? firstWord : ''}
           </span>
           <span className={`font-royal font-black tracking-wider bg-gradient-to-r from-gold-300 via-amber-400 to-gold-500 bg-clip-text text-transparent ${sizeConfig.textFinance} drop-shadow-[0_2px_12px_rgba(217,119,6,0.3)]`}>
-            COLLECTION
+            {rest || firstWord}
           </span>
         </div>
+        {tagline && <div className="text-sm text-slate-400 mt-0.5">{tagline}</div>}
       </div>
     </div>
   );

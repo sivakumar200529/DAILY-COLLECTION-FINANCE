@@ -26,7 +26,8 @@ export interface PlannedLoan {
   product: LoanProduct;
   calculation: LoanCalculation;
   overrides: LoanOverride[];
-  collector: Collector;
+  /** None when the loan has no usual collector (the office gives one each day). */
+  collector: Collector | null;
   area: string;
 }
 
@@ -36,8 +37,17 @@ function optionalNumber(v: unknown): number | undefined {
   return v === undefined || v === null || v === '' ? undefined : Number(v);
 }
 
-/** Validates loan terms against the product and resolves area/collector. Does not modify the database. */
-export function planLoan(db: KRSFinanceDatabase, input: IssueLoanInput, party: LoanParty): PlannedLoan {
+/**
+ * Validates loan terms against the product and resolves area/collector. Does not modify the database.
+ * Normally the collector defaults to the area's; with `collectorOptional` the loan has only the
+ * collector chosen (or none), since collectors move between areas.
+ */
+export function planLoan(
+  db: KRSFinanceDatabase,
+  input: IssueLoanInput,
+  party: LoanParty,
+  opts: { collectorOptional?: boolean } = {}
+): PlannedLoan {
   const product = db.config.loan_products.find(p => p.id === input.product_id);
   const { calculation, overrides, errors } = evaluateLoan(product, {
     requested_amount: Number(input.requested_amount),
@@ -50,6 +60,12 @@ export function planLoan(db: KRSFinanceDatabase, input: IssueLoanInput, party: L
 
   const area = input.collection_area || party.shop_area || party.home_area;
   if (!area) throw new LoanValidationError('Select a collection area.');
+  if (opts.collectorOptional) {
+    if (!input.assigned_collector_id) return { product: product!, calculation, overrides, collector: null, area };
+    const chosen = db.collectors.find(c => c.id === input.assigned_collector_id);
+    if (!chosen) throw new LoanValidationError('Collector not found.');
+    return { product: product!, calculation, overrides, collector: chosen, area };
+  }
   const areaRecord = db.areas.find(a => a.area_name === area);
   const collectorId = input.assigned_collector_id || areaRecord?.assigned_collector_id;
   const collector = db.collectors.find(c => c.id === collectorId);
@@ -92,8 +108,8 @@ export function commitLoan(
     completed_days: 0,
     remaining_days: calculation.collection_days,
     collection_percentage: 0,
-    assigned_collector_id: collector.id,
-    assigned_collector_name: collector.name,
+    assigned_collector_id: collector?.id ?? '',
+    assigned_collector_name: collector?.name ?? '',
     collection_area: area,
     status: 'ACTIVE',
     ...(overrides.length > 0 ? { overrides } : {}),
@@ -119,8 +135,8 @@ export function commitLoan(
       pending_amount: calculation.daily_collection,
       advance_amount: 0,
       status: 'PENDING',
-      collector_id: collector.id,
-      collector_name: collector.name,
+      collector_id: collector?.id ?? '',
+      collector_name: collector?.name ?? '',
       collection_area: area,
       remarks: 'Scheduled collection day',
       balance_remaining: calculation.total_repayment,

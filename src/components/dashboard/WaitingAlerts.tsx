@@ -1,26 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import { ChevronRight, ClipboardCheck, Inbox, Smartphone } from 'lucide-react';
 import { api } from '../../services/api';
+import { useDataChanged } from '../../utils/dataSync';
 import { useLanguage } from '../../context/LanguageContext';
 
 /**
  * What is waiting for the office (new-loan requests, UPI payments to check, collector corrections to
- * approve). Shows nothing when all is handled, unless `alwaysShowLoans` keeps New loans (and so the
- * handled requests) reachable, as in Loan Management.
+ * approve). Each shows only while something is waiting; nothing at all when all is handled.
  */
 export const WaitingAlerts: React.FC<{
   onOpenLoanRequests: () => void;
   /** The items below are left out where they do not belong. */
   onOpenUpiPayments?: () => void;
   onOpenCollectorReports?: () => void;
-  alwaysShowLoans?: boolean;
   /** Change it to count again. */
   refreshKey?: number;
-}> = ({ onOpenLoanRequests, onOpenUpiPayments, onOpenCollectorReports, alwaysShowLoans, refreshKey }) => {
+}> = ({ onOpenLoanRequests, onOpenUpiPayments, onOpenCollectorReports, refreshKey }) => {
   const { t } = useLanguage();
   const [counts, setCounts] = useState({ loans: 0, upi: 0, corrections: 0 });
 
-  useEffect(() => {
+  const load = () =>
     Promise.all([
       api.getLoanRequests('PENDING').catch(() => []),
       api.getPaymentClaims('PENDING').catch(() => []),
@@ -28,15 +27,18 @@ export const WaitingAlerts: React.FC<{
     ]).then(([loans, upi, corrections]) =>
       setCounts({ loans: loans.length, upi: upi.length, corrections: corrections.length })
     );
-  }, [refreshKey]);
+  useEffect(() => {
+    load();
+  }, [refreshKey]); // eslint-disable-line react-hooks/exhaustive-deps
+  useDataChanged(load);
 
   const items = [
-    { count: counts.loans, label: t('newLoanRequests', 'New loans'), icon: Inbox, onClick: onOpenLoanRequests, keep: alwaysShowLoans },
+    { count: counts.loans, label: t('newLoanRequests', 'New loans'), icon: Inbox, onClick: onOpenLoanRequests },
     ...(onOpenUpiPayments ? [{ count: counts.upi, label: t('upiPayments', 'UPI payments'), icon: Smartphone, onClick: onOpenUpiPayments }] : []),
     ...(onOpenCollectorReports
       ? [{ count: counts.corrections, label: t('correctionToApprove', 'Correction to approve'), icon: ClipboardCheck, onClick: onOpenCollectorReports }]
       : []),
-  ].filter(i => i.count > 0 || ('keep' in i && i.keep));
+  ].filter(i => i.count > 0);
   if (items.length === 0) return null;
 
   return (

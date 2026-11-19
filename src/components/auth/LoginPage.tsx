@@ -53,7 +53,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
   return (
     <div className="min-h-screen bg-navy-950 text-slate-100 flex flex-col font-sans">
       <header className="px-4 sm:px-8 py-3 border-b border-gold-500/15 flex items-center justify-between">
-        <KrsLogo size="md" showTagline={false} />
+        <KrsLogo size="md" showTagline />
         {hasChosenLanguage && <LanguageButton />}
       </header>
 

@@ -1,11 +1,12 @@
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { AppConfig, ConfigSection } from '../types';
 import { api } from '../services/api';
+import { useDataChanged } from '../utils/dataSync';
 
 interface ConfigContextType {
   config: AppConfig;
   reload: () => Promise<void>;
-  updateSection: <K extends ConfigSection>(section: K, value: AppConfig[K]) => Promise<void>;
+  updateSection: <K extends ConfigSection>(section: K, value: AppConfig[K]) => Promise<AppConfig>;
 }
 
 const ConfigContext = createContext<ConfigContextType | undefined>(undefined);
@@ -45,8 +46,19 @@ export const ConfigProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     };
   }, [reload]);
 
+  // Settings saved elsewhere (the office) reach every open screen within seconds.
+  useDataChanged(reload);
+
+  // The browser tab shows the company name from Settings.
+  const companyName = config?.company.company_name?.trim();
+  useEffect(() => {
+    if (companyName) document.title = companyName;
+  }, [companyName]);
+
   const updateSection = useCallback(async <K extends ConfigSection>(section: K, value: AppConfig[K]) => {
-    setConfig(await api.updateConfigSection(section, value));
+    const saved = await api.updateConfigSection(section, value);
+    setConfig(saved);
+    return saved;
   }, []);
 
   if (!config) {

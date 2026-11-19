@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Lock, Printer, Users } from 'lucide-react';
 import { Area, Collector, CollectorReport, DailyCollectionRecord, User } from '../../types';
 import { api, DayAssignmentStatus } from '../../services/api';
+import { useDataChanged } from '../../utils/dataSync';
 import { formatDate } from '../../utils/formatters';
 import { todayIso } from '../../../shared/finance';
 import { activeClosing } from '../../../shared/collectorDay';
@@ -69,6 +70,7 @@ export const CollectScreen: React.FC<CollectScreenProps> = ({ currentUser, focus
   useEffect(() => {
     load();
   }, [load]);
+  useDataChanged(load);
 
   useEffect(() => {
     Promise.all([api.getCollectors(), api.getAreas()])

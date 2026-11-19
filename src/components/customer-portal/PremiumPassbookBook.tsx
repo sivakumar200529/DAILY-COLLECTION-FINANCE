@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { modeText } from '../../../shared/config';
 import { Customer360Profile, CollectionAccount, PaymentTransaction } from '../../types';
 import { formatCurrency, formatDate } from '../../utils/formatters';
 import { useLanguage } from '../../context/LanguageContext';
@@ -136,7 +137,7 @@ export const PremiumPassbookBook: React.FC<PremiumPassbookBookProps> = ({
                           {/* Payment Mode */}
                           <td className="py-2 px-3 border-r border-[#e9ddc4] text-center font-sans font-semibold text-[10px]">
                             <span className="px-1.5 py-0.5 rounded bg-[#ebdfc6] text-[#4d3c22]">
-                              {t(p.payment_mode, p.payment_mode)}
+                              {modeText(p.payment_mode, p.payment_mode_note, m => t(m, m))}
                             </span>
                           </td>
 

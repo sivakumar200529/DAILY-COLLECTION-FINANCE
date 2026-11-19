@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { AlertTriangle, Download, HandCoins, PiggyBank, TrendingUp, Users, Wallet } from 'lucide-react';
 import { api, CustomerListItem } from '../../services/api';
+import { useDataChanged } from '../../utils/dataSync';
 import { CollectionAccount, Collector, PaymentTransaction } from '../../types';
 import { formatCurrency, orNA } from '../../utils/formatters';
 import { amountBehind } from '../../utils/loanFigures';
@@ -74,9 +75,11 @@ const LongPendingReport: React.FC<{ onOpenCustomer: (customerId: string) => void
   const longAfter = useConfig().config.masters.long_pending_after_terms;
   const [customers, setCustomers] = useState<CustomerListItem[] | null>(null);
 
+  const load = () => api.getCustomers().then(setCustomers).catch(() => setCustomers(prev => prev ?? []));
   useEffect(() => {
-    api.getCustomers().then(setCustomers).catch(() => setCustomers([]));
-  }, []);
+    load();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useDataChanged(load);
   if (!customers) return <Spinner />;
 
   const rows = customers
@@ -124,7 +127,7 @@ const LongPendingReport: React.FC<{ onOpenCustomer: (customerId: string) => void
                       <button type="button" onClick={() => onOpenCustomer(c.id)} className="text-left">
                         <span className="block font-bold text-white underline decoration-slate-600 underline-offset-4">{c.full_name}</span>
                         <span className="block text-xs text-slate-400">{c.business?.shop_name}</span>
-                        <span className="block text-xs text-slate-500">{a.assigned_collector_name}</span>
+                        <span className="block text-xs text-slate-500">{a.assigned_collector_name || '—'}</span>
                       </button>
                     </td>
                     <td className="py-2.5 px-1 text-right whitespace-nowrap">
@@ -151,11 +154,14 @@ const SummaryReport: React.FC = () => {
   const { t } = useLanguage();
   const [data, setData] = useState<{ accounts: CollectionAccount[]; payments: PaymentTransaction[]; collectors: Collector[] } | null>(null);
 
-  useEffect(() => {
+  const load = () =>
     Promise.all([api.getCollectionAccounts(), api.getPayments(), api.getCollectors()])
       .then(([accounts, payments, collectors]) => setData({ accounts, payments, collectors }))
-      .catch(() => setData({ accounts: [], payments: [], collectors: [] }));
-  }, []);
+      .catch(() => setData(prev => prev ?? { accounts: [], payments: [], collectors: [] }));
+  useEffect(() => {
+    load();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useDataChanged(load);
   if (!data) return <Spinner />;
 
   const loans = data.accounts.filter(a => a.status !== 'CANCELLED');

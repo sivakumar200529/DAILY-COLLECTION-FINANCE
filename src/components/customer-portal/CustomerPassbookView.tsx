@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { modeText } from '../../../shared/config';
 import { ArrowLeft, BookOpen, Download, Edit3, List, Receipt as ReceiptIcon, RotateCcw } from 'lucide-react';
 import { CollectionAccount, Customer360Profile, PaymentTransaction, Receipt } from '../../types';
 import { formatCurrency, formatDate } from '../../utils/formatters';
@@ -133,7 +134,7 @@ export const CustomerPassbookView: React.FC<{
                       {formatCurrency(p.amount_paid)}
                     </td>
                     <td className="py-2.5 px-1">{formatDate(p.collection_date)}</td>
-                    <td className="py-2.5 px-1">{t(p.payment_mode || 'Cash', p.payment_mode || 'Cash')}</td>
+                    <td className="py-2.5 px-1">{modeText(p.payment_mode, p.payment_mode_note, m => t(m, m))}</td>
                     <td className="py-2.5 px-1">{p.collector_name ? t(p.collector_name, p.collector_name) : '-'}</td>
                     <td className="py-2 pl-1 pr-3 text-center whitespace-nowrap">
                       {rec ? (

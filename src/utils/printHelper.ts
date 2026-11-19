@@ -1,4 +1,7 @@
 import { Receipt, CompanyProfile, Customer360Profile, CollectionAccount } from '../types';
+import { isLogoData, modeText } from '../../shared/config';
+
+const escapeHtml = (v: string) => v.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 import { formatCurrency, formatDate, formatDateTime } from './formatters';
 import { loanFigures } from './loanFigures';
 import { roundMoney } from '../../shared/finance';
@@ -85,9 +88,12 @@ export function printHtmlViaIframe(title: string, styles: string, bodyHtml: stri
  */
 export function printReceiptSlip(receipt: Receipt, company: CompanyProfile, t: Translate) {
   const cancelled = receipt.status === 'CANCELLED';
-  const companyName = company.company_name || 'DAILY COLLECTION FINANCE';
-  const companyAddress = company.company_address || '';
-  const companyPhone = company.company_phone || '';
+  const companyName = escapeHtml(company.company_name || 'DAILY COLLECTION');
+  const companyAddress = escapeHtml(company.company_address || '');
+  const companyPhone = escapeHtml(company.company_phone || '');
+  const companyTagline = escapeHtml(company.company_tagline || '');
+  const companyEmail = escapeHtml(company.company_email || '');
+  const companyLogo = isLogoData(company.company_logo) ? company.company_logo : '';
 
   const styles = `
     @page {
@@ -197,9 +203,12 @@ export function printReceiptSlip(receipt: Receipt, company: CompanyProfile, t: T
     <div class="receipt-box">
       ${cancelled ? '<div class="cancelled-watermark">CANCELLED</div>' : ''}
       <div class="header">
+        ${companyLogo ? `<img src="${companyLogo}" alt="" style="height:44px;margin:0 auto 4px;display:block;object-fit:contain" />` : ''}
         <div class="title">${companyName}</div>
+        ${companyTagline ? `<div class="subtitle">${companyTagline}</div>` : ''}
         ${companyAddress ? `<div class="subtitle">${companyAddress}</div>` : ''}
         ${companyPhone ? `<div class="subtitle">Helpline: ${companyPhone}</div>` : ''}
+        ${companyEmail ? `<div class="subtitle">${companyEmail}</div>` : ''}
       </div>
 
       <div class="row">
@@ -224,7 +233,7 @@ export function printReceiptSlip(receipt: Receipt, company: CompanyProfile, t: T
       <div class="amount-box">
         <div class="amount-title">Paid Amount</div>
         <div class="amount-num">${formatCurrency(receipt.amount_paid)}</div>
-        <div class="badge-mode">Mode: ${receipt.payment_mode || 'Cash'}</div>
+        <div class="badge-mode">Mode: ${escapeHtml(modeText(receipt.payment_mode, receipt.payment_mode_note))}</div>
       </div>
 
       <div class="balance-row">
@@ -255,9 +264,12 @@ export function printPassbookStatement(
   company: CompanyProfile | null | undefined,
   t: Translate
 ) {
-  const companyName = company?.company_name || 'DAILY COLLECTION FINANCE';
-  const companyAddress = company?.company_address || '';
-  const companyPhone = company?.company_phone || '';
+  const companyName = escapeHtml(company?.company_name || 'DAILY COLLECTION');
+  const companyAddress = escapeHtml(company?.company_address || '');
+  const companyPhone = escapeHtml(company?.company_phone || '');
+  const companyTagline = escapeHtml(company?.company_tagline || '');
+  const companyEmail = escapeHtml(company?.company_email || '');
+  const companyLogo = isLogoData(company?.company_logo) ? company!.company_logo! : '';
 
   const payments = [...profile.recentPayments]
     .filter(p => p.status !== 'CANCELLED' && (!p.collection_account_id || p.collection_account_id === account.id))
@@ -431,7 +443,7 @@ export function printPassbookStatement(
             <td class="font-mono text-right" style="width: 30px;">${idx + 1}</td>
             <td>${formatDate(p.collection_date)}</td>
             <td class="font-mono" style="font-weight:700;">${p.receipt_number || '-'}</td>
-            <td>${p.payment_mode || 'Cash'}</td>
+            <td>${escapeHtml(modeText(p.payment_mode, p.payment_mode_note))}</td>
             <td class="text-right font-mono" style="font-weight:800; color: #047857;">${formatCurrency(p.amount_paid)}</td>
             <td class="text-right font-mono" style="font-weight:800;">${formatCurrency(bal)}</td>
           </tr>
@@ -442,9 +454,12 @@ export function printPassbookStatement(
     <div class="statement-container">
       <div class="header-box">
         <div>
+          ${companyLogo ? `<img src="${companyLogo}" alt="" style="height:52px;margin-bottom:6px;object-fit:contain" />` : ''}
           <div class="company-title">${companyName}</div>
+          ${companyTagline ? `<div class="company-sub">${companyTagline}</div>` : ''}
           ${companyAddress ? `<div class="company-sub">${companyAddress}</div>` : ''}
           ${companyPhone ? `<div class="company-sub" style="font-weight: 600;">Helpline: ${companyPhone}</div>` : ''}
+          ${companyEmail ? `<div class="company-sub">${companyEmail}</div>` : ''}
         </div>
         <div style="text-align: right;">
           <div class="doc-badge">Official Passbook Statement</div>
@@ -510,8 +525,8 @@ export function printPassbookStatement(
 
       <div class="footer-box">
         <div>
-          <div><strong>Daily Collection Official Financial Statement</strong></div>
-          <div>This is a computer-verified statement generated from the DAILY COLLECTION system.</div>
+          <div><strong>${companyName}</strong></div>
+          <div>This statement was produced by the ${companyName} collection app.</div>
           <div>For questions, contact your collector (${account.assigned_collector_name}) or branch helpline.</div>
         </div>
         <div class="sign-box">

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
+import { modeText } from '../../../shared/config';
 import { DailyCollectionRecord, Collector } from '../../types';
 import { api } from '../../services/api';
+import { useDataChanged } from '../../utils/dataSync';
 import { formatCurrency, formatDate, orNA } from '../../utils/formatters';
 import { Printer, ArrowLeft } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
@@ -26,7 +28,7 @@ export const DailyCollectionRegisterView: React.FC<DailyCollectionRegisterViewPr
   const [records, setRecords] = useState<DailyCollectionRecord[]>([]);
   const [collectors, setCollectors] = useState<Collector[]>([]);
 
-  useEffect(() => {
+  const load = () =>
     Promise.all([
       api.getDailyCollections({ date: selectedDate, collector: selectedCollector, area: selectedArea }),
       api.getCollectors(),
@@ -36,7 +38,10 @@ export const DailyCollectionRegisterView: React.FC<DailyCollectionRegisterViewPr
         setCollectors(cols);
       })
       .catch(err => console.error('Failed to load register:', err));
-  }, [selectedDate, selectedCollector, selectedArea]);
+  useEffect(() => {
+    load();
+  }, [selectedDate, selectedCollector, selectedArea]); // eslint-disable-line react-hooks/exhaustive-deps
+  useDataChanged(load);
 
   const collectorName = collectors.find(c => c.id === selectedCollector)?.name;
 
@@ -108,7 +113,7 @@ export const DailyCollectionRegisterView: React.FC<DailyCollectionRegisterViewPr
                   {r.paid_amount > 0 ? formatCurrency(r.paid_amount) : '-'}
                 </td>
                 <td className="py-2 px-2 border-r border-slate-300 text-center uppercase font-mono text-[10px]">
-                  {r.payment_mode ? t(r.payment_mode.toLowerCase(), r.payment_mode) : '-'}
+                  {r.payment_mode ? modeText(r.payment_mode, r.payment_mode_note, m => t(m, m)) : '-'}
                 </td>
                 <td className="py-2 px-3 border-r border-slate-300 text-center">
                   <div className="h-6" />

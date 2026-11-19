@@ -1,4 +1,5 @@
 import React from 'react';
+import { modeText } from '../../../shared/config';
 import { Customer360Profile, CollectionAccount, CompanyProfile } from '../../types';
 import { formatCurrency, formatDate, formatDateTime } from '../../utils/formatters';
 import { useLanguage } from '../../context/LanguageContext';
@@ -21,9 +22,12 @@ export const PassbookStatementPrint: React.FC<PassbookStatementPrintProps> = ({
   onClose,
 }) => {
   const { t } = useLanguage();
-  const companyName = company?.company_name || 'DAILY COLLECTION FINANCE';
+  const companyName = company?.company_name || 'DAILY COLLECTION';
   const companyAddress = company?.company_address || '';
   const companyPhone = company?.company_phone || '';
+  const companyTagline = company?.company_tagline || '';
+  const companyEmail = company?.company_email || '';
+  const companyLogo = company?.company_logo || '';
 
   const payments = [...profile.recentPayments]
     .filter(p => p.status !== 'CANCELLED' && (!p.collection_account_id || p.collection_account_id === account.id))
@@ -71,11 +75,14 @@ export const PassbookStatementPrint: React.FC<PassbookStatementPrintProps> = ({
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-2 border-slate-900 pb-4">
             <div>
+              {companyLogo && <img src={companyLogo} alt="" className="h-12 mb-2 object-contain" />}
               <h1 className="text-xl sm:text-2xl font-black text-navy-950 tracking-tight uppercase">
                 {companyName}
               </h1>
+              {companyTagline && <p className="text-xs text-slate-600">{companyTagline}</p>}
               {companyAddress && <p className="text-xs text-slate-600 mt-0.5">{companyAddress}</p>}
               {companyPhone && <p className="text-xs font-semibold text-slate-700">Helpline: {companyPhone}</p>}
+              {companyEmail && <p className="text-xs text-slate-600">{companyEmail}</p>}
             </div>
             <div className="sm:text-right border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-200">
               <span className="inline-block px-2.5 py-1 rounded bg-slate-100 border border-slate-300 font-bold uppercase tracking-wider text-[10px] text-slate-700">
@@ -164,7 +171,7 @@ export const PassbookStatementPrint: React.FC<PassbookStatementPrintProps> = ({
                           <td className="py-2 px-3 font-mono text-slate-500">{idx + 1}</td>
                           <td className="py-2 px-3 font-medium text-slate-800">{formatDate(p.collection_date)}</td>
                           <td className="py-2 px-3 font-mono font-bold text-slate-900">{p.receipt_number || '-'}</td>
-                          <td className="py-2 px-3 text-slate-600">{p.payment_mode || 'Cash'}</td>
+                          <td className="py-2 px-3 text-slate-600">{modeText(p.payment_mode, p.payment_mode_note)}</td>
                           <td className="py-2 px-3 text-right font-mono font-bold text-emerald-700">
                             {formatCurrency(p.amount_paid)}
                           </td>
@@ -183,8 +190,8 @@ export const PassbookStatementPrint: React.FC<PassbookStatementPrintProps> = ({
           {/* Statement Footer with Signatures */}
           <div className="pt-6 border-t border-slate-200 flex flex-col sm:flex-row sm:items-end justify-between gap-6 text-[10px] text-slate-500">
             <div>
-              <p className="font-semibold text-slate-700">Daily Collection Financial Record</p>
-              <p>This is a computer-verified passbook statement generated directly from the DAILY COLLECTION system.</p>
+              <p className="font-semibold text-slate-700">{companyName}</p>
+              <p>This passbook statement was produced by the {companyName} collection app.</p>
               <p>For discrepancies, please reach out to your assigned collector or call the office hotline.</p>
             </div>
             <div className="sm:text-right space-y-1">

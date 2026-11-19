@@ -24,7 +24,7 @@ import {
   PaymentClaim,
   DayClosing,
 } from '../types';
-import type { NotebookCellError, NotebookChange, NotebookPage } from '../../shared/notebook';
+import type { CardSheetError, CardSheetInput, CardSheetResult, NotebookCellError, NotebookChange, NotebookPage } from '../../shared/notebook';
 
 /** Payload for issuing a loan; money values are computed by the server from these terms. */
 export interface IssueLoanPayload {
@@ -110,6 +110,12 @@ export const api = {
       headers: getAuthHeader(),
     });
     return handleResponse(res);
+  },
+
+  /** A number that changes whenever anything is saved on the server. */
+  async getDataVersion(): Promise<number> {
+    const res = await fetch(`${API_BASE}/data-version`, { headers: getAuthHeader() });
+    return (await handleResponse<{ version: number }>(res)).version;
   },
 
   /** Tells the server this app is still open. */
@@ -316,6 +322,7 @@ export const api = {
     collection_date?: string;
     amount_paid: number;
     payment_mode?: string;
+    payment_mode_note?: string;
     collector_id?: string;
     reason?: string;
     remarks?: string;
@@ -348,6 +355,7 @@ export const api = {
       amount_paid?: number;
       collection_date?: string;
       payment_mode?: string;
+      payment_mode_note?: string;
       collector_id?: string;
       collector_name?: string;
       remarks?: string;
@@ -373,6 +381,7 @@ export const api = {
       day_numbers?: number[];
       daily_amount?: number;
       payment_mode?: string;
+      payment_mode_note?: string;
       collector_id?: string;
       remarks?: string;
       overwrite_existing?: boolean;
@@ -391,6 +400,20 @@ export const api = {
     const res = await fetch(`${API_BASE}/notebook?${new URLSearchParams(params as Record<string, string>)}`, {
       headers: getAuthHeader(),
     });
+    return handleResponse(res);
+  },
+
+  /** A sheet from a notebook card: adds the customers, their loans and past payments together; when anything is wrong, nothing is saved. */
+  async saveNotebookCard(input: CardSheetInput): Promise<CardSheetResult | { error: string; errors: CardSheetError[] }> {
+    const res = await fetch(`${API_BASE}/notebook/card`, {
+      method: 'POST',
+      headers: getAuthHeader(),
+      body: JSON.stringify(input),
+    });
+    if (res.status === 400) {
+      const body = await res.json().catch(() => ({ error: 'Could not save' }));
+      return { error: body.error || 'Could not save', errors: Array.isArray(body.errors) ? body.errors : [] };
+    }
     return handleResponse(res);
   },
 
@@ -673,7 +696,7 @@ export const api = {
     return handleResponse(res);
   },
 
-  async decidePaymentClaim(id: string, data: { decision: 'RECORDED' | 'NOT_RECEIVED'; by: string; receipt_number?: string }): Promise<PaymentClaim> {
+  async decidePaymentClaim(id: string, data: { decision: 'RECORDED' | 'NOT_RECEIVED'; by: string; receipt_number?: string; record?: boolean }): Promise<PaymentClaim> {
     const res = await fetch(`${API_BASE}/payment-claims/${encodeURIComponent(id)}/decision`, {
       method: 'POST',
       headers: getAuthHeader(),

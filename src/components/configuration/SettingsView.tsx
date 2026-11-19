@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Check, UserCheck, Users } from 'lucide-react';
-import { Area, CompanyProfile, DefaultLocation, MasterLists } from '../../types';
+import { Area, CompanyProfile, DefaultLocation, MasterLists, Numbering, NumberingKind } from '../../types';
 import { api } from '../../services/api';
 import { useConfig } from '../../context/ConfigContext';
+import { formatId, isLogoData } from '../../../shared/config';
 import { useLanguage } from '../../context/LanguageContext';
 import { BigButton, PageTitle, PillTabs, Spinner } from '../common/ui';
 import { ListEditor, Notice, inputClass, useSaveNotice } from './ConfigShared';
@@ -11,12 +12,12 @@ import { DataManagementView } from './DataManagementView';
 import { PersonEntry } from '../setup/PersonEntry';
 import { ExcelImport } from '../setup/ExcelImport';
 
-export type SettingsTab = 'organisation' | 'collectors' | 'customers' | 'rules' | 'loan-types' | 'testing';
+export type SettingsTab = 'organisation' | 'collectors' | 'customers' | 'rules' | 'loan-types' | 'numbers' | 'testing';
 
 /**
  * Everything the office sets up, in the order it is needed: the organisation, then its collectors and
  * customers (typed, spoken or from an Excel file), the collection rules and the loan types (logins
- * have their own menu item). A new installation opens here. Technical settings (ID numbering) stay automatic.
+ * have their own menu item), and how new IDs and receipt numbers look. A new installation opens here.
  */
 export const SettingsView: React.FC<{ initialTab?: SettingsTab }> = ({ initialTab }) => {
   const { t } = useLanguage();
@@ -33,6 +34,7 @@ export const SettingsView: React.FC<{ initialTab?: SettingsTab }> = ({ initialTa
           { id: 'customers', label: t('customers', 'Customers') },
           { id: 'rules', label: t('collectionRules', 'Collection rules') },
           { id: 'loan-types', label: t('loanTypes', 'Loan types') },
+          { id: 'numbers', label: t('idNumbers', 'ID numbers') },
           { id: 'testing', label: t('testing', 'Testing') },
         ]}
       />
@@ -41,6 +43,7 @@ export const SettingsView: React.FC<{ initialTab?: SettingsTab }> = ({ initialTa
       {tab === 'customers' && <PeopleSettings kind="customer" />}
       {tab === 'rules' && <CollectionRules />}
       {tab === 'loan-types' && <LoanProductsView />}
+      {tab === 'numbers' && <NumberingSettings />}
       {tab === 'testing' && <DataManagementView />}
     </div>
   );
@@ -85,6 +88,7 @@ const OrganisationSettings: React.FC = () => {
     <div className="glass-card rounded-2xl p-5 space-y-4 max-w-2xl">
       <p className="text-sm text-slate-400">{t('printedOnReceipts', 'These are printed on every receipt.')}</p>
       {companyField('company_name', `${t('businessName', 'Business name')} *`)}
+      <LogoPicker value={company.company_logo || ''} onChange={v => setCompany({ ...company, company_logo: v })} />
       {companyField('company_tagline', t('taglineOptional', 'Tagline (optional)'))}
       {companyField('company_address', t('address', 'Address'))}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -95,11 +99,137 @@ const OrganisationSettings: React.FC = () => {
         {locationField('state', t('state', 'State'))}
         {locationField('pincode', t('pincode', 'Pincode'))}
       </div>
+      <div>
+        {companyField('opening_balance', t('openingBalanceLabel', 'Opening balance (₹)'), 'number')}
+        <p className="text-sm text-slate-400 mt-1">{t('openingBalanceHint', 'Money you had for lending when you started. Home shows the money in hand from it: opening balance + collected − loans given.')}</p>
+      </div>
+      <label className="flex items-center gap-3 text-base text-slate-200 cursor-pointer">
+        <input
+          type="checkbox"
+          className="w-5 h-5 accent-amber-500"
+          checked={company.notifications_enabled !== false}
+          onChange={e => setCompany({ ...company, notifications_enabled: e.target.checked })}
+        />
+        {t('notificationsOn', 'Show alerts (payments, missed days, requests) in the bell')}
+      </label>
       <p className="text-sm text-slate-400 pt-2">{t('upiSettingsHint', 'Customers and collectors pay to this UPI ID. Leave it empty to turn off UPI payment.')}</p>
       {companyField('upi_id', t('upiIdLabel', 'UPI ID (for example shopname@okicici)'))}
       {companyField('upi_name', t('upiNameLabel', 'Name shown in UPI apps (optional)'))}
       <Notice notice={notice} />
       <BigButton tone="gold" icon={Check} label={saving ? t('saving', 'Saving...') : t('save', 'Save')} disabled={saving} onClick={save} />
+    </div>
+  );
+};
+
+/** How new IDs look: customers, loans, receipts, collectors and areas. Numbers already given never change. */
+const NumberingSettings: React.FC = () => {
+  const { t } = useLanguage();
+  const { config, updateSection } = useConfig();
+  const [numbering, setNumbering] = useState<Numbering>(config.numbering);
+  const { notice, saving, run } = useSaveNotice();
+  const kinds: [NumberingKind, string][] = [
+    ['customer', t('customers', 'Customers')],
+    ['account', t('loans', 'Loans')],
+    ['receipt', t('receipts', 'Receipts')],
+    ['collector', t('collectors', 'Collectors')],
+    ['area', t('areas', 'Areas')],
+  ];
+  const set = (kind: NumberingKind, patch: Partial<Numbering[NumberingKind]>) =>
+    setNumbering({ ...numbering, [kind]: { ...numbering[kind], ...patch } });
+  const save = () =>
+    run(async () => {
+      for (const [kind, label] of kinds) {
+        if (!/^[A-Za-z0-9_-]{0,12}$/.test(numbering[kind].prefix)) throw new Error(`${label}: ${t('prefixRule', 'the start letters can be up to 12 letters, numbers, - or _.')}`);
+      }
+      const saved = await updateSection('numbering', numbering);
+      if (saved) setNumbering(saved.numbering);
+    }, t('saved', 'Saved'));
+
+  return (
+    <div className="glass-card rounded-2xl p-5 space-y-4 max-w-3xl">
+      <p className="text-sm text-slate-400">{t('numberingHint', 'How new IDs look. IDs already given stay as they are, and the next number never goes back to one already used.')}</p>
+      {kinds.map(([kind, label]) => {
+        const rule = numbering[kind];
+        return (
+          <div key={kind} className="rounded-2xl border border-slate-800 p-4 space-y-3">
+            <div className="flex items-baseline justify-between gap-3 flex-wrap">
+              <span className="text-base font-bold text-white">{label}</span>
+              <span className="text-sm text-slate-400">
+                {t('nextIdWillBe', 'Next')}: <strong className="font-mono text-gold-300">{formatId(rule, rule.next)}</strong>
+              </span>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 items-end">
+              <div>
+                <label htmlFor={`num-${kind}-prefix`} className="block text-sm font-bold text-slate-300 mb-1.5">{t('idPrefix', 'Starts with')}</label>
+                <input id={`num-${kind}-prefix`} className={`${inputClass} font-mono`} maxLength={12} value={rule.prefix} onChange={e => set(kind, { prefix: e.target.value.toUpperCase() })} />
+              </div>
+              <div>
+                <label htmlFor={`num-${kind}-pad`} className="block text-sm font-bold text-slate-300 mb-1.5">{t('idDigits', 'Digits')}</label>
+                <input id={`num-${kind}-pad`} type="number" min={1} max={10} className={`${inputClass} font-mono`} value={rule.pad} onChange={e => set(kind, { pad: Math.max(1, Math.min(10, Math.floor(Number(e.target.value) || 1))) })} />
+              </div>
+              <div>
+                <label htmlFor={`num-${kind}-next`} className="block text-sm font-bold text-slate-300 mb-1.5">{t('idNextNumber', 'Next number')}</label>
+                <input id={`num-${kind}-next`} type="number" min={config.numbering[kind].next} className={`${inputClass} font-mono`} value={rule.next} onChange={e => set(kind, { next: Math.max(1, Math.floor(Number(e.target.value) || 1)) })} />
+              </div>
+              <label className="flex items-center gap-2 text-sm text-slate-200 cursor-pointer pb-3">
+                <input type="checkbox" className="w-5 h-5 accent-amber-500" checked={rule.include_year} onChange={e => set(kind, { include_year: e.target.checked })} />
+                {t('idIncludeYear', 'Add the year')}
+              </label>
+            </div>
+          </div>
+        );
+      })}
+      <Notice notice={notice} />
+      <BigButton tone="gold" icon={Check} label={saving ? t('saving', 'Saving...') : t('save', 'Save')} disabled={saving} onClick={save} />
+    </div>
+  );
+};
+
+/** The business logo: a picture from the phone or computer, made small so it loads fast and prints well. */
+const LogoPicker: React.FC<{ value: string; onChange: (v: string) => void }> = ({ value, onChange }) => {
+  const { t } = useLanguage();
+  const [error, setError] = useState<string | null>(null);
+  const pick = (file: File | undefined) => {
+    setError(null);
+    if (!file) return;
+    if (!/^image\/(png|jpeg|webp)$/.test(file.type)) return setError(t('logoWrongType', 'Choose a PNG, JPG or WEBP picture.'));
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      const scale = Math.min(1, 256 / Math.max(img.width, img.height));
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.max(1, Math.round(img.width * scale));
+      canvas.height = Math.max(1, Math.round(img.height * scale));
+      canvas.getContext('2d')?.drawImage(img, 0, 0, canvas.width, canvas.height);
+      URL.revokeObjectURL(url);
+      const data = canvas.toDataURL(file.type === 'image/jpeg' ? 'image/jpeg' : 'image/png', 0.9);
+      if (!isLogoData(data)) return setError(t('logoTooBig', 'This picture is too big. Choose a smaller one.'));
+      onChange(data);
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      setError(t('logoWrongType', 'Choose a PNG, JPG or WEBP picture.'));
+    };
+    img.src = url;
+  };
+  return (
+    <div>
+      <span className="block text-sm font-bold text-slate-300 mb-1.5">{t('logoOptional', 'Logo (optional)')}</span>
+      <div className="flex items-center gap-3 flex-wrap">
+        <div className="w-16 h-16 rounded-2xl bg-navy-950 border border-slate-700 flex items-center justify-center overflow-hidden">
+          {value ? <img src={value} alt={t('logo', 'Logo')} className="w-full h-full object-contain" /> : <span className="text-xs text-slate-500">{t('noLogo', 'None')}</span>}
+        </div>
+        <label className="px-4 py-2.5 rounded-xl bg-slate-800 text-slate-100 font-bold text-sm cursor-pointer hover:bg-slate-700">
+          {value ? t('changeLogo', 'Change logo') : t('chooseLogo', 'Choose logo')}
+          <input type="file" accept="image/png,image/jpeg,image/webp" className="sr-only" onChange={e => { pick(e.target.files?.[0]); e.target.value = ''; }} />
+        </label>
+        {value && (
+          <button type="button" onClick={() => onChange('')} className="px-4 py-2.5 rounded-xl border border-rose-500/40 text-rose-300 font-bold text-sm hover:bg-rose-500/10">
+            {t('removeLogo', 'Remove logo')}
+          </button>
+        )}
+      </div>
+      {error && <p className="text-sm text-rose-300 mt-1.5">{error}</p>}
     </div>
   );
 };
@@ -158,7 +288,7 @@ const CollectionRules: React.FC = () => {
   const save = () => {
     const modes = masters.payment_modes;
     const next = modes.includes(masters.default_payment_mode) ? masters : { ...masters, default_payment_mode: modes[0] ?? '' };
-    run(() => updateSection('masters', next), t('saved', 'Saved'));
+    run(async () => { await updateSection('masters', next); }, t('saved', 'Saved'));
   };
 
   return (
@@ -168,6 +298,9 @@ const CollectionRules: React.FC = () => {
         values={masters.payment_modes}
         onChange={v => set({ payment_modes: v })}
       />
+      <p className="text-sm text-slate-400 -mt-3">
+        {t('othersAlwaysOffered', '"Others" is always offered too, with a box to write how it was paid. Only the mode named UPI shows the QR code and UPI ID.')}
+      </p>
       <div>
         <label className="block text-sm font-bold text-slate-300 mb-1.5">{t('defaultPaymentMode', 'Used for one-tap "Paid"')}</label>
         <select className={inputClass} value={masters.default_payment_mode} onChange={e => set({ default_payment_mode: e.target.value })}>

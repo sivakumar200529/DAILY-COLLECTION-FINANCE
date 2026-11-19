@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Banknote, CheckCircle2, Smartphone, X } from 'lucide-react';
+import { ArrowLeft, Banknote, CheckCircle2, MoreHorizontal, Smartphone, X } from 'lucide-react';
 import { DailyCollectionRecord } from '../../types';
 import { formatCurrency } from '../../utils/formatters';
 import { upiPayLink, upiQrImage } from '../../utils/upi';
@@ -7,16 +7,16 @@ import { useLanguage } from '../../context/LanguageContext';
 import { useConfig } from '../../context/ConfigContext';
 import { BigButton, Sheet } from '../common/ui';
 import { dayState, quickAmount, withMissedAmount } from '../collect/collectHelpers';
-
-const isUpi = (mode: string) => mode.trim().toLowerCase() === 'upi';
+import { MODE_NOTE_MAX, isOtherMode, isUpiMode, modeChoices } from '../../../shared/config';
 
 /**
- * Collect from one customer: the amount (filled in; can be changed), then how they paid. Cash saves at once; UPI first shows the business's QR code. "Not paid" is here too.
+ * Collect from one customer: the amount (filled in; can be changed), then how they paid. A mode saves at once;
+ * UPI first shows the business's QR code, and "Others" asks how it was paid. "Not paid" is here too.
  */
 export const CollectSheet: React.FC<{
   record: DailyCollectionRecord;
   busy: boolean;
-  onSave: (amount: number, mode: string) => void;
+  onSave: (amount: number, mode: string, note?: string) => void;
   onNotPaid: () => void;
   onClose: () => void;
 }> = ({ record, busy, onSave, onNotPaid, onClose }) => {
@@ -25,6 +25,9 @@ export const CollectSheet: React.FC<{
   const full = withMissedAmount(record);
   const [amount, setAmount] = useState<number>(full);
   const [upiStep, setUpiStep] = useState<string | null>(null);
+  const [otherStep, setOtherStep] = useState<string | null>(null);
+  const [otherNote, setOtherNote] = useState('');
+  const modes = modeChoices(config.masters.payment_modes);
 
   const chips = [
     { label: t('todayAmount', 'Today'), value: quickAmount(record) },
@@ -66,6 +69,44 @@ export const CollectSheet: React.FC<{
     );
   }
 
+  if (otherStep) {
+    const note = otherNote.trim();
+    return (
+      <Sheet title={`${record.customer_name}: ${t(otherStep, otherStep)}`} onClose={onClose}>
+        <div className="space-y-4">
+          <div className="text-3xl font-black font-mono text-gold-300 text-center">{formatCurrency(amount)}</div>
+          <div>
+            <label htmlFor="other-mode-note" className="block text-sm font-bold text-slate-300 mb-1.5">
+              {t('howPaid', 'How was it paid?')}
+            </label>
+            <input
+              id="other-mode-note"
+              type="text"
+              autoFocus
+              maxLength={MODE_NOTE_MAX}
+              value={otherNote}
+              onChange={e => setOtherNote(e.target.value)}
+              placeholder={t('howPaidExample', 'e.g. Cheque 123456')}
+              className="w-full px-4 py-3 bg-navy-950 border border-slate-700 rounded-xl text-base text-white focus:border-gold-500 focus:outline-none"
+            />
+          </div>
+          <BigButton
+            tone="green"
+            icon={CheckCircle2}
+            label={`${t('save', 'Save')} ${formatCurrency(amount)}`}
+            onClick={() => onSave(amount, otherStep, note)}
+            disabled={busy || !note}
+            className="w-full py-4 text-base"
+          />
+          <button type="button" onClick={() => setOtherStep(null)} className="text-sm text-slate-400 flex items-center gap-1 mx-auto">
+            <ArrowLeft className="w-4 h-4" />
+            {t('back', 'Back')}
+          </button>
+        </div>
+      </Sheet>
+    );
+  }
+
   return (
     <Sheet title={`${record.customer_name}: ${t('collect', 'Collect')}`} onClose={onClose}>
       <div className="space-y-4">
@@ -98,14 +139,14 @@ export const CollectSheet: React.FC<{
           )}
         </div>
 
-        <div className={`grid gap-3 ${config.masters.payment_modes.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}`}>
-          {config.masters.payment_modes.map(mode => (
+        <div className="grid gap-3 grid-cols-2">
+          {modes.map(mode => (
             <BigButton
               key={mode}
-              tone={isUpi(mode) ? 'gold' : 'green'}
-              icon={isUpi(mode) ? Smartphone : Banknote}
+              tone={isUpiMode(mode) ? 'gold' : 'green'}
+              icon={isUpiMode(mode) ? Smartphone : isOtherMode(mode) ? MoreHorizontal : Banknote}
               label={t(mode, mode)}
-              onClick={() => (isUpi(mode) ? setUpiStep(mode) : onSave(amount, mode))}
+              onClick={() => (isUpiMode(mode) ? setUpiStep(mode) : isOtherMode(mode) ? setOtherStep(mode) : onSave(amount, mode))}
               disabled={busy || amount <= 0}
               className="py-5 text-lg"
             />

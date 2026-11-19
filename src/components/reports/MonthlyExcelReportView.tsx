@@ -2,9 +2,11 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { MonthlyReportData, Collector, Area, PaymentTransaction, CollectionAccount, MonthlyReportRow } from '../../types';
 import { api } from '../../services/api';
+import { useDataChanged } from '../../utils/dataSync';
 import { formatCurrency, formatPercent, orNA } from '../../utils/formatters';
 import { exportMonthlyReportToExcel } from '../../utils/excelExport';
 import { useLanguage } from '../../context/LanguageContext';
+import { useConfig } from '../../context/ConfigContext';
 import { 
   FileSpreadsheet, 
   Download, 
@@ -26,6 +28,7 @@ import { PaymentEditModal } from '../common/PaymentEditModal';
 
 export const MonthlyExcelReportView: React.FC = () => {
   const { t } = useLanguage();
+  const companyName = useConfig().config.company.company_name;
   const [month, setMonth] = useState<number>(new Date().getMonth() + 1);
   const [year, setYear] = useState<number>(new Date().getFullYear());
   const [selectedCollector, setSelectedCollector] = useState<string>('ALL');
@@ -243,8 +246,8 @@ export const MonthlyExcelReportView: React.FC = () => {
     { num: 12, name: 'December' },
   ];
 
-  const loadData = async () => {
-    setLoading(true);
+  const loadData = async (quiet = false) => {
+    if (!quiet) setLoading(true);
     try {
       const [rep, cols, ars] = await Promise.all([
         api.getMonthlyReport({
@@ -270,10 +273,11 @@ export const MonthlyExcelReportView: React.FC = () => {
   useEffect(() => {
     loadData();
   }, [month, year, selectedCollector, selectedArea, selectedStatus]);
+  useDataChanged(() => loadData(true));
 
   const handleExport = () => {
     if (reportData) {
-      exportMonthlyReportToExcel(reportData);
+      exportMonthlyReportToExcel(reportData, companyName);
     }
   };
 
@@ -426,7 +430,7 @@ export const MonthlyExcelReportView: React.FC = () => {
                     </td>
                     <td className="py-2 px-3 text-slate-300">{t(r.shopName, r.shopName)}</td>
                     <td className="py-2 px-3 text-slate-400">{t(r.area, r.area)}</td>
-                    <td className="py-2 px-3 text-slate-400">{t(r.collector, r.collector)}</td>
+                    <td className="py-2 px-3 text-slate-400">{r.collector ? t(r.collector, r.collector) : '—'}</td>
                     <td className="py-2 px-3 text-right font-mono text-slate-300">{r.requestedAmount}</td>
                     <td className="py-2 px-3 text-right font-mono text-gold-400 font-semibold">{r.disbursedAmount}</td>
                     <td className="py-2 px-3 text-right font-mono text-slate-200">{r.dailyCollection}</td>

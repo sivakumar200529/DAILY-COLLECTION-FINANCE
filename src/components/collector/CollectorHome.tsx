@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Clock, ClipboardList, Plus } from 'lucide-react';
 import { Collector, DailyCollectionRecord, User } from '../../types';
 import { api } from '../../services/api';
+import { useDataChanged } from '../../utils/dataSync';
 import { formatCurrency } from '../../utils/formatters';
 import { collectionDaySummary, longPendingCounts } from '../../../shared/collectorDay';
 import { todayIso } from '../../../shared/finance';
@@ -42,6 +43,7 @@ export const CollectorHome: React.FC<{
       setRecords(prev => prev ?? []);
     }
   }, [collectorId, t]);
+  useDataChanged(load);
 
   useEffect(() => {
     load();

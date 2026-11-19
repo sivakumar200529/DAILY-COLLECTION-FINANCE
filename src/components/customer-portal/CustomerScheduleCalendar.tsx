@@ -4,6 +4,7 @@ import { api } from '../../services/api';
 import { formatCurrency, formatDate } from '../../utils/formatters';
 import { scheduleDates, todayIso } from '../../../shared/finance';
 import { useLanguage } from '../../context/LanguageContext';
+import { useConfig } from '../../context/ConfigContext';
 import {
   CheckCircle2,
   Clock,
@@ -40,6 +41,9 @@ export const CustomerScheduleCalendar: React.FC<CustomerScheduleCalendarProps> =
   onRefresh,
 }) => {
   const { t } = useLanguage();
+  const { masters } = useConfig().config;
+  /** One tap records the usual way to pay (Settings). */
+  const usualMode = masters.default_payment_mode || masters.payment_modes[0];
   const [schedule, setSchedule] = useState<DailyCollectionRecord[]>([]);
   const [payments, setPayments] = useState<PaymentTransaction[]>([]);
   const [loading, setLoading] = useState(true);
@@ -170,8 +174,8 @@ export const CustomerScheduleCalendar: React.FC<CustomerScheduleCalendarProps> =
           collection_account_id: account.id,
           collection_date: item.date,
           amount_paid: item.daily_due,
-          payment_mode: 'Cash',
-          remarks: 'Fast Tap from Hand Note (கை நோட்டு)',
+          payment_mode: usualMode,
+          remarks: 'Fast tap from hand note',
         });
       } else {
         // Find payment to undo
@@ -216,7 +220,7 @@ export const CustomerScheduleCalendar: React.FC<CustomerScheduleCalendarProps> =
         collection_account_id: account.id,
         collection_date: item.date,
         amount_paid: item.daily_due,
-        payment_mode: 'Cash',
+        payment_mode: usualMode,
         remarks: 'Recorded from Calendar Matrix',
       });
       loadData();

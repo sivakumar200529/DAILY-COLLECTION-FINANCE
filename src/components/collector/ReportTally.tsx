@@ -2,7 +2,7 @@ import React from 'react';
 import { CheckCircle2, Clock, XCircle } from 'lucide-react';
 import { CollectorReport } from '../../types';
 import { formatCurrency } from '../../utils/formatters';
-import { CollectionDaySummary } from '../../../shared/collectorDay';
+import { CollectionDaySummary, ModeTotal } from '../../../shared/collectorDay';
 import { useLanguage } from '../../context/LanguageContext';
 
 /** The nine report lines, for today's live figures or a report already sent. */
@@ -10,6 +10,8 @@ export interface Tally {
   summary: CollectionDaySummary;
   cashInApp: number;
   upiInApp: number;
+  /** The money that is not cash, mode by mode (older reports do not have it). */
+  modeTotals?: ModeTotal[];
   /** Notes counted by the collector; null while nothing has been counted yet. */
   cashCounted: number | null;
 }
@@ -18,6 +20,7 @@ export const reportTally = (r: CollectorReport): Tally => ({
   summary: r.summary,
   cashInApp: r.cash_in_app,
   upiInApp: r.upi_in_app,
+  modeTotals: r.mode_totals,
   cashCounted: r.cash_counted,
 });
 
@@ -25,7 +28,7 @@ export const reportTally = (r: CollectorReport): Tally => ({
  * The report one line at a time, as the collector sees it and the office checks it. "Amount in cash"
  * carries a cross until the counted notes equal it, then a tick.
  */
-export const ReportTally: React.FC<{ tally: Tally }> = ({ tally: { summary: s, cashInApp: cash, upiInApp: upi, cashCounted } }) => {
+export const ReportTally: React.FC<{ tally: Tally }> = ({ tally: { summary: s, cashInApp: cash, upiInApp: upi, modeTotals, cashCounted } }) => {
   const { t } = useLanguage();
   const cashCheck = cashCounted === cash ? (
     <CheckCircle2 className="w-5 h-5 text-emerald-400" aria-label={t('tallyMatchesShort', 'Matches')} />
@@ -65,7 +68,9 @@ export const ReportTally: React.FC<{ tally: Tally }> = ({ tally: { summary: s, c
           </div>
         )
       )}
-      {row(t('amountInUpi', 'Amount in UPI'), formatCurrency(upi))}
+      {modeTotals
+        ? modeTotals.map(m => <React.Fragment key={m.mode}>{row(`${t('amountIn', 'Amount in')} ${t(m.mode, m.mode)}`, formatCurrency(m.amount))}</React.Fragment>)
+        : row(t('amountNotCash', 'Amount other than cash'), formatCurrency(upi))}
       {row(t('grandTotal', 'Grand total'), formatCurrency(cash + upi), true)}
     </dl>
   );

@@ -32,7 +32,7 @@ function downloadBlob(content: string, filename: string, mimeType: string) {
  * Generates and downloads a rich Excel file for the Monthly Daily Collection Report
  * containing Customer details, Finance details, Day 1..31 columns, and Monthly Totals.
  */
-export function exportMonthlyReportToExcel(reportData: MonthlyReportData) {
+export function exportMonthlyReportToExcel(reportData: MonthlyReportData, companyName = 'DAILY COLLECTION') {
   const { monthName, year, daysInMonth, rows, totals } = reportData;
   const daysArray = Array.from({ length: daysInMonth }, (_, i) => i + 1);
 
@@ -177,7 +177,7 @@ export function exportMonthlyReportToExcel(reportData: MonthlyReportData) {
   // Title Row
   xml += `   <Row ss:Height="30">
     <Cell ss:MergeAcross="${totalCols - 1}" ss:StyleID="TitleStyle">
-     <Data ss:Type="String">DAILY COLLECTION</Data>
+     <Data ss:Type="String">${escapeXml(companyName)}</Data>
     </Cell>
    </Row>
    <Row ss:Height="22">

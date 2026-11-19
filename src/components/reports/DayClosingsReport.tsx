@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ChevronDown, Lock, LockOpen } from 'lucide-react';
 import { DayClosing } from '../../types';
 import { api } from '../../services/api';
+import { useDataChanged } from '../../utils/dataSync';
 import { formatCurrency, formatDate, formatDateTime } from '../../utils/formatters';
 import { useLanguage } from '../../context/LanguageContext';
 import { BigButton, ConfirmSheet, EmptyState, Spinner } from '../common/ui';
@@ -23,6 +24,7 @@ export const DayClosingsReport: React.FC<{ officeName: string }> = ({ officeName
   useEffect(() => {
     load();
   }, []);
+  useDataChanged(load);
 
   // Any closed day can be reopened here (Home offers it only for today), e.g. to enter the notebook.
   const reopen = async () => {
@@ -55,7 +57,7 @@ export const DayClosingsReport: React.FC<{ officeName: string }> = ({ officeName
             <th className="py-2 px-1 font-semibold text-right">{t('balance', 'Balance')}</th>
             <th className="py-2 px-1 font-semibold text-right">{t('longStandingShort', 'Long standing')}</th>
             <th className="py-2 px-1 font-semibold text-right">{t('amountInCash', 'Amount in cash')}</th>
-            <th className="py-2 pl-1 pr-3 font-semibold text-right">UPI</th>
+            <th className="py-2 pl-1 pr-3 font-semibold text-right">{t('notCash', 'Other than cash')}</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-800">

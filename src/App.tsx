@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { User, Notification } from './types';
 import { api, SIGNED_OUT_EVENT } from './services/api';
+import { useDataChanged, watchDataChanges } from './utils/dataSync';
 import { LoginPage } from './components/auth/LoginPage';
 import { Navbar } from './components/layout/Navbar';
 import { Sidebar } from './components/layout/Sidebar';
@@ -83,6 +84,13 @@ export function App() {
       console.error('Failed to load notifications:', err);
     }
   };
+
+  // While someone is signed in, open screens follow changes made anywhere (see utils/dataSync).
+  useEffect(() => {
+    if (!currentUser) return;
+    return watchDataChanges();
+  }, [currentUser?.id]);
+  useDataChanged(loadNotifications, !!currentUser);
 
   const handleLoginSuccess = (user: User) => {
     setCurrentUser(user);

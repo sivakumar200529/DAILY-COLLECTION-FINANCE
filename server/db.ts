@@ -157,7 +157,9 @@ export interface DailyCollectionRecord {
   pending_amount: number;
   advance_amount: number;
   status: 'PAID' | 'PARTIAL' | 'PENDING' | 'MISSED' | 'ADVANCE';
-  payment_mode?: string; // one of config.masters.payment_modes
+  payment_mode?: string; // one of config.masters.payment_modes, or "Others"
+  /** How an "Others" payment was made, in the payer's words. */
+  payment_mode_note?: string;
   collector_id: string;
   collector_name: string;
   collection_area: string;
@@ -194,7 +196,9 @@ export interface PaymentTransaction {
   daily_due: number;
   amount_paid: number;
   advance_amount: number;
-  payment_mode: string; // one of config.masters.payment_modes
+  payment_mode: string; // one of config.masters.payment_modes, or "Others"
+  /** How an "Others" payment was made, in the payer's words. */
+  payment_mode_note?: string;
   collector_id: string;
   collector_name: string;
   previous_balance: number;
@@ -218,6 +222,8 @@ export interface Receipt {
   daily_due: number;
   amount_paid: number;
   payment_mode: string;
+  /** How an "Others" payment was made, in the payer's words. */
+  payment_mode_note?: string;
   transaction_ref?: string;
   previous_balance: number;
   remaining_balance: number;
@@ -485,6 +491,12 @@ export function nextId(db: KRSFinanceDatabase, kind: NumberingKind, existingIds:
 
 class Repository {
   private db: KRSFinanceDatabase | null = null;
+  /** Moves on every save or reload, so open screens can tell the data changed. Starts from the clock so a restart counts too. */
+  private version = Date.now();
+
+  public getVersion(): number {
+    return this.version;
+  }
 
   public getDb(): KRSFinanceDatabase {
     if (!this.db) {
@@ -498,6 +510,7 @@ class Repository {
       this.db = data;
     }
     if (!this.db) return;
+    this.version++;
 
     try {
       const json = JSON.stringify(this.db, null, 2);
@@ -514,6 +527,7 @@ class Repository {
       if (!fs.existsSync(file)) continue;
       try {
         this.db = migrateDatabase(JSON.parse(fs.readFileSync(file, 'utf-8')));
+        this.version++;
         return this.db;
       } catch (err) {
         console.warn(`Data file ${path.basename(file)} is unreadable, trying the next one...`, err);

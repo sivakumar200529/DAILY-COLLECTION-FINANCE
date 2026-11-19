@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { AlertTriangle, CheckCircle2, ChevronRight, ClipboardList, ShieldCheck } from 'lucide-react';
 import { Collector, CollectorReport, DailyCollectionRecord } from '../../types';
 import { api } from '../../services/api';
+import { useDataChanged } from '../../utils/dataSync';
 import { formatCurrency, formatDate, formatDateTime } from '../../utils/formatters';
 import { canVerify, collectionDaySummary, latestReport } from '../../../shared/collectorDay';
 import { todayIso } from '../../../shared/finance';
@@ -47,6 +48,7 @@ export const CollectorReportsReport: React.FC<{ officeName: string }> = ({ offic
   useEffect(() => {
     load();
   }, [load]);
+  useDataChanged(load);
 
   const decide = async () => {
     if (!deciding) return;

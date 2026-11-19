@@ -355,6 +355,350 @@ test('notebook entry: many days at once, all checked before anything is saved', 
   assert.equal(row.balance, roundMoney(total - 5 * d));
 });
 
+test('notebook card: the card makes the sheet; customers, loans and past payments are added together', async () => {
+  const collectors = await ok(get('/api/collectors'), 'collectors');
+  const col = collectors.find((c: any) => c.status === 'ACTIVE');
+  const config = await ok(get('/api/config'), 'config');
+  const product = config.loan_products.find((p: any) => p.status === 'ACTIVE' && p.allow_overrides);
+  const start = addDaysIso(T, -9);
+  const end = addDaysIso(start, 99); // 100 days, as on the card
+  const daily = 200;
+  const total = 20000;
+  const card = { product_id: product.id, start_date: start, end_date: end, total, daily };
+  const day = (n: number) => addDaysIso(start, n);
+  const stamp = String(Date.now()).slice(-8);
+
+  // A customer already in the app, without a loan.
+  const existing = await ok(post('/api/customers', {
+    personal: { full_name: 'Card Existing', mobile_number: '66' + stamp },
+    address: { area: col.assigned_area },
+  }), 'existing customer');
+  const newRow = {
+    name: 'Card New', mobile: '65' + stamp, area: col.assigned_area,
+    payments: Object.fromEntries([0, 1, 2, 3, 4].map(n => [day(n), daily])),
+  };
+  const existingRow = {
+    customer_id: existing.id, name: existing.full_name, mobile: existing.mobile_number, area: col.assigned_area,
+    payments: { [day(0)]: daily, [day(2)]: 2 * daily },
+  };
+  const customersBefore = (await ok(get('/api/customers'), 'customers')).length;
+
+  // The card's terms are checked first.
+  assert.equal((await post('/api/notebook/card', { ...card, daily: 100, rows: [newRow] })).status, 400, 'daily too low for the total');
+  assert.equal((await post('/api/notebook/card', { ...card, end_date: addDaysIso(start, -1), rows: [newRow] })).status, 400, 'end before start');
+
+  // One wrong cell and one wrong row: nothing at all is saved, and each is named.
+  const refused = await post('/api/notebook/card', {
+    ...card,
+    rows: [
+      { ...newRow, payments: { ...newRow.payments, [addDaysIso(T, 1)]: daily } },
+      existingRow,
+      { name: 'Card Twin', mobile: newRow.mobile, area: col.assigned_area, payments: {} },
+    ],
+  });
+  assert.equal(refused.status, 400);
+  assert.deepEqual(refused.data.errors.map((e: any) => [e.row, !!e.date]).sort(), [[0, true], [2, false]]);
+  assert.equal((await ok(get('/api/customers'), 'customers')).length, customersBefore, 'no customer added');
+
+  const saved = await ok(post('/api/notebook/card', { ...card, rows: [newRow, existingRow] }), 'save card');
+  assert.equal(saved.loans.length, 2);
+  assert.equal(saved.customers_added, 1);
+  assert.equal(saved.payments, 7);
+
+  const [newLoan, existingLoan] = saved.loans;
+  await checkLoan(newLoan.account_id, 5 * daily);
+  await checkLoan(existingLoan.account_id, 3 * daily);
+  const acc = await ok(get(`/api/collection-accounts/${newLoan.account_id}`), 'loan');
+  assert.equal(acc.start_date, start);
+  assert.equal(acc.expected_end_date, end);
+  assert.equal(acc.total_repayment, total);
+  assert.equal(acc.daily_collection, daily);
+  assert.equal(acc.remaining_amount, total - 5 * daily);
+  assert.equal(existingLoan.customer_id, existing.id, 'the picked customer got the loan');
+
+  // No collector was chosen: the loan has none (not the area's), and today's work needs one for each.
+  assert.equal(acc.assigned_collector_id, '', 'no collector taken from the area');
+  const unassigned = await post('/api/daily-collections/assign', { changes: [] });
+  assert.equal(unassigned.status, 400, 'each needs a collector for the day');
+  assert.match(unassigned.data.error, /Card New/);
+  await ok(post('/api/daily-collections/assign', {
+    changes: saved.loans.map((l: any) => ({ collection_account_id: l.account_id, collector_id: col.id })),
+  }), 'assign with a collector for each');
+  const later = await ok(get(`/api/collection-accounts/${newLoan.account_id}`), 'loan');
+  assert.equal(later.assigned_collector_id, '', 'only today was given a collector');
+
+  // The loans carry on in the app: they are running loans in the notebook grid.
+  const page = await ok(get(`/api/notebook?from=${start}&to=${T}`), 'notebook');
+  assert.equal(page.rows.find((r: any) => r.account_id === newLoan.account_id).cells[day(4)].amount, daily);
+
+  // A customer with a running loan cannot get a second card.
+  assert.equal((await post('/api/notebook/card', { ...card, rows: [existingRow] })).status, 400, 'still has a running loan');
+});
+
+test('screens follow changes: the data version moves on saves; a cancelled loan counts nowhere', async () => {
+  const v1 = (await ok(get('/api/data-version'), 'version')).version;
+  await ok(get('/api/dashboard/stats'), 'stats');
+  assert.equal((await ok(get('/api/data-version'), 'version')).version, v1, 'reading changes nothing');
+
+  const config = await ok(get('/api/config'), 'config');
+  const product = config.loan_products.find((p: any) => p.status === 'ACTIVE');
+  const col = (await ok(get('/api/collectors'), 'collectors')).find((c: any) => c.status === 'ACTIVE');
+  let amount = product.default_days * 100;
+  if (product.min_amount > 0 && amount < product.min_amount) amount = product.min_amount;
+  if (product.max_amount > 0 && amount > product.max_amount) amount = product.max_amount;
+  const loan = { product_id: product.id, requested_amount: amount, assigned_collector_id: col.id, collection_area: col.assigned_area };
+  const cust = await ok(post('/api/customers', { personal: { full_name: 'Cancel Test', mobile_number: '7' + String(Date.now()).slice(-9) }, loan }), 'create');
+  const v2 = (await ok(get('/api/data-version'), 'version')).version;
+  assert.ok(v2 > v1, 'a save moves the version');
+
+  let page = await ok(get(`/api/customers/${cust.id}/360`), '360');
+  assert.equal(page.metrics.totalRequested, amount);
+  assert.equal(page.metrics.totalRemaining, page.accounts[0].total_repayment);
+
+  await ok(call('DELETE', `/api/collection-accounts/${cust.activeAccount.id}`), 'cancel loan');
+  page = await ok(get(`/api/customers/${cust.id}/360`), '360 after cancel');
+  assert.equal(page.accounts.length, 1, 'the cancelled loan is still listed');
+  assert.equal(page.metrics.totalRequested, 0, 'but counts in no total');
+  assert.equal(page.metrics.totalDisbursed, 0);
+  assert.equal(page.metrics.totalRemaining, 0);
+  assert.equal(page.metrics.missedCount, 0);
+  const report = await ok(get('/api/reports/monthly'), 'register');
+  assert.ok(!report.rows.some((r: any) => r.collectionAccountId === cust.activeAccount.id), 'not in the register');
+});
+
+test('UPI claims: recorded in one step, never twice; a loan without a collector keeps today\'s collector', async () => {
+  const config = await ok(get('/api/config'), 'config');
+  const product = config.loan_products.find((p: any) => p.status === 'ACTIVE');
+  const areas = await ok(get('/api/areas'), 'areas');
+  const today = new Date();
+  const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const start = new Date(today); start.setDate(start.getDate() - 2);
+  const end = new Date(start); end.setDate(end.getDate() + 99);
+  const card = await ok(post('/api/notebook/card', {
+    product_id: product.id, start_date: iso(start), end_date: iso(end), total: 20000, daily: 200,
+    rows: [{ name: 'Upi Test', mobile: '6' + String(Date.now()).slice(-9), area: areas[0].area_name, payments: {} }],
+  }), 'card');
+  const loanId = card.loans[0].account_id;
+  const customerId = card.loans[0].customer_id;
+  const collector = (await ok(get('/api/collectors'), 'collectors')).find((c: any) => c.status === 'ACTIVE');
+  const assignment = await ok(get(`/api/daily-collections/assignment?date=${iso(today)}`), 'assignment');
+  if (!assignment.assigned) {
+    const day = await ok(get(`/api/daily-collections?date=${iso(today)}`), 'day');
+    const changes = day.filter((d: any) => !d.collector_id).map((d: any) => ({ collection_account_id: d.collection_account_id, collector_id: collector.id }));
+    await ok(post('/api/daily-collections/assign', { changes }), 'assign');
+  } else {
+    await ok(post('/api/daily-collections/assign', { changes: [{ collection_account_id: loanId, collector_id: collector.id }] }), 'assign the new loan');
+  }
+
+  const users = await ok(get('/api/users'), 'users');
+  const cred = await ok(get(`/api/users/${users.find((u: any) => u.customer_id === customerId).id}/credentials`), 'credentials');
+  const token = (await ok(post('/api/auth/login', { username: cred.username, password: cred.password, role: 'CUSTOMER' }, ''), 'login')).token;
+  await ok(post('/api/customer/payment-claim', { amount: 200, upi_reference: 'T-UPI-1' }, token), 'claim');
+  const claim = (await ok(get('/api/payment-claims?status=PENDING'), 'claims')).find((c: any) => c.upi_reference === 'T-UPI-1');
+
+  const done = await ok(post(`/api/payment-claims/${claim.id}/decision`, { decision: 'RECORDED', record: true }), 'record');
+  assert.equal(done.status, 'RECORDED');
+  assert.ok(done.receipt_number, 'the claim names its receipt');
+  assert.equal((await post(`/api/payment-claims/${claim.id}/decision`, { decision: 'RECORDED', record: true })).status, 400, 'never twice');
+  const payments = (await ok(get('/api/payments'), 'payments')).filter((p: any) => p.collection_account_id === loanId && p.status !== 'CANCELLED');
+  assert.equal(payments.length, 1);
+  assert.equal(payments[0].payment_mode, 'UPI');
+  assert.equal(payments[0].collector_id, collector.id, 'credited to today\'s collector');
+  const rec = (await ok(get(`/api/daily-collections?date=${iso(today)}`), 'day')).find((d: any) => d.collection_account_id === loanId);
+  assert.equal(rec.collector_id, collector.id, 'today\'s collector is not blanked');
+  await checkLoan(loanId, 200);
+
+  // A second UPI the same day waits, with nothing saved.
+  await ok(post('/api/customer/payment-claim', { amount: 100, upi_reference: 'T-UPI-2' }, token), 'claim 2');
+  const claim2 = (await ok(get('/api/payment-claims?status=PENDING'), 'claims')).find((c: any) => c.upi_reference === 'T-UPI-2');
+  const again = await post(`/api/payment-claims/${claim2.id}/decision`, { decision: 'RECORDED', record: true });
+  assert.equal(again.status, 409);
+  assert.match(again.data.error, /already paid today/);
+  await checkLoan(loanId, 200);
+});
+
+test('settings drive the app: payment modes, rules, numbering, loan types and company name', async () => {
+  const original = await ok(get('/api/config'), 'config');
+  const restore = async () => {
+    for (const section of ['company', 'loan_products', 'masters', 'numbering']) {
+      await ok(put(`/api/config/${section}`, original[section]), `restore ${section}`);
+    }
+  };
+  try {
+    // ---- bad settings are refused
+    assert.equal((await put('/api/config/masters', { ...original.masters, payment_modes: [] })).status, 400, 'no way to pay');
+    assert.equal((await put('/api/config/masters', { ...original.masters, not_paid_reasons: [] })).status, 400, 'no reason');
+    assert.equal((await put('/api/config/masters', { ...original.masters, report_send_limit: 0 })).status, 400, 'report limit');
+    assert.equal((await put('/api/config/loan_products', [{ ...original.loan_products[0], default_days: 7 }])).status, 400, 'usual days not offered');
+
+    // ---- rules: "not paying" and "long pending" follow their numbers
+    const strict = { ...original.masters, not_paying_after_days: 1, long_pending_after_terms: 1, payment_modes: ['Cash', 'UPI', 'Bank'], default_payment_mode: 'UPI' };
+    await ok(put('/api/config/masters', strict), 'strict rules');
+    const strictStats = await ok(get('/api/dashboard/stats'), 'stats');
+    await ok(put('/api/config/masters', { ...strict, not_paying_after_days: 9999, long_pending_after_terms: 9999 }), 'loose rules');
+    const looseStats = await ok(get('/api/dashboard/stats'), 'stats');
+    assert.ok(strictStats.notPayingCount > 0, 'some loans are behind in the sample');
+    assert.equal(looseStats.notPayingCount, 0, '"not paying" follows the setting');
+    assert.equal(looseStats.longStandingLoans, 0, '"long pending" follows the setting');
+
+    // ---- a payment with no mode named gets the usual one from Settings
+    const today = new Date();
+    const iso = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    const assignment = await ok(get(`/api/daily-collections/assignment?date=${iso}`), 'assignment');
+    const day = await ok(get(`/api/daily-collections?date=${iso}`), 'day');
+    if (!assignment.assigned) {
+      const collector = (await ok(get('/api/collectors'), 'collectors')).find((c: any) => c.status === 'ACTIVE');
+      const changes = day.filter((d: any) => !d.collector_id).map((d: any) => ({ collection_account_id: d.collection_account_id, collector_id: collector.id }));
+      await ok(post('/api/daily-collections/assign', { changes }), 'assign');
+    }
+    const unpaid = day.find((d: any) => !d.paid_amount && d.balance_remaining >= 50);
+    const paid = await ok(post('/api/daily-collections/collect', { collection_account_id: unpaid.collection_account_id, amount_paid: 50 }), 'collect');
+    assert.equal(paid.receipt.payment_mode, 'UPI', 'usual way to pay');
+
+    // ---- numbering: new IDs follow the rule
+    await ok(put('/api/config/numbering', { ...original.numbering, customer: { prefix: 'TST', include_year: false, pad: 6, next: original.numbering.customer.next + 500 } }), 'numbering');
+    // ...and never moves backwards, so an old screen cannot hand out a used number again
+    await ok(put('/api/config/numbering', { ...original.numbering, customer: { prefix: 'TST', include_year: false, pad: 6, next: 1 } }), 'numbering back');
+    const cust = await ok(post('/api/customers', { personal: { full_name: 'Numbered', mobile_number: '5' + String(Date.now()).slice(-9) } }), 'customer');
+    const expectedNo = original.numbering.customer.next + 500;
+    assert.equal(cust.id, 'TST' + String(expectedNo).padStart(6, '0'));
+    assert.equal((await ok(get('/api/config'), 'config')).numbering.customer.next, expectedNo + 1, 'the counter moves on');
+
+    // ---- loan types: a request without a period gets the usual one of the first active type
+    const first = original.loan_products.find((p: any) => p.status === 'ACTIVE');
+    const products = original.loan_products.map((p: any) => p.id === first.id ? { ...p, day_options: [...new Set([...p.day_options, 45])], default_days: 45 } : p);
+    await ok(put('/api/config/loan_products', products), 'loan types');
+    const users = await ok(get('/api/users'), 'users');
+    const cred = await ok(get(`/api/users/${users.find((u: any) => u.customer_id === cust.id).id}/credentials`), 'credentials');
+    const token = (await ok(post('/api/auth/login', { username: cred.username, password: cred.password, role: 'CUSTOMER' }, ''), 'login')).token;
+    const request = (await ok(post('/api/customer/loan-request', { requested_amount: 5000 }, token), 'request')).request;
+    assert.equal(request.collection_days, 45);
+
+    // ---- company name: everyone reads it, and saving it moves the change counter
+    const v = (await ok(get('/api/data-version'), 'version')).version;
+    await ok(put('/api/config/company', { ...original.company, company_name: 'Test Finance' }), 'company');
+    assert.equal((await ok(get('/api/config', ''), 'public config')).company.company_name, 'Test Finance');
+    assert.ok((await ok(get('/api/data-version'), 'version')).version > v, 'open screens reload settings');
+  } finally {
+    await restore();
+  }
+});
+
+test('payment modes: the ones in Settings, plus "Others" with how it was paid; reports show each mode', async () => {
+  const original = await ok(get('/api/config'), 'config');
+  try {
+    await ok(put('/api/config/masters', { ...original.masters, payment_modes: ['Cash', 'UPI', 'Cheque'], default_payment_mode: 'Cash' }), 'modes');
+    assert.equal((await put('/api/config/masters', { ...original.masters, payment_modes: ['Cash', 'others'] })).status, 400, '"Others" is built in');
+
+    const today = new Date();
+    const iso = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    if (!(await ok(get(`/api/daily-collections/assignment?date=${iso}`), 'assignment')).assigned) {
+      const day0 = await ok(get(`/api/daily-collections?date=${iso}`), 'day');
+      const collector = (await ok(get('/api/collectors'), 'collectors')).find((c: any) => c.status === 'ACTIVE');
+      const changes = day0.filter((d: any) => !d.collector_id).map((d: any) => ({ collection_account_id: d.collection_account_id, collector_id: collector.id }));
+      await ok(post('/api/daily-collections/assign', { changes }), 'assign');
+    }
+    const day = await ok(get(`/api/daily-collections?date=${iso}`), 'day');
+    const unpaid = day.filter((d: any) => !d.paid_amount && d.balance_remaining >= 50 && d.collector_id);
+    const collectorId = unpaid[0].collector_id;
+    const mine = unpaid.filter((d: any) => d.collector_id === collectorId);
+    assert.ok(mine.length >= 2, 'two customers to collect from');
+    const pay = (rec: any, extra: any) => post('/api/daily-collections/collect', { collection_account_id: rec.collection_account_id, amount_paid: 50, ...extra });
+
+    // A mode that is not in Settings is refused; "Others" needs a description.
+    assert.equal((await pay(mine[0], { payment_mode: 'Gold' })).status, 400, 'unknown mode');
+    assert.equal((await pay(mine[0], { payment_mode: 'Others' })).status, 400, 'no description');
+    assert.equal((await pay(mine[0], { payment_mode: 'Others', payment_mode_note: '   ' })).status, 400, 'blank description');
+
+    const other = await ok(pay(mine[0], { payment_mode: 'Others', payment_mode_note: 'Paid by son, bank transfer' }), 'others');
+    assert.equal(other.receipt.payment_mode, 'Others');
+    assert.equal(other.receipt.payment_mode_note, 'Paid by son, bank transfer');
+    const cheque = await ok(pay(mine[1], { payment_mode: 'cheque' }), 'cheque');
+    assert.equal(cheque.receipt.payment_mode, 'Cheque', 'saved with the name from Settings');
+    assert.equal(cheque.receipt.payment_mode_note, undefined);
+
+    const after = await ok(get(`/api/daily-collections?date=${iso}`), 'day');
+    assert.equal(after.find((d: any) => d.collection_account_id === mine[0].collection_account_id).payment_mode_note, 'Paid by son, bank transfer', 'day record');
+
+    // The office changes it to a mode in Settings: the description goes.
+    const pays = await ok(get(`/api/payments?customer_id=${other.receipt.customer_id}`), 'payments');
+    const p = pays.find((x: any) => x.receipt_number === other.receipt.receipt_number);
+    const changed = await ok(put(`/api/payments/${p.id}`, { payment_mode: 'UPI' }), 'edit');
+    assert.equal((changed.payment || changed).payment_mode_note, undefined);
+    await ok(put(`/api/payments/${p.id}`, { payment_mode: 'Others', payment_mode_note: 'Paid by son, bank transfer' }), 'edit back');
+
+    // The collector's report: cash, then every other mode by name.
+    const report = (await ok(post('/api/collector-reports', { collector_id: collectorId, cash_notes: {}, coins: 0 }), 'report'));
+    const totals = Object.fromEntries(report.mode_totals.map((m: any) => [m.mode, m.amount]));
+    assert.ok('UPI' in totals && 'Cheque' in totals, 'every mode in Settings is listed');
+    assert.ok(totals.Cheque >= 50 && totals.Others >= 50, 'each mode has its own amount');
+    assert.equal(report.mode_totals.reduce((s: number, m: any) => s + m.amount, 0), report.upi_in_app, 'the modes add up to the money that is not cash');
+  } finally {
+    await ok(put('/api/config/masters', original.masters), 'restore');
+  }
+});
+
+test('organisation details: logo, email and opening balance are checked, kept and used', async () => {
+  const original = await ok(get('/api/config'), 'config');
+  const company = original.company;
+  try {
+    const logo = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
+    assert.equal((await put('/api/config/company', { ...company, company_logo: 'javascript:alert(1)' })).status, 400, 'not a picture');
+    assert.equal((await put('/api/config/company', { ...company, company_logo: 'data:image/svg+xml;base64,PHN2Zz4=' })).status, 400, 'no SVG');
+    assert.equal((await put('/api/config/company', { ...company, company_email: 'not an email' })).status, 400, 'email');
+    assert.equal((await put('/api/config/company', { ...company, opening_balance: -5 })).status, 400, 'opening balance');
+    assert.equal((await put('/api/config/company', { ...company, company_name: '  ' })).status, 400, 'name');
+
+    await ok(put('/api/config/company', { ...company, company_logo: logo, company_tagline: 'Trusted daily', company_email: 'office@example.com', opening_balance: '250000' }), 'save');
+    const pub = (await ok(get('/api/config', ''), 'public config')).company;
+    assert.equal(pub.company_logo, logo, 'everyone sees the logo (login page, receipts)');
+    assert.equal(pub.company_tagline, 'Trusted daily');
+    assert.equal(pub.company_email, 'office@example.com');
+    assert.equal(pub.opening_balance, 250000, 'kept as a number');
+
+    const stats = await ok(get('/api/dashboard/stats'), 'stats');
+    assert.equal(stats.openingBalance, 250000);
+    assert.equal(stats.totalBalance, roundMoney(250000 + stats.totalCollected - stats.totalDisbursed), 'money in hand');
+
+    await ok(put('/api/config/company', { ...company, company_logo: '', opening_balance: '' }), 'clear');
+    assert.equal((await ok(get('/api/config'), 'config')).company.opening_balance, 0, 'empty means 0');
+  } finally {
+    await ok(put('/api/config/company', company), 'restore');
+  }
+});
+
+test('ID numbers and alerts follow Settings', async () => {
+  const original = await ok(get('/api/config'), 'config');
+  try {
+    // Start letters are checked; the year can be added; new receipts follow the rule.
+    assert.equal((await put('/api/config/numbering', { ...original.numbering, receipt: { ...original.numbering.receipt, prefix: 'R E C' } })).status, 400, 'spaces refused');
+    assert.equal((await put('/api/config/numbering', { ...original.numbering, receipt: { ...original.numbering.receipt, prefix: 'ABCDEFGHIJKLM' } })).status, 400, 'too long');
+    const saved = await ok(put('/api/config/numbering', { ...original.numbering, receipt: { prefix: 'rc-', include_year: true, pad: 4, next: original.numbering.receipt.next } }), 'numbering');
+    assert.equal(saved.numbering.receipt.prefix, 'RC-', 'stored in capitals');
+
+    const today = new Date();
+    const iso = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    if (!(await ok(get(`/api/daily-collections/assignment?date=${iso}`), 'assignment')).assigned) {
+      const day0 = await ok(get(`/api/daily-collections?date=${iso}`), 'day');
+      const collector = (await ok(get('/api/collectors'), 'collectors')).find((c: any) => c.status === 'ACTIVE');
+      const changes = day0.filter((d: any) => !d.collector_id).map((d: any) => ({ collection_account_id: d.collection_account_id, collector_id: collector.id }));
+      await ok(post('/api/daily-collections/assign', { changes }), 'assign');
+    }
+    const day = await ok(get(`/api/daily-collections?date=${iso}`), 'day');
+    const rec = day.find((d: any) => !d.paid_amount && d.balance_remaining >= 10);
+
+    // Alerts off: a payment makes no new alert.
+    await ok(put('/api/config/company', { ...original.company, notifications_enabled: false }), 'alerts off');
+    const before = (await ok(get('/api/notifications'), 'notifications')).length;
+    const paid = await ok(post('/api/daily-collections/collect', { collection_account_id: rec.collection_account_id, amount_paid: 10, payment_mode: 'Cash' }), 'collect');
+    assert.match(paid.receipt.receipt_number, new RegExp(`^RC-${today.getFullYear()}-\\d{4,}$`), 'receipt number follows the rule');
+    assert.equal((await ok(get('/api/notifications'), 'notifications')).length, before, 'no alert while switched off');
+  } finally {
+    await ok(put('/api/config/company', original.company), 'restore company');
+    await ok(put('/api/config/numbering', original.numbering), 'restore numbering');
+  }
+});
+
 test('removing the data keeps settings, office logins and (when asked) the staff', async () => {
   assert.equal((await post('/api/data/clear', { keep_staff: true })).status, 400, 'needs the typed confirmation');
   const collectorsBefore = (await ok(get('/api/collectors'), 'collectors')).length;

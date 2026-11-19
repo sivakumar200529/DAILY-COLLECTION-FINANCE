@@ -50,7 +50,36 @@ export function isCashMode(mode?: string): boolean {
   return (mode || 'Cash').trim().toLowerCase() === 'cash';
 }
 
-/** The day's payments: how many, and how much came as cash and as UPI. */
+/**
+ * Money that is not cash, mode by mode: every mode in Settings (even at ₹0), then any other mode
+ * that was used ("Others", or a mode since removed from Settings).
+ */
+export interface ModeTotal {
+  mode: string;
+  amount: number;
+}
+
+export function nonCashTotals(records: { paid_amount: number; payment_mode?: string }[], configuredModes: string[]): ModeTotal[] {
+  const totals = new Map<string, number>();
+  const key = (m: string) => m.trim().toLowerCase();
+  const names = new Map<string, string>();
+  for (const m of configuredModes) {
+    if (isCashMode(m) || names.has(key(m))) continue;
+    names.set(key(m), m);
+    totals.set(key(m), 0);
+  }
+  for (const r of records) {
+    if (!(r.paid_amount > 0) || isCashMode(r.payment_mode)) continue;
+    const k = key(r.payment_mode || '');
+    if (!names.has(k)) names.set(k, r.payment_mode || '');
+    totals.set(k, (totals.get(k) || 0) + r.paid_amount);
+  }
+  return [...totals.entries()]
+    .map(([k, amount]) => ({ mode: names.get(k)!, amount: roundMoney(amount) }))
+    .filter(m => m.amount > 0 || configuredModes.some(c => key(c) === key(m.mode)));
+}
+
+/** The day's payments: how many, how much came as cash, and how much in all other ways (UPI and the rest). */
 export function dayPaymentSplit(records: { paid_amount: number; payment_mode?: string }[]): { payments: number; cash: number; upi: number } {
   const paid = records.filter(r => r.paid_amount > 0);
   const sum = (list: typeof paid) => roundMoney(list.reduce((total, r) => total + r.paid_amount, 0));
@@ -99,9 +128,11 @@ export interface CollectorReport {
   attempt: number;
   status: CollectorReportStatus;
   summary: CollectionDaySummary;
-  /** Recorded in the app today, by payment way. */
+  /** Recorded in the app today: cash, and everything else (upi_in_app is all money that is not cash). */
   cash_in_app: number;
   upi_in_app: number;
+  /** The money that is not cash, mode by mode (reports from before this was kept do not have it). */
+  mode_totals?: ModeTotal[];
   /** Counted by the collector. */
   cash_notes: Record<string, number>;
   coins: number;

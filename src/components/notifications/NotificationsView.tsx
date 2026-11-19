@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Notification, Role } from '../../types';
 import { api } from '../../services/api';
+import { useDataChanged } from '../../utils/dataSync';
 import { formatDateTime } from '../../utils/formatters';
 import { Bell, CheckCheck, Clock, CheckCircle2, AlertTriangle, FileText, UserPlus, DollarSign } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
@@ -15,8 +16,8 @@ export const NotificationsView: React.FC<NotificationsViewProps> = ({ currentRol
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
-  const loadData = async () => {
-    setLoading(true);
+  const loadData = async (quiet = false) => {
+    if (!quiet) setLoading(true);
     try {
       const data = await api.getNotifications({
         role: currentRole,
@@ -29,6 +30,8 @@ export const NotificationsView: React.FC<NotificationsViewProps> = ({ currentRol
       setLoading(false);
     }
   };
+
+  useDataChanged(() => loadData(true));
 
   useEffect(() => {
     loadData();

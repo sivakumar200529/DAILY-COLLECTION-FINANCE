@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import { modeText } from '../../../shared/config';
 import { Download, Receipt as ReceiptIcon, Search } from 'lucide-react';
 import { Receipt } from '../../types';
 import { api } from '../../services/api';
+import { useDataChanged } from '../../utils/dataSync';
 import { formatCurrency, formatDate } from '../../utils/formatters';
 import { exportTableToExcel } from '../../utils/excelExport';
 import { useLanguage } from '../../context/LanguageContext';
@@ -18,9 +20,11 @@ export const ReceiptsMasterView: React.FC = () => {
   const [shown, setShown] = useState(PAGE);
   const [selected, setSelected] = useState<Receipt | null>(null);
 
+  const load = () => api.getReceipts().then(setReceipts).catch(() => setReceipts(prev => prev ?? []));
   useEffect(() => {
-    api.getReceipts().then(setReceipts).catch(() => setReceipts([]));
-  }, []);
+    load();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useDataChanged(load);
 
   const q = search.trim().toLowerCase();
   const filtered = (receipts ?? []).filter(
@@ -37,7 +41,7 @@ export const ReceiptsMasterView: React.FC = () => {
       t('receipts', 'Receipts'),
       [t('receiptNo', 'Receipt No'), t('date', 'Date'), t('customer', 'Customer'), t('shop', 'Shop'), t('paidToday', 'Paid'), t('paidBy', 'Paid by'), t('balance', 'Balance'), t('collector', 'Collector'), t('status', 'Status')],
       filtered.map(r => [
-        r.receipt_number, r.date, r.customer_name, r.shop_name, r.amount_paid, r.payment_mode, r.remaining_balance, r.collector_name,
+        r.receipt_number, r.date, r.customer_name, r.shop_name, r.amount_paid, modeText(r.payment_mode, r.payment_mode_note), r.remaining_balance, r.collector_name,
         r.status === 'CANCELLED' ? t('cancelled', 'Cancelled') : '',
       ]),
       'Receipts'

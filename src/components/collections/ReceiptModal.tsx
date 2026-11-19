@@ -1,4 +1,5 @@
 import React from 'react';
+import { modeText } from '../../../shared/config';
 import { MessageCircle, Printer, X } from 'lucide-react';
 import { Receipt } from '../../types';
 import { formatCurrency, formatDateTime } from '../../utils/formatters';
@@ -48,9 +49,12 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ receipt, customerMob
 
         <div className="receipt-print relative bg-white text-slate-900 rounded-xl p-4 font-mono text-[13px] leading-snug shadow-md">
           <div className="text-center pb-2 border-b border-dashed border-slate-400">
+            {company.company_logo && <img src={company.company_logo} alt="" className="h-12 mx-auto mb-1 object-contain" />}
             <div className="font-sans font-black text-base text-slate-950">{company.company_name}</div>
+            {company.company_tagline && <div className="text-[11px] font-sans text-slate-600">{company.company_tagline}</div>}
             {company.company_address && <div className="text-[11px]">{company.company_address}</div>}
             {company.company_phone && <div className="text-[11px]">{t('phone', 'Phone')}: {company.company_phone}</div>}
+            {company.company_email && <div className="text-[11px]">{company.company_email}</div>}
           </div>
 
           <div className="py-2 border-b border-dashed border-slate-400">
@@ -63,7 +67,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ receipt, customerMob
           <div className="py-3 text-center border-b border-dashed border-slate-400">
             <div className="text-[11px] text-slate-600 font-sans">{t('paidToday', 'Paid')}</div>
             <div className="text-3xl font-black text-slate-950 font-sans">{formatCurrency(receipt.amount_paid)}</div>
-            <div className="text-[11px] font-sans">{t(receipt.payment_mode, receipt.payment_mode)}</div>
+            <div className="text-[11px] font-sans">{modeText(receipt.payment_mode, receipt.payment_mode_note, m => t(m, m))}</div>
           </div>
 
           <div className="py-2">

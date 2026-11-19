@@ -2,19 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { Check, Edit3, Trash2, UserPlus, UserCheck } from 'lucide-react';
 import { Area, Collector } from '../../types';
 import { api } from '../../services/api';
-import { formatCurrency, formatDate, orNA } from '../../utils/formatters';
+import { useDataChanged } from '../../utils/dataSync';
+import { formatDate } from '../../utils/formatters';
 import { useLanguage } from '../../context/LanguageContext';
 import { Avatar } from '../common/Avatar';
 import { AmountList, BigButton, CallButton, ConfirmSheet, EmptyState, Sheet, Spinner } from '../common/ui';
 import { PhotoPicker } from '../common/PhotoPicker';
 
-/** A collector with no loans and nothing collected shows "—" rather than ₹0. */
-const hasFigures = (c: Collector) =>
-  (c.running_loans ?? 0) > 0 || (c.month_collected ?? 0) > 0 || (c.today_collected_amount ?? 0) > 0 || (c.balance_to_collect ?? 0) > 0;
-
 const inputClass = 'w-full px-4 py-3 bg-navy-950 border border-slate-700 rounded-2xl text-base text-white focus:border-gold-500 focus:outline-none';
 
-/** Field collectors: each name with their amounts as a list; tapping the name opens their profile. */
+/** Field collectors: each name with how many running loans they have; tapping the name opens their profile. */
 export const CollectorsView: React.FC = () => {
   const { t } = useLanguage();
   const [collectors, setCollectors] = useState<Collector[] | null>(null);
@@ -34,6 +31,7 @@ export const CollectorsView: React.FC = () => {
   useEffect(() => {
     load().catch(() => setCollectors([]));
   }, []);
+  useDataChanged(load);
 
   const save = async () => {
     if (!editing) return;
@@ -104,13 +102,7 @@ export const CollectorsView: React.FC = () => {
                   {c.status !== 'ACTIVE' && <span className="block text-xs text-rose-300 font-bold">{t('stopped', 'Stopped')}</span>}
                 </span>
               </button>
-              <AmountList
-                rows={[
-                  [t('today', 'Today'), orNA(hasFigures(c), formatCurrency(c.today_collected_amount ?? 0)), 'text-emerald-400'],
-                  [t('thisMonth', 'This month'), orNA(hasFigures(c), formatCurrency(c.month_collected ?? 0))],
-                  [t('balance', 'Balance'), orNA(hasFigures(c), formatCurrency(c.balance_to_collect ?? 0)), 'text-gold-300'],
-                ]}
-              />
+              <AmountList rows={[[t('runningLoansLabel', 'Running loans'), String(c.running_loans ?? 0)]]} />
             </div>
           ))}
         </div>
@@ -136,10 +128,6 @@ export const CollectorsView: React.FC = () => {
                 [t('joiningDate', 'Joining date'), profile.joining_date ? formatDate(profile.joining_date) : ''],
                 [t('areas', 'Areas'), areas.filter(a => a.assigned_collector_id === profile.id).map(a => a.area_name).join(', ') || profile.assigned_area],
                 [t('runningLoansLabel', 'Running loans'), String(profile.running_loans ?? 0)],
-                [t('balanceToCollect', 'Balance to collect'), orNA(hasFigures(profile), formatCurrency(profile.balance_to_collect ?? 0))],
-                [t('today', 'Today'), orNA(hasFigures(profile), formatCurrency(profile.today_collected_amount ?? 0))],
-                [t('thisMonth', 'This month'), orNA(hasFigures(profile), formatCurrency(profile.month_collected ?? 0))],
-                [t('dailyTarget', 'Daily target'), profile.target_amount ? formatCurrency(profile.target_amount) : ''],
               ] as [string, string][]).filter(([, value]) => value).map(([label, value]) => (
                 <div key={label} className="flex justify-between gap-3 px-4 py-2.5 text-sm">
                   <dt className="text-slate-400">{label}</dt>

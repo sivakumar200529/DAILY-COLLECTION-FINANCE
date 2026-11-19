@@ -3346,6 +3346,336 @@ export const translations: Record<string, { en: string; ta: string }> = {
     en: 'No customers on the list for this day',
     ta: 'இந்த நாளின் பட்டியலில் வாடிக்கையாளர்கள் இல்லை',
   },
+
+  // Notebook card sheet
+  notebookNewCard: {
+    en: 'New card',
+    ta: 'புதிய அட்டை',
+  },
+  notebookRunningLoans: {
+    en: 'Running loans',
+    ta: 'நடப்பு கடன்கள்',
+  },
+  notebookCardHint: {
+    en: 'Fill in the card first: start date, total loan, payment per day and end date. The sheet then has a column for each day; type one customer per row and their amount on each day ("=" repeats the day before). Saving adds the customers, their loans and payments.',
+    ta: 'முதலில் அட்டையை நிரப்பவும்: தொடக்க தேதி, கடன் தொகை, தினத்தவணை, முடிவு தேதி. பின்னர் ஒவ்வொரு நாளுக்கும் ஒரு நெடுவரிசை வரும்; ஒரு வரிசைக்கு ஒரு வாடிக்கையாளர், ஒவ்வொரு நாளின் தொகையை தட்டச்சு செய்யவும் ("=" முந்தைய நாளை மீண்டும் இடும்). சேமித்தால் வாடிக்கையாளர்கள், கடன்கள், வரவுகள் சேர்க்கப்படும்.',
+  },
+  paymentPerDay: {
+    en: 'Payment per day',
+    ta: 'தினத்தவணை தொகை',
+  },
+  customerName: {
+    en: 'Customer name',
+    ta: 'வாடிக்கையாளர் பெயர்',
+  },
+  nameOrPick: {
+    en: 'New name, or pick a customer',
+    ta: 'புதிய பெயர், அல்லது வாடிக்கையாளரைத் தேர்வு செய்யவும்',
+  },
+  choose: {
+    en: 'Choose…',
+    ta: 'தேர்வு செய்க…',
+  },
+  areaS: {
+    en: 'area\'s',
+    ta: 'பகுதியின்',
+  },
+  areasCollector: {
+    en: 'Area\'s collector',
+    ta: 'பகுதியின் வசூலிப்பாளர்',
+  },
+  addRow: {
+    en: 'Add row',
+    ta: 'வரிசை சேர்',
+  },
+  removeRow: {
+    en: 'Remove this row',
+    ta: 'இந்த வரிசையை நீக்கு',
+  },
+  cardEnterStart: {
+    en: 'Enter the start date from the card.',
+    ta: 'அட்டையில் உள்ள தொடக்க தேதியை உள்ளிடவும்.',
+  },
+  cardStartFuture: {
+    en: 'The start date has not come yet.',
+    ta: 'தொடக்க தேதி இன்னும் வரவில்லை.',
+  },
+  cardEnterTotal: {
+    en: 'Enter the total loan.',
+    ta: 'கடன் தொகையை உள்ளிடவும்.',
+  },
+  cardEnterDaily: {
+    en: 'Enter the payment per day.',
+    ta: 'தினத்தவணை தொகையை உள்ளிடவும்.',
+  },
+  cardEnterEnd: {
+    en: 'Enter the end date.',
+    ta: 'முடிவு தேதியை உள்ளிடவும்.',
+  },
+  cardEndBeforeStart: {
+    en: 'The end date is before the start date.',
+    ta: 'முடிவு தேதி தொடக்க தேதிக்கு முன் உள்ளது.',
+  },
+  cardTooLong: {
+    en: 'A card can cover at most {n} days.',
+    ta: 'ஒரு அட்டை அதிகபட்சம் {n} நாட்கள் மட்டுமே.',
+  },
+  cardDailyTooLow: {
+    en: '{daily} a day for {days} days is {sum}, less than the total loan.',
+    ta: 'நாளுக்கு {daily} வீதம் {days} நாட்களுக்கு {sum}, கடன் தொகையை விடக் குறைவு.',
+  },
+  cardNoLoanType: {
+    en: 'Add a loan type first (Settings → Loan types).',
+    ta: 'முதலில் ஒரு கடன் வகையைச் சேர்க்கவும் (அமைப்புகள் → கடன் வகைகள்).',
+  },
+  cardSummary: {
+    en: '{days} days, {from} to {to} · {daily} a day · total {total}',
+    ta: '{days} நாட்கள், {from} முதல் {to} வரை · நாளுக்கு {daily} · மொத்தம் {total}',
+  },
+  cardNeedsArea: {
+    en: 'Add an area and its collector first (Staff & areas); every loan needs one.',
+    ta: 'முதலில் ஒரு பகுதியையும் அதன் வசூலிப்பாளரையும் சேர்க்கவும் (பணியாளர் & பகுதிகள்); ஒவ்வொரு கடனுக்கும் தேவை.',
+  },
+  cardNoRows: {
+    en: 'Type at least one customer.',
+    ta: 'குறைந்தது ஒரு வாடிக்கையாளரை உள்ளிடவும்.',
+  },
+  cardRowsTyped: {
+    en: '{n} customer(s) typed, not saved yet',
+    ta: '{n} வாடிக்கையாளர்(கள்) உள்ளிடப்பட்டது, இன்னும் சேமிக்கவில்லை',
+  },
+  notebookNothingSaved: {
+    en: 'Nothing was saved.',
+    ta: 'எதுவும் சேமிக்கப்படவில்லை.',
+  },
+  cardSaved: {
+    en: 'Saved: {loans} loan(s), {customers} new customer(s), {payments} payment(s). Each loan now carries on in Daily Collection and Loan Management.',
+    ta: 'சேமிக்கப்பட்டது: {loans} கடன்(கள்), {customers} புதிய வாடிக்கையாளர்(கள்), {payments} வரவு(கள்). ஒவ்வொரு கடனும் இனி தினசரி வசூல் மற்றும் கடன் மேலாண்மையில் தொடரும்.',
+  },
+
+  // Loans without a collector
+  noCollector: {
+    en: 'No collector',
+    ta: 'வசூலிப்பாளர் இல்லை',
+  },
+  chooseCollectorToday: {
+    en: 'Choose a collector for today for each of these',
+    ta: 'இவர்கள் ஒவ்வொருவருக்கும் இன்றைக்கு ஒரு வசூலிப்பாளரைத் தேர்வு செய்யவும்',
+  },
+  customersWithoutCollector: {
+    en: '{n} customer(s) have no collector yet. Choose one for each before assigning.',
+    ta: '{n} வாடிக்கையாளருக்கு இன்னும் வசூலிப்பாளர் இல்லை. ஒதுக்கும் முன் ஒவ்வொருவருக்கும் ஒருவரைத் தேர்வு செய்யவும்.',
+  },
+  tabToConfirm: {
+    en: '{date}: Tab confirms {amount}',
+    ta: '{date}: Tab அழுத்தினால் {amount} உறுதியாகும்',
+  },
+  cardNeedsAreaOnly: {
+    en: 'Add an area first (Staff & areas); every loan needs one. A collector is optional.',
+    ta: 'முதலில் ஒரு பகுதியைச் சேர்க்கவும் (பணியாளர் & பகுதிகள்); ஒவ்வொரு கடனுக்கும் தேவை. வசூலிப்பாளர் விருப்பத்திற்குரியது.',
+  },
+
+  // Card sheet folded rows
+  showDetails: {
+    en: 'Show mobile, collector and area',
+    ta: 'கைபேசி, வசூலிப்பாளர், பகுதியைக் காட்டு',
+  },
+  noArea: {
+    en: 'No area',
+    ta: 'பகுதி இல்லை',
+  },
+
+  // Payment change window
+  changePayment: {
+    en: 'Change payment',
+    ta: 'கட்டணத்தை மாற்று',
+  },
+  addPayment: {
+    en: 'Add payment',
+    ta: 'கட்டணம் சேர்',
+  },
+  dayAmount: {
+    en: 'Day amount',
+    ta: 'தினத்தவணை',
+  },
+  balanceAfter: {
+    en: 'Balance after',
+    ta: 'பிறகு மீதி',
+  },
+  office: {
+    en: 'Office',
+    ta: 'அலுவலகம்',
+  },
+  chooseDate: {
+    en: 'Choose the date.',
+    ta: 'தேதியைத் தேர்ந்தெடுக்கவும்.',
+  },
+  noFutureDate: {
+    en: 'A payment cannot be entered for a future date.',
+    ta: 'வரும் தேதிக்கு கட்டணம் பதிவு செய்ய முடியாது.',
+  },
+  beforeLoanStart: {
+    en: 'This is before the loan started.',
+    ta: 'இது கடன் தொடங்கிய தேதிக்கு முன்.',
+  },
+  amountMoreThanBalance: {
+    en: 'The amount is more than the balance.',
+    ta: 'தொகை மீதியை விட அதிகம்.',
+  },
+  enterValidAmount: {
+    en: 'Enter the amount.',
+    ta: 'தொகையை உள்ளிடவும்.',
+  },
+
+  // Customer form ID example
+  autoIdExample: {
+    en: 'Automatic, e.g.',
+    ta: 'தானாக, எ.கா.',
+  },
+
+  // Payment modes: Others
+  Others: {
+    en: 'Others',
+    ta: 'மற்றவை',
+  },
+  howPaid: {
+    en: 'How was it paid?',
+    ta: 'எப்படி செலுத்தப்பட்டது?',
+  },
+  howPaidExample: {
+    en: 'e.g. Cheque 123456',
+    ta: 'எ.கா. காசோலை 123456',
+  },
+  howPaidNeeded: {
+    en: 'Write how it was paid.',
+    ta: 'எப்படி செலுத்தப்பட்டது என்று எழுதவும்.',
+  },
+  amountIn: {
+    en: 'Amount in',
+    ta: 'தொகை -',
+  },
+  amountNotCash: {
+    en: 'Amount other than cash',
+    ta: 'ரொக்கம் அல்லாத தொகை',
+  },
+  notCash: {
+    en: 'Other than cash',
+    ta: 'ரொக்கம் அல்லாதவை',
+  },
+  totalIn: {
+    en: 'Total in',
+    ta: 'மொத்தம் -',
+  },
+  othersAlwaysOffered: {
+    en: '"Others" is always offered too, with a box to write how it was paid. Only the mode named UPI shows the QR code and UPI ID.',
+    ta: '"மற்றவை" எப்போதும் இருக்கும்; எப்படி செலுத்தப்பட்டது என்று எழுத ஒரு பெட்டி வரும். UPI என்ற பெயருள்ள முறையில் மட்டுமே QR குறியீடும் UPI ID-யும் காட்டப்படும்.',
+  },
+
+  // Settings: logo and opening balance
+  logoOptional: {
+    en: 'Logo (optional)',
+    ta: 'லோகோ (விருப்பம்)',
+  },
+  logo: {
+    en: 'Logo',
+    ta: 'லோகோ',
+  },
+  noLogo: {
+    en: 'None',
+    ta: 'இல்லை',
+  },
+  chooseLogo: {
+    en: 'Choose logo',
+    ta: 'லோகோ தேர்வு',
+  },
+  changeLogo: {
+    en: 'Change logo',
+    ta: 'லோகோ மாற்று',
+  },
+  removeLogo: {
+    en: 'Remove logo',
+    ta: 'லோகோ நீக்கு',
+  },
+  logoWrongType: {
+    en: 'Choose a PNG, JPG or WEBP picture.',
+    ta: 'PNG, JPG அல்லது WEBP படத்தைத் தேர்வு செய்யவும்.',
+  },
+  logoTooBig: {
+    en: 'This picture is too big. Choose a smaller one.',
+    ta: 'இந்தப் படம் மிகப் பெரியது. சிறிய படத்தைத் தேர்வு செய்யவும்.',
+  },
+  openingBalanceLabel: {
+    en: 'Opening balance (₹)',
+    ta: 'தொடக்க இருப்பு (₹)',
+  },
+  openingBalanceHint: {
+    en: 'Money you had for lending when you started. Home shows the money in hand from it: opening balance + collected − loans given.',
+    ta: 'தொடங்கும் போது கடன் கொடுக்க இருந்த பணம். முகப்பில் கையிருப்பு இதிலிருந்து காட்டப்படும்: தொடக்க இருப்பு + வசூல் − கொடுத்த கடன்.',
+  },
+  moneyPosition: {
+    en: 'Money',
+    ta: 'பணம்',
+  },
+  openingBalanceShort: {
+    en: 'Opening balance',
+    ta: 'தொடக்க இருப்பு',
+  },
+  loansGiven: {
+    en: 'Loans given',
+    ta: 'கொடுத்த கடன்',
+  },
+  collectedSoFar: {
+    en: 'Collected so far',
+    ta: 'இதுவரை வசூல்',
+  },
+  moneyInHand: {
+    en: 'Money in hand',
+    ta: 'கையிருப்பு',
+  },
+
+  // Settings: ID numbers, notifications
+  idNumbers: {
+    en: 'ID numbers',
+    ta: 'அடையாள எண்கள்',
+  },
+  prefixRule: {
+    en: 'the start letters can be up to 12 letters, numbers, - or _.',
+    ta: 'தொடக்க எழுத்துகள் 12 வரை எழுத்துகள், எண்கள், - அல்லது _ ஆக இருக்கலாம்.',
+  },
+  numberingHint: {
+    en: 'How new IDs look. IDs already given stay as they are, and the next number never goes back to one already used.',
+    ta: 'புதிய எண்கள் எப்படி இருக்கும். ஏற்கனவே கொடுத்த எண்கள் மாறாது; அடுத்த எண் ஏற்கனவே பயன்படுத்திய எண்ணுக்குத் திரும்பாது.',
+  },
+  nextIdWillBe: {
+    en: 'Next',
+    ta: 'அடுத்தது',
+  },
+  idPrefix: {
+    en: 'Starts with',
+    ta: 'தொடக்கம்',
+  },
+  idDigits: {
+    en: 'Digits',
+    ta: 'இலக்கங்கள்',
+  },
+  idNextNumber: {
+    en: 'Next number',
+    ta: 'அடுத்த எண்',
+  },
+  idIncludeYear: {
+    en: 'Add the year',
+    ta: 'ஆண்டைச் சேர்',
+  },
+  notificationsOn: {
+    en: 'Show alerts (payments, missed days, requests) in the bell',
+    ta: 'அறிவிப்புகளை (வசூல், தவறிய நாட்கள், கோரிக்கைகள்) மணியில் காட்டு',
+  },
+
+  // Loans label
+  loans: {
+    en: 'Loans',
+    ta: 'கடன்கள்',
+  },
 };
 
 // Global direct fallback lookup table (case-insensitive) for any English text in the entire app

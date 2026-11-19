@@ -20,6 +20,7 @@ import { Role, User, CustomerPersonalDetails, Collector } from '../../types';
 import { api } from '../../services/api';
 import { formatDateTime } from '../../utils/formatters';
 import { useLanguage } from '../../context/LanguageContext';
+import { useConfig } from '../../context/ConfigContext';
 import { BigButton, ConfirmSheet, EmptyState, PageTitle, PillTabs, Sheet, Spinner } from '../common/ui';
 
 const inputClass =
@@ -61,6 +62,7 @@ const myUserId = (() => {
 
 export const UserManagementView: React.FC = () => {
   const { t } = useLanguage();
+  const companyName = useConfig().config.company.company_name || 'DAILY COLLECTION';
   const [users, setUsers] = useState<User[] | null>(null);
   const [customers, setCustomers] = useState<CustomerPersonalDetails[]>([]);
   const [collectors, setCollectors] = useState<Collector[]>([]);
@@ -123,7 +125,7 @@ export const UserManagementView: React.FC = () => {
     const cleanPhone = (u.phone || '').replace(/\D/g, '');
     const loginUrl = window.location.origin;
     const message = encodeURIComponent(
-      `*DAILY COLLECTION - Login Credentials*\n\n` +
+      `*${companyName} - Login Credentials*\n\n` +
       `Hello ${u.name},\nHere are your portal login details:\n\n` +
       `🔹 *Role:* ${u.role}\n` +
       `👤 *User ID / Username:* ${login.username}\n` +
@@ -596,7 +598,7 @@ export const UserManagementView: React.FC = () => {
               <input
                 type="text"
                 className={inputClass}
-                placeholder="e.g. KRS10001 or COL101 or agent_ravi"
+                placeholder="e.g. ravi or 9876543210"
                 value={editing.username}
                 onChange={e => setEditing({ ...editing, username: e.target.value })}
                 required
@@ -669,7 +671,7 @@ export const UserManagementView: React.FC = () => {
               <input
                 type="email"
                 className={inputClass}
-                placeholder="e.g. user@dailycollection.com"
+                placeholder="e.g. name@example.com"
                 value={editing.email}
                 onChange={e => setEditing({ ...editing, email: e.target.value })}
               />

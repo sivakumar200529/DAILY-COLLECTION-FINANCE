@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { modeText } from '../../../shared/config';
 import { CheckCircle2, IndianRupee, Receipt as ReceiptIcon, RotateCcw, Search } from 'lucide-react';
 import { DailyCollectionRecord, Receipt, User } from '../../types';
 import { api } from '../../services/api';
@@ -8,7 +9,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { ConfirmSheet, EmptyState } from '../common/ui';
 import { ReceiptModal } from '../collections/ReceiptModal';
 import { NotPaidSheet } from './NotPaidSheet';
-import { dayState, matchesSearch, withMissedAmount } from './collectHelpers';
+import { dayState, matchesSearch, withMissedAmount, pendingTermsNow } from './collectHelpers';
 import { CollectSheet } from '../collector/CollectSheet';
 import { CustomerInfoSheet } from '../collector/CustomerInfoSheet';
 
@@ -58,7 +59,7 @@ export const CollectionList: React.FC<{
     }
   };
 
-  const collect = async (record: DailyCollectionRecord, amount: number, mode: string) => {
+  const collect = async (record: DailyCollectionRecord, amount: number, mode: string, note?: string) => {
     const done = await run(
       record,
       () =>
@@ -67,6 +68,7 @@ export const CollectionList: React.FC<{
           collection_date: todayIso(),
           amount_paid: amount,
           payment_mode: mode,
+          payment_mode_note: note,
           collector_id: currentUser.collector_id || record.collector_id,
         }),
       `${record.customer_name}: ${t('paidToday', 'Paid')} ${formatCurrency(amount)}`
@@ -136,7 +138,7 @@ export const CollectionList: React.FC<{
         <tbody className="divide-y divide-slate-800">
           {rows.map(record => {
             const paid = dayState(record) === 'paid';
-            const pendingTerms = record.missed_days_count || 0;
+            const pendingTerms = pendingTermsNow(record);
             return (
               <tr key={record.id} className={pendingTerms > 0 ? 'bg-rose-500/10' : undefined}>
                 <td className={`py-2.5 pl-2 pr-1 border-l-4 ${pendingTerms > 0 ? 'border-rose-500' : 'border-transparent'}`}>
@@ -158,7 +160,7 @@ export const CollectionList: React.FC<{
                   {paid ? (
                     <span className="font-mono font-bold text-emerald-300">
                       {formatCurrency(record.paid_amount)}
-                      <span className="block text-xs font-sans text-slate-400">{t(record.payment_mode || 'Cash', record.payment_mode || 'Cash')}</span>
+                      <span className="block text-xs font-sans text-slate-400">{modeText(record.payment_mode, record.payment_mode_note, m => t(m, m))}</span>
                     </span>
                   ) : (
                     <span className="font-mono font-black text-gold-300">{formatCurrency(withMissedAmount(record))}</span>
@@ -254,7 +256,7 @@ export const CollectionList: React.FC<{
         <CollectSheet
           record={collectFor}
           busy={busyId === collectFor.id}
-          onSave={(amount, mode) => collect(collectFor, amount, mode)}
+          onSave={(amount, mode, note) => collect(collectFor, amount, mode, note)}
           onNotPaid={() => {
             setNotPaidFor(collectFor);
             setCollectFor(null);

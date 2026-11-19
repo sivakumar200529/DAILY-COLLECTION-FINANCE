@@ -1,4 +1,5 @@
 import { CompanyProfile, Receipt } from '../types';
+import { modeText } from '../../shared/config';
 import { formatCurrency, formatDateTime } from './formatters';
 
 type Translate = (key: string, fallback?: string) => string;
@@ -14,7 +15,7 @@ export function receiptMessage(receipt: Receipt, company: CompanyProfile, t: Tra
     `${t('customer', 'Customer')}: ${receipt.customer_name}`,
     receipt.shop_name ? `${t('shop', 'Shop')}: ${receipt.shop_name}` : '',
     line,
-    `*${t('paidToday', 'Paid')}: ${formatCurrency(receipt.amount_paid)}* (${t(receipt.payment_mode, receipt.payment_mode)})`,
+    `*${t('paidToday', 'Paid')}: ${formatCurrency(receipt.amount_paid)}* (${modeText(receipt.payment_mode, receipt.payment_mode_note, m => t(m, m))})`,
     `${t('balance', 'Balance')}: ${formatCurrency(receipt.remaining_balance)}`,
     `${t('collectedBy', 'Collected by')}: ${receipt.collector_name}`,
     line,

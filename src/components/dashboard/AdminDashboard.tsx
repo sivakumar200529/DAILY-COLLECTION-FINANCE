@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { CalendarCheck } from 'lucide-react';
 import { CollectorReport, DailyCollectionRecord, DashboardStats, DayClosing } from '../../types';
 import { api } from '../../services/api';
+import { useDataChanged } from '../../utils/dataSync';
 import { formatCurrency, formatDate, orNA } from '../../utils/formatters';
 import { addDaysIso, daysLeftInMonth, todayIso } from '../../../shared/finance';
 import { activeClosing } from '../../../shared/collectorDay';
@@ -79,6 +80,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenCollect, o
   useEffect(() => {
     load();
   }, [load]);
+  useDataChanged(load);
 
   // At midnight yesterday's closed board stays; at 6 am it goes.
   useEffect(() => {
@@ -164,6 +166,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenCollect, o
       )}
 
       {!lastDayOfMonth && month}
+
+      <FigureCard title={t('moneyPosition', 'Money')}>
+        <FigureLine
+          figures={[
+            { label: t('openingBalanceShort', 'Opening balance'), value: formatCurrency(stats.openingBalance ?? 0) },
+            { label: t('loansGiven', 'Loans given'), value: formatCurrency(stats.totalDisbursed) },
+            { label: t('collectedSoFar', 'Collected so far'), value: formatCurrency(stats.totalCollected), tone: 'text-emerald-400' },
+            { label: t('moneyInHand', 'Money in hand'), value: formatCurrency(stats.totalBalance ?? 0), tone: (stats.totalBalance ?? 0) < 0 ? 'text-rose-300' : 'text-gold-300' },
+          ]}
+        />
+      </FigureCard>
 
       <FigureCard title={t('orgStatistics', 'Organisation statistics')}>
         <FigureLine

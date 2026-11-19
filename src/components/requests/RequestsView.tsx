@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { CheckCircle2, Inbox, Wallet, XCircle } from 'lucide-react';
 import { LoanRequest, PaymentClaim, User } from '../../types';
 import { api } from '../../services/api';
+import { useDataChanged } from '../../utils/dataSync';
 import { formatCurrency, formatDateTime } from '../../utils/formatters';
 import { todayIso } from '../../../shared/finance';
 import { useLanguage } from '../../context/LanguageContext';
@@ -42,6 +43,7 @@ export const RequestsView: React.FC<{
   useEffect(() => {
     load();
   }, [load]);
+  useDataChanged(load);
 
   const run = async (action: () => Promise<unknown>, okText: string) => {
     setBusy(true);
@@ -62,13 +64,8 @@ export const RequestsView: React.FC<{
   const recordUpi = (claim: PaymentClaim) =>
     run(async () => {
       if (!claim.collection_account_id) throw new Error(t('noRunningLoanForPayment', 'This customer has no running loan to record it on.'));
-      const res = await api.collectPayment({
-        collection_account_id: claim.collection_account_id,
-        collection_date: todayIso(),
-        amount_paid: claim.amount,
-        payment_mode: 'UPI',
-      });
-      await api.decidePaymentClaim(claim.id, { decision: 'RECORDED', by: currentUser.name, receipt_number: res.receipt?.receipt_number });
+      // One step on the server: the payment is recorded and the request marked done together.
+      await api.decidePaymentClaim(claim.id, { decision: 'RECORDED', by: currentUser.name, record: true });
     }, `${claim.customer_name}: ${formatCurrency(claim.amount)} ${t('upiRecorded', 'recorded')}`);
 
   if (!loans || !claims) return <Spinner />;

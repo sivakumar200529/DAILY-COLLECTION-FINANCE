@@ -1,7 +1,8 @@
 import React from 'react';
+import { useConfig } from '../../context/ConfigContext';
 import { CollectorReport } from '../../types';
 import { formatCurrency, orNA } from '../../utils/formatters';
-import { collectionDaySummary, dayPaymentSplit } from '../../../shared/collectorDay';
+import { collectionDaySummary, dayPaymentSplit, nonCashTotals } from '../../../shared/collectorDay';
 import { useLanguage } from '../../context/LanguageContext';
 import type { DailyCollectionRecord } from '../../types';
 
@@ -59,6 +60,8 @@ export const TodayFigureLines: React.FC<{
   const { t } = useLanguage();
   const summary = collectionDaySummary(records);
   const split = dayPaymentSplit(records);
+  const { config } = useConfig();
+  const otherModes = nonCashTotals(records, config.masters.payment_modes);
   const collectorIds = new Set(records.map(r => r.collector_id));
   const reported = new Set(reports.filter(r => r.status !== 'REJECTED' && collectorIds.has(r.collector_id)).map(r => r.collector_id));
   // Nobody on the day's list: "—" rather than a row of zeros.
@@ -80,7 +83,7 @@ export const TodayFigureLines: React.FC<{
           figures={[
             { label: t('totalPayments', 'Total Payments'), value: orNA(has, split.payments), onClick: links?.receipts },
             { label: t('totalCashReceived', 'Total Cash received'), value: orNA(has, formatCurrency(split.cash)), onClick: links?.receipts },
-            { label: t('totalUpiPayments', 'Total UPI payments'), value: orNA(has, formatCurrency(split.upi)), onClick: links?.receipts },
+            ...otherModes.map(m => ({ label: `${t('totalIn', 'Total in')} ${t(m.mode, m.mode)}`, value: orNA(has, formatCurrency(m.amount)), onClick: links?.receipts })),
             { label: t('collectorsReport', 'Collectors Report'), value: orNA(has, `${reported.size} / ${collectorIds.size}`), onClick: links?.reports },
           ]}
         />

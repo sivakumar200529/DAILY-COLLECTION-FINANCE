@@ -3,6 +3,7 @@ import { CollectionAccount, Customer360Profile, LoanRequest } from '../../types'
 import { api } from '../../services/api';
 import { formatCurrency } from '../../utils/formatters';
 import { useLanguage } from '../../context/LanguageContext';
+import { useConfig } from '../../context/ConfigContext';
 import { X, Sparkles, Send, CheckCircle2, Building, Calendar, Wallet } from 'lucide-react';
 
 interface LoanRenewalRequestModalProps {
@@ -19,17 +20,23 @@ export const LoanRenewalRequestModal: React.FC<LoanRenewalRequestModalProps> = (
   onSuccess,
 }) => {
   const { t } = useLanguage();
+  const { config } = useConfig();
+  // What the customer can ask for comes from the active loan types (Settings → Loan types).
+  const products = config.loan_products.filter(p => p.status === 'ACTIVE');
+  const dayOptions = [...new Set(products.flatMap(p => p.day_options))].sort((a, b) => a - b);
+  const usualDays = products[0]?.default_days ?? dayOptions[0] ?? 100;
+  const minAmount = products.length ? Math.min(...products.map(p => p.min_amount || 0)) : 0;
+  const maxAmount = products.some(p => !p.max_amount) ? 0 : Math.max(0, ...products.map(p => p.max_amount));
+  const presets = [10000, 15000, 20000, 25000, 30000, 50000].filter(v => v >= minAmount && (!maxAmount || v <= maxAmount));
   const [amount, setAmount] = useState<number>(account ? account.requested_amount : 10000);
   const [customAmountStr, setCustomAmountStr] = useState<string>(String(account ? account.requested_amount : 10000));
-  const [days, setDays] = useState<number>(account ? account.collection_days : 100);
+  const [days, setDays] = useState<number>(account && dayOptions.includes(account.collection_days) ? account.collection_days : usualDays);
   const [purpose, setPurpose] = useState<string>('Shop Stock / FMCG Replenishment');
   const [remarks, setRemarks] = useState<string>('');
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [submittedRequest, setSubmittedRequest] = useState<LoanRequest | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const presets = [10000, 15000, 20000, 25000, 30000, 50000];
-  const dayOptions = [30, 50, 60, 90, 100, 120];
 
   const handlePresetSelect = (val: number) => {
     setAmount(val);
@@ -45,7 +52,7 @@ export const LoanRenewalRequestModal: React.FC<LoanRenewalRequestModalProps> = (
     }
   };
 
-  const estimatedDaily = Math.round(amount / (days || 100));
+  const estimatedDaily = Math.round(amount / (days || usualDays));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -116,7 +123,7 @@ export const LoanRenewalRequestModal: React.FC<LoanRenewalRequestModalProps> = (
               </p>
             </div>
             <p className="text-xs text-slate-400 max-w-sm mx-auto">
-              Our branch manager has been notified and will verify your shop before disbursal. Thank you for your partnership with KRS Finance!
+              Our branch manager has been notified and will verify your shop before disbursal. Thank you for your partnership with {config.company.company_name}!
             </p>
           </div>
         ) : (

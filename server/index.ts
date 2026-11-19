@@ -27,7 +27,11 @@ import {
 import { createLoanAccount, planLoan, commitLoan, LoanValidationError, IssueLoanInput, LoanParty, PlannedLoan } from './loans.ts';
 import { todayIso, roundMoney, addDaysIso, scheduleDates, termProgress, monthExpected, monthBounds, monthDueDays } from '../shared/finance.ts';
 import { activePayments, dayPosition, isActivePayment, isRunning, payStanding, settleStatus, syncDayRecord, syncLoan } from './ledger.ts';
-import { NOTEBOOK_MAX_DAYS, type NotebookCellError, type NotebookChange, type NotebookPage, type NotebookRow } from '../shared/notebook.ts';
+import {
+  NOTEBOOK_MAX_DAYS, CARD_MAX_DAYS, cardDays,
+  type NotebookCellError, type NotebookChange, type NotebookPage, type NotebookRow,
+  type CardSheetInput, type CardSheetError, type CardSheetResult,
+} from '../shared/notebook.ts';
 import {
   CollectorReport,
   DayClosing,
@@ -41,9 +45,10 @@ import {
   CloseState,
   dayCloseChecks,
   isCashMode,
+  nonCashTotals,
   longPendingCounts,
 } from '../shared/collectorDay.ts';
-import { CONFIG_SECTIONS, ConfigSection, LoanProduct as ConfigLoanProduct, MasterLists, Numbering, NumberingKind } from '../shared/config.ts';
+import { CONFIG_SECTIONS, ConfigSection, LoanProduct as ConfigLoanProduct, MODE_NOTE_MAX, MasterLists, Numbering, NumberingKind, isLogoData, isOtherMode, modeChoices } from '../shared/config.ts';
 import {
   STARTING_PIN,
   actor,
@@ -245,6 +250,11 @@ app.post('/api/auth/login', (req: Request, res: Response) => {
   user.last_login_at = new Date().toISOString();
   repository.save();
   res.json({ token: openSession(user.id), user: publicUser(user) });
+});
+
+/** Changes whenever the data is saved; open screens check it and reload when it moves. */
+app.get('/api/data-version', (_req: Request, res: Response) => {
+  res.json({ version: repository.getVersion() });
 });
 
 /** The app is open: keeps its session active. */
@@ -979,16 +989,19 @@ app.get('/api/customers/:id/360', (req: Request, res: Response) => {
   const accountIds = new Set(accounts.map(a => a.id));
   const auditLogs = db.audit_logs.filter(l => l.record_id === id || accountIds.has(l.record_id));
 
-  const totalRequested = accounts.reduce((s, a) => s + a.requested_amount, 0);
-  const totalDisbursed = accounts.reduce((s, a) => s + a.disbursed_amount, 0);
-  const totalRepayment = accounts.reduce((s, a) => s + a.total_repayment, 0);
-  const totalCollected = accounts.reduce((s, a) => s + a.amount_collected, 0);
-  const totalRemaining = accounts.reduce((s, a) => s + a.remaining_amount, 0);
+  // A cancelled loan never happened: it is listed, but counts in none of the totals (as on Home).
+  const liveAccounts = accounts.filter(a => a.status !== 'CANCELLED');
+  const liveIds = new Set(liveAccounts.map(a => a.id));
+  const totalRequested = liveAccounts.reduce((s, a) => s + a.requested_amount, 0);
+  const totalDisbursed = liveAccounts.reduce((s, a) => s + a.disbursed_amount, 0);
+  const totalRepayment = liveAccounts.reduce((s, a) => s + a.total_repayment, 0);
+  const totalCollected = liveAccounts.reduce((s, a) => s + a.amount_collected, 0);
+  const totalRemaining = liveAccounts.filter(isRunning).reduce((s, a) => s + a.remaining_amount, 0);
   const completedDays = activeAccount ? activeAccount.completed_days : 0;
   const remainingDays = activeAccount ? activeAccount.remaining_days : 0;
   const overallPercentage = totalRepayment > 0 ? safeRound((totalCollected / totalRepayment) * 100, 1) : 0;
 
-  const missedCount = db.daily_collections.filter(d => d.customer_id === id && d.status === 'MISSED').length;
+  const missedCount = db.daily_collections.filter(d => d.customer_id === id && liveIds.has(d.collection_account_id) && d.status === 'MISSED').length;
 
   res.json({
     personal: customer,
@@ -1085,6 +1098,9 @@ app.put('/api/config/:section', (req: Request, res: Response) => {
 
   if (section === 'masters') {
     const m = value as Partial<MasterLists>;
+    if (Array.isArray(m.payment_modes) && m.payment_modes.some((x: unknown) => isOtherMode(String(x)))) {
+      return res.status(400).json({ error: '"Others" is always offered for payments; it does not need to be added.' });
+    }
     if (!Array.isArray(m.payment_modes) || m.payment_modes.length === 0) {
       return res.status(400).json({ error: 'Add at least one way to pay.' });
     }
@@ -1104,12 +1120,37 @@ app.put('/api/config/:section', (req: Request, res: Response) => {
     m.report_send_limit = Number(m.report_send_limit);
   }
 
+  if (section === 'company') {
+    const c = value as Record<string, unknown>;
+    if (c.company_name !== undefined && !String(c.company_name).trim()) {
+      return res.status(400).json({ error: 'Enter the business name.' });
+    }
+    if (c.company_logo && !isLogoData(c.company_logo)) {
+      return res.status(400).json({ error: 'The logo must be a PNG, JPG or WEBP picture.' });
+    }
+    if (c.company_email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(c.company_email).trim())) {
+      return res.status(400).json({ error: 'Enter a correct email, or leave it empty.' });
+    }
+    if (c.opening_balance !== undefined && c.opening_balance !== null && c.opening_balance !== '') {
+      const ob = Number(c.opening_balance);
+      if (!Number.isFinite(ob) || ob < 0) return res.status(400).json({ error: 'The opening balance must be 0 or more.' });
+      c.opening_balance = safeRound(ob, 2);
+    } else {
+      c.opening_balance = 0;
+    }
+  }
+
   if (section === 'numbering') {
     // Counters never move backwards, even if the editor was opened before new IDs were issued.
     const current = previous as Numbering;
     for (const kind of Object.keys(current) as NumberingKind[]) {
       const rule = (value as Partial<Numbering>)[kind];
       if (rule) {
+        rule.prefix = String(rule.prefix ?? current[kind].prefix).trim().toUpperCase();
+        if (!/^[A-Z0-9_-]{0,12}$/.test(rule.prefix)) {
+          return res.status(400).json({ error: `${kind}: the start letters can be up to 12 letters, numbers, - or _.` });
+        }
+        rule.include_year = !!rule.include_year;
         rule.next = Math.max(current[kind].next, Number(rule.next) || 0);
         rule.pad = Math.max(1, Math.min(10, Number(rule.pad) || current[kind].pad));
       }
@@ -1283,7 +1324,9 @@ app.post('/api/collection-accounts/:id/bulk-hand-note', (req: Request, res: Resp
   };
 
   const perDayAmount = (daily_amount && Number(daily_amount) > 0) ? safeRound(Number(daily_amount), 2) : acc.daily_collection;
-  const payMode = payment_mode || db.config.masters.default_payment_mode;
+  const checkedMode = checkPaymentMode(db, payment_mode, req.body.payment_mode_note);
+  if ('error' in checkedMode) return res.status(400).json({ error: checkedMode.error });
+  const payMode = checkedMode.mode;
   const handRemarks = remarks || 'Recorded from physical hand notebook (கை நோட்டு)';
 
   // Which days get a payment, and what that does to the balance, is checked before anything changes.
@@ -1338,6 +1381,7 @@ app.post('/api/collection-accounts/:id/bulk-hand-note', (req: Request, res: Resp
       amount_paid: perDayAmount,
       advance_amount: 0,
       payment_mode: payMode,
+      payment_mode_note: checkedMode.note,
       collector_id: collector.id,
       collector_name: collector.name,
       previous_balance: balance,
@@ -1357,6 +1401,7 @@ app.post('/api/collection-accounts/:id/bulk-hand-note', (req: Request, res: Resp
       daily_due: acc.daily_collection,
       amount_paid: perDayAmount,
       payment_mode: payMode,
+      payment_mode_note: checkedMode.note,
       previous_balance: balance,
       remaining_balance: after,
       collector_name: collector.name,
@@ -1454,6 +1499,21 @@ app.post('/api/notebook', (req: Request, res: Response) => {
   const db = repository.getDb();
   const input = (req.body?.changes || []) as NotebookChange[];
   if (!Array.isArray(input) || input.length === 0) return res.status(400).json({ error: 'Nothing to save.' });
+  const result = applyNotebookChanges(db, input, byWho(req));
+  if (result.errors.length > 0) return res.status(400).json({ error: 'Some cells need a look.', errors: result.errors });
+  repository.save();
+  res.json({ saved: result.saved });
+});
+
+/**
+ * Records, changes or undoes each day's payment as typed in the notebook. Every cell is checked
+ * first; if any is wrong nothing changes and the wrong cells come back. Does not save the file.
+ */
+function applyNotebookChanges(
+  db: ReturnType<typeof repository.getDb>,
+  input: NotebookChange[],
+  by: string
+): { errors: NotebookCellError[]; saved: number } {
   const today = todayIso();
   const errors: NotebookCellError[] = [];
   const changes: (NotebookChange & { acc: CollectionAccount; existing: PaymentTransaction[] })[] = [];
@@ -1495,11 +1555,10 @@ app.post('/api/notebook', (req: Request, res: Response) => {
       }
     }
   }
-  if (errors.length > 0) return res.status(400).json({ error: 'Some cells need a look.', errors });
+  if (errors.length > 0) return { errors, saved: 0 };
 
   const nowIso = new Date().toISOString();
   const mode = db.config.masters.default_payment_mode;
-  const by = byWho(req);
   for (const c of changes) {
     const [keep, ...extra] = c.existing;
     const cancel = (p: PaymentTransaction) => {
@@ -1522,8 +1581,9 @@ app.post('/api/notebook', (req: Request, res: Response) => {
       continue;
     }
     const dayRecord = db.daily_collections.find(d => d.collection_account_id === c.acc.id && d.date === c.date);
+    // A loan with no collector: the office entered it.
     const collector = db.collectors.find(x => x.id === dayRecord?.collector_id) ||
-      { id: c.acc.assigned_collector_id, name: c.acc.assigned_collector_name };
+      { id: c.acc.assigned_collector_id, name: c.acc.assigned_collector_name || 'Office' };
     const receiptNum = nextId(db, 'receipt', db.receipts.map(r => r.receipt_number));
     const paymentId = `PAY-${uniqueSuffix()}`;
     db.payments.push({
@@ -1587,8 +1647,165 @@ app.post('/api/notebook', (req: Request, res: Response) => {
       { days: list.map(c => ({ date: c.date, amount: c.amount })), balance: acc.remaining_amount });
   }
 
+  return { errors: [], saved: changes.length };
+}
+
+/**
+ * A sheet made from a notebook card: the card's terms (start date, total loan, payment per day,
+ * end date) for every row, one customer per row, and their amount on each day. Each row adds the
+ * customer (or uses the one picked), gives the loan from the start date, and records the payments,
+ * so the loan carries on in the app from where the notebook is. Everything is checked first; if
+ * anything is wrong nothing is saved and each wrong row or cell comes back.
+ */
+app.post('/api/notebook/card', (req: Request, res: Response) => {
+  const db = repository.getDb();
+  const body = (req.body || {}) as CardSheetInput;
+  const today = todayIso();
+  const fail = (error: string) => res.status(400).json({ error, errors: [] as CardSheetError[] });
+
+  const start = String(body.start_date || '');
+  const end = String(body.end_date || '');
+  const total = safeRound(Number(body.total), 2);
+  const daily = safeRound(Number(body.daily), 2);
+  if (!ISO_DATE.test(start)) return fail('Enter the start date.');
+  if (!ISO_DATE.test(end)) return fail('Enter the end date.');
+  if (end < start) return fail('The end date is before the start date.');
+  const days = cardDays(start, end);
+  if (days > CARD_MAX_DAYS) return fail(`A card can cover at most ${CARD_MAX_DAYS} days.`);
+  if (start > today) return fail('The start date has not come yet.');
+  if (!(total > 0)) return fail('Enter the total loan.');
+  if (!(daily > 0)) return fail('Enter the payment per day.');
+  if (safeRound(daily * days, 2) < total) {
+    return fail(`₹${daily} a day for ${days} days is ₹${safeRound(daily * days, 2)}, less than the total loan of ₹${total}.`);
+  }
+  const rows = Array.isArray(body.rows) ? body.rows : [];
+  if (rows.length === 0) return fail('Add at least one customer.');
+
+  const errors: CardSheetError[] = [];
+  const mobiles = new Set<string>();
+  const pickedIds = new Set<string>();
+  type Planned = {
+    index: number;
+    existing?: CustomerPersonalDetails;
+    name: string;
+    mobile: string;
+    area: string;
+    planned: PlannedLoan;
+    party: LoanParty;
+    payments: { date: string; amount: number }[];
+  };
+  const planned: Planned[] = [];
+
+  rows.forEach((row, index) => {
+    const rowError = (error: string) => errors.push({ row: index, error });
+    const name = String(row?.name || '').trim();
+    const area = String(row?.area || '').trim();
+    let existing: CustomerPersonalDetails | undefined;
+    let mobile = '';
+    if (row?.customer_id) {
+      existing = db.customers.find(c => c.id === row.customer_id);
+      if (!existing) return rowError('Customer not found.');
+      if (existing.status !== 'ACTIVE') return rowError('This customer is not active.');
+      if (db.collection_accounts.some(a => a.customer_id === existing!.id && (a.status === 'ACTIVE' || a.status === 'OVERDUE'))) {
+        return rowError(`${existing.full_name} still has a running loan.`);
+      }
+      if (pickedIds.has(existing.id)) return rowError(`${existing.full_name} is on another row too.`);
+      pickedIds.add(existing.id);
+      mobile = existing.mobile_number;
+    } else {
+      if (!name) return rowError('Enter the customer name.');
+      mobile = String(row?.mobile || '').replace(/\D/g, '').slice(-10);
+      if (mobile.length < 10) return rowError('Enter a 10-digit mobile number.');
+      if (db.customers.some(c => c.mobile_number.replace(/\D/g, '').slice(-10) === mobile)) {
+        return rowError('A customer with this mobile number already exists; pick them from the list.');
+      }
+      if (mobiles.has(mobile)) return rowError('This mobile number is on another row too.');
+      mobiles.add(mobile);
+    }
+    if (!area) return rowError('Choose the area.');
+    if (!db.areas.some(a => a.area_name === area)) return rowError('Area not found.');
+
+    const biz = existing ? db.business_details.find(b => b.customer_id === existing!.id) : undefined;
+    const party: LoanParty = { shop_name: biz?.shop_name || existing?.full_name || name, shop_area: area, home_area: area };
+    let plan: PlannedLoan;
+    try {
+      plan = planLoan(db, {
+        product_id: body.product_id,
+        requested_amount: total,
+        collection_days: days,
+        daily_collection: daily,
+        start_date: start,
+        assigned_collector_id: row?.collector_id || undefined,
+        collection_area: area,
+      }, party, { collectorOptional: true });
+    } catch (err) {
+      if (err instanceof LoanValidationError) return rowError(err.message);
+      throw err;
+    }
+
+    // The days' amounts: inside the card, not after today, not on a closed day, never more than the loan.
+    const payments: { date: string; amount: number }[] = [];
+    let paid = 0;
+    let rowOk = true;
+    for (const [date, raw] of Object.entries(row?.payments || {})) {
+      if (raw === null || raw === undefined || (raw as unknown) === '') continue;
+      const amount = safeRound(Number(raw), 2);
+      const cellError = (error: string) => { rowOk = false; errors.push({ row: index, date, error }); };
+      if (!ISO_DATE.test(date)) { cellError('Not a date.'); continue; }
+      if (date < start || date > end) { cellError('Outside the card\'s days.'); continue; }
+      if (date > today) { cellError('This day has not come yet.'); continue; }
+      if (!Number.isFinite(amount) || amount < 0) { cellError('Enter an amount.'); continue; }
+      if (closedDayError(db, date)) { cellError('This day is closed.'); continue; }
+      if (amount === 0) continue;
+      paid = safeRound(paid + amount, 2);
+      payments.push({ date, amount });
+    }
+    if (paid > plan.calculation.total_repayment) {
+      return rowError(`Paid ₹${paid}, ₹${safeRound(paid - plan.calculation.total_repayment, 2)} more than the loan.`);
+    }
+    if (rowOk) planned.push({ index, existing, name, mobile, area, planned: plan, party, payments });
+  });
+  if (errors.length > 0) return res.status(400).json({ error: 'Some rows need a look.', errors });
+
+  const by = byWho(req);
+  const result: CardSheetResult = { customers_added: 0, loans: [], payments: 0 };
+  const changes: NotebookChange[] = [];
+  for (const p of planned) {
+    let customer = p.existing;
+    if (!customer) {
+      customer = addCustomerRecords(db, {
+        personal: { full_name: p.name, mobile_number: p.mobile },
+        address: { area: p.area },
+        business: { shop_name: p.name, shop_area: p.area },
+      });
+      result.customers_added++;
+      logAudit(by, 'ADMIN', 'CREATE_CUSTOMER', customer.id, 'customers', null, { ...customer, source: 'Notebook card' });
+    }
+    const account = commitLoan(db, p.planned, customer, p.party);
+    recordLoanIssued(account);
+    result.loans.push({ customer_id: customer.id, customer_name: customer.full_name, account_id: account.id });
+    p.payments.forEach(x => changes.push({ account_id: account.id, date: x.date, amount: x.amount }));
+  }
+  if (changes.length > 0) {
+    // Checked above already, so this does not fail; if it ever did, the file is not saved.
+    const applied = applyNotebookChanges(db, changes, by);
+    if (applied.errors.length > 0) {
+      repository.load(); // back to the saved file: nothing of this sheet stays
+      return res.status(400).json({
+        error: 'Some days could not be recorded; nothing was saved.',
+        errors: applied.errors.map(e => ({
+          row: planned[result.loans.findIndex(l => l.account_id === e.account_id)]?.index ?? 0,
+          date: e.date,
+          error: e.error,
+        })),
+      });
+    }
+    result.payments = applied.saved;
+  }
+  createNotification('ADMIN', 'Notebook card entered',
+    `${result.loans.length} loan(s) from a notebook card, ${result.payments} payment(s).`, 'SYSTEM');
   repository.save();
-  res.json({ saved: changes.length });
+  res.status(201).json(result);
 });
 
 // Cancel a loan issued by mistake. Only allowed before any payment has been taken.
@@ -1827,9 +2044,17 @@ app.post('/api/daily-collections/assign', (req: Request, res: Response) => {
     const collector = db.collectors.find(c => c.id === change.collector_id && c.status === 'ACTIVE');
     if (!record) return res.status(404).json({ error: 'This customer is not in today\'s work.' });
     if (!collector) return res.status(400).json({ error: 'Choose a working collector.' });
-    if (record.paid_amount > 0 && record.collector_id !== collector.id) {
+    // A customer with no collector can be given one even after paying at the office.
+    if (record.paid_amount > 0 && record.collector_id && record.collector_id !== collector.id) {
       return res.status(400).json({ error: `${record.customer_name} has already paid today and cannot be moved.` });
     }
+  }
+  // Customers whose loan has no usual collector need one for the day, or the day could never close.
+  const moved = new Set((changes ?? []).map(c => c.collection_account_id));
+  const without = records.filter(r => !r.collector_id && !moved.has(r.collection_account_id));
+  if (without.length > 0) {
+    const names = without.slice(0, 5).map(r => r.customer_name).join(', ') + (without.length > 5 ? ` and ${without.length - 5} more` : '');
+    return res.status(400).json({ error: `Choose a collector for today for: ${names}.` });
   }
   for (const change of changes ?? []) {
     const record = records.find(r => r.collection_account_id === change.collection_account_id)!;
@@ -1875,8 +2100,30 @@ app.post('/api/daily-collections/reorder-route', (req: Request, res: Response) =
 /**
  * COLLECT PAYMENT (Supports Regular, Partial, Advance, Missed)
  */
-app.post('/api/daily-collections/collect', (req: Request, res: Response) => {
+/**
+ * A payment's mode must be one of the modes in Settings, or "Others" with a short description of how
+ * it was paid. `alsoAllowed` keeps a mode that has since left Settings (an old payment being edited).
+ */
+function checkPaymentMode(db: ReturnType<typeof repository.getDb>, mode: unknown, note: unknown, alsoAllowed?: string): { mode: string; note?: string } | { error: string } {
+  const chosen = String(mode || db.config.masters.default_payment_mode || '').trim();
+  const offered = modeChoices(db.config.masters.payment_modes);
+  const match = offered.find(m => m.toLowerCase() === chosen.toLowerCase()) ||
+    (alsoAllowed && alsoAllowed.toLowerCase() === chosen.toLowerCase() ? alsoAllowed : undefined);
+  if (!match) return { error: `"${chosen}" is not a payment mode in Settings.` };
+  if (!isOtherMode(match)) return { mode: match };
+  const text = String(note ?? '').trim();
+  if (!text) return { error: 'Write how this payment was made (for example: cheque number, bank name).' };
+  if (text.length > MODE_NOTE_MAX) return { error: `Keep the description under ${MODE_NOTE_MAX} letters.` };
+  return { mode: match, note: text };
+}
+
+/**
+ * Records one day's collection (or a missed day) for a loan. Used by the collect screens and by the
+ * office when it records a customer's UPI payment, so both follow the same rules. Saves when it succeeds.
+ */
+function recordCollection(input: any): { status: number; json: any } {
   const db = repository.getDb();
+  const out = (status: number, json: any) => ({ status, json });
   const {
     collection_account_id,
     collection_date,
@@ -1888,51 +2135,56 @@ app.post('/api/daily-collections/collect', (req: Request, res: Response) => {
     is_missed,
     transaction_ref,
     razorpay_payment_id,
-  } = req.body;
+  } = input || {};
 
   const resolvedTxRef = transaction_ref || razorpay_payment_id || undefined;
   const dateStr = collection_date || todayIso();
   const paid = is_missed ? 0 : safeRound(Number(amount_paid), 2);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(dateStr) || dateStr > todayIso()) {
-    return res.status(400).json({ error: 'A collection cannot be entered for a future date.' });
+    return out(400, { error: 'A collection cannot be entered for a future date.' });
   }
   const closed = closedDayError(db, dateStr);
-  if (closed) return res.status(400).json({ error: closed });
+  if (closed) return out(400, { error: closed });
 
   const account = db.collection_accounts.find(a => a.id === collection_account_id);
   if (!account) {
-    return res.status(404).json({ error: 'Collection account not found' });
+    return out(404, { error: 'Collection account not found' });
   }
   // A collector collects only from customers on their own list for that day.
   const who = actor();
   if (who?.role === 'COLLECTOR') {
     const record = db.daily_collections.find(d => d.collection_account_id === account.id && d.date === dateStr);
     if (dateStr !== todayIso() || !record || record.collector_id !== who.collector_id) {
-      return res.status(403).json({ error: 'This customer is not on your list today.' });
+      return out(403, { error: 'This customer is not on your list today.' });
     }
   }
   if (!isRunning(account)) {
-    return res.status(400).json({ error: 'This loan is closed.' });
+    return out(400, { error: 'This loan is closed.' });
   }
   if (dateStr < account.start_date) {
-    return res.status(400).json({ error: 'This loan had not started on that date.' });
+    return out(400, { error: 'This loan had not started on that date.' });
   }
   if (!is_missed && (!Number.isFinite(paid) || paid <= 0)) {
-    return res.status(400).json({ error: 'Enter a valid amount.' });
+    return out(400, { error: 'Enter a valid amount.' });
   }
   if (paid > account.remaining_amount) {
-    return res.status(400).json({ error: `The amount is more than the balance (₹${account.remaining_amount}).` });
+    return out(400, { error: `The amount is more than the balance (₹${account.remaining_amount}).` });
   }
   // One collection per customer per day: a wrong entry is undone first, then collected again.
   if (activePayments(db, account.id).some(p => p.collection_date === dateStr)) {
-    return res.status(409).json({ error: 'Already collected for this day. Undo it first to change it.' });
+    return out(409, { error: 'Already collected for this day. Undo it first to change it.' });
   }
 
-  const collector = db.collectors.find(c => c.id === collector_id) || {
-    id: account.assigned_collector_id,
-    name: account.assigned_collector_name,
-  };
-  const mode = payment_mode || db.config.masters.default_payment_mode;
+  const dayCollector = db.daily_collections.find(d => d.collection_account_id === account.id && d.date === dateStr && d.collector_id);
+  const collector = db.collectors.find(c => c.id === collector_id) ||
+    (dayCollector ? { id: dayCollector.collector_id, name: dayCollector.collector_name } : {
+      id: account.assigned_collector_id,
+      name: account.assigned_collector_name,
+    });
+  const checkedMode = checkPaymentMode(db, payment_mode, input.payment_mode_note, input.allow_mode);
+  if (!is_missed && 'error' in checkedMode) return out(400, { error: checkedMode.error });
+  const mode = 'error' in checkedMode ? db.config.masters.default_payment_mode : checkedMode.mode;
+  const modeNote = 'error' in checkedMode ? undefined : checkedMode.note;
   const pos = dayPosition(db, account, dateStr);
   const prevBalance = account.remaining_amount;
   let createdReceipt: Receipt | null = null;
@@ -1955,6 +2207,7 @@ app.post('/api/daily-collections/collect', (req: Request, res: Response) => {
       amount_paid: paid,
       advance_amount: standing.advance,
       payment_mode: mode,
+      payment_mode_note: modeNote,
       collector_id: collector.id,
       collector_name: collector.name,
       previous_balance: prevBalance,
@@ -1975,6 +2228,7 @@ app.post('/api/daily-collections/collect', (req: Request, res: Response) => {
       daily_due: account.daily_collection,
       amount_paid: paid,
       payment_mode: mode,
+      payment_mode_note: modeNote,
       transaction_ref: resolvedTxRef,
       previous_balance: prevBalance,
       remaining_balance: newBalance,
@@ -2023,7 +2277,12 @@ app.post('/api/daily-collections/collect', (req: Request, res: Response) => {
   }
 
   repository.save();
-  res.json({ success: true, dailyRecord, account, receipt: createdReceipt });
+  return out(200, { success: true, dailyRecord, account, receipt: createdReceipt });
+}
+
+app.post('/api/daily-collections/collect', (req: Request, res: Response) => {
+  const result = recordCollection(req.body);
+  res.status(result.status).json(result.json);
 });
 
 // -------------------------------------------------------------
@@ -2101,7 +2360,9 @@ app.put('/api/payments/:id', (req: Request, res: Response) => {
 
   const newAmount = req.body.amount_paid !== undefined ? safeRound(Number(req.body.amount_paid), 2) : oldAmount;
   const newDate = (req.body.collection_date || oldDate).trim();
-  const newMode = req.body.payment_mode || oldMode;
+  const checkedMode = checkPaymentMode(db, req.body.payment_mode || oldMode, req.body.payment_mode !== undefined ? req.body.payment_mode_note : payment.payment_mode_note, oldMode);
+  if ('error' in checkedMode) return res.status(400).json({ error: checkedMode.error });
+  const newMode = checkedMode.mode;
   const newRemarks = req.body.remarks !== undefined ? req.body.remarks : payment.remarks;
   const closed = closedDayError(db, oldDate) || closedDayError(db, newDate);
   if (closed) return res.status(400).json({ error: closed });
@@ -2135,6 +2396,7 @@ app.put('/api/payments/:id', (req: Request, res: Response) => {
   payment.amount_paid = newAmount;
   payment.collection_date = newDate;
   payment.payment_mode = newMode;
+  payment.payment_mode_note = checkedMode.note;
   payment.collector_id = collectorId;
   payment.collector_name = collectorName;
   payment.remarks = newRemarks;
@@ -2147,6 +2409,7 @@ app.put('/api/payments/:id', (req: Request, res: Response) => {
     receipt.amount_paid = newAmount;
     receipt.date = newDate;
     receipt.payment_mode = newMode;
+    receipt.payment_mode_note = checkedMode.note;
     receipt.collector_name = collectorName;
     receipt.remarks = newRemarks;
     (receipt as any).updated_at = new Date().toISOString();
@@ -2271,6 +2534,7 @@ app.post('/api/collector-reports', (req: Request, res: Response) => {
   );
   const cashInApp = safeRound(todaysPayments.filter(p => isCashMode(p.payment_mode)).reduce((s, p) => s + p.amount_paid, 0), 2);
   const upiInApp = safeRound(todaysPayments.filter(p => !isCashMode(p.payment_mode)).reduce((s, p) => s + p.amount_paid, 0), 2);
+  const modeTotals = nonCashTotals(todaysPayments.map(p => ({ paid_amount: p.amount_paid, payment_mode: p.payment_mode })), db.config.masters.payment_modes);
 
   const notes: Record<string, number> = {};
   for (const n of CASH_NOTES) notes[n] = Math.max(0, Math.floor(Number(cash_notes?.[n]) || 0));
@@ -2293,6 +2557,7 @@ app.post('/api/collector-reports', (req: Request, res: Response) => {
     summary,
     cash_in_app: cashInApp,
     upi_in_app: upiInApp,
+    mode_totals: modeTotals,
     cash_notes: notes,
     coins: coinAmount,
     cash_counted: cashCounted,
@@ -2383,6 +2648,11 @@ app.post('/api/day-closings', (req: Request, res: Response) => {
   if (!db.day_assignments?.some(a => a.date === date)) return res.status(400).json({ error: "Today's work was not assigned." });
 
   const records = dayRecords(db, date);
+  // A loan given after the work was assigned may have nobody for today yet.
+  const without = records.filter(r => !r.collector_id);
+  if (without.length > 0) {
+    return res.status(400).json({ error: `Choose a collector for today for: ${without.slice(0, 5).map(r => r.customer_name).join(', ')} (Daily Collection → Change assignment).` });
+  }
   const checks = dayCloseChecks(date, records, db.collector_reports || []);
   if (checks.length === 0) return res.status(400).json({ error: 'There is no collection today.' });
   const reasons: Record<string, string> = {
@@ -2964,7 +3234,8 @@ app.put('/api/notifications/read-all', (req: Request, res: Response) => {
 app.post('/api/customer/loan-request', (req: Request, res: Response) => {
   const { customer_id, purpose, remarks } = req.body;
   const amount = safeRound(Number(req.body.requested_amount), 2);
-  const days = req.body.collection_days ? Math.floor(Number(req.body.collection_days)) : 100;
+  const usualDays = repository.getDb().config.loan_products.find(p => p.status === 'ACTIVE')?.default_days || 100;
+  const days = req.body.collection_days ? Math.floor(Number(req.body.collection_days)) : usualDays;
   if (!customer_id || !Number.isFinite(amount) || amount <= 0) {
     return res.status(400).json({ error: 'Enter the amount you need.' });
   }
@@ -2989,7 +3260,7 @@ app.post('/api/customer/loan-request', (req: Request, res: Response) => {
     recipient_role: 'ADMIN',
     type: 'LOAN_REQUEST',
     title: 'New Loan Renewal Request',
-    message: `${customerName} (${shopName}) has requested a new loan of ₹${Number(requested_amount).toLocaleString('en-IN')} for ${collection_days || 100} days.${purpose ? ` Purpose: ${purpose}` : ''}`,
+    message: `${customerName} (${shopName}) has requested a new loan of ₹${Number(requested_amount).toLocaleString('en-IN')} for ${collection_days} days.${purpose ? ` Purpose: ${purpose}` : ''}`,
     created_at: now,
     is_read: false,
     customer_id,
@@ -3101,14 +3372,45 @@ app.post('/api/payment-claims/:id/decision', (req: Request, res: Response) => {
   const claim = (db.payment_claims || []).find(c => c.id === getParam(req, 'id'));
   if (!claim) return res.status(404).json({ error: 'Payment message not found' });
   if (claim.status !== 'PENDING') return res.status(400).json({ error: 'This payment was already handled.' });
-  const { decision, receipt_number } = req.body || {};
+  const { decision, receipt_number, record } = req.body || {};
   if (decision !== 'RECORDED' && decision !== 'NOT_RECEIVED') return res.status(400).json({ error: 'Choose recorded or not received.' });
+
+  let recordedReceipt = receipt_number ? String(receipt_number) : '';
+  if (decision === 'RECORDED' && record) {
+    // Saved here, in the same step that settles the claim, so it can never be recorded twice.
+    const loan = db.collection_accounts.find(a => a.id === claim.collection_account_id && isRunning(a)) ||
+      db.collection_accounts.find(a => a.customer_id === claim.customer_id && isRunning(a));
+    if (!loan) return res.status(400).json({ error: 'This customer has no running loan to record it on.' });
+    const date = todayIso();
+    const result = recordCollection({
+      collection_account_id: loan.id,
+      collection_date: date,
+      amount_paid: claim.amount,
+      payment_mode: 'UPI',
+      allow_mode: 'UPI', // the customer paid by UPI even if UPI has since left Settings
+      transaction_ref: claim.upi_reference,
+      remarks: 'UPI payment sent by the customer',
+    });
+    if (result.status === 409) {
+      // One payment per customer per day; the claim waits (nothing saved) until the office chooses.
+      const todays = activePayments(db, loan.id).find(p => p.collection_date === date);
+      return res.status(409).json({ error: `${claim.customer_name} already paid today (receipt ${todays?.receipt_number || '-'}); one payment per day is kept. Record this UPI payment tomorrow, or undo today's payment and enter the two together.` });
+    }
+    if (result.status !== 200) return res.status(result.status).json(result.json);
+    recordedReceipt = result.json.receipt?.receipt_number || '';
+  } else if (decision === 'RECORDED' && recordedReceipt) {
+    // Settled against a payment already saved: it must be this customer's and still stand.
+    const pay = db.payments.find(p => p.receipt_number === recordedReceipt);
+    if (!pay || pay.customer_id !== claim.customer_id || !isActivePayment(pay)) {
+      return res.status(400).json({ error: `Receipt ${recordedReceipt} is not a payment of ${claim.customer_name}.` });
+    }
+  }
 
   const previous = { ...claim };
   claim.status = decision;
   claim.decided_by = byWho(req);
   claim.decided_at = new Date().toISOString();
-  if (receipt_number) claim.receipt_number = String(receipt_number);
+  if (recordedReceipt) claim.receipt_number = recordedReceipt;
   const rupees = `₹${claim.amount.toLocaleString('en-IN')}`;
   db.notifications.unshift({
     id: `NOTIF-${Date.now()}-C`,
@@ -3135,6 +3437,10 @@ app.post('/api/loan-requests/:id/decision', (req: Request, res: Response) => {
   if (request.status !== 'PENDING') return res.status(400).json({ error: 'This request was already handled.' });
   const { decision, account_id } = req.body || {};
   if (decision !== 'APPROVED' && decision !== 'REJECTED') return res.status(400).json({ error: 'Choose approve or reject.' });
+  // An approval names the loan that was given, and it must be this customer's.
+  if (decision === 'APPROVED' && account_id && !db.collection_accounts.some(a => a.id === String(account_id) && a.customer_id === request.customer_id)) {
+    return res.status(400).json({ error: `Loan ${account_id} is not a loan of ${request.customer_name}.` });
+  }
 
   const previous = { ...request };
   request.status = decision;

@@ -143,12 +143,14 @@ export function syncDayRecord(
   rec.missed_amount = pos.missedAmount;
   if (latest) {
     rec.payment_mode = latest.payment_mode;
+    rec.payment_mode_note = latest.payment_mode_note;
     rec.collector_id = latest.collector_id;
     rec.collector_name = latest.collector_name;
     rec.receipt_number = latest.receipt_number;
     rec.receipt_id = db.receipts.find(r => r.receipt_number === latest.receipt_number)?.id;
   } else {
     rec.payment_mode = undefined;
+    rec.payment_mode_note = undefined;
     rec.receipt_id = undefined;
     rec.receipt_number = undefined;
   }

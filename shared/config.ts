@@ -127,3 +127,34 @@ export function formatId(rule: NumberingRule, seq: number, date: Date = new Date
   const year = rule.include_year ? `${date.getFullYear()}-` : '';
   return `${rule.prefix}${year}${String(seq).padStart(rule.pad, '0')}`;
 }
+
+// ---- Logo ----
+// The logo is stored with the settings as a small picture (resized on upload), so it works offline and in prints.
+export const LOGO_MAX_CHARS = 300_000;
+export const isLogoData = (v: unknown): v is string =>
+  typeof v === 'string' && v.length <= LOGO_MAX_CHARS && /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(v);
+
+// ---- Payment modes ----
+// The office lists its own modes in Settings. "Others" is always offered as well, for a payment made
+// some other way; it then carries a short description of how it was paid.
+
+export const OTHER_MODE = 'Others';
+export const MODE_NOTE_MAX = 80;
+
+const sameMode = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase();
+
+export const isOtherMode = (mode?: string): boolean => !!mode && sameMode(mode, OTHER_MODE);
+/** Only the mode named UPI shows the QR code and the UPI ID. */
+export const isUpiMode = (mode?: string): boolean => !!mode && sameMode(mode, 'UPI');
+export const upiOffered = (modes: string[]): boolean => modes.some(isUpiMode);
+
+/** The modes to choose from: the ones in Settings, then "Others". */
+export function modeChoices(modes: string[]): string[] {
+  return [...modes.filter(m => !isOtherMode(m)), OTHER_MODE];
+}
+
+/** How a payment's mode reads on screens and receipts, e.g. "Others (Cheque 123456)". */
+export function modeText(mode?: string, note?: string, translate: (m: string) => string = m => m): string {
+  const name = translate(mode || 'Cash');
+  return note && note.trim() ? `${name} (${note.trim()})` : name;
+}

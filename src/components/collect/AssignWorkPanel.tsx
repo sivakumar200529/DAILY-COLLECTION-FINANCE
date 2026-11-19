@@ -32,8 +32,12 @@ export const AssignWorkPanel: React.FC<{
   const collectorOf = (r: DailyCollectionRecord) => moves[r.collection_account_id] ?? r.collector_id;
   const working = collectors.filter(c => c.status === 'ACTIVE');
   const groupIds = [...new Set([...working.map(c => c.id), ...records.map(r => r.collector_id)])];
-  const nameOf = (id: string) => collectors.find(c => c.id === id)?.name ?? records.find(r => r.collector_id === id)?.collector_name ?? id;
-  const isStopped = (id: string) => !working.some(c => c.id === id);
+  const nameOf = (id: string) =>
+    !id ? t('noCollector', 'No collector') : collectors.find(c => c.id === id)?.name ?? records.find(r => r.collector_id === id)?.collector_name ?? id;
+  // "No collector" (loans without a usual collector) is not a stopped collector.
+  const isStopped = (id: string) => !!id && !working.some(c => c.id === id);
+  // Each of them needs someone for the day before the work can be assigned.
+  const withoutCollector = records.filter(r => !collectorOf(r)).length;
 
   const save = async () => {
     setBusy(true);
@@ -117,13 +121,14 @@ export const AssignWorkPanel: React.FC<{
         {groupIds.map(id => {
           const rows = records.filter(r => collectorOf(r) === id);
           const after = collectionDaySummary(rows);
-          if (rows.length === 0 && isStopped(id)) return null;
+          if (rows.length === 0 && (isStopped(id) || !id)) return null;
           return (
-            <details key={id} className="group rounded-2xl bg-navy-950 border border-slate-800">
+            <details key={id} open={!id || undefined} className={`group rounded-2xl bg-navy-950 border ${id ? 'border-slate-800' : 'border-amber-500/50'}`}>
               <summary className="flex items-center gap-2 px-4 py-3 cursor-pointer list-none">
                 <ChevronRight className="w-4 h-4 text-slate-400 transition-transform group-open:rotate-90" />
-                <span className="flex-1 min-w-0 font-bold text-white">
+                <span className={`flex-1 min-w-0 font-bold ${id ? 'text-white' : 'text-amber-300'}`}>
                   {t(nameOf(id), nameOf(id))}
+                  {!id && <span className="block text-xs font-semibold text-amber-200/80">{t('chooseCollectorToday', 'Choose a collector for today for each of these')}</span>}
                   {isStopped(id) && <span className="ml-2 text-xs text-rose-300">{t('stopped', 'Stopped')}</span>}
                 </span>
                 <span className="text-sm text-slate-300 font-mono whitespace-nowrap">
@@ -133,7 +138,8 @@ export const AssignWorkPanel: React.FC<{
               {rows.length > 0 && (
                 <div className="divide-y divide-slate-800 border-t border-slate-800">
                   {rows.map(r => {
-                    const paid = r.paid_amount > 0;
+                    // Paid customers stay with whoever took the money; one with no collector can still be given one.
+                    const paid = r.paid_amount > 0 && !!r.collector_id;
                     const moved = collectorOf(r) !== r.collector_id;
                     return (
                       <div key={r.id} className="grid grid-cols-1 sm:grid-cols-2 items-center gap-2 px-4 py-2.5">
@@ -153,6 +159,7 @@ export const AssignWorkPanel: React.FC<{
                           aria-label={`${t('collector', 'Collector')}: ${r.customer_name}`}
                           onChange={e => setMoves(prev => ({ ...prev, [r.collection_account_id]: e.target.value }))}
                         >
+                          {!collectorOf(r) && <option value="" disabled>{t('choose', 'Choose…')}</option>}
                           {isStopped(r.collector_id) && <option value={r.collector_id}>{nameOf(r.collector_id)}</option>}
                           {working.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                         </select>
@@ -166,6 +173,11 @@ export const AssignWorkPanel: React.FC<{
         })}
       </div>
 
+      {withoutCollector > 0 && (
+        <p className="text-sm text-amber-300">
+          {t('customersWithoutCollector', '{n} customer(s) have no collector yet. Choose one for each before assigning.').replace('{n}', String(withoutCollector))}
+        </p>
+      )}
       {error && <p className="text-sm text-rose-400">{error}</p>}
 
       <div className={`grid gap-3 ${assignment.assigned ? 'grid-cols-2' : 'grid-cols-1'}`}>
@@ -175,7 +187,7 @@ export const AssignWorkPanel: React.FC<{
           icon={Check}
           label={assignment.assigned ? t('save', 'Save') : t('assignWork', 'Assign work')}
           onClick={save}
-          disabled={busy || records.length === 0}
+          disabled={busy || records.length === 0 || withoutCollector > 0}
         />
       </div>
     </section>

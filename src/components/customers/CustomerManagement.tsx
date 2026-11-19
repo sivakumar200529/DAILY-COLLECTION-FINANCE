@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { IndianRupee, PlusCircle, Search, Users, Wallet } from 'lucide-react';
 import { User } from '../../types';
 import { api, CustomerListItem } from '../../services/api';
+import { useDataChanged } from '../../utils/dataSync';
 import { formatCurrency } from '../../utils/formatters';
 import { useLanguage } from '../../context/LanguageContext';
 import { useConfig } from '../../context/ConfigContext';
@@ -46,6 +47,7 @@ export const CustomerManagement: React.FC<CustomerManagementProps> = ({ currentU
   useEffect(() => {
     load();
   }, []);
+  useDataChanged(load);
 
   useEffect(() => {
     if (initialTab) {
@@ -83,7 +85,6 @@ export const CustomerManagement: React.FC<CustomerManagementProps> = ({ currentU
       <WaitingAlerts
         onOpenLoanRequests={() => setTab('requests')}
         onOpenUpiPayments={() => setTab('upi')}
-        alwaysShowLoans
         refreshKey={refreshKey}
       />
 
@@ -143,7 +144,7 @@ export const CustomerManagement: React.FC<CustomerManagementProps> = ({ currentU
                         <span className="block text-xs text-slate-500">{t(c.business?.shop_area || c.address?.area || '', c.business?.shop_area || c.address?.area || '')}</span>
                         {acc && (
                           <span className="block text-xs text-slate-500">
-                            {t('dailyPayment', 'Daily payment')} {formatCurrency(acc.daily_collection)} • {t(acc.assigned_collector_name, acc.assigned_collector_name)}
+                            {t('dailyPayment', 'Daily payment')} {formatCurrency(acc.daily_collection)} • {acc.assigned_collector_name ? t(acc.assigned_collector_name, acc.assigned_collector_name) : t('noCollector', 'No collector')}
                           </span>
                         )}
                         {inactive && <span className="inline-block mt-1 px-2 py-0.5 rounded-lg text-xs font-bold bg-slate-700 text-slate-200">{t('inactive', 'Inactive')}</span>}

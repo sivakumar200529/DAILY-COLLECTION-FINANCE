@@ -133,6 +133,8 @@ const CUSTOMER_ROUTES: Rule[] = [
 const SHARED_ROUTES: Rule[] = [
   ['GET', /^\/api\/auth\/me$/],
   ['POST', /^\/api\/auth\/(heartbeat|logout)$/],
+  // A number only (no data): every open screen checks it to know when to reload.
+  ['GET', /^\/api\/data-version$/],
   ['GET', /^\/api\/notifications$/],
   ['PUT', /^\/api\/notifications\/(read-all|[^/]+\/read)$/],
 ];

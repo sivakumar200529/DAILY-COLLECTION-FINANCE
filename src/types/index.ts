@@ -187,6 +187,8 @@ export interface DailyCollectionRecord {
   advance_amount: number;
   status: DailyCollectionStatus;
   payment_mode?: PaymentMode;
+  /** How an "Others" payment was made, in the payer's words. */
+  payment_mode_note?: string;
   collector_id: string;
   collector_name: string;
   collection_area: string;
@@ -224,6 +226,8 @@ export interface PaymentTransaction {
   amount_paid: number;
   advance_amount: number;
   payment_mode: PaymentMode;
+  /** How an "Others" payment was made, in the payer's words. */
+  payment_mode_note?: string;
   collector_id: string;
   collector_name: string;
   previous_balance: number;
@@ -247,6 +251,8 @@ export interface Receipt {
   daily_due: number;
   amount_paid: number;
   payment_mode: string;
+  /** How an "Others" payment was made, in the payer's words. */
+  payment_mode_note?: string;
   transaction_ref?: string;
   previous_balance: number;
   remaining_balance: number;

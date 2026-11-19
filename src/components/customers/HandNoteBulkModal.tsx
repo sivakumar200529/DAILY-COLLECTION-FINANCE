@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { MODE_NOTE_MAX, isOtherMode, modeChoices } from '../../../shared/config';
 import { CollectionAccount, Collector } from '../../types';
 import { api } from '../../services/api';
 import { formatCurrency, formatDate } from '../../utils/formatters';
 import { scheduleDates } from '../../../shared/finance';
 import { useLanguage } from '../../context/LanguageContext';
+import { useConfig } from '../../context/ConfigContext';
 import {
   BookOpen,
   Check,
@@ -39,6 +41,7 @@ export const HandNoteBulkModal: React.FC<HandNoteBulkModalProps> = ({
   onSuccess,
 }) => {
   const { t } = useLanguage();
+  const { masters } = useConfig().config;
   const isAdmin = currentUser.role?.toUpperCase() === 'ADMIN';
 
   // Entry method: 'range' (Days 1 to N) or 'checklist' (specific days)
@@ -46,7 +49,9 @@ export const HandNoteBulkModal: React.FC<HandNoteBulkModalProps> = ({
   const [upToDay, setUpToDay] = useState<number>(Math.min(10, account.collection_days));
   const [selectedDays, setSelectedDays] = useState<Set<number>>(new Set());
   const [dailyAmount, setDailyAmount] = useState<number>(account.daily_collection);
-  const [paymentMode, setPaymentMode] = useState<string>('Cash');
+  // The ways to pay set in Settings; the usual one first.
+  const [paymentMode, setPaymentMode] = useState<string>(masters.default_payment_mode || masters.payment_modes[0] || '');
+  const [modeNote, setModeNote] = useState('');
   const [collectorId, setCollectorId] = useState<string>(account.assigned_collector_id || '');
   const [remarks, setRemarks] = useState<string>('Recorded from hand note / கை நோட்டு வரவு');
   const [overwriteExisting, setOverwriteExisting] = useState<boolean>(false);
@@ -175,6 +180,7 @@ export const HandNoteBulkModal: React.FC<HandNoteBulkModalProps> = ({
         ...(entryMode === 'range' && !overwriteExisting ? { up_to_day: upToDay } : { day_numbers: targetDaysList }),
         daily_amount: dailyAmount,
         payment_mode: paymentMode,
+        payment_mode_note: isOtherMode(paymentMode) ? modeNote.trim() : undefined,
         collector_id: collectorId,
         remarks,
         overwrite_existing: overwriteExisting,
@@ -428,12 +434,19 @@ export const HandNoteBulkModal: React.FC<HandNoteBulkModalProps> = ({
                 onChange={e => setPaymentMode(e.target.value)}
                 className="w-full px-3 py-2 bg-navy-950 border border-slate-700 rounded-xl text-sm font-semibold text-white focus:border-gold-500 focus:outline-none"
               >
-                <option value="Cash">Cash (ரொக்கம்)</option>
-                <option value="GPay">GPay (கூகுள் பே)</option>
-                <option value="PhonePe">PhonePe (போன்பே)</option>
-                <option value="Paytm">Paytm (பேடிஎம்)</option>
-                <option value="Bank Transfer">Bank Transfer (வங்கி பரிமாற்றம்)</option>
+                {modeChoices(masters.payment_modes).map(m => <option key={m} value={m}>{t(m, m)}</option>)}
               </select>
+              {isOtherMode(paymentMode) && (
+                <input
+                  type="text"
+                  aria-label={t('howPaid', 'How was it paid?')}
+                  maxLength={MODE_NOTE_MAX}
+                  value={modeNote}
+                  onChange={e => setModeNote(e.target.value)}
+                  placeholder={t('howPaidExample', 'e.g. Cheque 123456')}
+                  className="mt-2 w-full px-3 py-2 bg-navy-950 border border-slate-700 rounded-xl text-sm text-white focus:border-gold-500 focus:outline-none"
+                />
+              )}
             </div>
 
             <div>
@@ -446,7 +459,7 @@ export const HandNoteBulkModal: React.FC<HandNoteBulkModalProps> = ({
                 onChange={e => setCollectorId(e.target.value)}
                 className="w-full px-3 py-2 bg-navy-950 border border-slate-700 rounded-xl text-sm font-semibold text-white focus:border-gold-500 focus:outline-none"
               >
-                <option value={account.assigned_collector_id}>{account.assigned_collector_name} (Assigned)</option>
+                <option value={account.assigned_collector_id}>{account.assigned_collector_name ? `${account.assigned_collector_name} (Assigned)` : 'No collector'}</option>
                 {collectors
                   .filter(c => c.id !== account.assigned_collector_id)
                   .map(c => (

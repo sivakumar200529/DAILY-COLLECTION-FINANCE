@@ -7,6 +7,7 @@ import {
   Area, Collector, Customer360Profile, CustomerDocument, DailyCollectionRecord, DocumentType, PaymentTransaction, Receipt, User,
 } from '../../types';
 import { api } from '../../services/api';
+import { useDataChanged } from '../../utils/dataSync';
 import { formatCurrency, formatDate, formatDateTime } from '../../utils/formatters';
 import { todayIso } from '../../../shared/finance';
 import { useLanguage } from '../../context/LanguageContext';
@@ -87,6 +88,8 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ customerId, currentU
     load();
     api.getCollectors().then(setCollectors).catch(() => setCollectors([]));
   }, [customerId]);
+  // Not while a form is open: what is being typed stays.
+  useDataChanged(load, !showEdit && !showPaymentModal);
 
   useEffect(() => {
     if (!notice) return;
@@ -121,6 +124,8 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ customerId, currentU
   const payments = [...profile.recentPayments].sort((a, b) => b.created_at.localeCompare(a.created_at));
   const activePayments = payments.filter(p => p.status !== 'CANCELLED');
   const pastLoans = profile.accounts.filter(a => a.id !== loan?.id);
+  // A payment is changed against its own loan, even one that has since closed.
+  const paymentLoan = editingPayment ? profile.accounts.find(a => a.id === editingPayment.collection_account_id) : loan;
   const isOffice = currentUser.role === 'ADMIN';
   const loanHasPayments = !!loan && activePayments.some(p => p.collection_account_id === loan.id);
   const paidToday = activePayments
@@ -207,7 +212,7 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ customerId, currentU
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <div className="text-xs text-slate-400">{t('collector', 'Collector')}</div>
-                  <div className="text-base font-bold text-white">{loan.assigned_collector_name}</div>
+                  <div className="text-base font-bold text-white">{loan.assigned_collector_name || t('noCollector', 'No collector')}</div>
                 </div>
                 <CallButton phone={collector?.mobile} label={t('call', 'Call')} />
               </div>
@@ -334,10 +339,10 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ customerId, currentU
                 type="button"
                 onClick={() => { setEditingPayment(null); setShowPaymentModal(true); }}
                 className="py-1.5 px-3 rounded-xl bg-gradient-to-r from-gold-500 via-amber-500 to-gold-600 hover:from-gold-400 hover:to-amber-500 text-navy-950 font-black text-xs flex items-center gap-1.5 cursor-pointer shadow-md shadow-gold-500/20"
-                title="Admin: Record payment for any past or future date"
+                title="Add a payment for today or a past day"
               >
                 <PlusCircle className="w-3.5 h-3.5" />
-                <span>{t('recordPaymentAnyDate', '+ Record Payment (Any Date)')}</span>
+                <span>{t('addPayment', 'Add payment')}</span>
               </button>
             </div>
           )}
@@ -479,12 +484,12 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ customerId, currentU
       {receiptView && (
         <ReceiptModal receipt={receiptView} customerMobile={personal.mobile_number} onClose={() => setReceiptView(null)} />
       )}
-      {showPaymentModal && loan && (
+      {showPaymentModal && paymentLoan && (
         <PaymentEditModal
           isOpen={showPaymentModal}
           onClose={() => { setShowPaymentModal(false); setEditingPayment(null); }}
           payment={editingPayment}
-          account={loan}
+          account={paymentLoan}
           customerName={personal.full_name}
           shopName={business?.shop_name}
           currentUser={currentUser}

@@ -3,7 +3,7 @@ import { AlertTriangle, ArrowLeft, CheckCircle2, History, PencilLine, Send } fro
 import { CollectorReport, DailyCollectionRecord } from '../../types';
 import { api } from '../../services/api';
 import { formatCurrency, formatDate, formatDateTime } from '../../utils/formatters';
-import { collectionDaySummary, countedCash, dayPaymentSplit } from '../../../shared/collectorDay';
+import { collectionDaySummary, countedCash, dayPaymentSplit, nonCashTotals } from '../../../shared/collectorDay';
 import { todayIso } from '../../../shared/finance';
 import { useLanguage } from '../../context/LanguageContext';
 import { useConfig } from '../../context/ConfigContext';
@@ -22,7 +22,9 @@ export const CollectorReportView: React.FC<{
   onBack: () => void;
 }> = ({ collectorId, records, onBack }) => {
   const { t } = useLanguage();
-  const limit = useConfig().config.masters.report_send_limit;
+  const { masters } = useConfig().config;
+  const limit = masters.report_send_limit;
+  const paymentModes = masters.payment_modes;
   const [notes, setNotes] = useState<NoteCounts>(emptyNotes);
   const [coins, setCoins] = useState(0);
   const [note, setNote] = useState('');
@@ -50,6 +52,7 @@ export const CollectorReportView: React.FC<{
   const summary = collectionDaySummary(records);
   // The same split the server stores with the report.
   const { cash: cashInApp, upi: upiInApp } = dayPaymentSplit(records);
+  const modeTotals = nonCashTotals(records, paymentModes);
   const counted = countedCash(notes, coins);
   const latest = sent[0];
   const needsApproval = sent.length >= limit;
@@ -149,7 +152,7 @@ export const CollectorReportView: React.FC<{
   return (
     <div className="space-y-4">
       {header}
-      <ReportTally tally={{ summary, cashInApp, upiInApp, cashCounted: anythingCounted ? counted : null }} />
+      <ReportTally tally={{ summary, cashInApp, upiInApp, modeTotals, cashCounted: anythingCounted ? counted : null }} />
 
       <CashCounter
         notes={notes}
@@ -251,7 +254,7 @@ const ReportHistorySheet: React.FC<{
                         ({t('notesCounted', 'Notes counted')} {formatCurrency(r.cash_counted)})
                       </span>
                     )}
-                    · UPI <strong className="font-mono">{formatCurrency(r.upi_in_app)}</strong>
+                    · {t('notCash', 'Other than cash')} <strong className="font-mono">{formatCurrency(r.upi_in_app)}</strong>
                   </div>
                 </div>
               ))}

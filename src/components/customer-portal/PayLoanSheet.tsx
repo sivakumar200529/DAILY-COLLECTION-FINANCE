@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { upiOffered } from '../../../shared/config';
 import { Check, CheckCircle2, Copy, Smartphone } from 'lucide-react';
 import { CollectionAccount, Collector } from '../../types';
 import { api } from '../../services/api';
@@ -33,7 +34,8 @@ export const PayLoanSheet: React.FC<{
   const [error, setError] = useState<string | null>(null);
 
   const link = amount > 0 ? upiPayLink(config.company, amount, `${customerName} ${loan.id}`) : null;
-  const upiId = config.company.upi_id?.trim() || '';
+  // Only when UPI is one of the payment modes in Settings and a UPI ID is filled in.
+  const upiId = upiOffered(config.masters.payment_modes) ? config.company.upi_id?.trim() || '' : '';
 
   if (!upiId) {
     return (
